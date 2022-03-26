@@ -98,6 +98,21 @@ class LinearTransform(Transform):
 		a = numpy.eye(3) + numpy.sin(theta) * w + 2 * (numpy.sin(theta / 2)**2) * w @ w
 		return LinearTransform(a @ self.inner)
 
+	def rotate_euler(self, x: float = 0., y: float = 0., z: float = 0.) -> LinearTransform:
+		"""
+		Rotate by the given Euler angles (in radians). Rotation is performed on the x axis
+		first, then y axis and z axis.
+		"""
+
+		angles = numpy.array([x, y, z])
+		c, s = numpy.cos(angles), numpy.sin(angles)
+		a = numpy.array([
+			[c[1]*c[2], s[0]*s[1]*c[2] - c[0]*s[2], c[0]*s[1]*c[2] + s[0]*s[2]],
+			[c[1]*s[2], s[0]*s[1]*s[2] + c[0]*c[2], c[0]*s[1]*s[2] - s[0]*c[2]],
+			[-s[1],     s[0]*c[1],                  c[0]*c[1]],
+		])
+		return LinearTransform(a @ self.inner)
+
 	def scale(self, x: float = 1., y: float = 1., z: float = 1.) -> LinearTransform:
 		a = numpy.zeros((3, 3))
 		a[numpy.diag_indices(3)] = [x, y, z]
@@ -183,7 +198,7 @@ class AffineTransform(Transform):
 	def inverse(self) -> AffineTransform:
 		linear_inv = LinearTransform(self.inner[:3, :3]).inverse()
 		return linear_inv.compose(AffineTransform().translate(*(linear_inv @ -self._translation())))
-	
+
 	@t.overload
 	def translate(self, x: t.Sequence[float]) -> AffineTransform:
 		...
@@ -203,10 +218,13 @@ class AffineTransform(Transform):
 		return AffineTransform(a)
 
 	def scale(self, x: float = 1., y: float = 1., z: float = 1.) -> AffineTransform:
-		return self.compose(LinearTransform.identity().scale(x, y, z))
+		return self.compose(LinearTransform().scale(x, y, z))
 
 	def rotate(self, v, theta: float) -> AffineTransform:
-		return self.compose(LinearTransform.identity().rotate(v, theta))
+		return self.compose(LinearTransform().rotate(v, theta))
+
+	def rotate_euler(self, x: float = 0., y: float = 0., z: float = 0.) -> AffineTransform:
+		return self.compose(LinearTransform().rotate_euler(x, y, z))
 
 	@t.overload
 	def mirror(self, a: t.Sequence[float]) -> AffineTransform:
@@ -219,7 +237,7 @@ class AffineTransform(Transform):
 	def mirror(self, a: t.Union[float, t.Sequence[float]],
 	           b: t.Optional[float] = None,
 	           c: t.Optional[float] = None) -> AffineTransform:
-		return self.compose(LinearTransform.identity().mirror(a, b, c))  # type: ignore
+		return self.compose(LinearTransform().mirror(a, b, c))  # type: ignore
 
 	def transform(self, points: numpy.ndarray) -> numpy.ndarray:
 		points = numpy.atleast_1d(points)

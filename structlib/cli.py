@@ -6,6 +6,10 @@ import logging
 import click
 
 from . import CoordinateFrame, Structure
+from .transform import LinearTransform, AffineTransform
+
+
+frame_type = click.Choice(('global', 'local', 'frac'), case_sensitive=False)
 
 
 def init_logging(verbose: int = 0):
@@ -82,7 +86,7 @@ def input_xyz(states, file: t.Optional[t.TextIO]):
 @click.option('--y_max', '--y-max', type=float)
 @click.option('--z_min', '--z-min', type=float)
 @click.option('--z_max', '--z-max', type=float)
-@click.option('-f', '--frame', type=click.Choice(('global', 'local', 'frac')), default='global')
+@click.option('-f', '--frame', type=frame_type, default='global')
 @lazy_map
 def trim(state: Structure,
          x_min: t.Optional[float] = None, x_max: t.Optional[float] = None,
@@ -90,6 +94,37 @@ def trim(state: Structure,
          z_min: t.Optional[float] = None, z_max: t.Optional[float] = None,
          frame: CoordinateFrame = 'global'):
     yield state.trim(x_min, x_max, y_min, y_max, z_min, z_max, frame=frame)
+
+
+@cli.command('rotate')
+@click.option('-x', type=float, default=0.)
+@click.option('-y', type=float, default=0.)
+@click.option('-z', type=float, default=0.)
+@click.option('-t', '--theta', type=float)
+@click.option('-f', '--frame', type=frame_type, default='global',
+              help="Frame of reference to transform in")
+@lazy_map
+def rotate(state: Structure,
+           x: float = 0., y: float = 0., z: float = 0.,
+           theta: t.Optional[float] = None,
+           frame: CoordinateFrame = 'global'):
+    if theta is None:
+        transform = LinearTransform().rotate_euler(x, y, z)
+    else:
+        transform = LinearTransform().rotate([x, y, z], theta)
+    yield state.transform_atoms(transform, frame=frame)
+
+
+@cli.command('translate')
+@click.option('-x', type=float, default=0.)
+@click.option('-y', type=float, default=0.)
+@click.option('-z', type=float, default=0.)
+#@click.option('-f', '--frame', type=frame_type, default='global',
+#              help="Frame of reference to transform in")
+@lazy_map
+def translate(state: Structure, x: float = 0., y: float = 0., z: float = 0.,
+              frame: CoordinateFrame = 'global'):
+    yield state.transform(AffineTransform().translate(x, y, z))
 
 
 @cli.command('print')
@@ -124,7 +159,7 @@ def out_mslice(file):
 
 @cli.command('out_xyz')
 @click.argument('file', type=click.Path(allow_dash=True), required=False)
-@click.option('-f', '--frame', type=click.Choice(('global', 'local', 'frac')), default='global',
+@click.option('-f', '--frame', type=frame_type, default='global',
               help="Frame of reference to output coordinates in.")
 @click.option('--ext/--no-ext', default=True, help="Write extended format")
 @click.option('-c', '--comment', type=str)

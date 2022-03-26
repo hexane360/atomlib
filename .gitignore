@@ -18,3 +18,5 @@ __pycache__/
 GPATH
 GRTAGS
 GTAGS
+
+.vscode/
