@@ -25,11 +25,12 @@ class XYZ:
         file = open_file(file, 'r')
 
         try:
+            # TODO be more gracious about whitespace here
             length = int(file.readline())
         except ValueError:
             raise ValueError(f"Error parsing XYZ file: Invalid length") from None
         except IOError as e:
-            raise IOError(f"Error parsing CIF file: {e}") from None
+            raise IOError(f"Error parsing XYZ file: {e}") from None
 
         comment = file.readline().rstrip('\n')
 

@@ -44,3 +44,35 @@ def open_file(f: FileOrPath,
             raise RuntimeError("Error: Provided file not writable.")
 
     return f
+
+
+def miller_4_to_3_vec(a: numpy.ndarray) -> numpy.ndarray:
+    """Convert a vector in 4-axis Miller-Bravais notation to 3-axis Miller notation."""
+    assert a.shape[-1] == 4
+    U, V, T, W = numpy.split(a, 4, axis=-1)
+    assert numpy.allclose(-T, U + V, equal_nan=True)
+    return numpy.stack((2*U + V, 2*V + U, W), axis=-1)
+
+
+def miller_3_to_4_vec(a: numpy.ndarray) -> numpy.ndarray:
+    """Convert a vector in 3-axis Miller notation to 4-axis Miller-Bravais notation."""
+    assert a.shape[-1] == 3
+    u, v, w = numpy.split(a, 3, axis=-1)
+    U = (2*u - v)/3
+    V = (2*v - u)/3
+    return numpy.stack((U, V, -(U + V), w), axis=-1)
+
+
+def miller_4_to_3_plane(a: numpy.ndarray) -> numpy.ndarray:
+    """Convert a plane in 4-axis Miller-Bravais notation to 3-axis Miller notation."""
+    assert a.shape[-1] == 4
+    h, k, i, l = numpy.split(a, 4, axis=-1)
+    assert numpy.allclose(-i, h + k, equal_nan=True)
+    return numpy.stack((h, k, l), axis=-1)
+
+
+def miller_3_to_4_plane(a: numpy.ndarray) -> numpy.ndarray:
+    """Convert a plane in 3-axis Miller notation to 4-axis Miller-Bravais notation."""
+    assert a.shape[-1] == 3
+    h, k, l = numpy.split(a, 3, axis=-1)
+    return numpy.stack((h, k, -(h + k), l), axis=-1)  # type: ignore

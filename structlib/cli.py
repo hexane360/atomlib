@@ -8,7 +8,7 @@ import logging
 
 import click
 
-from . import CoordinateFrame, Structure
+from . import CoordinateFrame, Structure, Selection
 from .transform import LinearTransform, AffineTransform
 
 
@@ -24,6 +24,9 @@ class State:
     """Loop indices"""
     outputted: t.Dict[Path, int] = field(default_factory=dict)
     """Number of files outputted to each nominal pathname."""
+
+    selection: t.Optional[Selection] = None
+    """Atom selection for use in manipulation commands"""
 
     def add_index(self):
         self.indices.append(0)
@@ -124,6 +127,7 @@ def lazy_map(f: t.Callable[t.Concatenate[State, P], t.Iterable[State]]) -> t.Cal
 @click.argument('file', type=click.Path(exists=True, dir_okay=False))
 @lazy_append
 def input(file: str):
+    """Input a crystal structure from `file`. Type will be detected via file extension."""
     yield Structure.from_file(file)
 
 
@@ -131,6 +135,7 @@ def input(file: str):
 @click.argument('file', type=click.File('r'), required=False)
 @lazy_append
 def input_cif(states: t.Iterable[State], file: t.Optional[t.TextIO]):
+    """Input a CIF structure. If `file` is not specified, use stdin."""
     file = sys.stdin if file is None else file
     yield Structure.from_cif(file)
 
@@ -139,6 +144,7 @@ def input_cif(states: t.Iterable[State], file: t.Optional[t.TextIO]):
 @click.argument('file', type=click.File('r'), required=False)
 @lazy_append
 def input_xyz(states, file: t.Optional[t.TextIO]):
+    """Input an XYZ structure. If `file` is not specified, use stdin."""
     file = sys.stdin if file is None else file
     yield Structure.from_xyz(file)
 
@@ -147,6 +153,10 @@ def input_xyz(states, file: t.Optional[t.TextIO]):
 @click.argument('n', type=click.IntRange(min=0), required=True)
 @lazy_map
 def loop(state: State, n: int) -> t.Iterable[State]:
+    """
+    Create a loop of `n` structures. Loops may be nested, and 'closed' with collecting
+    functions like 'union'.
+    """
     state.add_index()
     for i in range(n):
         state.indices[-1] = i
@@ -157,6 +167,7 @@ def loop(state: State, n: int) -> t.Iterable[State]:
 @cli.command('union')
 @lazy
 def union(states: t.Iterable[State]) -> t.Iterable[State]:
+    """Combine structures"""
     last_index = None
     collect: t.List[Structure] = []
     state = None
@@ -189,6 +200,11 @@ def trim(state: State,
          y_min: t.Optional[float] = None, y_max: t.Optional[float] = None,
          z_min: t.Optional[float] = None, z_max: t.Optional[float] = None,
          frame: CoordinateFrame = 'global'):
+    """
+    Trim the structure box to the given coordinates.
+    If none are specified, refers to the global (cartesian) coordinate system.
+    Currently, does not update the structure box (but probably should)
+    """
     state.structure = state.structure.trim(x_min, x_max, y_min, y_max, z_min, z_max, frame=frame)
     yield state
 
