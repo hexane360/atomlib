@@ -12,9 +12,11 @@ import numpy
 from .elements import ELEMENTS, ELEMENT_SYMBOLS
 from .cif import CIF
 from .xyz import XYZ
+from .xsf import XSF
 from .transform import AffineTransform, LinearTransform, Transform
 from .util import map_some, split_ndarray, FileOrPath
 from .vec import Vec3
+from .cell import cell_to_ortho, ortho_to_cell
 
 StructureT = t.TypeVar('StructureT', bound='Structure')
 
@@ -31,27 +33,6 @@ coordinates as well as realspace (in angstrom) coordinates.
 """
 
 Selection = pandas.DataFrame
-
-
-def ortho_transform(cell_angle: Vec3, cell_size: t.Optional[Vec3] = None) -> LinearTransform:
-    """Get orthogonalization transform (which turns fractional cell coordinates into real-space coordinates)."""
-    (a, b, c) = cell_size or (1., 1., 1.)
-
-    if numpy.allclose(cell_angle.view(numpy.ndarray), numpy.pi/2.):
-        return LinearTransform().scale(a, b, c)
-
-    (alpha, beta, gamma) = cell_angle
-    alphastar = numpy.cos(beta) * numpy.cos(gamma) - numpy.cos(alpha)
-    alphastar /= numpy.sin(beta) * numpy.sin(gamma)
-    alphastar = numpy.arccos(alphastar)
-
-    # aligns a axis along x
-    # aligns b axis in the x-y plane
-    return LinearTransform(numpy.array([
-        [a,  b * numpy.cos(gamma),  c * numpy.cos(beta)],
-        [0,  b * numpy.sin(gamma), -c * numpy.sin(beta) * numpy.cos(alphastar)],
-        [0,  0,                     c * numpy.sin(beta) * numpy.sin(alphastar)],
-    ]))
 
 
 @dataclass
@@ -73,7 +54,7 @@ class Structure:
     global_transform: AffineTransform = field(default_factory=AffineTransform)
     """Converts local real-space coordinates to global real-space coordinates."""
 
-    ortho: LinearTransform = field(init=False)
+    ortho: LinearTransform = field(default=None)  # type: ignore (fixed in post_init)
     """Orthogonalization transform. Converts fractional coordinates to local real-space coordinates."""
     ortho_inv: LinearTransform = field(init=False)
     """Fractionalization transform. Converts local real-space coordinates to fractional ones."""
@@ -86,7 +67,13 @@ class Structure:
     """Global orthogonalization transform. Converts fractional coordinates to global real-space coordinates."""
 
     def __post_init__(self):
-        self.ortho = ortho_transform(self.cell_angle, self.cell_size)
+        if self.ortho is not None:
+            if self.cell_size is not None:
+                raise ValueError("ortho and cell_size can't both be specified.")
+            (self.cell_angle, self.cell_size) = ortho_to_cell(self.ortho)
+        else:
+            self.ortho = cell_to_ortho(self.cell_angle, self.cell_size)
+
         self.ortho_inv = self.ortho.inverse()
         self.metric = self.ortho.T @ self.ortho
         self.metric_inv = self.metric.inverse()
@@ -140,6 +127,19 @@ class Structure:
                 params['Comment'] = comment
         xyz = XYZ(self.atoms, params=params, comment=comment)
         xyz.write(path)
+
+    @classmethod
+    def from_xsf(cls: t.Type[StructureT], path: t.Union[XSF, FileOrPath]) -> StructureT:
+        if isinstance(path, XSF):
+            xsf = path
+        else:
+            xsf = XSF.from_file(path)
+
+        atoms = xsf.get_atoms().copy()
+        atoms['symbol'] = atoms['atomic_number'].map(lambda i: ELEMENT_SYMBOLS[i])
+        atoms['frac_occupancy'] = 1.0
+
+        return cls(atoms, ortho=xsf.primitive_cell)  # type: ignore
 
     def write_mslice(self, path: t.Union[str, Path, t.TextIO]) -> None:
         raise NotImplementedError()

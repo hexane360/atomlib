@@ -123,30 +123,45 @@ def lazy_map(f: t.Callable[t.Concatenate[State, P], t.Iterable[State]]) -> t.Cal
     return update_wrapper(wrapped, f)
 
 
+file_type = click.Path(exists=True, dir_okay=False, allow_dash=True, path_type=Path)
+file_type_no_stdin = click.Path(exists=True, dir_okay=False, allow_dash=False, path_type=Path)
+out_file_type = click.Path(allow_dash=True, path_type=Path)
+out_file_type_no_stdout = click.Path(allow_dash=False, path_type=Path)
+
+
 @cli.command('in')
-@click.argument('file', type=click.Path(exists=True, dir_okay=False))
+@click.argument('file', type=file_type_no_stdin)
 @lazy_append
-def input(file: str):
+def input(file: Path):
     """Input a crystal structure from `file`. Type will be detected via file extension."""
     yield Structure.from_file(file)
 
 
 @cli.command('in_cif')
-@click.argument('file', type=click.File('r'), required=False)
+@click.argument('file', type=file_type, required=False)
 @lazy_append
-def input_cif(states: t.Iterable[State], file: t.Optional[t.TextIO]):
+def input_cif(file: t.Optional[Path] = None):
     """Input a CIF structure. If `file` is not specified, use stdin."""
-    file = sys.stdin if file is None else file
-    yield Structure.from_cif(file)
+    f = sys.stdin if file is None else file
+    yield Structure.from_cif(f)
 
 
 @cli.command('in_xyz')
-@click.argument('file', type=click.File('r'), required=False)
+@click.argument('file', type=file_type, required=False)
 @lazy_append
-def input_xyz(states, file: t.Optional[t.TextIO]):
+def input_xyz(file: t.Optional[Path] = None):
     """Input an XYZ structure. If `file` is not specified, use stdin."""
-    file = sys.stdin if file is None else file
-    yield Structure.from_xyz(file)
+    f= sys.stdin if file is None else file
+    yield Structure.from_xyz(f)
+
+
+@cli.command('in_xsf')
+@click.argument('file', type=file_type, required=False)
+@lazy_append
+def input_xsf(file: t.Optional[Path] = None):
+    """Input an XSF structure. If `file` is not specified, use stdin."""
+    f = sys.stdin if file is None else file
+    yield Structure.from_xsf(f)
 
 
 @cli.command('loop')
@@ -167,7 +182,7 @@ def loop(state: State, n: int) -> t.Iterable[State]:
 @cli.command('union')
 @lazy
 def union(states: t.Iterable[State]) -> t.Iterable[State]:
-    """Combine structures"""
+    """Combine structures. Symmetry is discarded, but """
     last_index = None
     collect: t.List[Structure] = []
     state = None
@@ -248,23 +263,24 @@ def print_(state: State):
     print(f"index: {tuple(state.indices)}")
     print(f"n_cells: {state.structure.n_cells}")
     print(f"cell_size: {state.structure.cell_size}")
+    print(f"cell_angle: {state.structure.cell_angle}")
     print(state.structure.atoms)
     yield state
 
 
 @cli.command('out')
-@click.argument('file', type=click.Path(allow_dash=False), required=True)
+@click.argument('file', type=out_file_type_no_stdout, required=True)
 @lazy_map
-def out(state: State, file: str):
+def out(state: State, file: Path):
     path = state.deduplicated_output_path(file)
     state.structure.write(path)
     yield state
 
 
 @cli.command('out_mslice')
-@click.argument('file', type=click.Path(allow_dash=True), required=False)
+@click.argument('file', type=out_file_type, required=False)
 @lazy_map
-def out_mslice(state: State, file: t.Optional[str]):
+def out_mslice(state: State, file: t.Optional[Path] = None):
     if file is None or file == '-':
         state.structure.write_mslice(sys.stdout)
     else:
@@ -274,13 +290,13 @@ def out_mslice(state: State, file: t.Optional[str]):
 
 
 @cli.command('out_xyz')
-@click.argument('file', type=click.Path(allow_dash=True), required=False)
+@click.argument('file', type=out_file_type, required=False)
 @click.option('-f', '--frame', type=frame_type, default='global',
               help="Frame of reference to output coordinates in.")
 @click.option('--ext/--no-ext', default=True, help="Write extended format")
 @click.option('-c', '--comment', type=str)
 @lazy_map
-def out_xyz(state: State, file: str, frame: CoordinateFrame = 'global', ext: bool = True, comment: t.Optional[str] = None):
+def out_xyz(state: State, file: t.Optional[Path] = None, frame: CoordinateFrame = 'global', ext: bool = True, comment: t.Optional[str] = None):
     if file is None or file == '-':
         state.structure.write_xyz(sys.stdout, frame=frame, ext=ext, comment=comment)
     else:
