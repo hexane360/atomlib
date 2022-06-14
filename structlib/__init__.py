@@ -14,7 +14,7 @@ from .cif import CIF
 from .xyz import XYZ
 from .xsf import XSF
 from .transform import AffineTransform, LinearTransform, Transform
-from .util import map_some, split_ndarray, FileOrPath
+from .util import map_some, split_arr, FileOrPath
 from .vec import Vec3
 from .cell import cell_to_ortho, ortho_to_cell
 
@@ -176,7 +176,7 @@ class Structure:
 
         pos = self.atom_positions('frac')
         atoms = self.atoms.copy()
-        (atoms['a'], atoms['b'], atoms['c']) = split_ndarray(pos, axis=-1)
+        (atoms['a'], atoms['b'], atoms['c']) = split_arr(pos, axis=-1)
         return replace(self, atoms=atoms)
 
     def discard_symmetry(self: StructureT, translational=True) -> StructureT:
@@ -278,5 +278,5 @@ def _structure_to_positions(df: pandas.DataFrame) -> numpy.ndarray:  # shape: n,
 def _transform_structure(df: pandas.DataFrame, transform: Transform) -> pandas.DataFrame:
 	pos = transform.transform(_structure_to_positions(df))
 	new_df = df.copy()
-	(new_df['x'], new_df['y'], new_df['z']) = split_ndarray(pos, axis=-1)
+	(new_df['x'], new_df['y'], new_df['z']) = split_arr(pos, axis=-1)
 	return new_df
