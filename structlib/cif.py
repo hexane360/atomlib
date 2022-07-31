@@ -1,9 +1,10 @@
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
+from abc import ABC
 from dataclasses import dataclass
 from io import TextIOBase
 from pathlib import Path
+from itertools import repeat
 import operator
 import re
 import typing as t
@@ -29,13 +30,15 @@ class CIF:
         return CifReader(open_file(file, 'r')).parse()
 
     def stack_tags(self, *tags: str, dtype=None) -> NDArray:
-        if not isinstance(dtype, str) and hasattr(dtype, '__iter__'):
+        if dtype is None:
+            dtypes = repeat(None)
+        elif not isinstance(dtype, str) and hasattr(dtype, '__iter__'):
             dtypes = tuple(dtype)
             if len(dtype) != len(tags):
                 raise ValueError(f"dtype list of invalid length")
         else:
             dtypes = (dtype,) * len(tags)
-        
+
         if len(tags) == 0:
             return numpy.array(())
 

@@ -22,8 +22,8 @@ def test_xsf_molecule():
 
     assert xsf.periodicity == 'molecule'
     assert list(xsf.atoms['atomic_number']) == [6, 12, 80]  # type: ignore
-    assert list(xsf.atoms['x']) == approx([0.0, 1.0, 1.0])  # type: ignore
-    assert list(xsf.atoms['y']) == approx([1.0, 1.0, 1.0])  # type: ignore
-    assert list(xsf.atoms['z']) == approx([0.5, 0.5, 0.5])  # type: ignore
+    assert list(xsf.atoms['a']) == approx([0.0, 1.0, 1.0])  # type: ignore
+    assert list(xsf.atoms['b']) == approx([1.0, 1.0, 1.0])  # type: ignore
+    assert list(xsf.atoms['c']) == approx([0.5, 0.5, 0.5])  # type: ignore
 
 # TODO test sandwich sections (BEGIN_* / END_*)

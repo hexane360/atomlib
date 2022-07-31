@@ -66,14 +66,18 @@ class Structure:
     ortho_global: AffineTransform = field(init=False)
     """Global orthogonalization transform. Converts fractional coordinates to global real-space coordinates."""
 
-    def __post_init__(self):
-        if self.ortho is not None:
-            if self.cell_size is not None:
-                raise ValueError("ortho and cell_size can't both be specified.")
-            (self.cell_angle, self.cell_size) = ortho_to_cell(self.ortho)
-        else:
-            self.ortho = cell_to_ortho(self.cell_angle, self.cell_size)
+    _init: bool = False
 
+    def __post_init__(self):
+        if not self._init:
+            if self.ortho is not None:
+                if self.cell_size is not None:
+                    raise ValueError("ortho and cell_size can't both be specified.")
+                (self.cell_angle, self.cell_size) = ortho_to_cell(self.ortho)
+            else:
+                self.ortho = cell_to_ortho(self.cell_angle, self.cell_size)
+
+        self._init = True
         self.ortho_inv = self.ortho.inverse()
         self.metric = self.ortho.T @ self.ortho
         self.metric_inv = self.metric.inverse()
@@ -136,7 +140,7 @@ class Structure:
             xsf = XSF.from_file(path)
 
         atoms = xsf.get_atoms().copy()
-        atoms['symbol'] = atoms['atomic_number'].map(lambda i: ELEMENT_SYMBOLS[i])
+        atoms['symbol'] = atoms['atomic_number'].map(lambda i: ELEMENT_SYMBOLS[i-1])
         atoms['frac_occupancy'] = 1.0
 
         return cls(atoms, ortho=xsf.primitive_cell)  # type: ignore
@@ -152,6 +156,8 @@ class Structure:
             return cls.from_cif(path)
         if ext == '.xyz':
             return cls.from_xyz(path)
+        if ext == '.xsf':
+            return cls.from_xsf(path)
         raise ValueError(f"Unknown file type '{path.suffix}'")
 
     def write(self, path: t.Union[str, Path]) -> None:
@@ -161,6 +167,8 @@ class Structure:
             return self.write_cif(path)
         if ext == '.xyz':
             return self.write_xyz(path)
+        #if ext == '.xsf':
+        #    return self.write_xsf(path)
         raise ValueError(f"Unknown file type '{path.suffix}'")
 
     def transform(self: StructureT, transform: Transform) -> StructureT:
@@ -204,10 +212,10 @@ class Structure:
 
         cell_size = self.cell_size
         if cell_size is not None:
-            cell_size *= self.n_cells
+            cell_size *= self.n_cells  # todo this is broken
 
         new_struct.drop(columns='_n', inplace=True)
-        return replace(self, atoms=new_struct, cell_size=cell_size)
+        return replace(self, atoms=new_struct, cell_size=cell_size, n_cells=Vec3.make((1, 1, 1)))
 
     def repeat(self: StructureT, n_a: int = 1, n_b: int = 1, n_c: int = 1, discard=True) -> StructureT:
         new = replace(self, n_cells=Vec3.make((n_a, n_b, n_c)) * self.n_cells)

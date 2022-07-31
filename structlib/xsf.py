@@ -112,7 +112,7 @@ class XSFParser:
             raise ValueError(f"Expected atom list after keyword 'ATOMS'. Got '{line or 'EOF'}' instead.")
 
         if len(zs) == 0:
-            return pandas.DataFrame({}, columns=['atomic_number', 'x', 'y', 'z'])
+            return pandas.DataFrame({}, columns=['atomic_number', 'a', 'b', 'c'])
 
         coord_lens = list(map(len, coords))
         if not all(l == coord_lens[0] for l in coord_lens[1:]):
@@ -123,7 +123,7 @@ class XSFParser:
         coords = numpy.stack(coords, axis=0)[:, :3]
         (x, y, z) = map(lambda a: a[:, 0], numpy.split(coords, 3, axis=1))
 
-        return pandas.DataFrame({'atomic_number': zs, 'x': x, 'y': y, 'z': z})
+        return pandas.DataFrame({'atomic_number': zs, 'a': x, 'b': y, 'c': z})
 
     def parse_coords(self) -> pandas.DataFrame:
         line = self.next_line()
