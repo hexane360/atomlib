@@ -7,7 +7,7 @@ from .elem import get_elem, get_sym
 
 @pytest.mark.parametrize(('sym', 'elem'), (
     ('Ar', 18),
-    ('Ag', 47),
+    ('  Ag', 47),
     ('nA1+', 11),
     ('Na_test', 11),
 ))
@@ -17,7 +17,7 @@ def test_get_elem(sym: str, elem: int):
 
 
 def test_get_elem_series():
-    sym = polars.Series(('Ar', 'Ag', 'nA1+', 'Na_test'))
+    sym = polars.Series(('Ar', 'Ag', 'nA1+', '  Na_test'))
 
     elem = get_elem(sym)
     print(elem)

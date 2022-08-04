@@ -31,6 +31,11 @@ def open_file(f: FileOrPath,
               mode: t.Union[t.Literal['r'], t.Literal['w']] = 'r',
               newline: t.Optional[str] = None,
               encoding: t.Optional[str] = 'utf-8') -> TextIOBase:
+    """
+    Open the given file for text I/O. If given a path-like, opens it with
+    the specified settings. Otherwise, make an effort to reconfigure
+    the encoding, and check that it is readable/writable as specified.
+    """
     if not isinstance(f, (TextIOBase, t.TextIO)):
         return open(f, mode, newline=newline, encoding=encoding)
 
@@ -49,45 +54,63 @@ def open_file(f: FileOrPath,
     return f
 
 
-def polygon_winding(poly: numpy.ndarray, pt: numpy.ndarray) -> NDArray[numpy.int_]:
+def polygon_winding(poly: numpy.ndarray, pt: t.Optional[numpy.ndarray] = None) -> NDArray[numpy.int_]:
+    """
+    Return the winding number of the given polygon `poly` around the point `pt`.
+    If `pt` is not specified, return the polygon's total winding number (turning number).
+
+    Vectorized. CCW winding is defined as positive.
+    """
     poly = t.cast(NDArray[numpy.floating], numpy.atleast_2d(poly))
+    if poly.dtype == object:
+        raise ValueError("Ragged arrays not supported.")
+
+    if pt is None:
+        # return polygon's total winding number (turning number)
+        poly_next = numpy.roll(poly, -1, axis=-2)
+        # equivalent to the turning number of velocity vectors (difference vectors)
+        # about the origin
+        poly = poly_next - poly
+        pt = numpy.array([0., 0.])
+
     pt = numpy.atleast_1d(pt)[..., None, :]
 
+    # shift the polygon's origin to `pt`.
     poly = poly - pt
     poly_next = numpy.roll(poly, -1, axis=-2)
     (x, y) = split_arr(poly, axis=-1)
     (xn, yn) = split_arr(poly_next, axis=-1)
 
     x_pos = x*(yn - y) - y*(xn - x)  # |p1 cross (p2 - p1)| -> (p2 - p1) to right or left of origin
+    # count up crossings and down crossings
     up_crossing = (y <= 0) & (yn > 0) & (x_pos > 0)
     down_crossing = (y > 0) & (yn <= 0) & (x_pos < 0)
 
-    print(f"y: {y}\nyn: {yn}")
-
-    print(f"up: {up_crossing}")
-    print(f"down: {down_crossing}")
-    print(f"x_pos: {x_pos}")
-
-    return (numpy.sum(up_crossing.astype(int), axis=-1) - numpy.sum(down_crossing.astype(int), axis=-1))
+    # reduce and return
+    return numpy.sum(up_crossing, axis=-1) - numpy.sum(down_crossing, axis=-1)
 
 
 WindingRule = t.Union[t.Literal['nonzero'], t.Literal['evenodd'], t.Literal['positive'], t.Literal['negative']]
 
 
 @t.overload
-def in_polygon(poly: numpy.ndarray, pt: t.Literal[None] = None, rule: WindingRule = 'evenodd') -> t.Callable[[numpy.ndarray], NDArray[numpy.bool_]]:
+def in_polygon(poly: numpy.ndarray, pt: t.Literal[None] = None, *, rule: WindingRule = 'evenodd') -> t.Callable[[numpy.ndarray], NDArray[numpy.bool_]]:
     ...
 
 
 @t.overload
-def in_polygon(poly: numpy.ndarray, pt: numpy.ndarray, rule: WindingRule = 'evenodd') -> NDArray[numpy.bool_]:
+def in_polygon(poly: numpy.ndarray, pt: numpy.ndarray, *, rule: WindingRule = 'evenodd') -> NDArray[numpy.bool_]:
     ...
 
 
-def in_polygon(poly: numpy.ndarray, pt: t.Optional[numpy.ndarray] = None,
+def in_polygon(poly: numpy.ndarray, pt: t.Optional[numpy.ndarray] = None, *,
                rule: WindingRule = 'evenodd') -> t.Union[NDArray[numpy.bool_], t.Callable[[numpy.ndarray], NDArray[numpy.bool_]]]:
+    """
+    Return whether `pt` is in `poly`, under the given winding rule.
+    In the one-argument form, return a closure which tests `poly` for the given point.
+    """
     if pt is None:
-        return lambda pt: in_polygon(poly, pt, rule)
+        return lambda pt: in_polygon(poly, pt, rule=rule)
     winding = polygon_winding(poly, pt)
 
     if rule == 'nonzero':
@@ -129,9 +152,6 @@ def miller_4_to_3_vec(a: numpy.ndarray, reduce: bool = True, max_denom: int = 10
     assert a.shape[-1] == 4
     U, V, T, W = numpy.split(a, 4, axis=-1)
     assert numpy.allclose(-T, U + V, equal_nan=True)
-    u = 2*U + V
-    v = 2*V + U
-    w = W
     out = numpy.concatenate((2*U + V, 2*V + U, W), axis=-1)
     return reduce_vec(out, max_denom) if reduce else out
 

@@ -64,10 +64,22 @@ def test_miller_vec(input, output):
      [[0., 0.], [1., 0.], [-1., 0.], [0., 1.], [0., -1.], [-1.5, 0.]], [1, 0, 1, 0, 1, 0]),
     ([[-1, -1.], [1., -1.], [-1., 1.], [1., 1.]],  # hourglass
      [[0., 0.1], [0.2, 0.], [-0.2, 0.], [0.9, 0.95], [0.9, -0.95]], [-1, 0, 0, -1, 1]),
-]
-)
+    ([[-1, -1.], [1., -1.], [1., -1.], [1., 1.], [-1., 1.]], # square w/ duplicate point
+     [[0., 0.], [1., 0.], [-1., 0.], [0., 1.], [0., -1.], [-1.5, 0.]], [1, 0, 1, 0, 1, 0]),
+])
 def test_polygon_winding(poly, pts, windings):
     assert numpy.array_equal(polygon_winding(poly, pts), windings)
+
+
+@pytest.mark.parametrize(['poly', 'turning'], [
+    ([[-1, -1.], [1., -1.], [1., 1.], [-1., 1.]], 1), # square
+    ([[-1, -1.], [1., -1.], [-1., 1.], [1., 1.]], 0), # hourglass
+    ([[-1, -1.], [1., -1.], [1., -1.], [1., 1.], [-1., 1.]], 1), # square w/ duplicate point
+    ([[1., 0.], [-0.809, 0.588], [0.309, -0.951], [.309, 0.951], [-0.809, -0.588]], 2),  # 5-point star
+])
+def test_polygon_turning(poly, turning):
+    assert numpy.array_equal(polygon_winding(poly), turning)
+    assert numpy.array_equal(polygon_winding(numpy.flip(poly, axis=-2)), -turning)
 
 
 def plot_polygon_winding(poly):

@@ -53,7 +53,7 @@ def get_elem(sym: t.Union[str, polars.Series]):
             .apply(lambda e: ELEMENTS[e]) \
             .alias('elem')
 
-    sym_s = _SYM_RE.match(sym)
+    sym_s = _SYM_RE.search(sym)
     if sym_s is None:
         raise ValueError(f"Invalid element symbol '{sym}'")
     return ELEMENTS[sym_s[0].lower()]

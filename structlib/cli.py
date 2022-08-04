@@ -8,7 +8,7 @@ import logging
 
 import click
 
-from . import CoordinateFrame, Structure, Selection
+from . import CoordinateFrame, AtomCollection, AtomSelection
 from .transform import LinearTransform, AffineTransform
 
 
@@ -18,14 +18,14 @@ P = t.ParamSpec('P')
 
 @dataclass
 class State:
-    structure: Structure
+    structure: AtomCollection
     """Current structure"""
     indices: t.List[int] = field(default_factory=list)
     """Loop indices"""
     outputted: t.Dict[Path, int] = field(default_factory=dict)
     """Number of files outputted to each nominal pathname."""
 
-    selection: t.Optional[Selection] = None
+    selection: t.Optional[AtomSelection] = None
     """Atom selection for use in manipulation commands"""
 
     def add_index(self):
@@ -34,7 +34,7 @@ class State:
     def pop_index(self):
         self.indices.pop()
 
-    def map_struct(self, f: t.Callable[[Structure], Structure]) -> State:
+    def map_struct(self, f: t.Callable[[AtomCollection], AtomCollection]) -> State:
         self.structure = f(self.structure)
         return self
 
