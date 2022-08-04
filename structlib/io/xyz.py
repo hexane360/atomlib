@@ -7,15 +7,16 @@ import logging
 import typing as t
 
 import numpy
+import polars
 import pandas
 
-from .util import open_file, FileOrPath
+from ..util import open_file, FileOrPath
 
-_COMMENT_RE=re.compile(r"(=|\s+|\")")
+_COMMENT_RE = re.compile(r"(=|\s+|\")")
 
 @dataclass
 class XYZ:
-    atoms: pandas.DataFrame
+    atoms: polars.DataFrame
     comment: t.Optional[str] = None
     params: t.Dict[str, str] = field(default_factory=dict)
 
@@ -32,10 +33,12 @@ class XYZ:
         except IOError as e:
             raise IOError(f"Error parsing XYZ file: {e}") from None
 
-        comment = file.readline().rstrip('\n')
+        comment = file.readline().rstrip('\n')  # TODO handle if there's not a gap here
 
-        df: pandas.DataFrame = pandas.read_table(file, sep=r'\s+', header=None,  # type: ignore
-                                                 names=['symbol', 'a', 'b', 'c'])
+        #df = polars.read_csv(file, sep=r' ', has_header=False, new_columns=['symbol', 'x', 'y', 'z'])
+        df = pandas.read_table(file, sep=r'\s+', header=None,  # type: ignore
+                               names=['symbol', 'x', 'y', 'z'])
+        df = polars.from_pandas(df)
 
         if length < len(df):
             warnings.warn(f"Warning: truncating structure of length {len(df)} "
@@ -63,8 +66,15 @@ class XYZ:
             file.write(self.comment or "")
         file.write("\n")
 
-        self.atoms.to_string(file, columns=['symbol', 'a', 'b', 'c'], col_space=[4, 12, 12, 12],
-                             header=False, index=False, justify='left', float_format='{:.8f}'.format)
+        # not my best work
+        col_space = (3, 12, 12, 12)
+        file.writelines(
+            "".join(
+                f"{val:< {space}.8f}" if isinstance(val, float) else f"{val:<{space}}" for (val, space) in zip(row, col_space)
+                ) + '\n' for row in self.atoms.select(('symbol', 'x', 'y', 'z')).rows()
+        )
+        #self.atoms.to_string(file, columns=['symbol', 'x', 'y', 'z'], col_space=[4, 12, 12, 12],
+        #                     header=False, index=False, justify='left', float_format='{:.8f}'.format)
 
     def cell_matrix(self) -> t.Optional[numpy.ndarray]:
         if self.params is None or 'Lattice' not in self.params:

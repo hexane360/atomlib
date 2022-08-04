@@ -6,6 +6,7 @@ import typing as t
 
 import numpy
 from numpy.typing import NDArray
+import polars
 
 
 T = t.TypeVar('T')
@@ -30,12 +31,13 @@ def open_file(f: FileOrPath,
               mode: t.Union[t.Literal['r'], t.Literal['w']] = 'r',
               newline: t.Optional[str] = None,
               encoding: t.Optional[str] = 'utf-8') -> TextIOBase:
-    if isinstance(f, t.TextIO):
-        f = TextIOWrapper(f.buffer, newline=newline, encoding=encoding)
-    if not isinstance(f, TextIOBase):
+    if not isinstance(f, (TextIOBase, t.TextIO)):
         return open(f, mode, newline=newline, encoding=encoding)
+
     if isinstance(f, TextIOWrapper):
         f.reconfigure(newline=newline, encoding=encoding)
+    elif isinstance(f, t.TextIO):
+        f = TextIOWrapper(f.buffer, newline=newline, encoding=encoding)
 
     if mode == 'r':
         if not f.readable():

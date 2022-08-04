@@ -5,9 +5,12 @@ import typing as t
 
 import numpy
 
+from .vec import Vec3, BBox
+
+
 class Transform(ABC):
 	@abstractmethod
-	def transform(self, points: numpy.ndarray) -> numpy.ndarray:
+	def transform(self, points: t.Union[numpy.ndarray, t.Sequence[Vec3]]) -> numpy.ndarray:
 		...
 
 	@staticmethod
@@ -19,7 +22,7 @@ class Transform(ABC):
 	def compose(self, other: Transform) -> Transform:
 		...
 
-	def __call__(self, points: numpy.ndarray) -> numpy.ndarray:
+	def __call__(self, points: t.Union[numpy.ndarray, t.Sequence[Vec3]]) -> numpy.ndarray:
 		return self.transform(points)
 	
 	@t.overload
@@ -28,6 +31,10 @@ class Transform(ABC):
 	
 	@t.overload
 	def __matmul__(self, other: numpy.ndarray) -> numpy.ndarray:
+		...
+
+	@t.overload
+	def __matmul__(self, other: Vec3) -> Vec3:
 		...
 
 	def __matmul__(self, other: t.Union[Transform, numpy.ndarray]) -> t.Union[Transform, numpy.ndarray]:
@@ -140,8 +147,24 @@ class LinearTransform(Transform):
 		else:
 			raise NotImplementedError()
 
-	def transform(self, points: numpy.ndarray) -> numpy.ndarray:
-		return (self.inner @ numpy.atleast_1d(points).T).T
+	@t.overload
+	def transform(self, points: Vec3) -> Vec3:
+		...
+
+	@t.overload
+	def transform(self, points: BBox) -> BBox:
+		...
+	
+	@t.overload
+	def transform(self, points: t.Union[numpy.ndarray, t.Sequence[Vec3]]) -> numpy.ndarray:
+		...
+
+	def transform(self, points: t.Union[numpy.ndarray, t.Sequence[Vec3], Vec3, BBox]):
+		if isinstance(points, BBox):
+			return points.from_pts(self.transform(points.corners()))
+
+		result = (self.inner @ numpy.atleast_1d(points).T).T
+		return result.view(Vec3) if isinstance(points, Vec3) else result
 
 	@t.overload
 	def __matmul__(self, other: LinearTransform) -> LinearTransform:
@@ -156,10 +179,18 @@ class LinearTransform(Transform):
 		...
 
 	@t.overload
-	def __matmul__(self, other: numpy.ndarray) -> numpy.ndarray:
+	def __matmul__(self, other: Vec3) -> Vec3:
 		...
-	
-	def __matmul__(self, other: t.Union[Transform, numpy.ndarray]) -> t.Union[Transform, numpy.ndarray]:
+
+	@t.overload
+	def __matmul__(self, other: BBox) -> BBox:
+		...
+
+	@t.overload
+	def __matmul__(self, other: t.Union[numpy.ndarray, t.Sequence[Vec3]]) -> numpy.ndarray:
+		...
+
+	def __matmul__(self, other: t.Union[Transform, numpy.ndarray, t.Sequence[Vec3], Vec3, BBox]) -> t.Union[Transform, numpy.ndarray, Vec3, BBox]:
 		if isinstance(other, Transform):
 			return self.compose(other)
 		return self.transform(other)
@@ -239,10 +270,26 @@ class AffineTransform(Transform):
 	           c: t.Optional[float] = None) -> AffineTransform:
 		return self.compose(LinearTransform().mirror(a, b, c))  # type: ignore
 
-	def transform(self, points: numpy.ndarray) -> numpy.ndarray:
+	@t.overload
+	def transform(self, points: Vec3) -> Vec3:
+		...
+
+	@t.overload
+	def transform(self, points: BBox) -> BBox:
+		...
+	
+	@t.overload
+	def transform(self, points: t.Union[numpy.ndarray, t.Sequence[Vec3]]) -> numpy.ndarray:
+		...
+
+	def transform(self, points: t.Union[numpy.ndarray, t.Sequence[Vec3], Vec3, BBox]):
+		if isinstance(points, BBox):
+			return points.from_pts(self.transform(points.corners()))
+
 		points = numpy.atleast_1d(points)
 		pts = numpy.concatenate((points, numpy.broadcast_to(1., (*points.shape[:-1], 1))), axis=-1)
-		return (self.inner @ pts.T)[:3].T
+		result = (self.inner @ pts.T)[:3].T
+		return result.view(Vec3) if isinstance(points, Vec3) else result
 
 	@t.overload
 	def compose(self, other: t.Union[LinearTransform, AffineTransform]) -> AffineTransform:
@@ -274,7 +321,19 @@ class AffineTransform(Transform):
 	def __matmul__(self, other: numpy.ndarray) -> numpy.ndarray:
 		...
 
-	def __matmul__(self, other: t.Union[Transform, numpy.ndarray]) -> t.Union[Transform, numpy.ndarray]:
+	@t.overload
+	def __matmul__(self, other: Vec3) -> Vec3:
+		...
+
+	@t.overload
+	def __matmul__(self, other: BBox) -> BBox:
+		...
+
+	@t.overload
+	def __matmul__(self, other: t.Union[numpy.ndarray, t.Sequence[Vec3]]) -> numpy.ndarray:
+		...
+
+	def __matmul__(self, other: t.Union[Transform, numpy.ndarray, t.Sequence[Vec3], Vec3, BBox]):
 		if isinstance(other, Transform):
 			return self.compose(other)
 		return self.transform(other)

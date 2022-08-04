@@ -12,9 +12,9 @@ import typing as t
 import numpy
 from numpy.typing import NDArray
 
-from .transform import AffineTransform
-from .expr import Parser, BinaryOp, BinaryOrUnaryOp, sub
-from .util import open_file, FileOrPath
+from ..transform import AffineTransform
+from ..expr import Parser, BinaryOp, BinaryOrUnaryOp, sub
+from ..util import open_file, FileOrPath
 
 
 Value = t.Union[int, float, str, None]
@@ -150,6 +150,7 @@ def parse_symmetry(s: str) -> AffineTransform:
     axes = [SYMMETRY_PARSER.parse(ax).eval().to_vec() for ax in axes]  # type: ignore
     axes.append(numpy.array([0., 0., 0., 1.]))
     return AffineTransform(numpy.stack(axes, axis=0))
+
 
 class CifReader:
     def __init__(self, file: TextIOBase):

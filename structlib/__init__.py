@@ -1,5 +1,17 @@
 from __future__ import annotations
 
+from .core import AtomFrame, AtomSelection, CoordinateFrame
+from .core import AtomCollection, Cell, PeriodicCell, Lattice
+
+from . import io
+
+__all__ = [
+    'io',
+    'AtomFrame', 'AtomSelection', 'CoordinateFrame',
+    'AtomCollection', 'Cell', 'PeriodicCell', 'Lattice'
+]
+
+"""
 from dataclasses import dataclass, field, replace
 from pathlib import Path
 import logging
@@ -21,7 +33,7 @@ from .cell import cell_to_ortho, ortho_to_cell
 StructureT = t.TypeVar('StructureT', bound='Structure')
 
 CoordinateFrame = t.Union[t.Literal['local'], t.Literal['global'], t.Literal['frac']]
-"""
+\"""
 A coordinate frame to use.
 There are three main coordinate frames:
  - 'crystal', uses crystallographic axes
@@ -30,7 +42,7 @@ There are three main coordinate frames:
 
 In addition, the 'crystal' and 'local' coordinate frames support fractional
 coordinates as well as realspace (in angstrom) coordinates.
-"""
+\"""
 
 Selection = pandas.DataFrame
 
@@ -38,33 +50,33 @@ Selection = pandas.DataFrame
 @dataclass
 class Structure:
     atoms: pandas.DataFrame
-    """Atoms in the unit cell. Stored in local real-space coordinates."""
+    \"""Atoms in the unit cell. Stored in local real-space coordinates.\"""
 
     symmetry_sites: t.List[AffineTransform] = field(default_factory=list)
-    """List of symmetry sites in the unit cell, stored in crystal coordinates. Separate from translational symmetry."""
+    \"""List of symmetry sites in the unit cell, stored in crystal coordinates. Separate from translational symmetry.\"""
 
     cell_size: t.Optional[Vec3] = None
-    """Cell parameters (a, b, c)"""
+    \"""Cell parameters (a, b, c)\"""
     cell_angle: Vec3 = field(default_factory=lambda: numpy.pi/2. * numpy.ones((3,)).view(Vec3))
-    """Cell angles (alpha, beta, gamma)"""
+    \"""Cell angles (alpha, beta, gamma)\"""
 
     n_cells: Vec3 = field(default_factory=lambda: numpy.ones((3,), dtype=int).view(Vec3))
-    """Number of cells (n_a, n_b, n_c)"""
+    \"""Number of cells (n_a, n_b, n_c)\"""
 
     global_transform: AffineTransform = field(default_factory=AffineTransform)
-    """Converts local real-space coordinates to global real-space coordinates."""
+    \"""Converts local real-space coordinates to global real-space coordinates.\"""
 
     ortho: LinearTransform = field(default=None)  # type: ignore (fixed in post_init)
-    """Orthogonalization transform. Converts fractional coordinates to local real-space coordinates."""
+    \"""Orthogonalization transform. Converts fractional coordinates to local real-space coordinates.\"""
     ortho_inv: LinearTransform = field(init=False)
-    """Fractionalization transform. Converts local real-space coordinates to fractional ones."""
+    \"""Fractionalization transform. Converts local real-space coordinates to fractional ones.\"""
     metric: LinearTransform = field(init=False)
-    """Metric tensor. p dot q = p.T @ M @ q forall p, q"""
+    \"""Metric tensor. p dot q = p.T @ M @ q forall p, q\"""
     metric_inv: LinearTransform = field(init=False)
-    """Inverse metric tensor. g dot h = g.T @ M^-1 @ h forall g, h"""
+    \"""Inverse metric tensor. g dot h = g.T @ M^-1 @ h forall g, h\"""
 
     ortho_global: AffineTransform = field(init=False)
-    """Global orthogonalization transform. Converts fractional coordinates to global real-space coordinates."""
+    \"""Global orthogonalization transform. Converts fractional coordinates to global real-space coordinates.\"""
 
     _init: bool = False
 
@@ -288,3 +300,4 @@ def _transform_structure(df: pandas.DataFrame, transform: Transform) -> pandas.D
 	new_df = df.copy()
 	(new_df['x'], new_df['y'], new_df['z']) = split_arr(pos, axis=-1)
 	return new_df
+"""

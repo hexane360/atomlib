@@ -26,7 +26,7 @@ def test_reduce_vec(input, output):
     numpy.testing.assert_array_equal(result, output)
 
     with warnings.catch_warnings():
-        warnings.filterwarnings('ignore', 'invalid value encountered in true_divide')
+        warnings.filterwarnings('ignore', 'invalid value encountered in (true_)?divide')
         factors = input / result
 
     (factors, expected) = map(numpy.array, numpy.broadcast_arrays(factors.T, factors.T[0]))

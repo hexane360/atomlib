@@ -11,10 +11,10 @@ import typing as t
 
 import numpy
 from numpy.typing import NDArray
-import pandas
+import polars
 
-from .transform import LinearTransform
-from .util import open_file, FileOrPath
+from ..transform import LinearTransform
+from ..util import open_file, FileOrPath
 
 Periodicity = t.Union[t.Literal['crystal'], t.Literal['slab'], t.Literal['polymer'], t.Literal['molecule']]
 
@@ -25,11 +25,11 @@ class XSF:
     primitive_cell: t.Optional[LinearTransform] = None
     conventional_cell: t.Optional[LinearTransform] = None
 
-    prim_coords: t.Optional[pandas.DataFrame] = None
-    conv_coords: t.Optional[pandas.DataFrame] = None
-    atoms: t.Optional[pandas.DataFrame] = None
+    prim_coords: t.Optional[polars.DataFrame] = None
+    conv_coords: t.Optional[polars.DataFrame] = None
+    atoms: t.Optional[polars.DataFrame] = None
 
-    def get_atoms(self) -> pandas.DataFrame:
+    def get_atoms(self) -> polars.DataFrame:
         if self.prim_coords is not None:
             return self.prim_coords
         if self.atoms is not None:
@@ -57,6 +57,7 @@ class XSF:
             if self.atoms is None:
                 raise ValueError("'atoms' must be specified for molecules.")
 
+
 class XSFParser:
     def __init__(self, file: TextIOBase):
         self._file: TextIOBase = file
@@ -80,7 +81,7 @@ class XSFParser:
         self._peek_line = None
         return line
 
-    def parse_atoms(self, expected_length: t.Optional[int] = None) -> pandas.DataFrame:
+    def parse_atoms(self, expected_length: t.Optional[int] = None) -> polars.DataFrame:
         zs = []
         coords = []
         words = None
@@ -112,7 +113,7 @@ class XSFParser:
             raise ValueError(f"Expected atom list after keyword 'ATOMS'. Got '{line or 'EOF'}' instead.")
 
         if len(zs) == 0:
-            return pandas.DataFrame({}, columns=['atomic_number', 'a', 'b', 'c'])
+            return polars.DataFrame({}, columns=['elem', 'x', 'y', 'z'])
 
         coord_lens = list(map(len, coords))
         if not all(l == coord_lens[0] for l in coord_lens[1:]):
@@ -123,9 +124,9 @@ class XSFParser:
         coords = numpy.stack(coords, axis=0)[:, :3]
         (x, y, z) = map(lambda a: a[:, 0], numpy.split(coords, 3, axis=1))
 
-        return pandas.DataFrame({'atomic_number': zs, 'a': x, 'b': y, 'c': z})
+        return polars.DataFrame({'elem': zs, 'x': x, 'y': y, 'z': z})
 
-    def parse_coords(self) -> pandas.DataFrame:
+    def parse_coords(self) -> polars.DataFrame:
         line = self.next_line()
         if line is None:
             raise ValueError("Unexpected EOF before atom list")
