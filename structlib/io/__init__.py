@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from io import IOBase
 import typing as t
 
 import polars
@@ -15,20 +16,50 @@ from ..transform import LinearTransform
 from ..elem import get_elem, get_sym
 from ..util import FileOrPath
 
+FileType = t.Union[t.Literal['cif'], t.Literal['xyz'], t.Literal['xsf']]
 
-def read(path: t.Union[str, Path]) -> AtomCollection:
-    path = Path(path)
-    ext = path.suffix.lower()
-    if ext == '.cif':
-        return read_cif(path)
-    if ext == '.xyz':
-        return read_xyz(path)
-    if ext == '.xsf':
-        return read_xsf(path)
-    raise ValueError(f"Unknown file type '{path.suffix}'")
+
+@t.overload
+def read(path: FileOrPath, ty: FileType) -> AtomCollection:
+    ...
+
+@t.overload
+def read(path: t.Union[str, Path], ty: t.Literal[None] = None) -> AtomCollection:
+    ...
+
+def read(path: FileOrPath, ty: t.Optional[FileType] = None) -> AtomCollection:
+    """
+    Read a structure from a file.
+
+    Currently, supported file types are 'cif', 'xyz', and 'xsf'.
+    If no `ty` is specified, it is inferred from the file's extension.
+    """
+    if ty is not None:
+        ty_strip = str(ty).lstrip('.').lower()
+        if ty_strip == 'cif':
+            return read_cif(path)
+        if ty_strip == 'xyz':
+            return read_xyz(path)
+        if ty_strip == 'xsf':
+            return read_xsf(path)
+        raise ValueError(f"Unknown file type '{ty}'")
+
+    if isinstance(path, (t.IO, IOBase)):
+        try:
+            ext = Path(path.name).suffix  # type: ignore
+            if len(ext) == 0:
+                raise AttributeError()
+        except AttributeError:
+            raise TypeError("read() must be passed a file-type when reading an already-open file.") from None
+    else:
+        ext = Path(path).suffix
+
+    return read(path, t.cast(FileType, ext))
 
 
 def read_cif(f: t.Union[FileOrPath, CIF]) -> AtomCollection:
+    """Read a structure from a CIF file."""
+
     if isinstance(f, CIF):
         cif = f
     else:
@@ -56,6 +87,7 @@ def read_cif(f: t.Union[FileOrPath, CIF]) -> AtomCollection:
 
 
 def read_xyz(f: t.Union[FileOrPath, XYZ]) -> AtomCollection:
+    """Read a structure from an XYZ file."""
     if isinstance(f, XYZ):
         xyz = f
     else:
@@ -70,6 +102,7 @@ def read_xyz(f: t.Union[FileOrPath, XYZ]) -> AtomCollection:
 
 
 def read_xsf(f: t.Union[FileOrPath, XSF]) -> AtomCollection:
+    """Read a structure from a XSF file."""
     if isinstance(f, XSF):
         xsf = f
     else:
@@ -81,7 +114,6 @@ def read_xsf(f: t.Union[FileOrPath, XSF]) -> AtomCollection:
     if (primitive_cell := xsf.primitive_cell) is not None:
         return Lattice(atoms, ortho=primitive_cell)
     return Cell(atoms)
-
 
 
 __all__ = [

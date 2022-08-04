@@ -3,6 +3,7 @@ from __future__ import annotations
 import abc
 from dataclasses import dataclass, fields, replace
 import warnings
+from pathlib import Path
 import copy
 import typing as t
 
@@ -12,6 +13,10 @@ import polars
 from .vec import Vec3, BBox
 from .transform import LinearTransform, AffineTransform, Transform
 from .cell import cell_to_ortho, ortho_to_cell
+
+
+if t.TYPE_CHECKING:
+    from .io import CIF, XYZ, XSF, FileOrPath, FileType
 
 
 CoordinateFrame = t.Union[t.Literal['local'], t.Literal['global'], t.Literal['frac']]
@@ -117,11 +122,44 @@ class AtomCollection(abc.ABC):
 
     __str__ = __repr__
 
+    @t.overload
+    def read(path: FileOrPath, ty: FileType) -> AtomCollection:
+        ...
+
+    @t.overload
+    def read(path: t.Union[str, Path], ty: t.Literal[None] = None) -> AtomCollection:
+        ...
+
+    @staticmethod
+    def read(path, ty=None) -> AtomCollection:
+        """
+        Read a structure from a file.
+
+        Currently, supported file types are 'cif', 'xyz', and 'xsf'.
+        If no `ty` is specified, it is inferred from the file's extension.
+        """
+        return io.read(path, ty)
+
+    @staticmethod
+    def read_cif(f: t.Union[FileOrPath, CIF]) -> AtomCollection:
+        """Read a structure from a CIF file."""
+        return io.read_cif(f)
+
+    @staticmethod
+    def read_xyz(f: t.Union[FileOrPath, XYZ]) -> AtomCollection:
+        """Read a structure from an XYZ file."""
+        return io.read_xyz(f)
+
+    @staticmethod
+    def read_xsf(f: t.Union[FileOrPath, XSF]) -> AtomCollection:
+        """Read a structure from a XSF file."""
+        return io.read_xsf(f)
+
 
 @dataclass(init=False, repr=False)
 class Cell(AtomCollection):
     """
-    Cell of atoms with no known periodicity.
+    Cell of atoms with no known structure or periodicity.
     """
 
     atoms: AtomFrame
@@ -131,17 +169,21 @@ class Cell(AtomCollection):
         self.atoms = AtomFrame(atoms)
 
     def bbox(self) -> BBox:
+        """Get this structure's bounding box."""
         return self.atoms.bbox
 
-    def with_bounds(self, cell_size: Vec3) -> PeriodicCell:
-        return PeriodicCell(self.atoms, cell_size)
+    def with_bounds(self, cell_size: t.Optional[Vec3] = None) -> PeriodicCell:
+        """
+        Return a periodic cell with the given orthogonal cell dimensions.
 
-    def assume_bounds(self) -> PeriodicCell:
-        warnings.warn("Cell boundary unknown. Defaulting to cell BBox")
-        bbox = self.atoms.bbox
+        If cell_size is not specified, it will be assumed (and may be incorrect).
+        """
+        if cell_size is None:
+            warnings.warn("Cell boundary unknown. Defaulting to cell BBox")
+            cell_size = self.atoms.bbox.size
+
         # TODO be careful with the origin here
-        atoms = self.atoms.transform(AffineTransform().translate(*-bbox.min).scale(*1/bbox.size))
-        return PeriodicCell(atoms, bbox.size)
+        return PeriodicCell(self.atoms.transform(AffineTransform().scale(*1/cell_size)), cell_size)
 
     def transform(self, transform: Transform, frame: CoordinateFrame = 'local'):
         self.atoms.transform(transform)
@@ -163,6 +205,7 @@ class PeriodicCell(Cell):
     """
 
     cell_size: Vec3
+    """Cell size (a, b, c)"""
 
     n_cells: Vec3
     """Number of cells (n_a, n_b, n_c)"""
@@ -286,3 +329,11 @@ class Lattice(PeriodicCell):
         if self.is_orthogonal:
             return PeriodicCell(self.atoms, self.cell_size, self.n_cells)
         raise NotImplementedError()
+
+
+from . import io
+
+
+__ALL__ = [
+    'CoordinateFrame', 'AtomFrame', 'IntoAtoms', 'AtomSelection', 'AtomCollection', 'Cell', 'PeriodicCell', 'Lattice',
+]
