@@ -69,9 +69,14 @@ def polygon_winding(poly: numpy.ndarray, pt: t.Optional[numpy.ndarray] = None) -
         # return polygon's total winding number (turning number)
         poly_next = numpy.roll(poly, -1, axis=-2)
         # equivalent to the turning number of velocity vectors (difference vectors)
-        # about the origin
         poly = poly_next - poly
+        # about the origin
         pt = numpy.array([0., 0.])
+
+        # remove points at the origin (duplicate points)
+        zero_pts = (numpy.isclose(poly[..., 0], 0., atol=1e-10) & 
+                    numpy.isclose(poly[..., 1], 0., atol=1e-10))
+        poly = poly[~zero_pts]
 
     pt = numpy.atleast_1d(pt)[..., None, :]
 
