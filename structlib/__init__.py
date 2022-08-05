@@ -1,14 +1,14 @@
 from __future__ import annotations
 
 from .core import AtomFrame, AtomSelection, CoordinateFrame
-from .core import AtomCollection, Cell, PeriodicCell, Lattice
+from .core import AtomCollection, AtomCell, SimpleAtoms
 
 from . import io
 
 __all__ = [
     'io',
     'AtomFrame', 'AtomSelection', 'CoordinateFrame',
-    'AtomCollection', 'Cell', 'PeriodicCell', 'Lattice'
+    'AtomCollection', 'AtomCell', 'SimpleAtoms',
 ]
 
 """

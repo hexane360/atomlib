@@ -4,7 +4,7 @@ import numpy
 import polars
 import pytest
 
-from structlib import AtomCollection, Lattice
+from structlib import AtomCollection, AtomCell
 from structlib.io import *
 
 
@@ -12,7 +12,7 @@ PATH = Path(__file__).absolute().parent
 
 
 def xyz_expected(s: AtomCollection):
-    assert isinstance(s, Lattice)
+    assert isinstance(s, AtomCell)
 
     assert s.cell_angle == pytest.approx([numpy.pi/2] * 3)
     assert s.cell_size == pytest.approx([5.44] * 3)

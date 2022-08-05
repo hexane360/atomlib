@@ -10,7 +10,7 @@ from .cif import CIF
 from .xyz import XYZ
 from .xsf import XSF
 
-from ..core import AtomCollection, AtomFrame, Cell, PeriodicCell, Lattice
+from ..core import AtomCollection, AtomFrame, SimpleAtoms, AtomCell
 from ..vec import Vec3
 from ..transform import LinearTransform
 from ..elem import get_elem, get_sym
@@ -81,9 +81,9 @@ def read_cif(f: t.Union[FileOrPath, CIF]) -> AtomCollection:
         cell_size = Vec3.make(cell_size)
         if (cell_angle := cif.cell_angle()) is not None:
             cell_angle = Vec3.make(cell_angle)
-            return Lattice(atoms, cell_size, cell_angle)
-        return PeriodicCell(atoms, cell_size)
-    return Cell(atoms)
+        cell = AtomCell(atoms, cell_size, cell_angle)
+        return cell.transform_atoms(cell.ortho, 'local')  # transform to real-space coordinates
+    return SimpleAtoms(atoms)
 
 
 def read_xyz(f: t.Union[FileOrPath, XYZ]) -> AtomCollection:
@@ -97,8 +97,8 @@ def read_xyz(f: t.Union[FileOrPath, XYZ]) -> AtomCollection:
     atoms = AtomFrame(df)
 
     if (cell_matrix := xyz.cell_matrix()) is not None:
-        return Lattice(atoms, ortho=LinearTransform(cell_matrix))
-    return Cell(atoms)
+        return AtomCell(atoms, ortho=LinearTransform(cell_matrix))
+    return SimpleAtoms(atoms)
 
 
 def read_xsf(f: t.Union[FileOrPath, XSF]) -> AtomCollection:
@@ -112,8 +112,9 @@ def read_xsf(f: t.Union[FileOrPath, XSF]) -> AtomCollection:
     atoms = atoms.with_column(get_sym(atoms['elem']))
 
     if (primitive_cell := xsf.primitive_cell) is not None:
-        return Lattice(atoms, ortho=primitive_cell)
-    return Cell(atoms)
+        cell = AtomCell(atoms, ortho=primitive_cell)
+        return cell.transform_atoms(cell.ortho, 'local')  # transform to real-space coordinates
+    return SimpleAtoms(atoms)
 
 
 __all__ = [
