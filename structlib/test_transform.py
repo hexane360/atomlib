@@ -62,6 +62,11 @@ def test_affine_transform_compose():
     assert_allclose((AffineTransform.translate([1., 0., 0.]) @ AffineTransform.scale(all=2)) @ pts, expected)
     assert_allclose((LinearTransform.translate([1., 0., 0.]) @ AffineTransform.scale(all=2)) @ pts, expected)
 
+    t = LinearTransform.scale(all=2).translate([1., 0., 0.])
+
+    assert_allclose((t @ t.inverse()).inner, numpy.eye(4))
+    assert_allclose((t.inverse() @ t).inner, numpy.eye(4))
+
 
 @pytest.mark.parametrize('transform', (LinearTransform, AffineTransform, LinearTransform(), AffineTransform()))
 def test_transform_ops(transform: t.Union[AffineTransform, t.Type[AffineTransform]]):

@@ -4,6 +4,8 @@ import typing as t
 
 import polars
 
+from .types import ElemLike
+
 ELEMENTS = {
     'h': 1, 'he': 2, 'li': 3, 'be': 4, 'b': 5, 'c': 6, 'n': 7, 'o': 8,
     'f': 9, 'ne': 10, 'na': 11, 'mg': 12, 'al': 13, 'si': 14, 'p': 15, 's': 16,
@@ -35,28 +37,42 @@ ELEMENT_SYMBOLS = [
 assert len(ELEMENTS) == len(ELEMENT_SYMBOLS)
 
 
-_SYM_RE = re.compile(r'[a-zA-Z]{1,2}')
+_SYM_RE = r'[a-zA-Z]{1,3}'
 
 
 @t.overload
-def get_elem(sym: str) -> int:
+def get_elem(sym: ElemLike) -> int:
     ...
 
 @t.overload
 def get_elem(sym: polars.Series) -> polars.Series:
     ...
 
-def get_elem(sym: t.Union[str, polars.Series]):
+def get_elem(sym: t.Union[int, str, polars.Series]):
+    if isinstance(sym, int):
+        if not 0 < sym < len(ELEMENTS):
+            raise ValueError(f"Invalid element {sym}")
+        return sym
+
     if isinstance(sym, polars.Series):
-        return sym.str.extract(r"[a-zA-Z]{1,2}", 0) \
+        return sym.str.extract(_SYM_RE, 0) \
             .str.to_lowercase() \
             .apply(lambda e: ELEMENTS[e]) \
             .alias('elem')
 
-    sym_s = _SYM_RE.search(sym)
+    sym_s = re.search(_SYM_RE, str(sym))
     if sym_s is None:
         raise ValueError(f"Invalid element symbol '{sym}'")
     return ELEMENTS[sym_s[0].lower()]
+
+
+def get_elems(sym: str) -> t.List[int]:
+    a = [
+        ELEMENTS[match[0].lower()] for match in re.finditer(r'[A-Z][a-z]?', str(sym))
+    ]
+    if len(a) == 0:
+        raise ValueError(f"Unknown compound '{sym}'. Compounds are case-sensitive.")
+    return a
 
 
 @t.overload

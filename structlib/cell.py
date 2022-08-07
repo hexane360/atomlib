@@ -8,35 +8,36 @@ import numpy
 
 from .vec import Vec3
 from .transform import LinearTransform
+from .types import VecLike, to_vec3
 
 
 @t.overload
-def _validate_cell_size(cell_size: Vec3) -> Vec3:
+def _validate_cell_size(cell_size: VecLike) -> Vec3:
     ...
 
 @t.overload
 def _validate_cell_size(cell_size: t.Literal[None]) -> t.Literal[None]:
     ...
 
-def _validate_cell_size(cell_size: t.Optional[Vec3]) -> t.Optional[Vec3]:
+def _validate_cell_size(cell_size: t.Optional[VecLike]) -> t.Optional[Vec3]:
     if cell_size is None:
         return cell_size
-    cell_size = numpy.asanyarray(cell_size).view(Vec3)
+    cell_size = to_vec3(cell_size)
     if (numpy.isclose(cell_size, 0)).any():
         raise ValueError(f"Zero cell dimension: {cell_size}")
     return cell_size
 
 
-def _validate_cell_angle(cell_angle: t.Optional[Vec3]) -> Vec3:
+def _validate_cell_angle(cell_angle: t.Optional[VecLike]) -> Vec3:
     if cell_angle is None:
         return numpy.pi/2. * numpy.ones((3,)).view(Vec3)
-    cell_angle = numpy.asanyarray(cell_angle).view(Vec3)
+    cell_angle = to_vec3(cell_angle)
     if (cell_angle < 0).any() or (cell_angle > numpy.pi).any() or cell_angle.sum() > 2*numpy.pi:
         raise ValueError(f"Invalid cell angle: {cell_angle}")
     return cell_angle.view(Vec3)
 
 
-def cell_to_ortho(cell_size: Vec3, cell_angle: t.Optional[Vec3] = None) -> LinearTransform:
+def cell_to_ortho(cell_size: VecLike, cell_angle: t.Optional[VecLike] = None) -> LinearTransform:
     """Get orthogonalization transform from unit cell parameters (which turns fractional cell coordinates into real-space coordinates)."""
     cell_size = _validate_cell_size(cell_size)
     cell_angle = _validate_cell_angle(cell_angle)

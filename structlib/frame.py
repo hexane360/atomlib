@@ -6,6 +6,7 @@ import numpy
 import polars
 
 from .vec import BBox
+from .elem import get_elem, get_sym
 from .transform import Transform
 
 
@@ -40,8 +41,14 @@ class AtomFrame(polars.DataFrame):
             obj = data.clone()
         else:
             obj = polars.DataFrame(data, columns)
-        obj.__class__ = cls
 
+        missing: t.Tuple[str] = tuple(set(('symbol', 'elem')) - set(obj.columns))  # type: ignore
+        if missing == ('symbol',):
+            obj = obj.with_columns(get_sym(obj['elem']))
+        elif missing == ('elem',):
+            obj = obj.with_columns(get_elem(obj['symbol']))
+
+        obj.__class__ = cls
         return t.cast(AtomFrame, obj)
 
     def __init__(self, data: IntoAtoms, columns: t.Optional[t.Sequence[str]] = None):
@@ -49,9 +56,9 @@ class AtomFrame(polars.DataFrame):
         self._bbox: t.Optional[BBox] = None
 
     def _validate_atoms(self):
-        missing = set(('x', 'y', 'z', 'elem', 'symbol')) - set(self.columns)
+        missing: t.Set[str] = set(('x', 'y', 'z', 'elem', 'symbol')) - set(self.columns)  # type: ignore
         if len(missing):
-            raise ValueError(f"'Atoms' missing column(s) {list(missing)}")
+            raise ValueError(f"'Atoms' missing column(s) {', '.join(map(repr, missing))}")
 
     def coords(self) -> numpy.ndarray:
         """Returns a (N, 3) ndarray of atom coordinates."""
@@ -67,11 +74,11 @@ class AtomFrame(polars.DataFrame):
 
     def transform(self, transform: Transform) -> AtomFrame:
         transformed = transform @ self.coords()
-        return self.with_columns((
+        return self.__class__(self.with_columns((
             polars.Series(transformed[:, 0]).alias('x'),
             polars.Series(transformed[:, 1]).alias('y'),
             polars.Series(transformed[:, 2]).alias('z'),
-        ))
+        )))
 
 
 AtomSelection = t.NewType('AtomSelection', polars.Expr)

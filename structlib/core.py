@@ -191,29 +191,32 @@ class AtomCell(AtomCollection):
     def __init__(self, atoms: IntoAtoms, cell_size: Vec3,
                  cell_angle: t.Optional[Vec3] = None, *,
                  n_cells: t.Optional[Vec3] = None,
-                 ortho: t.Literal[None] = None):
+                 ortho: t.Literal[None] = None,
+                 frac: bool = False):
         ...
 
     @t.overload
     def __init__(self, atoms: IntoAtoms, *,
                  n_cells: t.Optional[Vec3] = None,
-                 ortho: LinearTransform):
+                 ortho: LinearTransform,
+                 frac: bool = False):
         ...
 
     def __init__(self, atoms: IntoAtoms,
                  cell_size: t.Optional[Vec3] = None,
                  cell_angle: t.Optional[Vec3] = None, *,
                  n_cells: t.Optional[Vec3] = None,
-                 ortho: t.Optional[LinearTransform] = None):
+                 ortho: t.Optional[LinearTransform] = None,
+                 frac: bool = False,
+                 metric=None):
 
-        object.__setattr__(self, 'atoms', AtomFrame(atoms))
 
         if n_cells is None:
             n_cells = numpy.ones((3,), dtype=int).view(Vec3)
         else:
             n_cells = numpy.broadcast_to(n_cells, (3,)).view(Vec3)
-            if not numpy.issubdtype(self.n_cells.dtype, numpy.integer):
-                raise TypeError(f"n_cells must be an integer dtype. Instead got dtype '{self.n_cells.dtype}'")
+            if not numpy.issubdtype(n_cells.dtype, numpy.integer):
+                raise TypeError(f"n_cells must be an integer dtype. Instead got dtype '{n_cells.dtype}'")
         object.__setattr__(self, 'n_cells', n_cells)
 
         if ortho is not None:
@@ -232,6 +235,12 @@ class AtomCell(AtomCollection):
         object.__setattr__(self, 'cell_size', cell_size)
         object.__setattr__(self, 'cell_angle', cell_angle)
         object.__setattr__(self, 'metric', self.ortho.T @ self.ortho)
+
+        atoms = AtomFrame(atoms)
+        if frac:
+            atoms = atoms.transform(ortho)
+
+        object.__setattr__(self, 'atoms', atoms)
 
     def _str_parts(self) -> t.Iterable[t.Any]:
         return (
@@ -266,7 +275,18 @@ class AtomCell(AtomCollection):
         return self.atoms
 
     def bbox(self) -> BBox:
-        return self.atoms.bbox
+        return self.atoms.bbox | self.cell_bbox('global')
+
+    def cell_corners(self, frame: CoordinateFrame = 'global') -> numpy.ndarray:
+        """Return a (8, 3) ndarray containing the corners of self."""
+        n = [(0., n) for n in self.n_cells]
+        corners = numpy.stack(list(map(numpy.ravel, numpy.meshgrid(*n))), axis=-1)
+        if frame.lower() in ('local', 'global'):
+            return self.ortho @ corners
+        return corners
+
+    def cell_bbox(self, frame: CoordinateFrame = 'global') -> BBox:
+        return BBox.from_pts(self.cell_corners(frame))
 
     def is_orthogonal(self) -> bool:
         return numpy.allclose(self.cell_angle, numpy.pi/2.)
@@ -276,30 +296,32 @@ class AtomCell(AtomCollection):
             return OrthoCell(self.atoms, ortho=self.ortho, n_cells=self.n_cells)
         raise NotImplementedError()
 
-    def repeat(self, n: t.Union[int, t.Tuple[int, int, int]], /, *, explode: bool = False):
+    def repeat(self, n: t.Union[int, t.Tuple[int, int, int]], /, *, explode: bool = False) -> AtomCell:
         """Tile the cell"""
 
         n_cells = (self.n_cells * numpy.broadcast_to(n, 3)).view(Vec3)
-        new = replace(self, n_cells=n_cells)
+        new = self.__class__(self.atoms, ortho=self.ortho, n_cells=n_cells)
         return new.explode() if explode else new
 
-    def explode(self):
+    def explode(self) -> AtomCell:
         """Turn a tiled cell into one large cell, duplicating atoms along the way."""
-        if numpy.prod(self.n_cells) == 1:
-            return
+        if numpy.prod(self.n_cells.view(numpy.ndarray)) == 1:
+            return self
 
         a, b, c = map(numpy.arange, self.n_cells)
-        # Nx3 ndarray of cell offsets
-        cells = numpy.dstack(numpy.meshgrid(a, b, c)).reshape(-1, 3).astype(float)
-        #cell_offsets = self.cell_size * cells
-        offset_frame = polars.DataFrame(cells, columns=('dx', 'dy', 'dz'))
-        df = self.atoms.join(offset_frame, how='cross')
-        df['x'] += df['da']
-        df['x'] += df['db']
-        df['y'] += df['dc']
 
-        ortho = self.ortho @ LinearTransform().scale(a, b, c)  # type: ignore
-        return replace(self, atoms=AtomFrame(df.drop(['dx', 'dy', 'dz'])))
+        # Nx3 ndarray of cell offsets
+        cells = numpy.stack(numpy.meshgrid(a, b, c)).reshape(3, -1).T.astype(float)
+
+        ortho_inv = self.ortho.inverse()
+        atoms = AtomFrame(polars.concat([
+            self.atoms.transform(self.ortho @ AffineTransform.translate(cell) @ ortho_inv)
+            for cell in cells
+        ]))
+
+        ortho = self.ortho @ LinearTransform.scale(self.n_cells)
+        new = self.__class__(atoms, ortho=ortho)
+        return new
 
     def clone(self: AtomCellT) -> AtomCellT:
         return self.__class__(**{field.name: copy.deepcopy(getattr(self, field.name)) for field in fields(self)})

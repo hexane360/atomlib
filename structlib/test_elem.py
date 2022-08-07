@@ -1,8 +1,9 @@
+import typing as t
 
 import pytest
 import polars
 
-from .elem import get_elem, get_sym
+from .elem import get_elem, get_elems, get_sym
 
 
 @pytest.mark.parametrize(('sym', 'elem'), (
@@ -14,6 +15,15 @@ from .elem import get_elem, get_sym
 def test_get_elem(sym: str, elem: int):
     assert get_elem(sym) == elem
     assert get_sym(elem).lower() in sym.lower()
+
+
+@pytest.mark.parametrize(('sym', 'elems'), (
+    ('Ar', [18]),
+    ('Ag+I', [47, 53]),
+    ('AlN', [13, 7]),
+))
+def test_get_elems(sym: str, elems: t.Sequence[int]):
+    assert get_elems(sym) == elems
 
 
 def test_get_elem_series():

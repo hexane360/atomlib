@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from ssl import ALERT_DESCRIPTION_INSUFFICIENT_SECURITY
 import typing as t
 
 import numpy
@@ -132,7 +133,8 @@ class AffineTransform(Transform):
 
 	def inverse(self) -> AffineTransform:
 		linear_inv = LinearTransform(self.inner[:3, :3]).inverse()
-		return linear_inv.compose(AffineTransform.translate(*(linear_inv @ -self._translation())))
+		# first undo translation, then undo linear transformation
+		return linear_inv @ AffineTransform.translate(*-self._translation())
 
 	@t.overload
 	@classmethod
