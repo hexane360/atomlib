@@ -52,6 +52,17 @@ def test_affine_linear_conversion():
     assert_allclose(t.to_linear().inner, a)
 
 
+def test_affine_transform_compose():
+    pts = numpy.array([[0., 0., 0.], [1., 0., 0.], [0., 1., 0.], [1., 1., 0.]])
+
+    expected = numpy.array([[1., 0., 0.], [3., 0., 0.], [1., 2., 0.], [3., 2., 0.]])
+
+    assert_allclose(LinearTransform.scale(all=2).translate([1., 0., 0.]) @ pts, expected)
+    assert_allclose(AffineTransform.scale(all=2).translate([1., 0., 0.]) @ pts, expected)
+    assert_allclose((AffineTransform.translate([1., 0., 0.]) @ AffineTransform.scale(all=2)) @ pts, expected)
+    assert_allclose((LinearTransform.translate([1., 0., 0.]) @ AffineTransform.scale(all=2)) @ pts, expected)
+
+
 @pytest.mark.parametrize('transform', (LinearTransform, AffineTransform, LinearTransform(), AffineTransform()))
 def test_transform_ops(transform: t.Union[AffineTransform, t.Type[AffineTransform]]):
     # rotate
@@ -93,6 +104,14 @@ def test_transform_ops(transform: t.Union[AffineTransform, t.Type[AffineTransfor
         [0., 0., 0.,  1.],
     ]))
 
+    # chaining
+    assert_allclose(transform.scale(2.0, 1.5).rotate([0, 0, 1], numpy.pi/2)
+                    .to_linear().inner, numpy.array([
+        [0.0, -1.5, 0.0],
+        [2.0, 0.0, 0.0],
+        [0.0, 0.0, 1.0],
+    ]), atol=1e-12)
+
 
 def test_transform_apply():
     pts = numpy.array([[0., 0., 0.], [1., 0., 0.], [0., 1., 0.], [1., 1., 0.]])
@@ -126,6 +145,7 @@ def test_transform_compose():
     ])
     assert_allclose(t1.compose(t2).inner, expected, atol=1e-12)
     assert_allclose((t2 @ t1).inner, expected, atol=1e-12)
+    assert_allclose(t1.compose(t2) @ [1, -1, 0.], [1., 2., 0.], atol=1e-12)
 
     # rotate and then scale
     expected = numpy.array([
@@ -135,6 +155,7 @@ def test_transform_compose():
     ])
     assert_allclose(t2.compose(t1).inner, expected, atol=1e-12)
     assert_allclose((t1 @ t2).inner, expected, atol=1e-12)
+    assert_allclose(t2.compose(t1) @ [1, -1, 0.], [2., 1., 0.], atol=1e-12)
 
     affine = AffineTransform().translate([1., 0., 0.])
 

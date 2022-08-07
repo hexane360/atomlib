@@ -6,13 +6,10 @@ import typing as t
 import numpy
 
 from .vec import Vec3, BBox
-
+from .types import VecLike, PtsLike, Num
 
 TransformT = t.TypeVar('TransformT', bound='Transform')
-PtsLike = t.Union[BBox, Vec3, t.Sequence[Vec3], numpy.ndarray]
 PtsT = t.TypeVar('PtsT', bound=PtsLike)
-VecLike = t.Union[t.Sequence[float], t.Sequence[int], Vec3, numpy.ndarray]
-Num = t.Union[float, int]
 NumT = t.TypeVar('NumT', bound=t.Union[float, int])
 P = t.ParamSpec('P')
 T = t.TypeVar('T')
@@ -21,14 +18,25 @@ U = t.TypeVar('U')
 AffineSelf = t.TypeVar('AffineSelf', bound=t.Union['AffineTransform', t.Type['AffineTransform']])
 
 
-def opt_classmethod(func: t.Callable[t.Concatenate[T, P], U]
-) -> t.Callable[t.Concatenate[t.Union[T, t.Type[T]], P], U]:
+class opt_classmethod(classmethod, t.Generic[T, P, U]):
+	"""
+	Method that may be called either on an instance or on the class.
+	If called on the class, a default instance will be constructed.
+	"""
 
-    def inner(cls: t.Union[T, t.Type[T]], *args: P.args, **kwargs: P.kwargs):
-        self = t.cast(T, cls() if isinstance(cls, t.Type) else cls)
-        return func(self, *args, **kwargs)
+	__func__: t.Callable[t.Concatenate[T, P], U]
+	def __init__(self, f: t.Callable[t.Concatenate[T, P], U]):
+		super().__init__(f)
 
-    return inner
+	def __get__(self, obj: t.Optional[T], ty: t.Optional[t.Type[T]] = None) -> t.Callable[P, U]:
+		if obj is None:
+			if ty is None:
+				raise RuntimeError()
+			obj = ty()
+		return t.cast(
+			t.Callable[P, U],
+			super().__get__(obj, obj)  # type: ignore
+		)
 
 
 class Transform(ABC):
@@ -106,9 +114,9 @@ class AffineTransform(Transform):
 	def identity(cls: t.Type[TransformT]) -> TransformT:
 		return cls()
 
-	@staticmethod
-	def from_linear(linear: LinearTransform) -> AffineTransform:
-		return AffineTransform(numpy.block([
+	@classmethod
+	def from_linear(cls, linear: LinearTransform) -> AffineTransform:
+		return cls(numpy.block([
 			[linear.inner, numpy.zeros((3, 1))],
 			[numpy.zeros((1, 3)), 1]
 		]))  # type: ignore
@@ -124,7 +132,7 @@ class AffineTransform(Transform):
 
 	def inverse(self) -> AffineTransform:
 		linear_inv = LinearTransform(self.inner[:3, :3]).inverse()
-		return linear_inv.compose(AffineTransform().translate(*(linear_inv @ -self._translation())))
+		return linear_inv.compose(AffineTransform.translate(*(linear_inv @ -self._translation())))
 
 	@t.overload
 	@classmethod
@@ -136,11 +144,8 @@ class AffineTransform(Transform):
 	def translate(cls, x: Num = 0., y: Num = 0., z: Num = 0.) -> AffineTransform:
 		...
 
-	@classmethod
 	@opt_classmethod
-	def translate(cls, x: t.Union[Num, VecLike] = 0., y: Num = 0., z: Num = 0.) -> AffineTransform:
-		self = cls() if isinstance(cls, type) else cls
-
+	def translate(self, x: t.Union[Num, VecLike] = 0., y: Num = 0., z: Num = 0.) -> AffineTransform:
 		if isinstance(x, t.Sized) and len(x) > 1:
 			if not (y == 0. and z == 0. and len(x) == 3):
 				raise ValueError("translate() must be called with a sequence or three numbers.")
@@ -150,7 +155,7 @@ class AffineTransform(Transform):
 			self = AffineTransform.from_linear(self)
 
 		a = self.inner.copy()
-		a[:, -1] += [x, y, z, 0]
+		a[:3, -1] += [x, y, z]
 		return AffineTransform(a)
 
 	@t.overload
@@ -164,18 +169,16 @@ class AffineTransform(Transform):
 	          all: Num = 1.) -> AffineTransform:
 		...
 
-	@classmethod
-	def scale(cls, x: t.Union[Num, VecLike] = 1., y: Num = 1., z: Num = 1., *,
+	@opt_classmethod
+	def scale(self, x: t.Union[Num, VecLike] = 1., y: Num = 1., z: Num = 1., *,
 	          all: Num = 1.) -> AffineTransform:
-		self = cls() if isinstance(cls, type) else cls
 		return self.compose(LinearTransform().scale(x, y, z, all=all))  # type: ignore
 
-	@classmethod
-	def rotate(cls, v: VecLike, theta: Num) -> AffineTransform:
-		self = cls() if isinstance(cls, type) else cls
+	@opt_classmethod
+	def rotate(self, v: VecLike, theta: Num) -> AffineTransform:
 		return self.compose(LinearTransform().rotate(v, theta))
 
-	@classmethod
+	@opt_classmethod
 	def rotate_euler(cls, x: Num = 0., y: Num = 0., z: Num = 0.) -> AffineTransform:
 		self = cls() if isinstance(cls, type) else cls
 		return self.compose(LinearTransform().rotate_euler(x, y, z))
@@ -190,11 +193,10 @@ class AffineTransform(Transform):
 	def mirror(cls, a: Num, b: Num, c: Num) -> AffineTransform:
 		...
 
-	@classmethod
-	def mirror(cls, a: t.Union[Num, VecLike],
+	@opt_classmethod
+	def mirror(self, a: t.Union[Num, VecLike],
 	           b: t.Optional[Num] = None,
 	           c: t.Optional[Num] = None) -> AffineTransform:
-		self = cls() if isinstance(cls, type) else cls
 		return self.compose(LinearTransform.mirror(a, b, c))  # type: ignore
 
 	@t.overload
@@ -308,11 +310,10 @@ class LinearTransform(AffineTransform):
 	def mirror(cls, a: Num, b: Num, c: Num) -> LinearTransform:
 		...
 
-	@classmethod
-	def mirror(cls, a: t.Union[Num, VecLike],
+	@opt_classmethod
+	def mirror(self, a: t.Union[Num, VecLike],
 	           b: t.Optional[Num] = None,
 	           c: t.Optional[Num] = None) -> LinearTransform:
-		self = cls() if isinstance(cls, type) else cls
 		if isinstance(a, t.Sized):
 			v = numpy.array(numpy.broadcast_to(a, 3), dtype=float)
 			if b is not None or c is not None:
@@ -323,9 +324,8 @@ class LinearTransform(AffineTransform):
 		mirror = numpy.eye(3) - 2 * numpy.outer(v, v)
 		return LinearTransform(mirror @ self.inner)
 
-	@classmethod
-	def rotate(cls, v: VecLike, theta: Num) -> LinearTransform:
-		self = cls() if isinstance(cls, type) else cls
+	@opt_classmethod
+	def rotate(self, v: VecLike, theta: Num) -> LinearTransform:
 		v = numpy.array(numpy.broadcast_to(v, (3,)), dtype=float)
 		v /= numpy.linalg.norm(v)
 
@@ -337,13 +337,12 @@ class LinearTransform(AffineTransform):
 		a = numpy.eye(3) + numpy.sin(theta) * w + 2 * (numpy.sin(theta / 2)**2) * w @ w
 		return LinearTransform(a @ self.inner)
 
-	@classmethod
-	def rotate_euler(cls, x: Num = 0., y: Num = 0., z: Num = 0.) -> LinearTransform:
+	@opt_classmethod
+	def rotate_euler(self, x: Num = 0., y: Num = 0., z: Num = 0.) -> LinearTransform:
 		"""
 		Rotate by the given Euler angles (in radians). Rotation is performed on the x axis
 		first, then y axis and z axis.
 		"""
-		self = cls() if isinstance(cls, type) else cls
 
 		angles = numpy.array([x, y, z], dtype=float)
 		c, s = numpy.cos(angles), numpy.sin(angles)
@@ -365,11 +364,9 @@ class LinearTransform(AffineTransform):
 	          all: Num = 1.) -> LinearTransform:
 		...
 
-	@classmethod
-	def scale(cls, x: t.Union[Num, VecLike] = 1., y: Num = 1., z: Num = 1., *,
+	@opt_classmethod
+	def scale(self, x: t.Union[Num, VecLike] = 1., y: Num = 1., z: Num = 1., *,
 	          all: Num = 1.) -> LinearTransform:
-		self = cls() if isinstance(cls, type) else cls
-
 		if isinstance(x, t.Sized):
 			v = numpy.broadcast_to(x, 3)
 			if y != 1. or z != 1.:
