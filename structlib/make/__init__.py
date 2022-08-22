@@ -5,7 +5,6 @@ Functions to create cells.
 import typing as t
 
 import numpy
-from pandas import DataFrame
 
 
 from ..core import AtomCollection, AtomFrame, AtomCell, SimpleAtoms, IntoAtoms

@@ -63,6 +63,7 @@ def cell_to_ortho(cell_size: VecLike, cell_angle: t.Optional[VecLike] = None) ->
 
 def ortho_to_cell(ortho: LinearTransform) -> t.Tuple[Vec3, Vec3]:
     """Get unit cell parameters (cell_size, cell_angle) from orthogonalization transform."""
+    # TODO suspect
     cell_size = numpy.linalg.norm(ortho.inner, axis=-2).view(Vec3)
     cell_size = _validate_cell_size(cell_size)
     normed = ortho.inner / cell_size

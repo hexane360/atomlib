@@ -11,6 +11,7 @@ import numpy
 import polars
 
 from .vec import Vec3, BBox
+from .types import VecLike, to_vec3
 from .transform import LinearTransform, AffineTransform, Transform
 from .cell import cell_to_ortho, ortho_to_cell
 from .frame import AtomFrame, AtomSelection, IntoAtoms
@@ -18,6 +19,7 @@ from .frame import AtomFrame, AtomSelection, IntoAtoms
 
 if t.TYPE_CHECKING:
     from .io import CIF, XYZ, XSF, FileOrPath, FileType
+    from .io.mslice import MSliceTemplate
 
 
 CoordinateFrame = t.Union[t.Literal['local'], t.Literal['global'], t.Literal['frac']]
@@ -78,12 +80,16 @@ class AtomCollection(abc.ABC):
 
     __str__ = __repr__
 
+    @abc.abstractmethod
+    def __len__(self) -> int:
+        ...
+
     @t.overload
     def read(path: FileOrPath, ty: FileType) -> AtomCollection:
         ...
 
     @t.overload
-    def read(path: t.Union[str, Path], ty: t.Literal[None] = None) -> AtomCollection:
+    def read(path: t.Union[str, Path, t.TextIO], ty: t.Literal[None] = None) -> AtomCollection:
         ...
 
     @staticmethod
@@ -110,6 +116,23 @@ class AtomCollection(abc.ABC):
     def read_xsf(f: t.Union[FileOrPath, XSF]) -> AtomCollection:
         """Read a structure from a XSF file."""
         return io.read_xsf(f)
+
+    @t.overload
+    def write(self, path: FileOrPath, ty: FileType):
+        ...
+
+    @t.overload
+    def write(self, path: t.Union[str, Path, t.TextIO], ty: t.Literal[None] = None):
+        ...
+
+    def write(self, path, ty=None):
+        """
+        Write this structure to a file.
+
+        A file type may be specified using `ty`.
+        If no `ty` is specified, it is inferred from the path's extension.
+        """
+        io.write(self, path, ty)
 
 
 @dataclass(init=False, repr=False, frozen=True)
@@ -161,6 +184,9 @@ class SimpleAtoms(AtomCollection):
     def _str_parts(self) -> t.Iterable[t.Any]:
         return (self.atoms,)
 
+    def __len__(self) -> int:
+        return self.atoms.__len__()
+
 
 @dataclass(init=False, repr=False, frozen=True)
 class AtomCell(AtomCollection):
@@ -188,33 +214,30 @@ class AtomCell(AtomCollection):
     """Metric tensor. p dot q = p.T @ M @ q forall p, q"""
 
     @t.overload
-    def __init__(self, atoms: IntoAtoms, cell_size: Vec3,
-                 cell_angle: t.Optional[Vec3] = None, *,
-                 n_cells: t.Optional[Vec3] = None,
+    def __init__(self, atoms: IntoAtoms, cell_size: VecLike,
+                 cell_angle: t.Optional[VecLike] = None, *,
+                 n_cells: t.Optional[VecLike] = None,
                  ortho: t.Literal[None] = None,
                  frac: bool = False):
         ...
 
     @t.overload
     def __init__(self, atoms: IntoAtoms, *,
-                 n_cells: t.Optional[Vec3] = None,
+                 n_cells: t.Optional[VecLike] = None,
                  ortho: LinearTransform,
                  frac: bool = False):
         ...
 
     def __init__(self, atoms: IntoAtoms,
-                 cell_size: t.Optional[Vec3] = None,
-                 cell_angle: t.Optional[Vec3] = None, *,
-                 n_cells: t.Optional[Vec3] = None,
+                 cell_size: t.Optional[VecLike] = None,
+                 cell_angle: t.Optional[VecLike] = None, *,
+                 n_cells: t.Optional[VecLike] = None,
                  ortho: t.Optional[LinearTransform] = None,
-                 frac: bool = False,
-                 metric=None):
-
-
+                 frac: bool = False):
         if n_cells is None:
-            n_cells = numpy.ones((3,), dtype=int).view(Vec3)
+            n_cells = to_vec3(numpy.ones((3,), dtype=int))
         else:
-            n_cells = numpy.broadcast_to(n_cells, (3,)).view(Vec3)
+            n_cells = to_vec3(n_cells)
             if not numpy.issubdtype(n_cells.dtype, numpy.integer):
                 raise TypeError(f"n_cells must be an integer dtype. Instead got dtype '{n_cells.dtype}'")
         object.__setattr__(self, 'n_cells', n_cells)
@@ -228,8 +251,9 @@ class AtomCell(AtomCollection):
             if cell_size is None:
                 raise ValueError("Crystal: Either 'cell_size' or 'ortho' must be specified.")
 
-            cell_angle = n_cells if n_cells is not None else numpy.full(3, numpy.pi/2.).view(Vec3)
-            ortho = cell_to_ortho(self.cell_size, self.cell_angle)
+            cell_size = to_vec3(cell_size)
+            cell_angle = to_vec3(cell_angle if cell_angle is not None else numpy.full(3, numpy.pi/2.))
+            ortho = cell_to_ortho(cell_size, cell_angle)
 
         object.__setattr__(self, 'ortho', ortho)
         object.__setattr__(self, 'cell_size', cell_size)
@@ -249,6 +273,9 @@ class AtomCell(AtomCollection):
             f"# Cells: {self.n_cells!s}",
             self.atoms,
         )
+
+    def __len__(self) -> int:
+        return self.atoms.__len__()
 
     def transform(self, transform: AffineTransform, frame: CoordinateFrame = 'local') -> AtomCell:
         if isinstance(transform, Transform) and not isinstance(transform, AffineTransform):
@@ -325,6 +352,10 @@ class AtomCell(AtomCollection):
 
     def clone(self: AtomCellT) -> AtomCellT:
         return self.__class__(**{field.name: copy.deepcopy(getattr(self, field.name)) for field in fields(self)})
+
+    def write_mslice(self, f: FileOrPath, template: t.Optional[MSliceTemplate] = None):
+        """Read this structure to an mslice file."""
+        return io.write_mslice(self, f, template)
 
     __mul__ = repeat
 

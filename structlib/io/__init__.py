@@ -9,6 +9,7 @@ import polars
 from .cif import CIF
 from .xyz import XYZ
 from .xsf import XSF
+from .mslice import write_mslice
 
 from ..core import AtomCollection, AtomFrame, SimpleAtoms, AtomCell
 from ..vec import Vec3
@@ -17,44 +18,6 @@ from ..elem import get_elem, get_sym
 from ..util import FileOrPath
 
 FileType = t.Union[t.Literal['cif'], t.Literal['xyz'], t.Literal['xsf']]
-
-
-@t.overload
-def read(path: FileOrPath, ty: FileType) -> AtomCollection:
-    ...
-
-@t.overload
-def read(path: t.Union[str, Path], ty: t.Literal[None] = None) -> AtomCollection:
-    ...
-
-def read(path: FileOrPath, ty: t.Optional[FileType] = None) -> AtomCollection:
-    """
-    Read a structure from a file.
-
-    Currently, supported file types are 'cif', 'xyz', and 'xsf'.
-    If no `ty` is specified, it is inferred from the file's extension.
-    """
-    if ty is not None:
-        ty_strip = str(ty).lstrip('.').lower()
-        if ty_strip == 'cif':
-            return read_cif(path)
-        if ty_strip == 'xyz':
-            return read_xyz(path)
-        if ty_strip == 'xsf':
-            return read_xsf(path)
-        raise ValueError(f"Unknown file type '{ty}'")
-
-    if isinstance(path, (t.IO, IOBase)):
-        try:
-            ext = Path(path.name).suffix  # type: ignore
-            if len(ext) == 0:
-                raise AttributeError()
-        except AttributeError:
-            raise TypeError("read() must be passed a file-type when reading an already-open file.") from None
-    else:
-        ext = Path(path).suffix
-
-    return read(path, t.cast(FileType, ext))
 
 
 def read_cif(f: t.Union[FileOrPath, CIF]) -> AtomCollection:
@@ -112,11 +75,88 @@ def read_xsf(f: t.Union[FileOrPath, XSF]) -> AtomCollection:
     atoms = atoms.with_column(get_sym(atoms['elem']))
 
     if (primitive_cell := xsf.primitive_cell) is not None:
-        cell = AtomCell(atoms, ortho=primitive_cell)
-        return cell.transform_atoms(cell.ortho, 'local')  # transform to real-space coordinates
+        return AtomCell(atoms, ortho=primitive_cell)
+        #return cell.transform_atoms(cell.ortho, 'local')  # transform to real-space coordinates
     return SimpleAtoms(atoms)
 
 
+@t.overload
+def read(path: FileOrPath, ty: FileType) -> AtomCollection:
+    ...
+
+@t.overload
+def read(path: t.Union[str, Path, t.TextIO], ty: t.Literal[None] = None) -> AtomCollection:
+    ...
+
+def read(path: FileOrPath, ty: t.Optional[FileType] = None) -> AtomCollection:
+    """
+    Read a structure from a file.
+
+    Currently, supported file types are 'cif', 'xyz', and 'xsf'.
+    If no `ty` is specified, it is inferred from the file's extension.
+    """
+    if ty is not None:
+        ty_strip = str(ty).lstrip('.').lower()
+        if ty_strip == 'cif':
+            return read_cif(path)
+        if ty_strip == 'xyz':
+            return read_xyz(path)
+        if ty_strip == 'xsf':
+            return read_xsf(path)
+        raise ValueError(f"Unknown file type '{ty}'")
+
+    if isinstance(path, (t.IO, IOBase)):
+        try:
+            ext = Path(path.name).suffix  # type: ignore
+            if len(ext) == 0:
+                raise AttributeError()
+        except AttributeError:
+            raise TypeError("read() must be passed a file-type when reading an already-open file.") from None
+    else:
+        ext = Path(path).suffix
+
+    return read(path, t.cast(FileType, ext))
+
+
+@t.overload
+def write(atoms: AtomCollection, path: FileOrPath, ty: FileType):
+    ...
+
+@t.overload
+def write(atoms: AtomCollection, path: t.Union[str, Path, t.TextIO], ty: t.Literal[None] = None):
+    ...
+
+def write(atoms: AtomCollection, path: FileOrPath, ty: t.Optional[FileType] = None):
+    """
+    Write this structure to a file.
+
+    A file type may be specified using `ty`.
+    If no `ty` is specified, it is inferred from the path's extension.
+    """
+
+    if ty is not None:
+        ty_strip = str(ty).lstrip('.').lower()
+        if ty_strip in ('cif', 'xyz', 'xsf'):
+            raise NotImplementedError()
+        if ty_strip == 'mslice':
+            if not isinstance(atoms, AtomCell):
+                raise TypeError("mslice format requires an AtomCell.")
+            return write_mslice(atoms, path)
+        raise ValueError(f"Unknown file type '{ty}'")
+
+    if isinstance(path, (t.IO, IOBase)):
+        try:
+            ext = Path(path.name).suffix  # type: ignore
+            if len(ext) == 0:
+                raise AttributeError()
+        except AttributeError:
+            raise TypeError("read() must be passed a file-type when reading an already-open file.") from None
+    else:
+        ext = Path(path).suffix
+
+    return write(atoms, path, t.cast(FileType, ext))
+
+
 __all__ = [
-    'CIF', 'XYZ', 'XSF', 'read', 'read_cif', 'read_xyz', 'read_xsf',
+    'CIF', 'XYZ', 'XSF', 'read', 'read_cif', 'read_xyz', 'read_xsf', 'write_mslice'
 ]

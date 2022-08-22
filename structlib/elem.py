@@ -37,6 +37,13 @@ ELEMENT_SYMBOLS = [
 assert len(ELEMENTS) == len(ELEMENT_SYMBOLS)
 
 
+def _get_sym(elem: int) -> str:
+    try:
+        return ELEMENT_SYMBOLS[elem-1]
+    except IndexError:
+        raise ValueError(f"Invalid atomic number {elem}") from None
+
+
 _SYM_RE = r'[a-zA-Z]{1,3}'
 
 
@@ -51,7 +58,7 @@ def get_elem(sym: polars.Series) -> polars.Series:
 def get_elem(sym: t.Union[int, str, polars.Series]):
     if isinstance(sym, int):
         if not 0 < sym < len(ELEMENTS):
-            raise ValueError(f"Invalid element {sym}")
+            raise ValueError(f"Invalid atomic number {sym}")
         return sym
 
     if isinstance(sym, polars.Series):
@@ -85,6 +92,6 @@ def get_sym(elem: polars.Series) -> polars.Series:
 
 def get_sym(elem: t.Union[int, polars.Series]):
     if isinstance(elem, polars.Series):
-        return elem.apply(lambda e: ELEMENT_SYMBOLS[e-1]).alias('symbol')
+        return elem.apply(_get_sym).alias('symbol')
 
     return ELEMENT_SYMBOLS[elem-1]

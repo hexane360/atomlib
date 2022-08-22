@@ -3,16 +3,38 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 import warnings
 import re
+import io
 import logging
 import typing as t
 
 import numpy
 import polars
-import pandas
+from polars.exceptions import PanicException
 
-from ..util import open_file, FileOrPath
+from ..util import open_file, open_file_binary, BinaryFileOrPath, FileOrPath
+from ..elem import get_sym, get_elem
 
 _COMMENT_RE = re.compile(r"(=|\s+|\")")
+
+
+class XYZToCSVReader(io.IOBase):
+    def __init__(self, inner: io.IOBase):
+        self.inner = inner
+
+    def read(self, n) -> bytes:
+        buf = self.inner.read(n)
+        buf = re.sub(rb'[ \t]+', rb'\t', buf)
+        return buf
+
+    def seek(self, offset: int, whence: int, /):
+        self.inner.seek(offset, whence)
+
+    def __getattr__(self, name):
+        if name in ('name', 'getvalue'):
+            # don't let polars steal the buffer from us
+            raise AttributeError()
+        return getattr(self.inner, name)
+
 
 @dataclass
 class XYZ:
@@ -21,9 +43,9 @@ class XYZ:
     params: t.Dict[str, str] = field(default_factory=dict)
 
     @staticmethod
-    def from_file(file: FileOrPath) -> XYZ:
+    def from_file(file: BinaryFileOrPath) -> XYZ:
         logging.info(f"Loading XYZ {file.name if hasattr(file, 'name') else file!r}...")  # type: ignore
-        file = open_file(file, 'r')
+        file = open_file_binary(file, 'r')
 
         try:
             # TODO be more gracious about whitespace here
@@ -33,12 +55,25 @@ class XYZ:
         except IOError as e:
             raise IOError(f"Error parsing XYZ file: {e}") from None
 
-        comment = file.readline().rstrip('\n')  # TODO handle if there's not a gap here
+        comment = file.readline().rstrip(b'\n').decode('utf-8')
+        # TODO handle if there's not a gap here
 
-        #df = polars.read_csv(file, sep=r' ', has_header=False, new_columns=['symbol', 'x', 'y', 'z'])
-        df = pandas.read_table(file, sep=r'\s+', header=None,  # type: ignore
-                               names=['symbol', 'x', 'y', 'z'])
-        df = polars.from_pandas(df)
+        file = XYZToCSVReader(file)
+        df = polars.read_csv(file, sep='\t',  # type: ignore
+                             new_columns=['symbol', 'x', 'y', 'z'],
+                             dtype=[polars.Utf8, polars.Float64, polars.Float64, polars.Float64],
+                             has_header=False, use_pyarrow=False)
+        if len(df.columns) > 4:
+            raise ValueError("Error parsing XYZ file: Extra columns in at least one row.")
+
+        try:
+            df = df.with_column(
+                polars.col('symbol')
+                      .cast(polars.UInt8, False).map(get_sym)
+                      .fill_null(polars.col('symbol')))
+        except PanicException:
+            invalid = (polars.col('symbol').cast(polars.UInt8) > 118).first()
+            raise ValueError(f"Invalid atomic number {invalid}") from None
 
         if length < len(df):
             warnings.warn(f"Warning: truncating structure of length {len(df)} "

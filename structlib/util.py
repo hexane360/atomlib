@@ -1,5 +1,5 @@
 
-from io import TextIOBase, TextIOWrapper
+from io import TextIOBase, TextIOWrapper, IOBase, StringIO, BytesIO
 from pathlib import Path
 from fractions import Fraction
 import typing as t
@@ -25,6 +25,7 @@ def split_arr(a: NDArray[ScalarType], axis: int = 0) -> t.Iterator[NDArray[Scala
 
 
 FileOrPath = t.Union[str, Path, TextIOBase, t.TextIO]
+BinaryFileOrPath = t.Union[str, Path, t.TextIO, t.BinaryIO, IOBase]
 
 
 def open_file(f: FileOrPath,
@@ -52,6 +53,38 @@ def open_file(f: FileOrPath,
             raise RuntimeError("Error: Provided file not writable.")
 
     return f
+
+
+def open_file_binary(f: BinaryFileOrPath,
+                     mode: t.Union[t.Literal['r'], t.Literal['w']] = 'r') -> IOBase:
+    """
+    Open the given file for binary I/O. If given a path-like, opens it with
+    the specified settings. If given text I/O, reconfigure to binary.
+    Make sure stream is readable/writable, as specified.
+    """
+    if not isinstance(f, (IOBase, t.BinaryIO, t.TextIO)):
+        return t.cast(IOBase, open(f, mode + 'b'))
+
+    if isinstance(f, (TextIOWrapper, t.TextIO)):
+        try:
+            f = f.buffer
+        except AttributeError:
+            raise ValueError("Error: Couldn't get raw buffer from text file.")
+    elif isinstance(f, StringIO):
+        if mode == 'w':
+            raise ValueError("Can't write binary stream to StringIO.")
+        return BytesIO(f.getvalue().encode('utf-8'))
+    elif isinstance(f, TextIOBase):
+        raise ValueError(f"Error: Couldn't get binary stream from text stream of type '{type(f)}'.")
+
+    if mode == 'r':
+        if not f.readable():
+            raise RuntimeError("Error: Provided file not readable.")
+    elif mode == 'w':
+        if not f.writable():
+            raise RuntimeError("Error: Provided file not writable.")
+
+    return t.cast(IOBase, f)
 
 
 def polygon_winding(poly: numpy.ndarray, pt: t.Optional[numpy.ndarray] = None) -> NDArray[numpy.int_]:
