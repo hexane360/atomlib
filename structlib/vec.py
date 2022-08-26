@@ -58,7 +58,7 @@ class Vec3(numpy.ndarray):
     def __truediv__(self, other) -> numpy.ndarray:
         if isinstance(other, numpy.ndarray) and not isinstance(other, Vec3):
             return self.view(numpy.ndarray).__truediv__(other)
-        return super().__truediv__(self).view(Vec3)
+        return super().__truediv__(other).view(Vec3)
 
     @t.overload
     def __rtruediv__(self, other: t.Union[float, int, complex, Vec3]) -> Vec3:
@@ -71,7 +71,7 @@ class Vec3(numpy.ndarray):
     def __rtruediv__(self, other) -> numpy.ndarray:
         if isinstance(other, numpy.ndarray) and not isinstance(other, Vec3):
             return self.view(numpy.ndarray).__rtruediv__(other)
-        return super().__rtruediv__(self).view(Vec3)
+        return super().__rtruediv__(other).view(Vec3)
 
     @t.overload
     def __add__(self, other: t.Union[float, int, complex, Vec3]) -> Vec3:

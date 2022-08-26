@@ -5,7 +5,7 @@ Functions to create cells.
 import typing as t
 
 import numpy
-
+import polars
 
 from ..core import AtomCollection, AtomFrame, AtomCell, SimpleAtoms, IntoAtoms
 from ..transform import LinearTransform
@@ -81,19 +81,68 @@ def wurtzite(elems: t.Union[str, t.Sequence[ElemLike]], a: Num, c: t.Optional[Nu
     if not 0 < d < 0.5:  # type: ignore
         raise ValueError(f"Invalid 'd' parameter: {d}")
 
-    if cell in ('prim', 'conv'):
-        ortho = cell_to_ortho(
-            a * numpy.array([1., 1., c_a]), 
-            numpy.pi * numpy.array([1/2., 1/2., 2/3.])
-        )
-        xs = [2/3, 2/3, 1/3, 1/3]
-        ys = [1/3, 1/3, 2/3, 2/3]
-        zs = [0., 1. - d, 0.5, 0.5 - d]
-        elems *= 2
-    elif cell == 'ortho':
-        raise NotImplementedError()
-    else:
+    if cell not in ('prim', 'conv', 'ortho'):
         raise ValueError(f"Unknown cell type '{cell}'. Expected 'conv', 'prim', or 'ortho'.")
 
+    ortho = cell_to_ortho(
+        a * numpy.array([1., 1., c_a]), 
+        numpy.pi * numpy.array([1/2., 1/2., 2/3.])
+    )
+    xs = [2/3, 2/3, 1/3, 1/3]
+    ys = [1/3, 1/3, 2/3, 2/3]
+    zs = [0., 1. - d, 0.5, 0.5 - d]
+    elems *= 2
+
     frame = AtomFrame(dict(x=xs, y=ys, z=zs, elem=elems))
-    return AtomCell(frame, ortho=ortho, frac=True)
+    atoms = AtomCell(frame, ortho=ortho, frac=True)
+    if cell == 'ortho':
+        return _ortho_hexagonal(atoms)
+    return atoms
+
+
+def graphite(elem: t.Union[str, ElemLike, None] = None, a: t.Optional[Num] = None,
+             c: t.Optional[Num] = None, *, cell: CellType = 'conv'):
+    if elem is None:
+        elem = 6
+    else:
+        elem = get_elem(elem)
+        if elem != 6 and a is None or c is None:
+            raise ValueError("'a' and 'c' must be specified for non-graphite elements.")
+
+    if a is None:
+        a = 2.47
+    if c is None:
+        c = 8.69
+
+    if cell not in ('prim', 'conv', 'ortho'):
+        raise ValueError(f"Unknown cell type '{cell}'. Expected 'conv', 'prim', or 'ortho'.")
+
+    ortho = cell_to_ortho(
+        numpy.array([a, a, c]), 
+        numpy.pi * numpy.array([1/2., 1/2., 2/3.])
+    )
+    xs = [0., 2/3, 0., 1/3]
+    ys = [0., 1/3, 0., 2/3]
+    zs = [0., 0., 1/2, 1/2]
+    elems = [elem] * 4
+
+    frame = AtomFrame(dict(x=xs, y=ys, z=zs, elem=elems))
+    atoms = AtomCell(frame, ortho=ortho, frac=True)
+
+    if cell == 'ortho':
+        return _ortho_hexagonal(atoms)
+    return atoms
+
+
+def _ortho_hexagonal(cell: AtomCell) -> AtomCell:
+    a, _, c = cell.cell_size
+    cell = cell.repeat((2, 2, 1), explode=True)
+    frame = cell.get_atoms('local')
+
+    frame = frame.filter(
+        (polars.col('x') >= 0.) & (polars.col('x') < a)
+    )
+
+    ortho = cell_to_ortho([a, a * numpy.sqrt(3), c])
+
+    return AtomCell(frame, ortho=ortho)

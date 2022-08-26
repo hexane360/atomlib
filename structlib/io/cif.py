@@ -10,6 +10,7 @@ import re
 import typing as t
 
 import numpy
+import polars
 from numpy.typing import NDArray
 
 from ..transform import AffineTransform
@@ -29,7 +30,7 @@ class CIF:
     def from_file(file: FileOrPath) -> t.Iterator[CIF]:
         return CifReader(open_file(file, 'r')).parse()
 
-    def stack_tags(self, *tags: str, dtype=None) -> NDArray:
+    def stack_tags(self, *tags: str, dtype=None, rename: t.Optional[t.Sequence[str]] = None) -> polars.DataFrame:
         if dtype is None:
             dtypes = repeat(None)
         elif not isinstance(dtype, str) and hasattr(dtype, '__iter__'):
@@ -40,7 +41,7 @@ class CIF:
             dtypes = (dtype,) * len(tags)
 
         if len(tags) == 0:
-            return numpy.array(())
+            return polars.DataFrame({})
 
         arrs = []
         for (tag, dtype) in zip(tags, dtypes):
@@ -50,16 +51,19 @@ class CIF:
                 arrs.append(numpy.array(self.data[tag], dtype=dtype))
             except TypeError:
                 raise TypeError(f"Tag '{tag}' of invalid or heterogeneous type.")
-        
+
         l = len(arrs[0])
-        output = numpy.empty(l, dtype=list(zip(tags, map(lambda a: a.dtype, arrs))))
-        for (tag, arr) in zip(tags, arrs):
+        for arr in arrs:
             if not len(arr) == l:
                 raise ValueError(f"Tags of mismatching lengths: {tuple(map(len, arrs))}")
-            output[tag] = arr
-        return output
+
+        df = polars.DataFrame(dict(zip(tags, arrs)))
+        if rename is not None:
+            df.columns = rename
+        return df
 
     def cell_size(self) -> t.Optional[t.Tuple[float, float, float]]:
+        """Return cell size (in angstroms)."""
         try:
             a = float(self['cell_length_a'])  # type: ignore
             b = float(self['cell_length_b'])  # type: ignore
@@ -69,6 +73,7 @@ class CIF:
             return None
 
     def cell_angle(self) -> t.Optional[t.Tuple[float, float, float]]:
+        """Return cell angle (in degrees)."""
         try:
             a = float(self['cell_angle_alpha'])  # type: ignore
             b = float(self['cell_angle_beta'])   # type: ignore

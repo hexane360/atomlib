@@ -8,9 +8,7 @@ import typing as t
 import polars
 
 from ..util import FileOrPath, open_file
-
-if t.TYPE_CHECKING:
-    from ..core import AtomCollection, AtomCell
+from ..core import AtomCollection, AtomCell, OrthoCell
 
 
 MSliceTemplate = t.Union[et.ElementTree, FileOrPath]
@@ -29,6 +27,10 @@ def default_template() -> et.ElementTree:
     with open(DEFAULT_TEMPLATE_PATH, 'r') as f:
         DEFAULT_TEMPLATE = et.parse(f)
     return DEFAULT_TEMPLATE
+
+
+def load_mslice(path: FileOrPath) -> OrthoCell:
+    ...
 
 
 def write_mslice(atoms: AtomCell, path: FileOrPath,

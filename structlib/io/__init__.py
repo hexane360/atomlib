@@ -4,7 +4,7 @@ from pathlib import Path
 from io import IOBase
 import typing as t
 
-import polars
+import numpy
 
 from .cif import CIF
 from .xyz import XYZ
@@ -33,9 +33,11 @@ def read_cif(f: t.Union[FileOrPath, CIF]) -> AtomCollection:
             raise NotImplementedError()
         [cif] = cif
 
-    df = polars.DataFrame(cif.stack_tags('atom_site_fract_x', 'atom_site_fract_y', 'atom_site_fract_z',
-                                         'atom_site_type_symbol', 'atom_site_occupancy'))
-    df.columns = ['x','y','z','symbol','frac_occupancy']
+    print(cif.data)
+
+    df = cif.stack_tags('atom_site_fract_x', 'atom_site_fract_y', 'atom_site_fract_z',
+                        'atom_site_type_symbol', 'atom_site_occupancy',
+                        rename=('x', 'y', 'z', 'symbol', 'frac_occupancy'))
     df = df.with_column(get_elem(df['symbol']))
 
     atoms = AtomFrame(df)
@@ -43,9 +45,8 @@ def read_cif(f: t.Union[FileOrPath, CIF]) -> AtomCollection:
     if (cell_size := cif.cell_size()) is not None:
         cell_size = Vec3.make(cell_size)
         if (cell_angle := cif.cell_angle()) is not None:
-            cell_angle = Vec3.make(cell_angle)
-        cell = AtomCell(atoms, cell_size, cell_angle)
-        return cell.transform_atoms(cell.ortho, 'local')  # transform to real-space coordinates
+            cell_angle = Vec3.make(cell_angle) * numpy.pi/180.
+        return AtomCell(atoms, cell_size, cell_angle, frac=True)
     return SimpleAtoms(atoms)
 
 
