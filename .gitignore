@@ -19,4 +19,8 @@ GPATH
 GRTAGS
 GTAGS
 
+.coverage
+lcov.info
+coverage.xml
+
 .vscode/
