@@ -7,7 +7,7 @@ import polars
 
 from .vec import BBox
 from .elem import get_elem, get_sym
-from .transform import Transform
+from .transform import Transform, IntoTransform
 
 
 IntoAtoms: t.TypeAlias = t.Union[t.Dict[str, t.Sequence[t.Any]], t.Sequence[t.Any], numpy.ndarray, polars.DataFrame]
@@ -72,8 +72,8 @@ class AtomFrame(polars.DataFrame):
 
         return self._bbox
 
-    def transform(self, transform: Transform) -> AtomFrame:
-        transformed = transform @ self.coords()
+    def transform(self, transform: IntoTransform) -> AtomFrame:
+        transformed = Transform.make(transform) @ self.coords()
         return self.__class__(self.with_columns((
             polars.Series(transformed[:, 0]).alias('x'),
             polars.Series(transformed[:, 1]).alias('y'),

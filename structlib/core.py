@@ -12,7 +12,7 @@ import polars
 
 from .vec import Vec3, BBox
 from .types import VecLike, to_vec3
-from .transform import LinearTransform, AffineTransform, Transform
+from .transform import LinearTransform, AffineTransform, Transform, IntoTransform
 from .cell import cell_to_ortho, ortho_to_cell
 from .frame import AtomFrame, AtomSelection, IntoAtoms
 
@@ -51,7 +51,7 @@ class AtomCollection(abc.ABC):
         ...
 
     @abc.abstractmethod
-    def transform_atoms(self: AtomCollectionT, transform: Transform, frame: CoordinateFrame = 'local') -> AtomCollectionT:
+    def transform_atoms(self: AtomCollectionT, transform: IntoTransform, frame: CoordinateFrame = 'local') -> AtomCollectionT:
         """
         Transform atoms by `transform`, in the coordinate frame `frame`.
         Never transforms cell boxes.
@@ -73,6 +73,10 @@ class AtomCollection(abc.ABC):
 
     @abc.abstractmethod
     def _str_parts(self) -> t.Iterable[t.Any]:
+        ...
+
+    @abc.abstractmethod
+    def _replace_atoms(self: AtomCollectionT, atoms: AtomFrame, frame: CoordinateFrame = 'local') -> AtomCollectionT:
         ...
 
     def __repr__(self) -> str:
@@ -164,7 +168,7 @@ class SimpleAtoms(AtomCollection):
         # TODO be careful with the origin here
         return AtomCell(self.atoms, cell_size=cell_size)
 
-    def transform(self, transform: Transform, frame: CoordinateFrame = 'local') -> SimpleAtoms:
+    def transform(self, transform: IntoTransform, frame: CoordinateFrame = 'local') -> SimpleAtoms:
         if frame.lower() == 'frac':
             raise ValueError("Can't use 'frac' coordinate frame when box is unknown.")
 
@@ -177,6 +181,12 @@ class SimpleAtoms(AtomCollection):
             raise ValueError("Can't use 'frac' coordinate frame when box is unknown.")
 
         return self.atoms
+
+    def _replace_atoms(self: AtomCollectionT, atoms: AtomFrame, frame: CoordinateFrame = 'local') -> AtomCollectionT:
+        if frame.lower() == 'frac':
+            raise ValueError("Can't use 'frac' coordinate frame when box is unknown.")
+        
+        return replace(self, frame=atoms)
 
     def clone(self) -> SimpleAtoms:
         return self.__class__(**{field.name: copy.deepcopy(getattr(self, field.name)) for field in fields(self)})
@@ -288,18 +298,65 @@ class AtomCell(AtomCollection):
         ortho = transform.to_linear() @ self.ortho
         return AtomCell(self.atoms.transform(transform), ortho=ortho)
 
-    def transform_atoms(self, transform: Transform, frame: CoordinateFrame = 'local') -> AtomCell:
+    def transform_atoms(self, transform: IntoTransform, frame: CoordinateFrame = 'local') -> AtomCell:
         if frame.lower() == 'frac':
             # coordinate change the transform
-            transform = self.ortho @ transform @ self.ortho.inverse()
+            transform = self.ortho @ Transform.make(transform) @ self.ortho.inverse()
 
         return AtomCell(self.atoms.transform(transform), ortho=self.ortho)
+
+    def crop(self, x_min: float = -numpy.inf, x_max: float = numpy.inf,
+             y_min: float = -numpy.inf, y_max: float = numpy.inf,
+             z_min: float = -numpy.inf, z_max: float = numpy.inf, *,
+             frame: CoordinateFrame = 'local') -> AtomCell:
+        self = self.explode()
+
+        mins = to_vec3([x_min, y_min, z_min])
+        maxs = to_vec3([x_max, y_max, z_max])
+
+        if frame.lower() != 'frac':
+            if not self.is_orthogonal():
+                raise ValueError("Cannot crop a non-orthogonal cell in orthogonal coordinates. Use crop_atoms instead.")
+            [mins, maxs] = self.ortho.inverse().transform([mins, maxs])
+
+        frac_atoms = self.get_atoms('frac')
+        new_atoms = frac_atoms.filter(
+            (polars.col('x') >= mins[0]) & (polars.col('x') <= maxs[0]) &
+            (polars.col('y') >= mins[1]) & (polars.col('y') <= maxs[1]) &
+            (polars.col('z') >= mins[2]) & (polars.col('z') <= maxs[2])
+        )
+        # TODO this is broken for shifted cell minimums
+        new_ortho = LinearTransform(numpy.diag([min(v_max, 1.) for v_max in maxs])).compose(self.ortho)
+        return AtomCell(new_atoms, ortho=new_ortho, frac=True)
+
+    def crop_atoms(self, x_min: float = -numpy.inf, x_max: float = numpy.inf,
+                   y_min: float = -numpy.inf, y_max: float = numpy.inf,
+                   z_min: float = -numpy.inf, z_max: float = numpy.inf, *,
+                   frame: CoordinateFrame = 'local') -> AtomCell:
+        self = self.explode()
+        min = to_vec3([x_min, y_min, z_min])
+        max = to_vec3([x_max, y_max, z_max])
+
+        if frame.lower() == 'frac':
+            [min, max] = self.ortho.transform([min, max])
+
+        new_atoms = self.get_atoms('local').filter(
+            (polars.col('x') >= min[0]) & (polars.col('x') <= max[0]) &
+            (polars.col('y') >= min[1]) & (polars.col('y') <= max[1]) &
+            (polars.col('z') >= min[2]) & (polars.col('z') <= max[2])
+        )
+        return self._replace_atoms(new_atoms, frame='local')
 
     def get_atoms(self, frame: CoordinateFrame = 'local') -> AtomFrame:
         if frame.lower() == 'frac':
             return self.atoms.transform(self.ortho.inverse())
 
         return self.atoms
+
+    def _replace_atoms(self, atoms: AtomFrame, frame: CoordinateFrame = 'local') -> AtomCell:
+        if frame.lower() == 'frac':
+            atoms = atoms.transform(self.ortho)
+        return AtomCell(atoms, n_cells=self.n_cells, ortho=self.ortho)
 
     def bbox(self) -> BBox:
         return self.atoms.bbox | self.cell_bbox('global')

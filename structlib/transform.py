@@ -17,6 +17,7 @@ T = t.TypeVar('T')
 U = t.TypeVar('U')
 
 AffineSelf = t.TypeVar('AffineSelf', bound=t.Union['AffineTransform', t.Type['AffineTransform']])
+IntoTransform = t.Union['Transform', t.Callable[[numpy.ndarray], numpy.ndarray], numpy.ndarray]
 
 
 class opt_classmethod(classmethod, t.Generic[T, P, U]):
@@ -45,6 +46,19 @@ class Transform(ABC):
 	@abstractmethod
 	def identity() -> Transform:
 		...
+
+	@staticmethod
+	def make(data: IntoTransform) -> Transform:
+		if isinstance(data, Transform):
+			return data
+		if not isinstance(data, numpy.ndarray) and hasattr(data, '__call__'):
+			return FuncTransform(data)
+		data = numpy.array(data)
+		if data.shape == (3, 3):
+			return LinearTransform(data)
+		if data.shape == (4, 4):
+			return AffineTransform(data)
+		raise ValueError(f"Transform of invalid shape {data.shape}")
 
 	@abstractmethod
 	def compose(self, other: Transform) -> Transform:
@@ -94,6 +108,42 @@ class Transform(ABC):
 
 	def __rmatmul__(self, other):
 		raise ValueError("Transform must be applied to points, not the other way around.")
+
+
+class FuncTransform(Transform):
+	def __init__(self, f: t.Callable[[numpy.ndarray], numpy.ndarray]):
+		self.f: t.Callable[[numpy.ndarray], numpy.ndarray] = f
+
+	@classmethod
+	def identity(cls) -> FuncTransform:
+		return cls(lambda pts: pts)
+
+	@t.overload
+	def transform(self, points: Vec3) -> Vec3:
+		...
+
+	@t.overload
+	def transform(self, points: BBox) -> BBox:
+		...
+	
+	@t.overload
+	def transform(self, points: t.Union[numpy.ndarray, t.Sequence[Vec3]]) -> numpy.ndarray:
+		...
+
+	def transform(self, points: PtsLike) -> t.Union[numpy.ndarray, BBox]:
+		if isinstance(points, BBox):
+			return points.from_pts(self.transform(points.corners()))
+
+		result = self.f(numpy.atleast_1d(points))
+		return result.view(Vec3) if isinstance(points, Vec3) else result
+
+	def compose(self, other: Transform) -> FuncTransform:
+		return FuncTransform(lambda pts: other.transform(self.f(pts)))
+
+	def _rcompose(self, after: Transform) -> FuncTransform:
+		return FuncTransform(lambda pts: self.f(after.transform(pts)))
+
+	__call__ = transform
 
 
 class AffineTransform(Transform):
@@ -239,6 +289,8 @@ class AffineTransform(Transform):
 			return self.compose(AffineTransform.from_linear(other))
 		if isinstance(other, AffineTransform):
 			return AffineTransform(other.inner @ self.inner)
+		elif hasattr(other, '_rcompose'):
+			return other._rcompose(self)  # type: ignore
 		else:
 			raise NotImplementedError()
 
@@ -381,13 +433,14 @@ class LinearTransform(AffineTransform):
 		return LinearTransform(a @ self.inner)
 	
 	def compose(self, other: TransformT) -> TransformT:
-		if not isinstance(other, Transform):
-			raise TypeError(f"Expected a Transform, got {type(other)}")
 		if isinstance(other, LinearTransform):
 			return other.__class__(other.inner @ self.inner)
 		if isinstance(other, AffineTransform):
 			return AffineTransform.from_linear(self).compose(other)
-
+		if not isinstance(other, Transform):
+			raise TypeError(f"Expected a Transform, got {type(other)}")
+		elif hasattr(other, '_rcompose'):
+			return other._rcompose(self)  # type: ignore
 		raise NotImplementedError()
 
 	@t.overload
@@ -433,6 +486,3 @@ class LinearTransform(AffineTransform):
 		if isinstance(other, Transform):
 			return other.compose(self)
 		return self.transform(other)
-
-
-
