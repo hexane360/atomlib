@@ -19,7 +19,7 @@ from ..transform import LinearTransform
 from ..elem import get_elem, get_sym
 from ..util import FileOrPath
 
-FileType = t.Union[t.Literal['cif'], t.Literal['xyz'], t.Literal['xsf']]
+FileType = t.Union[t.Literal['cif'], t.Literal['xyz'], t.Literal['xsf'], t.Literal['cfg'], t.Literal['mslice']]
 
 
 def read_cif(f: t.Union[FileOrPath, CIF]) -> AtomCollection:
@@ -90,16 +90,17 @@ def read_cfg(f: t.Union[FileOrPath, CFG]) -> AtomCell:
         cfg = CFG.from_file(f)
 
     ortho = cfg.cell
-    if cfg.eta is not None:
-        ortho = LinearTransform(LinearTransform().inner + 2. * cfg.eta.inner) @ ortho
     if cfg.transform is not None:
         ortho = cfg.transform @ ortho
 
-    # TODO transform velocities to local coordinates?
+    if cfg.eta is not None:
+        m = numpy.eye(3) + 2. * cfg.eta.inner
+        eigenvals, eigenvecs = numpy.linalg.eigh(m)
+        sqrtm = (eigenvecs * numpy.sqrt(eigenvals)) @ eigenvecs.T
+        ortho = LinearTransform(sqrtm) @ ortho
 
-    return AtomCell(
-        AtomFrame(cfg.atoms), ortho=cfg.cell, frac=True
-    )
+    frame = AtomFrame(cfg.atoms).transform(ortho, transform_velocities=True)
+    return AtomCell(frame, ortho=ortho)
 
 
 def write_xsf(atoms: t.Union[AtomCollection, XSF], f: FileOrPath):
@@ -112,6 +113,23 @@ def write_xsf(atoms: t.Union[AtomCollection, XSF], f: FileOrPath):
         xsf = XSF.from_atoms(atoms)
 
     xsf.write(f)
+
+
+_READ_TABLE: t.Mapping[FileType, t.Optional[t.Callable[[FileOrPath], AtomCollection]]] = {
+    'cif': read_cif,
+    'xyz': read_xyz,
+    'xsf': read_xsf,
+    'cfg': read_cfg,
+    'mslice': None
+}
+
+_WRITE_TABLE: t.Mapping[FileType, t.Optional[t.Callable[[AtomCollection, FileOrPath], None]]] = {
+    'cif': None,
+    'xyz': None,
+    'xsf': write_xsf,
+    'cfg': None,
+    'mslice': t.cast(t.Callable[[AtomCollection, FileOrPath], None], write_mslice),
+}
 
 
 @t.overload
@@ -129,29 +147,32 @@ def read(path: FileOrPath, ty: t.Optional[FileType] = None) -> AtomCollection:
     Currently, supported file types are 'cif', 'xyz', and 'xsf'.
     If no `ty` is specified, it is inferred from the file's extension.
     """
-    if ty is not None:
-        ty_strip = str(ty).lstrip('.').lower()
-        if ty_strip == 'cif':
-            return read_cif(path)
-        if ty_strip == 'xyz':
-            return read_xyz(path)
-        if ty_strip == 'xsf':
-            return read_xsf(path)
-        if ty_strip == 'cfg':
-            return read_cfg(path)
-        raise ValueError(f"Unknown file type '{ty}'")
+    if ty is None:
+        if isinstance(path, (t.IO, IOBase)):
+            try:
+                name = path.name  # type: ignore
+                if name is None:
+                    raise AttributeError()
+                ext = Path(name).suffix
+            except AttributeError:
+                raise TypeError("read() must be passed a file-type when reading an already-open file.") from None
+        else:
+            name = Path(path).name
+            ext = Path(path).suffix
 
-    if isinstance(path, (t.IO, IOBase)):
-        try:
-            ext = Path(path.name).suffix  # type: ignore
-            if len(ext) == 0:
-                raise AttributeError()
-        except AttributeError:
-            raise TypeError("read() must be passed a file-type when reading an already-open file.") from None
-    else:
-        ext = Path(path).suffix
+        if len(ext) == 0:
+            raise ValueError(f"Can't infer extension for file '{name}'")
 
-    return read(path, t.cast(FileType, ext))
+        return read(path, t.cast(FileType, ext))
+
+    ty_strip = str(ty).lstrip('.').lower()
+    try:
+        read_fn = _READ_TABLE[t.cast(FileType, ty_strip)]
+    except KeyError:
+        raise ValueError(f"Unknown file type '{ty}'") from None
+    if read_fn is None:
+        raise ValueError(f"Reading is not supported for file type '{ty_strip}'")
+    return read_fn(path)
 
 
 @t.overload
@@ -173,27 +194,30 @@ def write(atoms: AtomCollection, path: FileOrPath, ty: t.Optional[FileType] = No
     if ty is None:
         if isinstance(path, (t.IO, IOBase)):
             try:
-                ext = Path(path.name).suffix  # type: ignore
-                if len(ext) == 0:
+                name = path.name  # type: ignore
+                if name is None:
                     raise AttributeError()
+                ext = Path(name).suffix
             except AttributeError:
-                raise TypeError("read() must be passed a file-type when reading an already-open file.") from None
+                raise TypeError("write() must be passed a file-type when reading an already-open file.") from None
         else:
+            name = Path(path).name
             ext = Path(path).suffix
+
+        if len(ext) == 0:
+            raise ValueError(f"Can't infer extension for file '{name}'")
 
         return write(atoms, path, t.cast(FileType, ext))
 
     ty_strip = str(ty).lstrip('.').lower()
+    try:
+        write_fn = _WRITE_TABLE[t.cast(FileType, ty_strip)]
+    except KeyError:
+        raise ValueError(f"Unknown file type '{ty}'") from None
+    if write_fn is None:
+        raise ValueError(f"Writing is not supported for file type '{ty_strip}'")
 
-    if ty_strip in ('cif', 'xyz', 'cfg'):
-        raise NotImplementedError()
-    if ty_strip == 'xsf':
-        return write_xsf(atoms, path)
-    if ty_strip == 'mslice':
-        if not isinstance(atoms, AtomCell):
-            raise TypeError("mslice format requires an AtomCell.")
-        return write_mslice(atoms, path)
-    raise ValueError(f"Unknown file type '{ty}'")
+    return write_fn(atoms, path)
 
 
 __all__ = [

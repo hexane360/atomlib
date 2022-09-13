@@ -437,6 +437,7 @@ class LinearTransform(AffineTransform):
 
 	@opt_classmethod
 	def rotate(self, v: VecLike, theta: Num) -> LinearTransform:
+		theta = float(theta)
 		v = numpy.array(numpy.broadcast_to(v, (3,)), dtype=float)
 		v /= numpy.linalg.norm(v)
 
@@ -460,26 +461,63 @@ class LinearTransform(AffineTransform):
 		return LinearTransform(a @ self.inner)
 
 	@opt_classmethod
-	def align_to(self, v: VecLike, horz: t.Optional[VecLike] = None) -> LinearTransform:
+	def align(self, v1: VecLike, horz: t.Optional[VecLike] = None) -> LinearTransform:
 		"""
-		Create a transformation which aligns the given vector `v` to 
+		Create a transformation which transforms `v1` to align with [0, 0, 1].
+		If `horz` is specified, it will be aligned in the direction of [1, 0, 0].
 		"""
-		v = numpy.broadcast_to(v, 3)
-		v = v / numpy.linalg.norm(v)
+		v1 = numpy.broadcast_to(v1, 3)
+		v1 = v1 / numpy.linalg.norm(v1)
 		if horz is None:
-			if numpy.isclose(v[0], 1.):
+			if numpy.isclose(v1[0], 1.):
 				# zone is [1., 0., 0.], choose a different direction
 				horz = numpy.array([0., 1., 0.])
 			else:
 				horz = numpy.array([1., 0., 0.])
 		else:
 			horz = numpy.broadcast_to(horz, 3)
-			horz = horz / numpy.linalg.norm(horz)
 
-		# TODO this throws away a lot of precision
-		align = self.rotate_euler(z=-numpy.arctan2(v[1], v[0])) \
-		            .rotate_euler(y=-numpy.arccos(v[2]))
-		return align.rotate_euler(z=-numpy.arcsin(align.transform(horz)[1])).round_near_zero()
+		return self.align_to(v1, [0., 0., 1.], horz, [1., 0., 0.])
+
+	@t.overload
+	def align_to(self, v1: VecLike, v2: VecLike, p1: t.Literal[None] = None, p2: t.Literal[None] = None) -> LinearTransform:
+		...
+
+	@t.overload
+	def align_to(self, v1: VecLike, v2: VecLike, p1: VecLike, p2: VecLike) -> LinearTransform:
+		...
+
+	@opt_classmethod
+	def align_to(self, v1: VecLike, v2: VecLike,
+	             p1: t.Optional[VecLike] = None, p2: t.Optional[VecLike] = None) -> LinearTransform:
+		"""
+		Create a transformation which transforms `v1` to align with `v2`.
+		If specified, additionally ensure that `p1` aligns with `p2` in the plane of `v2`.
+		"""
+		v1 = numpy.broadcast_to(v1, 3)
+		v1 = v1 / numpy.linalg.norm(v1)
+		v2 = numpy.broadcast_to(v2, 3)
+		v2 = v2 / numpy.linalg.norm(v2)
+
+		v3 = numpy.cross(v1, v2)
+		# rotate along v1 x v2 (geodesic rotation)
+		aligned = self.rotate(v3, numpy.arcsin(numpy.linalg.norm(v3)))
+
+		if p1 is None and p2 is None:
+			return aligned.round_near_zero()
+		if p1 is None:
+			raise ValueError("If `p1` is specified, `p2` must also be specified.")
+		if p2 is None:
+			raise ValueError("If `p2` is specified, `p1` must also be specified.")
+
+		p1_align = aligned.transform(numpy.broadcast_to(p1, 3))
+		p2 = numpy.broadcast_to(p2, 3)
+		# components perpendicular to v2
+		p2_perp = p2 - v2 * numpy.dot(p2, v2)
+		p1_perp = p1_align - v2 * numpy.dot(p1_align, v2)
+		# now rotate along v2
+		theta = numpy.arctan2(numpy.linalg.norm(numpy.cross(p2_perp, p1_perp)), numpy.dot(p2_perp, p1_perp))
+		return aligned.rotate(v2, -theta).round_near_zero()
 
 	@t.overload
 	@classmethod

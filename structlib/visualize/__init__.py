@@ -170,7 +170,7 @@ def show_atoms_mpl_2d(atoms: AtomCollection, *, fig: t.Optional[Figure] = None,
     coords = frame.coords()
     elem_colors = numpy.array(list(map(get_elem_color, frame['elem']))) / 255.
 
-    transform = LinearTransform.align_to(zone, horz)
+    transform = LinearTransform.align(zone, horz)
     bbox_2d = transform @ atoms.bbox()
     coords_2d = (transform @ coords)[..., :2]
 

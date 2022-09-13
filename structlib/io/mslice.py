@@ -41,6 +41,9 @@ def load_mslice(path: FileOrPath) -> OrthoCell:
 
 def write_mslice(atoms: AtomCell, path: FileOrPath,
                  template: t.Optional[MSliceTemplate] = None):
+
+    if not isinstance(atoms, AtomCell):
+            raise TypeError("mslice format requires an AtomCell.")
     if not atoms.is_orthogonal():
         raise ValueError("AtomCell must be orthogonal.")
 
