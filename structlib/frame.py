@@ -78,12 +78,27 @@ class AtomFrame(polars.DataFrame):
         # TODO find a way to get a view
         return self.select(('x', 'y', 'z')).to_numpy()
 
+    def velocities(self) -> t.Optional[numpy.ndarray]:
+        """Returns a (N, 3) ndarray of atom velocities."""
+        try:
+            return self.select(('v_x', 'v_y', 'v_z')).to_numpy()
+        except polars.NotFoundError:
+            return None
+
     def with_coords(self, pts) -> AtomFrame:
         assert pts.shape == (len(self), 3)
         return self.__class__(self.with_columns((
-            polars.Series(pts[:, 0]).alias('x'),
-            polars.Series(pts[:, 1]).alias('y'),
-            polars.Series(pts[:, 2]).alias('z'),
+            polars.Series(pts[:, 0], dtype=polars.Float64).alias('x'),
+            polars.Series(pts[:, 1], dtype=polars.Float64).alias('y'),
+            polars.Series(pts[:, 2], dtype=polars.Float64).alias('z'),
+        )))
+
+    def with_velocities(self, pts) -> AtomFrame:
+        assert pts.shape == (len(self), 3)
+        return self.__class__(self.with_columns((
+            polars.Series(pts[:, 0], dtype=polars.Float64).alias('v_x'),
+            polars.Series(pts[:, 1], dtype=polars.Float64).alias('v_y'),
+            polars.Series(pts[:, 2], dtype=polars.Float64).alias('v_z'),
         )))
 
     @property
@@ -93,8 +108,14 @@ class AtomFrame(polars.DataFrame):
 
         return self._bbox
 
-    def transform(self, transform: IntoTransform) -> AtomFrame:
-        return self.with_coords(Transform.make(transform) @ self.coords())
+    def transform(self, transform: IntoTransform, transform_velocities: bool = False) -> AtomFrame:
+        transform = Transform.make(transform)
+        transformed = self.with_coords(Transform.make(transform) @ self.coords())
+        # try to transform velocities as well
+        if transform_velocities and (velocities := self.velocities()) is not None:
+            return transformed.with_velocities(transform.transform_vec(velocities))
+        return transformed
+
 
 
 AtomSelection = t.NewType('AtomSelection', polars.Expr)

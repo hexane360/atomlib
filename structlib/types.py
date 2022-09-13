@@ -9,7 +9,7 @@ VecLike = t.Union[t.Sequence[float], t.Sequence[int], Vec3, numpy.ndarray]
 """3d vector-like"""
 
 PtsLike = t.Union[BBox, Vec3, t.Sequence[Vec3], numpy.ndarray]
-""""""
+"""Sequence of 3d points-like"""
 
 Num = t.Union[float, int]
 """Scalar numeric type"""

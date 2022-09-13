@@ -45,10 +45,12 @@ class Transform(ABC):
 	@staticmethod
 	@abstractmethod
 	def identity() -> Transform:
+		"""Return an identity transformation."""
 		...
 
 	@staticmethod
 	def make(data: IntoTransform) -> Transform:
+		"""Make a transformation from a function or numpy array."""
 		if isinstance(data, Transform):
 			return data
 		if not isinstance(data, numpy.ndarray) and hasattr(data, '__call__'):
@@ -62,6 +64,7 @@ class Transform(ABC):
 
 	@abstractmethod
 	def compose(self, other: Transform) -> Transform:
+		"""Compose this transformation with another."""
 		...
 
 	@t.overload
@@ -81,9 +84,24 @@ class Transform(ABC):
 
 	@abstractmethod
 	def transform(self, points: PtsLike) -> t.Union[Vec3, BBox, numpy.ndarray]:
+		"""Transform points according to the given transformation."""
 		...
 
 	__call__ = transform
+
+	@t.overload
+	def transform_vec(self, vecs: Vec3) -> Vec3:
+		...
+
+	@t.overload
+	def transform_vec(self, vecs: t.Union[numpy.ndarray, t.Sequence[Vec3]]) -> numpy.ndarray:
+		...
+
+	def transform_vec(self, vecs: t.Union[Vec3, numpy.ndarray, t.Sequence[Vec3]]) -> t.Union[Vec3, numpy.ndarray]:
+		"""Transform vector quantities. This excludes translation, as would be expected when transforming vectors."""
+		a = numpy.atleast_1d(vecs)
+		result = self.transform(a) - self.transform(numpy.zeros_like(a))  # type: ignore
+		return result.view(Vec3) if isinstance(vecs, Vec3) else result
 	
 	@t.overload
 	def __matmul__(self, other: Transform) -> Transform:
@@ -102,6 +120,7 @@ class Transform(ABC):
 		...
 
 	def __matmul__(self, other: t.Union[Transform, PtsLike]) -> t.Union[Transform, numpy.ndarray, BBox]:
+		"""Compose this transformation, or apply it to a given set of points."""
 		if isinstance(other, Transform):
 			return other.compose(self)
 		return self.transform(other)
@@ -111,6 +130,8 @@ class Transform(ABC):
 
 
 class FuncTransform(Transform):
+	"""Transformation which applies a function to the given points."""
+
 	def __init__(self, f: t.Callable[[numpy.ndarray], numpy.ndarray]):
 		self.f: t.Callable[[numpy.ndarray], numpy.ndarray] = f
 
@@ -166,27 +187,33 @@ class AffineTransform(Transform):
 		return cls()
 
 	def round_near_zero(self: AffineSelf) -> AffineSelf:
+		"""Round near-zero matrix elements in self."""
 		return type(self)(
 			numpy.where(numpy.abs(self.inner) < 1e-15, 0., self.inner)
 		)
 
-	@classmethod
-	def from_linear(cls, linear: LinearTransform) -> AffineTransform:
-		return cls(numpy.block([
-			[linear.inner, numpy.zeros((3, 1))],
-			[numpy.zeros((1, 3)), 1]
+	@staticmethod
+	def from_linear(linear: LinearTransform) -> AffineTransform:
+		"""Make an affine transformation from a linear transformation."""
+		dtype = linear.inner.dtype
+		return AffineTransform(numpy.block([
+			[linear.inner, numpy.zeros((3, 1), dtype=dtype)],
+			[numpy.zeros((1, 3), dtype=dtype), numpy.ones((), dtype=dtype)]
 		]))  # type: ignore
 
 	def to_linear(self) -> LinearTransform:
+		"""Return the linear part of an affine transformation."""
 		return LinearTransform(self.inner[:3, :3])
 
 	def det(self) -> float:
+		"""Return the determinant of an affine transformation."""
 		return numpy.linalg.det(self.inner[:3, :3])
 
 	def _translation(self) -> numpy.ndarray:
 		return self.inner[:3, -1]
 
 	def inverse(self) -> AffineTransform:
+		"""Return the inverse of an affine transformation."""
 		linear_inv = LinearTransform(self.inner[:3, :3]).inverse()
 		# first undo translation, then undo linear transformation
 		return linear_inv @ AffineTransform.translate(*-self._translation())
@@ -203,6 +230,7 @@ class AffineTransform(Transform):
 
 	@opt_classmethod
 	def translate(self, x: t.Union[Num, VecLike] = 0., y: Num = 0., z: Num = 0.) -> AffineTransform:
+		"""Create or append an affine translation"""
 		if isinstance(x, t.Sized) and len(x) > 1:
 			if not (y == 0. and z == 0. and len(x) == 3):
 				raise ValueError("translate() must be called with a sequence or three numbers.")
@@ -229,16 +257,26 @@ class AffineTransform(Transform):
 	@opt_classmethod
 	def scale(self, x: t.Union[Num, VecLike] = 1., y: Num = 1., z: Num = 1., *,
 	          all: Num = 1.) -> AffineTransform:
-		return self.compose(LinearTransform().scale(x, y, z, all=all))  # type: ignore
+		"""Create or append a scaling transformation"""
+		return self.compose(LinearTransform.scale(x, y, z, all=all))  # type: ignore
 
 	@opt_classmethod
 	def rotate(self, v: VecLike, theta: Num) -> AffineTransform:
-		return self.compose(LinearTransform().rotate(v, theta))
+		"""
+		Create or append a rotation transformation of `theta`
+		radians CCW around the given vector `v`
+		"""
+		return self.compose(LinearTransform.rotate(v, theta))
 
 	@opt_classmethod
 	def rotate_euler(cls, x: Num = 0., y: Num = 0., z: Num = 0.) -> AffineTransform:
+		"""
+		Create or append a Euler rotation transformation.
+		Rotation is performed on the x axis first, then y axis and z axis.
+		Values are specified in radians.
+		"""
 		self = cls() if isinstance(cls, type) else cls
-		return self.compose(LinearTransform().rotate_euler(x, y, z))
+		return self.compose(LinearTransform.rotate_euler(x, y, z))
 
 	@t.overload
 	@classmethod
@@ -254,6 +292,9 @@ class AffineTransform(Transform):
 	def mirror(self, a: t.Union[Num, VecLike],
 	           b: t.Optional[Num] = None,
 	           c: t.Optional[Num] = None) -> AffineTransform:
+		"""
+		Create or append a mirror transformation across the given plane.
+		"""
 		return self.compose(LinearTransform.mirror(a, b, c))  # type: ignore
 
 	@t.overload
@@ -278,6 +319,17 @@ class AffineTransform(Transform):
 		return result.view(Vec3) if isinstance(points, Vec3) else result
 
 	__call__ = transform
+
+	@t.overload
+	def transform_vec(self, vecs: Vec3) -> Vec3:
+		...
+
+	@t.overload
+	def transform_vec(self, vecs: t.Union[numpy.ndarray, t.Sequence[Vec3]]) -> numpy.ndarray:
+		...
+
+	def transform_vec(self, vecs: t.Union[Vec3, numpy.ndarray, t.Sequence[Vec3]]) -> t.Union[Vec3, numpy.ndarray]:
+		return self.to_linear().transform(vecs)
 
 	@t.overload
 	def compose(self, other: AffineTransform) -> AffineTransform:
@@ -398,11 +450,6 @@ class LinearTransform(AffineTransform):
 
 	@opt_classmethod
 	def rotate_euler(self, x: Num = 0., y: Num = 0., z: Num = 0.) -> LinearTransform:
-		"""
-		Rotate by the given Euler angles (in radians). Rotation is performed on the x axis
-		first, then y axis and z axis.
-		"""
-
 		angles = numpy.array([x, y, z], dtype=float)
 		c, s = numpy.cos(angles), numpy.sin(angles)
 		a = numpy.array([
@@ -414,10 +461,21 @@ class LinearTransform(AffineTransform):
 
 	@opt_classmethod
 	def align_to(self, v: VecLike, horz: t.Optional[VecLike] = None) -> LinearTransform:
+		"""
+		Create a transformation which aligns the given vector `v` to 
+		"""
 		v = numpy.broadcast_to(v, 3)
 		v = v / numpy.linalg.norm(v)
-		horz = numpy.broadcast_to(horz if horz is not None else [1., 0., 0.], 3)
-		horz = horz / numpy.linalg.norm(horz)
+		if horz is None:
+			if numpy.isclose(v[0], 1.):
+				# zone is [1., 0., 0.], choose a different direction
+				horz = numpy.array([0., 1., 0.])
+			else:
+				horz = numpy.array([1., 0., 0.])
+		else:
+			horz = numpy.broadcast_to(horz, 3)
+			horz = horz / numpy.linalg.norm(horz)
+
 		# TODO this throws away a lot of precision
 		align = self.rotate_euler(z=-numpy.arctan2(v[1], v[0])) \
 		            .rotate_euler(y=-numpy.arccos(v[2]))

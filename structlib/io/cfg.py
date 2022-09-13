@@ -166,14 +166,17 @@ class CFGParser:
         return (n, value_tags, ndarray_tags)
 
     def parse_value_with_unit(self, value: str) -> t.Tuple[float, t.Optional[str]]:
-        segments = value.split()
+        segments = value.split(maxsplit=1)
         if len(segments) == 1:
             return (float(value), None)
+        value, unit = map(lambda s: s.strip(), segments)
+
+        if (match := re.match(r'\[(.+)\]', unit)):
+            unit = str(match[1])
         else:
-            value, unit = map(lambda s: s.strip(), segments[:2])
-            if (match := re.match(r'\[(.+)\]', unit)):
-                unit = str(match[1])
-            return (float(value), unit)
+            unit = unit.split(maxsplit=1)[0]
+
+        return (float(value), unit)
 
     def parse_atoms(self, n: int) -> polars.DataFrame:
         rows = []
