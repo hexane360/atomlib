@@ -10,6 +10,7 @@ import numpy
 from .cif import CIF
 from .xyz import XYZ
 from .xsf import XSF
+from .cfg import CFG
 from .mslice import write_mslice
 
 from ..core import AtomCollection, AtomFrame, SimpleAtoms, AtomCell
@@ -81,6 +82,26 @@ def read_xsf(f: t.Union[FileOrPath, XSF]) -> AtomCollection:
     return SimpleAtoms(atoms)
 
 
+def read_cfg(f: t.Union[FileOrPath, CFG]) -> AtomCell:
+    """Read a structure from an AtomEye CFG file."""
+    if isinstance(f, CFG):
+        cfg = f
+    else:
+        cfg = CFG.from_file(f)
+
+    ortho = cfg.cell
+    if cfg.eta is not None:
+        ortho = LinearTransform(LinearTransform().inner + 2. * cfg.eta.inner) @ ortho
+    if cfg.transform is not None:
+        ortho = cfg.transform @ ortho
+
+    # TODO transform velocities to local coordinates?
+
+    return AtomCell(
+        AtomFrame(cfg.atoms), ortho=cfg.cell, frac=True
+    )
+
+
 def write_xsf(atoms: t.Union[AtomCollection, XSF], f: FileOrPath):
     """Write a structure to an XSF file."""
     if isinstance(atoms, XSF):
@@ -116,6 +137,8 @@ def read(path: FileOrPath, ty: t.Optional[FileType] = None) -> AtomCollection:
             return read_xyz(path)
         if ty_strip == 'xsf':
             return read_xsf(path)
+        if ty_strip == 'cfg':
+            return read_cfg(path)
         raise ValueError(f"Unknown file type '{ty}'")
 
     if isinstance(path, (t.IO, IOBase)):
@@ -162,7 +185,7 @@ def write(atoms: AtomCollection, path: FileOrPath, ty: t.Optional[FileType] = No
 
     ty_strip = str(ty).lstrip('.').lower()
 
-    if ty_strip in ('cif', 'xyz'):
+    if ty_strip in ('cif', 'xyz', 'cfg'):
         raise NotImplementedError()
     if ty_strip == 'xsf':
         return write_xsf(atoms, path)
@@ -174,5 +197,7 @@ def write(atoms: AtomCollection, path: FileOrPath, ty: t.Optional[FileType] = No
 
 
 __all__ = [
-    'CIF', 'XYZ', 'XSF', 'read', 'read_cif', 'read_xyz', 'read_xsf', 'write_mslice'
+    'CIF', 'XYZ', 'XSF', 'CFG',
+    'read', 'read_cif', 'read_xyz', 'read_xsf', 'read_cfg',
+    'write_xsf', 'write_mslice',
 ]

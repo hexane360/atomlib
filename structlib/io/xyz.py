@@ -1,3 +1,9 @@
+"""
+IO for the informal XYZ file format.
+
+Partially supports the extended XYZ format, described here: https://atomsk.univ-lille.fr/doc/en/format_xyz.html
+"""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field

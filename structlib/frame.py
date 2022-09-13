@@ -34,13 +34,14 @@ class AtomFrame(polars.DataFrame):
     - frac: Fractional occupancy, [0., 1.]
     """
 
-    def __new__(cls, data: t.Optional[IntoAtoms] = None, columns: t.Optional[t.Sequence[str]] = None) -> AtomFrame:
+    def __new__(cls, data: t.Optional[IntoAtoms] = None, columns: t.Optional[t.Sequence[str]] = None,
+                orient: t.Union[t.Literal['row'], t.Literal['col'], None] = None) -> AtomFrame:
         if data is None:
             return super().__new__(cls)
         if isinstance(data, polars.DataFrame):
             obj = data.clone()
         else:
-            obj = polars.DataFrame(data, columns)
+            obj = polars.DataFrame(data, columns, orient=orient)
 
         missing: t.Tuple[str] = tuple(set(('symbol', 'elem')) - set(obj.columns))  # type: ignore
         if missing == ('symbol',):
@@ -51,7 +52,19 @@ class AtomFrame(polars.DataFrame):
         obj.__class__ = cls
         return t.cast(AtomFrame, obj)
 
-    def __init__(self, data: IntoAtoms, columns: t.Optional[t.Sequence[str]] = None):
+    @staticmethod
+    def empty() -> AtomFrame:
+        data = [
+            polars.Series('x', (), dtype=polars.Float64),
+            polars.Series('y', (), dtype=polars.Float64),
+            polars.Series('z', (), dtype=polars.Float64),
+            polars.Series('elem', (), dtype=polars.Int8),
+            polars.Series('symbol', (), dtype=polars.Utf8),
+        ]
+        return AtomFrame(data)
+
+    def __init__(self, data: IntoAtoms, columns: t.Optional[t.Sequence[str]] = None,
+                 orient: t.Union[t.Literal['row'], t.Literal['col'], None] = None):
         self._validate_atoms()
         self._bbox: t.Optional[BBox] = None
 
@@ -72,7 +85,6 @@ class AtomFrame(polars.DataFrame):
             polars.Series(pts[:, 1]).alias('y'),
             polars.Series(pts[:, 2]).alias('z'),
         )))
-
 
     @property
     def bbox(self) -> BBox:

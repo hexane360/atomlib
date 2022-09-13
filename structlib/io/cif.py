@@ -1,3 +1,7 @@
+"""
+IO for the CIF1.1 file format, specified here: https://www.iucr.org/resources/cif/spec/version1.1
+"""
+
 from __future__ import annotations
 
 from abc import ABC
@@ -22,7 +26,7 @@ from ..util import open_file, FileOrPath
 Value = t.Union[int, float, str, None]
 
 
-@dataclass()
+@dataclass
 class CIF:
     name: str
     data: t.Dict[str, t.Union[t.List[Value], Value]]

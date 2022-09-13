@@ -1,3 +1,9 @@
+"""
+IO support for the pyMultislicer XML file format.
+
+Writes mslice files with the help of a user-supplied template.
+"""
+
 from __future__ import annotations
 
 from xml.etree import ElementTree as et

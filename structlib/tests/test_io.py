@@ -36,3 +36,14 @@ def test_xyz():
 
     s = read(path)
     xyz_expected(s)
+
+
+def test_cfg():
+    path = PATH / 'test.cfg'
+
+    with open(path) as f:
+        s = read_cfg(f)
+
+    s = read_cfg(path)
+
+    s = read(path)
