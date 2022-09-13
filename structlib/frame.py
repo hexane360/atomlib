@@ -65,6 +65,15 @@ class AtomFrame(polars.DataFrame):
         # TODO find a way to get a view
         return self.select(('x', 'y', 'z')).to_numpy()
 
+    def with_coords(self, pts) -> AtomFrame:
+        assert pts.shape == (len(self), 3)
+        return self.__class__(self.with_columns((
+            polars.Series(pts[:, 0]).alias('x'),
+            polars.Series(pts[:, 1]).alias('y'),
+            polars.Series(pts[:, 2]).alias('z'),
+        )))
+
+
     @property
     def bbox(self) -> BBox:
         if self._bbox is None:
@@ -73,12 +82,7 @@ class AtomFrame(polars.DataFrame):
         return self._bbox
 
     def transform(self, transform: IntoTransform) -> AtomFrame:
-        transformed = Transform.make(transform) @ self.coords()
-        return self.__class__(self.with_columns((
-            polars.Series(transformed[:, 0]).alias('x'),
-            polars.Series(transformed[:, 1]).alias('y'),
-            polars.Series(transformed[:, 2]).alias('z'),
-        )))
+        return self.with_coords(Transform.make(transform) @ self.coords())
 
 
 AtomSelection = t.NewType('AtomSelection', polars.Expr)

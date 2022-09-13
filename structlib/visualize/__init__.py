@@ -13,7 +13,8 @@ from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d.art3d import PathPatch3D
 
 from ..core import AtomCollection, AtomCell
-from ..util import FileOrPath, split_arr
+from ..transform import LinearTransform
+from ..util import FileOrPath, BinaryFileOrPath, split_arr
 from ..types import VecLike
 
 
@@ -42,10 +43,11 @@ def show_atoms_3d(atoms: AtomCollection, *,
 def show_atoms_2d(atoms: AtomCollection, *,
                   zone: t.Optional[VecLike] = None,
                   plane: t.Optional[VecLike] = None,
+                  horz: t.Optional[VecLike] = None,
                   backend: BackendName = 'mpl') -> AtomImage:
     backend = t.cast(BackendName, backend.lower())
     if backend == 'mpl':
-        return show_atoms_mpl_2d(atoms, zone=zone, plane=plane)
+        return show_atoms_mpl_2d(atoms, zone=zone, plane=plane, horz=horz)
     elif backend == 'ase':
         raise NotImplementedError()
 
@@ -63,7 +65,7 @@ class AtomImageMpl(AtomImage, Figure):
         super().__init__(*args, **kwargs)
 
     def save(self, f: FileOrPath):
-        return self.savefig(f)
+        return self.savefig(f)  # type: ignore
 
 
 _ELEM_MAP = {
@@ -138,20 +140,44 @@ def show_atoms_mpl_3d(atoms: AtomCollection, *, fig: t.Optional[Figure] = None,
 
     ax.scatter(coords[:, 0], coords[:, 1], coords[:, 2], c=elem_colors, alpha=1, s=s)
 
-    
-
     return fig
 
 
 def show_atoms_mpl_2d(atoms: AtomCollection, *, fig: t.Optional[Figure] = None,
-                      zone: t.Optional[VecLike] = None, plane: t.Optional[VecLike] = None) -> AtomImageMpl:
+                      zone: t.Optional[VecLike] = None,
+                      plane: t.Optional[VecLike] = None,
+                      horz: t.Optional[VecLike] = None) -> AtomImageMpl:
+    if plane is not None:
+        if isinstance(atoms, AtomCell) and not atoms.is_orthogonal:
+            # convert plane into zone
+            raise NotImplementedError()
+        zone = plane
+    elif zone is None:
+        zone = [0., 0., 1.]
+
+    zone = numpy.broadcast_to(zone, 3)
+
     if fig is not None:
         fig = AtomImageMpl(fig=fig)
     else:
         fig = t.cast(AtomImageMpl, pyplot.figure(FigureClass=AtomImageMpl))
 
+    rect = [0.05, 0.05, 0.95, 0.95]
+    ax: Axes = fig.add_axes(rect)
+    ax.set_aspect('equal')
 
-    ax: Axes = fig.axis(axes_class=Axes)
+    frame = atoms.get_atoms('global')
+    coords = frame.coords()
+    elem_colors = numpy.array(list(map(get_elem_color, frame['elem']))) / 255.
+
+    transform = LinearTransform.align_to(zone, horz)
+    bbox_2d = transform @ atoms.bbox()
+    coords_2d = (transform @ coords)[..., :2]
+
+    s = 3.
+    ax.set_xbound(*bbox_2d.x)
+    ax.set_ybound(*bbox_2d.y)
+    ax.scatter(coords_2d[:, 0], coords_2d[:, 1], c=elem_colors, alpha=1, s=s)
 
     return fig
 

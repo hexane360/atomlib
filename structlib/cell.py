@@ -58,7 +58,7 @@ def cell_to_ortho(cell_size: VecLike, cell_angle: t.Optional[VecLike] = None) ->
         [a,  b * numpy.cos(gamma),  c * numpy.cos(beta)],
         [0,  b * numpy.sin(gamma), -c * numpy.sin(beta) * numpy.cos(alphastar)],
         [0,  0,                     c * numpy.sin(beta) * numpy.sin(alphastar)],
-    ]))
+    ])).round_near_zero()
 
 
 def ortho_to_cell(ortho: LinearTransform) -> t.Tuple[Vec3, Vec3]:

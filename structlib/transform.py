@@ -16,7 +16,7 @@ P = t.ParamSpec('P')
 T = t.TypeVar('T')
 U = t.TypeVar('U')
 
-AffineSelf = t.TypeVar('AffineSelf', bound=t.Union['AffineTransform', t.Type['AffineTransform']])
+AffineSelf = t.TypeVar('AffineSelf', bound='AffineTransform')
 IntoTransform = t.Union['Transform', t.Callable[[numpy.ndarray], numpy.ndarray], numpy.ndarray]
 
 
@@ -164,6 +164,11 @@ class AffineTransform(Transform):
 	@classmethod
 	def identity(cls: t.Type[TransformT]) -> TransformT:
 		return cls()
+
+	def round_near_zero(self: AffineSelf) -> AffineSelf:
+		return type(self)(
+			numpy.where(numpy.abs(self.inner) < 1e-15, 0., self.inner)
+		)
 
 	@classmethod
 	def from_linear(cls, linear: LinearTransform) -> AffineTransform:
@@ -406,6 +411,17 @@ class LinearTransform(AffineTransform):
 			[-s[1],     s[0]*c[1],                  c[0]*c[1]],
 		])
 		return LinearTransform(a @ self.inner)
+
+	@opt_classmethod
+	def align_to(self, v: VecLike, horz: t.Optional[VecLike] = None) -> LinearTransform:
+		v = numpy.broadcast_to(v, 3)
+		v = v / numpy.linalg.norm(v)
+		horz = numpy.broadcast_to(horz if horz is not None else [1., 0., 0.], 3)
+		horz = horz / numpy.linalg.norm(horz)
+		# TODO this throws away a lot of precision
+		align = self.rotate_euler(z=-numpy.arctan2(v[1], v[0])) \
+		            .rotate_euler(y=-numpy.arccos(v[2]))
+		return align.rotate_euler(z=-numpy.arcsin(align.transform(horz)[1])).round_near_zero()
 
 	@t.overload
 	@classmethod
