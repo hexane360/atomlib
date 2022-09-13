@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 from io import IOBase
+import logging
 import typing as t
 
 import numpy
@@ -32,8 +33,7 @@ def read_cif(f: t.Union[FileOrPath, CIF]) -> AtomCollection:
         if len(cif) > 1:
             raise NotImplementedError()
         [cif] = cif
-
-    print(cif.data)
+    logging.debug("cif data: %r", cif.data)
 
     df = cif.stack_tags('atom_site_fract_x', 'atom_site_fract_y', 'atom_site_fract_z',
                         'atom_site_type_symbol', 'atom_site_occupancy',
@@ -79,6 +79,18 @@ def read_xsf(f: t.Union[FileOrPath, XSF]) -> AtomCollection:
         return AtomCell(atoms, ortho=primitive_cell)
         #return cell.transform_atoms(cell.ortho, 'local')  # transform to real-space coordinates
     return SimpleAtoms(atoms)
+
+
+def write_xsf(atoms: t.Union[AtomCollection, XSF], f: FileOrPath):
+    """Write a structure to an XSF file."""
+    if isinstance(atoms, XSF):
+        xsf = atoms
+    elif isinstance(atoms, AtomCell):
+        xsf = XSF.from_cell(atoms)
+    else:
+        xsf = XSF.from_atoms(atoms)
+
+    xsf.write(f)
 
 
 @t.overload
@@ -135,27 +147,30 @@ def write(atoms: AtomCollection, path: FileOrPath, ty: t.Optional[FileType] = No
     If no `ty` is specified, it is inferred from the path's extension.
     """
 
-    if ty is not None:
-        ty_strip = str(ty).lstrip('.').lower()
-        if ty_strip in ('cif', 'xyz', 'xsf'):
-            raise NotImplementedError()
-        if ty_strip == 'mslice':
-            if not isinstance(atoms, AtomCell):
-                raise TypeError("mslice format requires an AtomCell.")
-            return write_mslice(atoms, path)
-        raise ValueError(f"Unknown file type '{ty}'")
+    if ty is None:
+        if isinstance(path, (t.IO, IOBase)):
+            try:
+                ext = Path(path.name).suffix  # type: ignore
+                if len(ext) == 0:
+                    raise AttributeError()
+            except AttributeError:
+                raise TypeError("read() must be passed a file-type when reading an already-open file.") from None
+        else:
+            ext = Path(path).suffix
 
-    if isinstance(path, (t.IO, IOBase)):
-        try:
-            ext = Path(path.name).suffix  # type: ignore
-            if len(ext) == 0:
-                raise AttributeError()
-        except AttributeError:
-            raise TypeError("read() must be passed a file-type when reading an already-open file.") from None
-    else:
-        ext = Path(path).suffix
+        return write(atoms, path, t.cast(FileType, ext))
 
-    return write(atoms, path, t.cast(FileType, ext))
+    ty_strip = str(ty).lstrip('.').lower()
+
+    if ty_strip in ('cif', 'xyz'):
+        raise NotImplementedError()
+    if ty_strip == 'xsf':
+        return write_xsf(atoms, path)
+    if ty_strip == 'mslice':
+        if not isinstance(atoms, AtomCell):
+            raise TypeError("mslice format requires an AtomCell.")
+        return write_mslice(atoms, path)
+    raise ValueError(f"Unknown file type '{ty}'")
 
 
 __all__ = [

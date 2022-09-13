@@ -18,6 +18,9 @@ from ..util import open_file, FileOrPath
 
 Periodicity = t.Union[t.Literal['crystal'], t.Literal['slab'], t.Literal['polymer'], t.Literal['molecule']]
 
+if t.TYPE_CHECKING:
+    from ..core import AtomCell, AtomCollection
+
 
 @dataclass
 class XSF:
@@ -39,10 +42,25 @@ class XSF:
         raise ValueError("No coordinates specified in XSF file.")
 
     @staticmethod
+    def from_cell(cell: AtomCell) -> XSF:
+        return XSF(
+            primitive_cell=cell.ortho,
+            conventional_cell=cell.ortho,
+            prim_coords=cell.get_atoms('local')
+        )
+
+    @staticmethod
+    def from_atoms(atoms: AtomCollection) -> XSF:
+        return XSF(
+            periodicity='molecule',
+            atoms=atoms.get_atoms('local')
+        )
+
+    @staticmethod
     def from_file(file: FileOrPath) -> XSF:
         logging.info(f"Loading XSF {file.name if hasattr(file, 'name') else file!r}...")  # type: ignore
-        file = open_file(file)
-        return XSFParser(file).parse()
+        with open_file(file) as f:
+            return XSFParser(f).parse()
 
     def __post_init__(self):
         if self.prim_coords is None and self.conv_coords is None and self.atoms is None:
@@ -56,6 +74,40 @@ class XSF:
         if self.periodicity == 'molecule':
             if self.atoms is None:
                 raise ValueError("'atoms' must be specified for molecules.")
+
+    def write(self, path: FileOrPath):
+        with open_file(path, 'w') as f:
+            print(self.periodicity.upper(), file=f)
+            if self.primitive_cell is not None:
+                print('PRIMVEC', file=f)
+                self._write_cell(f, self.primitive_cell)
+            if self.conventional_cell is not None:
+                print('CONVVEC', file=f)
+                self._write_cell(f, self.conventional_cell)
+            print(file=f)
+
+            if self.prim_coords is not None:
+                print("PRIMCOORD", file=f)
+                print(f"{len(self.prim_coords)} 1", file=f)
+                self._write_coords(f, self.prim_coords)
+            if self.conv_coords is not None:
+                print("CONVCOORD", file=f)
+                print(f"{len(self.conv_coords)} 1", file=f)
+                self._write_coords(f, self.conv_coords)
+            if self.atoms is not None:
+                print("ATOMS", file=f)
+                self._write_coords(f, self.atoms)
+
+    def _write_cell(self, f: TextIOBase, cell: LinearTransform):
+        for row in cell.inner:
+            for val in row:
+                f.write(f"{val:12.7f}")
+            f.write('\n')
+
+    def _write_coords(self, f: TextIOBase, coords: polars.DataFrame):
+        for (elem, x, y, z) in coords.select(['elem', 'x', 'y', 'z']).rows():
+            print(f"{elem:2d} {x:11.6f} {y:11.6f} {z:11.6f}", file=f)
+        print(file=f)
 
 
 class XSFParser:

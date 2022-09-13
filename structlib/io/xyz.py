@@ -45,71 +45,70 @@ class XYZ:
     @staticmethod
     def from_file(file: BinaryFileOrPath) -> XYZ:
         logging.info(f"Loading XYZ {file.name if hasattr(file, 'name') else file!r}...")  # type: ignore
-        file = open_file_binary(file, 'r')
 
-        try:
-            # TODO be more gracious about whitespace here
-            length = int(file.readline())
-        except ValueError:
-            raise ValueError(f"Error parsing XYZ file: Invalid length") from None
-        except IOError as e:
-            raise IOError(f"Error parsing XYZ file: {e}") from None
+        with open_file_binary(file, 'r') as f:
+            try:
+                # TODO be more gracious about whitespace here
+                length = int(f.readline())
+            except ValueError:
+                raise ValueError(f"Error parsing XYZ file: Invalid length") from None
+            except IOError as e:
+                raise IOError(f"Error parsing XYZ file: {e}") from None
 
-        comment = file.readline().rstrip(b'\n').decode('utf-8')
-        # TODO handle if there's not a gap here
+            comment = f.readline().rstrip(b'\n').decode('utf-8')
+            # TODO handle if there's not a gap here
 
-        file = XYZToCSVReader(file)
-        df = polars.read_csv(file, sep='\t',  # type: ignore
-                             new_columns=['symbol', 'x', 'y', 'z'],
-                             dtype=[polars.Utf8, polars.Float64, polars.Float64, polars.Float64],
-                             has_header=False, use_pyarrow=False)
-        if len(df.columns) > 4:
-            raise ValueError("Error parsing XYZ file: Extra columns in at least one row.")
+            f= XYZToCSVReader(f)
+            df = polars.read_csv(f, sep='\t',  # type: ignore
+                                new_columns=['symbol', 'x', 'y', 'z'],
+                                dtype=[polars.Utf8, polars.Float64, polars.Float64, polars.Float64],
+                                has_header=False, use_pyarrow=False)
+            if len(df.columns) > 4:
+                raise ValueError("Error parsing XYZ file: Extra columns in at least one row.")
 
-        try:
-            df = df.with_column(
-                polars.col('symbol')
-                      .cast(polars.UInt8, False).map(get_sym)
-                      .fill_null(polars.col('symbol')))
-        except PanicException:
-            invalid = (polars.col('symbol').cast(polars.UInt8) > 118).first()
-            raise ValueError(f"Invalid atomic number {invalid}") from None
+            try:
+                df = df.with_column(
+                    polars.col('symbol')
+                        .cast(polars.UInt8, False).map(get_sym)
+                        .fill_null(polars.col('symbol')))
+            except PanicException:
+                invalid = (polars.col('symbol').cast(polars.UInt8) > 118).first()
+                raise ValueError(f"Invalid atomic number {invalid}") from None
 
-        if length < len(df):
-            warnings.warn(f"Warning: truncating structure of length {len(df)} "
-                          f"to match declared length of {length}")
-            df = df[:length]
-        elif length > len(df):
-            warnings.warn(f"Warning: structure length {len(df)} doesn't match "
-                          f"declared length {length}.\nData could be corrupted.")
+            if length < len(df):
+                warnings.warn(f"Warning: truncating structure of length {len(df)} "
+                            f"to match declared length of {length}")
+                df = df[:length]
+            elif length > len(df):
+                warnings.warn(f"Warning: structure length {len(df)} doesn't match "
+                            f"declared length {length}.\nData could be corrupted.")
 
-        try:
-            params = ExtXYZParser(comment).parse()
-            return XYZ(df, comment, params)
-        except ValueError:
-            pass
+            try:
+                params = ExtXYZParser(comment).parse()
+                return XYZ(df, comment, params)
+            except ValueError:
+                pass
 
-        return XYZ(df, comment)
+            return XYZ(df, comment)
 
     def write(self, file: FileOrPath):
-        file = open_file(file, 'w', newline='\r\n')
+        with open_file(file, 'w', newline='\r\n') as f:
+            f.write(f"{len(self.atoms)}\n")
+            if len(self.params) > 0:
+                f.write(" ".join(param_strings(self.params)))
+            else:
+                f.write(self.comment or "")
+            f.write("\n")
 
-        file.write(f"{len(self.atoms)}\n")
-        if len(self.params) > 0:
-            file.write(" ".join(param_strings(self.params)))
-        else:
-            file.write(self.comment or "")
-        file.write("\n")
-
-        # not my best work
-        col_space = (3, 12, 12, 12)
-        file.writelines(
-            "".join(
-                f"{val:< {space}.8f}" if isinstance(val, float) else f"{val:<{space}}" for (val, space) in zip(row, col_space)
-                ) + '\n' for row in self.atoms.select(('symbol', 'x', 'y', 'z')).rows()
-        )
-        #self.atoms.to_string(file, columns=['symbol', 'x', 'y', 'z'], col_space=[4, 12, 12, 12],
-        #                     header=False, index=False, justify='left', float_format='{:.8f}'.format)
+            # not my best work
+            col_space = (3, 12, 12, 12)
+            f.writelines(
+                "".join(
+                    f"{val:< {space}.8f}" if isinstance(val, float) else f"{val:<{space}}" for (val, space) in zip(row, col_space)
+                    ) + '\n' for row in self.atoms.select(('symbol', 'x', 'y', 'z')).rows()
+            )
+            #self.atoms.to_string(file, columns=['symbol', 'x', 'y', 'z'], col_space=[4, 12, 12, 12],
+            #                     header=False, index=False, justify='left', float_format='{:.8f}'.format)
 
     def cell_matrix(self) -> t.Optional[numpy.ndarray]:
         if self.params is None or 'Lattice' not in self.params:

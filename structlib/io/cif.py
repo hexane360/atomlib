@@ -7,6 +7,7 @@ from pathlib import Path
 from itertools import repeat
 import operator
 import re
+import logging
 import typing as t
 
 import numpy
@@ -28,7 +29,8 @@ class CIF:
 
     @staticmethod
     def from_file(file: FileOrPath) -> t.Iterator[CIF]:
-        return CifReader(open_file(file, 'r')).parse()
+        with open_file(file, 'r') as f:
+            return CifReader(f).parse()
 
     def stack_tags(self, *tags: str, dtype=None, rename: t.Optional[t.Sequence[str]] = None) -> polars.DataFrame:
         if dtype is None:
@@ -268,7 +270,7 @@ class CifReader:
         return w
 
     def parse_datablock(self, name: str) -> CIF:
-        print(f"parse datablock '{name}'")
+        logging.debug(f"parse datablock '{name}'")
         data: t.Dict[str, t.Union[t.List[Value], Value]] = {}
 
         while True:
@@ -281,7 +283,7 @@ class CifReader:
             elif word.startswith('_'):
                 self.next_word()
                 data[word[1:]] = self.parse_value()
-                print(f"{word[1:]} = {data[word[1:]]}")
+                logging.debug(f"{word[1:]} = {data[word[1:]]}")
             else:
                 break
 
@@ -320,7 +322,6 @@ class CifReader:
             i = (i + 1) % len(tags)
 
         if i != 0:
-            print(i)
             n_vals = sum(map(len, vals))
             raise ValueError(f"While parsing loop at line {line}: "
                             f"Got {n_vals} vals, expected a multiple of {len(tags)}")
@@ -328,7 +329,7 @@ class CifReader:
         return dict(zip(tags, vals))
 
     def parse_value(self) -> Value:
-        print(f"parse_value line {self.line}")
+        logging.debug(f"parse_value")
         w = self.peek_word()
         assert w is not None
         if w in ('.', '?'):

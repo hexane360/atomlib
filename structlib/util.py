@@ -2,6 +2,7 @@
 from io import TextIOBase, TextIOWrapper, IOBase, StringIO, BytesIO
 from pathlib import Path
 from fractions import Fraction
+from contextlib import nullcontext, AbstractContextManager
 import typing as t
 
 import numpy
@@ -31,7 +32,7 @@ BinaryFileOrPath = t.Union[str, Path, t.TextIO, t.BinaryIO, IOBase]
 def open_file(f: FileOrPath,
               mode: t.Union[t.Literal['r'], t.Literal['w']] = 'r',
               newline: t.Optional[str] = None,
-              encoding: t.Optional[str] = 'utf-8') -> TextIOBase:
+              encoding: t.Optional[str] = 'utf-8') -> AbstractContextManager[TextIOBase]:
     """
     Open the given file for text I/O. If given a path-like, opens it with
     the specified settings. Otherwise, make an effort to reconfigure
@@ -52,11 +53,11 @@ def open_file(f: FileOrPath,
         if not f.writable():
             raise RuntimeError("Error: Provided file not writable.")
 
-    return f
+    return nullcontext(f)  # don't close a f we didn't open
 
 
 def open_file_binary(f: BinaryFileOrPath,
-                     mode: t.Union[t.Literal['r'], t.Literal['w']] = 'r') -> IOBase:
+                     mode: t.Union[t.Literal['r'], t.Literal['w']] = 'r') -> AbstractContextManager[IOBase]:
     """
     Open the given file for binary I/O. If given a path-like, opens it with
     the specified settings. If given text I/O, reconfigure to binary.
@@ -84,7 +85,7 @@ def open_file_binary(f: BinaryFileOrPath,
         if not f.writable():
             raise RuntimeError("Error: Provided file not writable.")
 
-    return t.cast(IOBase, f)
+    return nullcontext(t.cast(IOBase, f))  # don't close a file we didn't open
 
 
 def polygon_winding(poly: numpy.ndarray, pt: t.Optional[numpy.ndarray] = None) -> NDArray[numpy.int_]:

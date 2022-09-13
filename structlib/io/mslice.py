@@ -88,7 +88,8 @@ def write_mslice(atoms: AtomCell, path: FileOrPath,
         et.indent(e, space="    ", level=1)
         db.append(e)
 
-    out.write(path)
+    with open_file(path) as f:
+        out.write(f)
 
 
 def _atom_elem(i: int, atomic_number: int, x: float, y: float, z: float, wobble: float = 0., frac_occupancy=1.) -> et.Element:
