@@ -86,11 +86,7 @@ def write_mslice(atoms: AtomCell, path: FileOrPath,
     for elem in db.findall("./object[@type='STRUCTUREATOM']"):
         db.remove(elem)
 
-    frame = atoms.get_atoms('frac')
-    if 'wobble' not in frame.columns:
-        frame = frame.with_column(polars.lit(0.).alias('wobble'))
-    if 'frac_occupancy' not in frame.columns:
-        frame = frame.with_column(polars.lit(1.).alias('frac_occupancy'))
+    frame = atoms.get_atoms('frac').with_wobble().with_occupancy()
 
     for (i, (elem, x, y, z, wobble, frac_occupancy)) in enumerate(atoms.get_atoms('frac').select(('elem', 'x', 'y', 'z', 'wobble', 'frac_occupancy'))):
         e = _atom_elem(i, elem, x, y, z, wobble, frac_occupancy)

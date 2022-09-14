@@ -1,8 +1,11 @@
 
 import re
+from pathlib import Path
 import typing as t
 
 import polars
+import numpy
+from numpy.typing import ArrayLike
 
 from .types import ElemLike
 
@@ -35,6 +38,9 @@ ELEMENT_SYMBOLS = [
     'Uut', 'Fl', 'Uup', 'Lv', 'Uus', 'Uuo',
 ]
 assert len(ELEMENTS) == len(ELEMENT_SYMBOLS)
+
+DATA_PATH: Path = Path(__file__).parent.parent / 'data'
+_ELEMENT_MASSES: t.Optional[numpy.ndarray] = None
 
 
 def _get_sym(elem: int) -> str:
@@ -103,3 +109,35 @@ def get_sym(elem: t.Union[int, polars.Series]):
         return elem.apply(_get_sym).alias('symbol')
 
     return ELEMENT_SYMBOLS[elem-1]
+
+
+@t.overload
+def get_mass(elem: int) -> float:
+    ...
+
+@t.overload
+def get_mass(elem: polars.Series) -> polars.Series:
+    ...
+
+@t.overload
+def get_mass(elem: t.Union[numpy.ndarray, t.Sequence[int]]) -> numpy.ndarray:
+    ...
+
+def get_mass(elem: t.Union[int, t.Sequence[int], numpy.ndarray, polars.Series]):
+    """
+    Get the standard atomic mass for the given element.
+
+    Follows the 2021 table of the IUPAC Commission on Isotopic Abundances and Atomic Weights.
+    [https://doi.org/10.1515/pac-2019-0603]
+    """
+    global _ELEMENT_MASSES
+
+    if _ELEMENT_MASSES is None:
+        _ELEMENT_MASSES = t.cast(numpy.ndarray, numpy.load(DATA_PATH / 'masses.npy', allow_pickle=False))
+
+    if isinstance(elem, polars.Series):
+        return polars.Series(_ELEMENT_MASSES)[elem-1]
+
+    if isinstance(elem, (int, numpy.ndarray)):
+        return _ELEMENT_MASSES[elem-1]
+    return _ELEMENT_MASSES[[e-1 for e in elem]]

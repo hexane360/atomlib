@@ -39,8 +39,6 @@ def read_cif(f: t.Union[FileOrPath, CIF]) -> AtomCollection:
     df = cif.stack_tags('atom_site_fract_x', 'atom_site_fract_y', 'atom_site_fract_z',
                         'atom_site_type_symbol', 'atom_site_occupancy',
                         rename=('x', 'y', 'z', 'symbol', 'frac_occupancy'))
-    df = df.with_column(get_elem(df['symbol']))
-
     atoms = AtomFrame(df)
 
     if (cell_size := cif.cell_size()) is not None:
@@ -58,8 +56,7 @@ def read_xyz(f: t.Union[FileOrPath, XYZ]) -> AtomCollection:
     else:
         xyz = XYZ.from_file(f)
 
-    df = xyz.atoms.with_column(get_elem(xyz.atoms['symbol']))
-    atoms = AtomFrame(df)
+    atoms = AtomFrame(xyz.atoms)
 
     if (cell_matrix := xyz.cell_matrix()) is not None:
         return AtomCell(atoms, ortho=LinearTransform(cell_matrix))

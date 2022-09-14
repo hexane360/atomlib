@@ -1,12 +1,14 @@
 from __future__ import annotations
 
+import logging
 import typing as t
 
 import numpy
+from numpy.typing import ArrayLike
 import polars
 
 from .vec import BBox
-from .elem import get_elem, get_sym
+from .elem import get_elem, get_sym, get_mass
 from .transform import Transform, IntoTransform
 
 
@@ -14,6 +16,18 @@ IntoAtoms: t.TypeAlias = t.Union[t.Dict[str, t.Sequence[t.Any]], t.Sequence[t.An
 """
 A type convertible into an `AtomFrame`.
 """
+
+
+_COLUMN_DTYPES: t.Mapping[str, t.Type[polars.DataType]] = {
+    'x': polars.Float64,
+    'y': polars.Float64,
+    'z': polars.Float64,
+    'v_x': polars.Float64,
+    'v_y': polars.Float64,
+    'v_z': polars.Float64,
+    'elem': polars.Int8,
+    'mass': polars.Float32,
+}
 
 
 class AtomFrame(polars.DataFrame):
@@ -32,6 +46,9 @@ class AtomFrame(polars.DataFrame):
     - i: Initial atom number
     - wobble: Isotropic Debye-Waller standard deviation (MSD, <u^2> = B*3/8pi^2, dimensions of [Length^2])
     - frac: Fractional occupancy, [0., 1.]
+    - mass: Atomic mass, in g/mol (approx. Da)
+    - v_[xyz]: Atom velocities, dimensions of length/time
+    - atom_type: Numeric atom type, as used by programs like LAMMPS
     """
 
     def __new__(cls, data: t.Optional[IntoAtoms] = None, columns: t.Optional[t.Sequence[str]] = None,
@@ -44,13 +61,31 @@ class AtomFrame(polars.DataFrame):
             obj = polars.DataFrame(data, columns, orient=orient)
 
         missing: t.Tuple[str] = tuple(set(('symbol', 'elem')) - set(obj.columns))  # type: ignore
+        if len(missing) > 1:
+            raise ValueError("'AtomFrame' missing columns 'elem' and/or 'symbol'.")
         if missing == ('symbol',):
             obj = obj.with_columns(get_sym(obj['elem']))
         elif missing == ('elem',):
             obj = obj.with_columns(get_elem(obj['symbol']))
 
+        # cast to standard dtypes
+        obj = obj.with_columns([
+            obj.get_column(col).cast(dtype)
+            for (col, dtype) in _COLUMN_DTYPES.items() if col in obj
+        ])
+
         obj.__class__ = cls
         return t.cast(AtomFrame, obj)
+
+    def __init__(self, data: IntoAtoms, columns: t.Optional[t.Sequence[str]] = None,
+                 orient: t.Union[t.Literal['row'], t.Literal['col'], None] = None):
+        self._validate_atoms()
+        self._bbox: t.Optional[BBox] = None
+
+    def _validate_atoms(self):
+        missing = [col for col in ['x', 'y', 'z', 'elem', 'symbol'] if col not in self]
+        if len(missing):
+            raise ValueError(f"'AtomFrame' missing column(s) {', '.join(map(repr, missing))}")
 
     @staticmethod
     def empty() -> AtomFrame:
@@ -63,15 +98,11 @@ class AtomFrame(polars.DataFrame):
         ]
         return AtomFrame(data)
 
-    def __init__(self, data: IntoAtoms, columns: t.Optional[t.Sequence[str]] = None,
-                 orient: t.Union[t.Literal['row'], t.Literal['col'], None] = None):
-        self._validate_atoms()
-        self._bbox: t.Optional[BBox] = None
-
-    def _validate_atoms(self):
-        missing: t.Set[str] = set(('x', 'y', 'z', 'elem', 'symbol')) - set(self.columns)  # type: ignore
-        if len(missing):
-            raise ValueError(f"'Atoms' missing column(s) {', '.join(map(repr, missing))}")
+    def try_get_column(self, name: str) -> t.Optional[polars.Series]:
+        try:
+            return self.get_column(name)
+        except polars.NotFoundError:
+            return None
 
     def coords(self) -> numpy.ndarray:
         """Returns a (N, 3) ndarray of atom coordinates."""
@@ -85,16 +116,110 @@ class AtomFrame(polars.DataFrame):
         except polars.NotFoundError:
             return None
 
-    def with_coords(self, pts) -> AtomFrame:
-        assert pts.shape == (len(self), 3)
+    def types(self) -> t.Optional[polars.Series]:
+        return self.try_get_column('type')
+
+    def masses(self) -> t.Optional[polars.Series]:
+        return self.try_get_column('mass')
+
+    def with_wobble(self, wobble: t.Optional[polars.Series] = None) -> AtomFrame:
+        """
+        Return self with the given displacements. If `wobble` is not specified,
+        defaults to the already-existing wobbles or 0.
+        """
+        if wobble is not None:
+            return self.with_column(polars.Series('wobble', wobble, dtype=polars.Float64))
+        if 'wobble' in self:
+            return self
+
+        return self.with_column(polars.lit(0., dtype=polars.Float64).alias('wobble'))
+
+    def with_occupancy(self, frac_occupancy: t.Optional[polars.Series] = None) -> AtomFrame:
+        """
+        Return self with the given fractional occupancies. If `frac_occupancy` is not specified,
+        defaults to the already-existing occupancies or 1.
+        """
+        if frac_occupancy is not None:
+            return self.with_column(polars.Series('frac_occupancy', frac_occupancy, dtype=polars.Float64))
+        if 'frac_occupancy' in self:
+            return self
+
+        return self.with_column(polars.lit(1., dtype=polars.Float64).alias('frac_occupancy'))
+
+    def with_type(self, types: t.Optional[polars.Series] = None) -> AtomFrame:
+        """
+        Return `self` with the given atom types in column 'types'.
+        If `types` is not specified, use the already existing types or auto-assign them.
+
+        When auto-assigning, each symbol is given a unique value, case-sensitive.
+        Values are assigned from lowest atomic number to highest.
+        For instance: ["Ag+", "Na", "H", "Ag"] => [3, 11, 1, 2]
+        """
+        if types is not None:
+            return self.with_column(polars.Series('type', types, dtype=polars.Int32))
+        if 'type' in self:
+            return self
+
+        unique = self.unique(maintain_order=False, subset=['elem', 'symbol']).sort(['elem', 'symbol'])
+        new = self.with_column(polars.Series('type', values=numpy.zeros(len(self)), dtype=polars.Int32))
+
+        logging.warn("Auto-assigning element types")
+        for (i, (elem, sym)) in enumerate(unique.select(('elem', 'symbol')).rows()):
+            print(f"Assigning type {i+1} to element '{sym}'")
+            new = new.with_column(polars.when((polars.col('elem') == elem) & (polars.col('symbol') == sym))
+                                        .then(polars.lit(i+1))
+                                        .otherwise(polars.col('type'))
+                                        .alias('type'))
+
+        assert (new.get_column('type') == 0).sum() == 0
+        return new
+
+    def with_mass(self, mass: t.Optional[ArrayLike] = None) -> AtomFrame:
+        """
+        Return `self` with the given atom masses in column 'mass'.
+        If `mass` is not specified, use the already existing masses or auto-assign them.
+        """
+        if mass is not None:
+            return self.with_column(polars.Series('mass', mass, dtype=polars.Float32))
+        if 'mass' in self:
+            return self
+
+        unique_elems = self.get_column('elem').unique()
+        new = self.with_column(polars.Series('mass', values=numpy.zeros(len(self)), dtype=polars.Float32))
+
+        logging.warn("Auto-assigning element masses")
+        for elem in unique_elems:
+            new = new.with_column(polars.when(polars.col('elem') == elem)
+                                        .then(polars.lit(get_mass(elem)))
+                                        .otherwise(polars.col('mass'))
+                                        .alias('mass'))
+
+        assert (new.get_column('mass').abs() < 1e-10).sum() == 0
+        return new
+
+    def with_coords(self, pts: ArrayLike) -> AtomFrame:
+        """
+        Return `self` replaced with the given atomic positions.
+        """
+        pts = numpy.broadcast_to(pts, (len(self), 3))
         return self.__class__(self.with_columns((
             polars.Series(pts[:, 0], dtype=polars.Float64).alias('x'),
             polars.Series(pts[:, 1], dtype=polars.Float64).alias('y'),
             polars.Series(pts[:, 2], dtype=polars.Float64).alias('z'),
         )))
 
-    def with_velocities(self, pts) -> AtomFrame:
-        assert pts.shape == (len(self), 3)
+    def with_velocity(self, pts: t.Optional[ArrayLike] = None) -> AtomFrame:
+        """
+        Return `self` replaced with the given atomic velocities.
+        If `pts` is not specified, use the already existing velocities or zero.
+        """
+        if pts is None:
+            if all(col in self for col in ('v_x', 'v_y', 'v_z')):
+                return self
+            pts = numpy.zeros((len(self), 3))
+        else:
+            pts = numpy.broadcast_to(pts, (len(self), 3))
+
         return self.__class__(self.with_columns((
             polars.Series(pts[:, 0], dtype=polars.Float64).alias('v_x'),
             polars.Series(pts[:, 1], dtype=polars.Float64).alias('v_y'),
@@ -113,7 +238,7 @@ class AtomFrame(polars.DataFrame):
         transformed = self.with_coords(Transform.make(transform) @ self.coords())
         # try to transform velocities as well
         if transform_velocities and (velocities := self.velocities()) is not None:
-            return transformed.with_velocities(transform.transform_vec(velocities))
+            return transformed.with_velocity(transform.transform_vec(velocities))
         return transformed
 
 

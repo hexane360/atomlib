@@ -3,9 +3,10 @@ import re
 import typing as t
 
 import pytest
+import numpy
 import polars
 
-from .elem import get_elem, get_elems, get_sym
+from .elem import get_elem, get_elems, get_sym, get_mass
 
 
 @pytest.mark.parametrize(('sym', 'elem'), (
@@ -64,3 +65,23 @@ def test_get_elems_fail():
 
     with pytest.raises(ValueError, match=re.escape("Invalid compound '<4*sd>'")):
         get_elems("<4*sd>")
+
+
+@pytest.mark.parametrize(('elem', 'mass'), (
+    (1, 1.008),
+    ([1, 47, 82], numpy.array([1.008, 107.8682, 207.2])),
+    (numpy.array([1, 47, 82]), numpy.array([1.008, 107.8682, 207.2])),
+    (polars.Series([1, 47, 82]), polars.Series([1.008, 107.8682, 207.2])),
+))
+def test_get_mass(elem, mass):
+    result = get_mass(elem)
+
+    if isinstance(mass, polars.Series):
+        assert isinstance(result, polars.Series)
+        assert result.to_numpy() == pytest.approx(mass.to_numpy())
+        assert result.dtype == polars.Float32
+    else:
+        assert result == pytest.approx(mass)
+
+    if isinstance(result, numpy.ndarray):
+        assert result.dtype == numpy.float32
