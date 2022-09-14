@@ -88,7 +88,7 @@ def lazy(f: t.Callable[t.Concatenate[t.Iterable[State], P], t.Iterable[State]]) 
     return update_wrapper(wrapped, f)
 
 
-def lazy_append(f: t.Callable[P, t.Iterable[Structure]]) -> t.Callable[P, CmdType]:
+def lazy_append(f: t.Callable[P, t.Iterable[AtomCollection]]) -> t.Callable[P, CmdType]:
     def wrapped(*args: P.args, **kwargs: P.kwargs):
         def inner(states: t.Iterable[State]) -> t.Iterable[State]:
             state = None
@@ -114,7 +114,7 @@ def lazy_append(f: t.Callable[P, t.Iterable[Structure]]) -> t.Callable[P, CmdTyp
 
 
 def lazy_map(f: t.Callable[t.Concatenate[State, P], t.Iterable[State]]) -> t.Callable[P, CmdType]:
-    def wrapped(*args, **kwargs):
+    def wrapped(*args: P.args, **kwargs: P.kwargs):
         def inner(states: t.Iterable[State]) -> t.Iterable[State]:
             for state in states:
                 yield from f(state, *args, **kwargs)
@@ -134,7 +134,7 @@ out_file_type_no_stdout = click.Path(allow_dash=False, path_type=Path)
 @lazy_append
 def input(file: Path):
     """Input a crystal structure from `file`. Type will be detected via file extension."""
-    yield Structure.from_file(file)
+    yield AtomCollection.read(file)
 
 
 @cli.command('in_cif')
@@ -142,8 +142,7 @@ def input(file: Path):
 @lazy_append
 def input_cif(file: t.Optional[Path] = None):
     """Input a CIF structure. If `file` is not specified, use stdin."""
-    f = sys.stdin if file is None else file
-    yield Structure.from_cif(f)
+    yield AtomCollection.read_cif(file or sys.stdin)
 
 
 @cli.command('in_xyz')
@@ -151,8 +150,7 @@ def input_cif(file: t.Optional[Path] = None):
 @lazy_append
 def input_xyz(file: t.Optional[Path] = None):
     """Input an XYZ structure. If `file` is not specified, use stdin."""
-    f= sys.stdin if file is None else file
-    yield Structure.from_xyz(f)
+    yield AtomCollection.read_xyz(file or sys.stdin)
 
 
 @cli.command('in_xsf')
@@ -160,8 +158,7 @@ def input_xyz(file: t.Optional[Path] = None):
 @lazy_append
 def input_xsf(file: t.Optional[Path] = None):
     """Input an XSF structure. If `file` is not specified, use stdin."""
-    f = sys.stdin if file is None else file
-    yield Structure.from_xsf(f)
+    yield AtomCollection.read_xsf(file or sys.stdin)
 
 
 @cli.command('loop')
@@ -184,24 +181,24 @@ def loop(state: State, n: int) -> t.Iterable[State]:
 def union(states: t.Iterable[State]) -> t.Iterable[State]:
     """Combine structures. Symmetry is discarded, but """
     last_index = None
-    collect: t.List[Structure] = []
+    collect: t.List[AtomCollection] = []
     state = None
     for state in states:
         if last_index is None:
             last_index = state.indices[-1]
         elif last_index != state.indices[-1]:
-            state.structure = Structure.union(collect)
+            state.structure = AtomCollection.union(collect)
             state.indices.pop()
             yield state
             last_index = state.indices[-1]
         collect.append(state.structure)
     if state is not None:
-        state.structure = Structure.union(collect)
+        state.structure = AtomCollection.union(collect)
         state.indices.pop()
         yield state
 
 
-@cli.command('trim')
+@cli.command('crop')
 @click.option('--x_min', '--x-min', type=float)
 @click.option('--x_max', '--x-max', type=float)
 @click.option('--y_min', '--y-min', type=float)
@@ -210,17 +207,17 @@ def union(states: t.Iterable[State]) -> t.Iterable[State]:
 @click.option('--z_max', '--z-max', type=float)
 @click.option('-f', '--frame', type=frame_type, default='global')
 @lazy_map
-def trim(state: State,
+def crop(state: State,
          x_min: t.Optional[float] = None, x_max: t.Optional[float] = None,
          y_min: t.Optional[float] = None, y_max: t.Optional[float] = None,
          z_min: t.Optional[float] = None, z_max: t.Optional[float] = None,
          frame: CoordinateFrame = 'global'):
     """
-    Trim the structure box to the given coordinates.
+    Crop the structure box to the given coordinates.
     If none are specified, refers to the global (cartesian) coordinate system.
     Currently, does not update the structure box (but probably should)
     """
-    state.structure = state.structure.trim(x_min, x_max, y_min, y_max, z_min, z_max, frame=frame)
+    state.structure = state.structure.crop(x_min, x_max, y_min, y_max, z_min, z_max, frame=frame)
     yield state
 
 
@@ -261,10 +258,7 @@ def translate(state: State, x: float = 0., y: float = 0., z: float = 0.,
 @lazy_map
 def print_(state: State):
     print(f"index: {tuple(state.indices)}")
-    print(f"n_cells: {state.structure.n_cells}")
-    print(f"cell_size: {state.structure.cell_size}")
-    print(f"cell_angle: {state.structure.cell_angle}")
-    print(state.structure.atoms)
+    print(state.structure)
     yield state
 
 
@@ -281,11 +275,7 @@ def out(state: State, file: Path):
 @click.argument('file', type=out_file_type, required=False)
 @lazy_map
 def out_mslice(state: State, file: t.Optional[Path] = None):
-    if file is None or file == '-':
-        state.structure.write_mslice(sys.stdout)
-    else:
-        with open(state.deduplicated_output_path(file), 'w') as f:
-            state.structure.write_mslice(f)
+    state.structure.write_mslice(sys.stdout if file is None or file == '-' else file)
     yield state
 
 
