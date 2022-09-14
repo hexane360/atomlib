@@ -1,3 +1,5 @@
+
+import re
 import typing as t
 
 import pytest
@@ -11,10 +13,12 @@ from .elem import get_elem, get_elems, get_sym
     ('  Ag', 47),
     ('nA1+', 11),
     ('Na_test', 11),
+    (11, 11),
 ))
 def test_get_elem(sym: str, elem: int):
     assert get_elem(sym) == elem
-    assert get_sym(elem).lower() in sym.lower()
+    if isinstance(sym, str):
+        assert get_sym(elem).lower() in sym.lower()
 
 
 @pytest.mark.parametrize(('sym', 'elems'), (
@@ -41,3 +45,22 @@ def test_get_sym_series():
     sym = get_sym(elem)
 
     assert tuple(sym) == ('Si', 'O', 'H', 'No')
+
+
+def test_get_elem_fail():
+    with pytest.raises(ValueError, match="Invalid atomic number -5"):
+        get_elem(-5)
+
+    with pytest.raises(ValueError, match="Invalid element symbol 'We'"):
+        get_elem('We')
+
+    with pytest.raises(ValueError, match=re.escape("Invalid element symbol '<4*sd>'")):
+        get_elem("<4*sd>")
+
+
+def test_get_elems_fail():
+    with pytest.raises(ValueError, match="Unknown element 'By' in 'BaBy'."):
+        get_elems('BaBy')
+
+    with pytest.raises(ValueError, match=re.escape("Invalid compound '<4*sd>'")):
+        get_elems("<4*sd>")

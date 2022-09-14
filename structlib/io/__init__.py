@@ -93,8 +93,12 @@ def read_cfg(f: t.Union[FileOrPath, CFG]) -> AtomCell:
     if cfg.transform is not None:
         ortho = cfg.transform @ ortho
 
+    if cfg.length_scale is not None:
+        ortho = ortho.scale(all=cfg.length_scale)
+
     if cfg.eta is not None:
         m = numpy.eye(3) + 2. * cfg.eta.inner
+        # matrix sqrt using eigenvals, eigenvecs
         eigenvals, eigenvecs = numpy.linalg.eigh(m)
         sqrtm = (eigenvecs * numpy.sqrt(eigenvals)) @ eigenvecs.T
         ortho = LinearTransform(sqrtm) @ ortho
@@ -223,5 +227,5 @@ def write(atoms: AtomCollection, path: FileOrPath, ty: t.Optional[FileType] = No
 __all__ = [
     'CIF', 'XYZ', 'XSF', 'CFG',
     'read', 'read_cif', 'read_xyz', 'read_xsf', 'read_cfg',
-    'write_xsf', 'write_mslice',
+    'write', 'write_xsf', 'write_mslice',
 ]

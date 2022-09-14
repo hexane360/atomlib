@@ -68,18 +68,26 @@ def get_elem(sym: t.Union[int, str, polars.Series]):
             .alias('elem')
 
     sym_s = re.search(_SYM_RE, str(sym))
-    if sym_s is None:
+    try:
+        return ELEMENTS[sym_s[0].lower()]  # type: ignore
+    except (KeyError, IndexError):
         raise ValueError(f"Invalid element symbol '{sym}'")
-    return ELEMENTS[sym_s[0].lower()]
 
 
 def get_elems(sym: str) -> t.List[int]:
-    a = [
-        ELEMENTS[match[0].lower()] for match in re.finditer(r'[A-Z][a-z]?', str(sym))
+    if len(sym) > 0:
+        sym = sym[0].upper() + sym[1:]
+    segments = [
+        match[0] for match in re.finditer(r'[A-Z][a-z]?', str(sym))
     ]
-    if len(a) == 0:
-        raise ValueError(f"Unknown compound '{sym}'. Compounds are case-sensitive.")
-    return a
+    if len(segments) == 0:
+        raise ValueError(f"Invalid compound '{sym}'")
+
+    elems = [ELEMENTS.get(seg.lower()) for seg in segments]
+    for (seg, v) in zip(segments, elems):
+        if v is None:
+            raise ValueError(f"Unknown element '{seg}' in '{sym}'. Compounds are case-sensitive.")
+    return t.cast(t.List[int], elems)
 
 
 @t.overload

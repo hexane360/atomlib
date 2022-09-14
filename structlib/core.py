@@ -18,8 +18,8 @@ from .frame import AtomFrame, AtomSelection, IntoAtoms
 
 
 if t.TYPE_CHECKING:
-    from .io import CIF, XYZ, XSF, FileOrPath, FileType
-    from .io.mslice import MSliceTemplate
+    from .io import CIF, XYZ, XSF, CFG, FileOrPath, FileType  # pragma: no cover
+    from .io.mslice import MSliceTemplate                     # pragma: no cover
 
 
 CoordinateFrame = t.Union[t.Literal['local'], t.Literal['global'], t.Literal['frac']]
@@ -118,8 +118,13 @@ class AtomCollection(abc.ABC):
 
     @staticmethod
     def read_xsf(f: t.Union[FileOrPath, XSF]) -> AtomCollection:
-        """Read a structure from a XSF file."""
+        """Read a structure from an XSF file."""
         return io.read_xsf(f)
+
+    @staticmethod
+    def read_cfg(f: t.Union[FileOrPath, CFG]) -> AtomCell:
+        """Read a structure from a CFG file."""
+        return io.read_cfg(f)
 
     @t.overload
     def write(self, path: FileOrPath, ty: FileType):
@@ -276,6 +281,11 @@ class AtomCell(AtomCollection):
 
         object.__setattr__(self, 'atoms', atoms)
 
+        self.__post_init__()
+
+    def __post_init__(self):
+        pass
+
     def _str_parts(self) -> t.Iterable[t.Any]:
         return (
             f"Cell size:  {self.cell_size!s}",
@@ -364,7 +374,7 @@ class AtomCell(AtomCollection):
     def cell_corners(self, frame: CoordinateFrame = 'global') -> numpy.ndarray:
         """Return a (8, 3) ndarray containing the corners of self."""
         n = [(0., n) for n in self.n_cells]
-        corners = numpy.stack(list(map(numpy.ravel, numpy.meshgrid(*n))), axis=-1)
+        corners = numpy.stack(list(map(numpy.ravel, numpy.meshgrid(*n, indexing='ij'))), axis=-1)
         if frame.lower() in ('local', 'global'):
             return self.ortho @ corners
         return corners
