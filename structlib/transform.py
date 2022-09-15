@@ -439,7 +439,13 @@ class LinearTransform(AffineTransform):
 	def rotate(self, v: VecLike, theta: Num) -> LinearTransform:
 		theta = float(theta)
 		v = numpy.array(numpy.broadcast_to(v, (3,)), dtype=float)
-		v /= numpy.linalg.norm(v)
+		l = numpy.linalg.norm(v)
+		if numpy.isclose(l, 0.):
+			if numpy.isclose(theta, 0.):
+				# null rotation
+				return self
+			raise ValueError("rotate() about the zero vector is undefined.")
+		v /= l
 
 		# Rodrigues rotation formula
 		w = numpy.array([[   0, -v[2],  v[1]],

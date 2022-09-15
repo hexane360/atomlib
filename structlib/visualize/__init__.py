@@ -54,15 +54,13 @@ def show_atoms_2d(atoms: AtomCollection, *,
     raise ValueError(f"Unknown backend '{backend}'")
 
 
-class AtomImageMpl(AtomImage, Figure):
-    def __new__(cls, *args, fig: t.Optional[Figure] = None, **kwargs):
-        if fig is not None:
-            fig.__class__ = cls
-            return fig
-        return super().__new__(cls)
+class AtomImageMpl(Figure, AtomImage):
+    def __new__(cls, fig: Figure):
+        fig.__class__ = cls
+        return fig
 
-    def __init__(self, *args, fig: t.Optional[Figure] = None, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, fig: Figure):
+        ...
 
     def save(self, f: FileOrPath):
         return self.savefig(f)  # type: ignore
@@ -82,6 +80,7 @@ def get_elem_color(elem: int) -> t.List[int]:
     return _ELEM_MAP.get(elem, [80, 80, 80])
 
 
+"""
 class AtomPatch3D(PathPatch3D):
     def __init__(self, elem: int, fc=None, s: float = 2., **kwargs):
         ...
@@ -92,17 +91,38 @@ class AtomPatch3D(PathPatch3D):
         self.s = s
 
         super().__init__(fc=fc, **kwargs)
+"""
 
+
+def get_zone(atoms: AtomCollection, zone: t.Optional[VecLike] = None,
+             plane: t.Optional[VecLike] = None,
+             default: t.Optional[VecLike] = None) -> numpy.ndarray:
+    if zone is not None and plane is not None:
+        raise ValueError("'zone' and 'plane' can't both be specified.")
+    if plane is not None:
+        if isinstance(atoms, AtomCell) and not atoms.is_orthogonal:
+            # convert plane into zone
+            raise NotImplementedError()
+        zone = plane
+    if zone is not None:
+        return numpy.broadcast_to(zone, 3)
+    if default is not None:
+        return numpy.broadcast_to(default, 3)
+    return numpy.array([0., 0., 1.])
+
+
+def get_azim_elev(zone: VecLike) -> t.Tuple[float, float]:
+    (a, b, c) = zone
+    l = numpy.sqrt(a**2 + b**2)
+    return (numpy.angle(a + b*1.j, deg=True), numpy.angle(l + c*1.j, deg=True))  # type: ignore
 
 
 def show_atoms_mpl_3d(atoms: AtomCollection, *, fig: t.Optional[Figure] = None,
                       zone: t.Optional[VecLike] = None, plane: t.Optional[VecLike] = None) -> AtomImageMpl:
-    if fig is not None:
-        fig = AtomImageMpl(fig=fig)
-    else:
-        fig = t.cast(AtomImageMpl, pyplot.figure(FigureClass=AtomImageMpl))
+    fig = AtomImageMpl(fig or pyplot.figure())
 
-    (azim, elev) = get_azim_elev(zone, plane)
+    zone = get_zone(atoms, zone, plane, [1., 2., 4.])
+    (azim, elev) = get_azim_elev(zone)
 
     rect = [0., 0., 1., 1.]
     ax: Axes3D = fig.add_axes(rect, axes_class=Axes3D, proj_type='ortho', azim=azim, elev=elev)
@@ -146,21 +166,10 @@ def show_atoms_mpl_3d(atoms: AtomCollection, *, fig: t.Optional[Figure] = None,
 def show_atoms_mpl_2d(atoms: AtomCollection, *, fig: t.Optional[Figure] = None,
                       zone: t.Optional[VecLike] = None,
                       plane: t.Optional[VecLike] = None,
-                      horz: t.Optional[VecLike] = None) -> AtomImageMpl:
-    if plane is not None:
-        if isinstance(atoms, AtomCell) and not atoms.is_orthogonal:
-            # convert plane into zone
-            raise NotImplementedError()
-        zone = plane
-    elif zone is None:
-        zone = [0., 0., 1.]
-
-    zone = numpy.broadcast_to(zone, 3)
-
-    if fig is not None:
-        fig = AtomImageMpl(fig=fig)
-    else:
-        fig = t.cast(AtomImageMpl, pyplot.figure(FigureClass=AtomImageMpl))
+                      horz: t.Optional[VecLike] = None,
+                      s: t.Optional[float] = None) -> AtomImageMpl:
+    zone = get_zone(atoms, zone, plane, [0., 0., 1.])
+    fig = AtomImageMpl(fig or pyplot.figure())
 
     rect = [0.05, 0.05, 0.95, 0.95]
     ax: Axes = fig.add_axes(rect)
@@ -174,24 +183,9 @@ def show_atoms_mpl_2d(atoms: AtomCollection, *, fig: t.Optional[Figure] = None,
     bbox_2d = transform @ atoms.bbox()
     coords_2d = (transform @ coords)[..., :2]
 
-    s = 3.
+    s = s or 8.
     ax.set_xbound(*bbox_2d.x)
     ax.set_ybound(*bbox_2d.y)
     ax.scatter(coords_2d[:, 0], coords_2d[:, 1], c=elem_colors, alpha=1, s=s)
 
     return fig
-
-
-def get_azim_elev(zone: t.Optional[VecLike] = None, plane: t.Optional[VecLike] = None) -> t.Tuple[float, float]:
-    if zone is not None and plane is not None:
-        raise ValueError("'zone' and 'plane' can't both be specified.")
-    if plane is None:
-        if zone is None:
-            zone = [1., 2., 4.]
-
-        (a, b, c) = zone
-        l = numpy.sqrt(a**2 + b**2)
-        return (numpy.angle(a + b*1.j, deg=True), numpy.angle(l + c*1.j, deg=True))  # type: ignore
-
-    raise NotImplementedError()
-        
