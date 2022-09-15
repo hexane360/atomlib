@@ -1,6 +1,7 @@
 import re
 
 import pytest
+import numpy
 import polars
 
 from .frame import AtomFrame
@@ -46,7 +47,30 @@ def test_atom_frame_creation():
     assert empty.select('elem').dtypes[0] == polars.Int8
 
 
-def test_with_mass():
+def test_coords():
+    frame = AtomFrame({
+        'x': [0., 1., -1., -3.],
+        'y': [1., 1., 1., 2.],
+        'z': [0., 2., 5., 8.],
+        'elem': [1, 5, 22, 22],
+    })
+
+    expected = numpy.array([
+        [0., 1., 0.],
+        [1., 1., 2.],
+        [-1., 1., 5.],
+        [-3., 2., 8.]
+    ])
+
+    assert frame.coords() == pytest.approx(expected)
+
+    assert frame.coords(polars.col('x') < 0.) == pytest.approx(expected[expected[:, 0] < 0.])
+    assert frame.coords(polars.col('elem') == 22) == pytest.approx(expected[2:])
+    assert frame.coords([False, True, False, True]) == pytest.approx(expected[[1, 3]])
+
+
+
+def test_mass():
     frame = AtomFrame({
         'x': [0., 0., 0.],
         'y': [0., 0., 0.],
@@ -74,7 +98,7 @@ def test_with_mass():
     assert mass.dtype == polars.Float32
 
 
-def test_with_type():
+def test_type():
     frame = AtomFrame({
         'x': [0., 0., 0., 0.],
         'y': [0., 0., 0., 0.],
@@ -104,3 +128,33 @@ def test_with_type():
     assert types is not None
     assert types.dtype == polars.Int32
     assert list(types) == [4, 3, 1, 2, 4]
+
+
+def test_wobble():
+    frame = AtomFrame({
+        'x': [0., 0., 0., 0.],
+        'y': [0., 0., 0., 0.],
+        'z': [0., 0., 0., 0.],
+        'elem': [22, 78, 22, 1],
+    })
+
+    new = frame.with_wobble()
+    assert 'wobble' not in frame
+    assert 'wobble' in new
+    assert new.select('wobble').to_numpy() == pytest.approx([0., 0., 0., 0.])
+    assert new.with_wobble() is new
+
+
+def test_occupancy():
+    frame = AtomFrame({
+        'x': [0., 0., 0., 0.],
+        'y': [0., 0., 0., 0.],
+        'z': [0., 0., 0., 0.],
+        'elem': [22, 78, 22, 1],
+    })
+
+    new = frame.with_occupancy()
+    assert 'frac_occupancy' not in frame
+    assert 'frac_occupancy' in new
+    assert new.select('frac_occupancy').to_numpy() == pytest.approx([1., 1., 1., 1.])
+    assert new.with_occupancy() is new

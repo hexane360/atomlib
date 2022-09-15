@@ -44,7 +44,7 @@ def cell_to_ortho(cell_size: VecLike, cell_angle: t.Optional[VecLike] = None) ->
     (a, b, c) = cell_size if cell_size is not None else (1., 1., 1.)
 
     if numpy.allclose(cell_angle.view(numpy.ndarray), numpy.pi/2.):
-        return LinearTransform().scale(a, b, c)
+        return LinearTransform.scale(a, b, c)
 
     (alpha, beta, gamma) = cell_angle
     alphastar = numpy.cos(beta) * numpy.cos(gamma) - numpy.cos(alpha)

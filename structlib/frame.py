@@ -10,6 +10,7 @@ import polars
 from .vec import BBox
 from .elem import get_elem, get_sym, get_mass
 from .transform import Transform, IntoTransform
+from .util import map_some
 
 
 IntoAtoms: t.TypeAlias = t.Union[t.Dict[str, t.Sequence[t.Any]], t.Sequence[t.Any], numpy.ndarray, polars.DataFrame]
@@ -28,6 +29,26 @@ _COLUMN_DTYPES: t.Mapping[str, t.Type[polars.DataType]] = {
     'elem': polars.Int8,
     'mass': polars.Float32,
 }
+
+
+def _selection_to_series(df: polars.DataFrame, selection: AtomSelection) -> polars.Series:
+    if isinstance(selection, polars.Series):
+        return selection.cast(polars.Boolean)
+    if isinstance(selection, polars.Expr):
+        return df.select(selection.cast(polars.Boolean)).to_series()
+
+    selection = numpy.broadcast_to(selection, len(df))
+    return polars.Series(selection, dtype=polars.Boolean)
+
+
+def _selection_to_expr(selection: AtomSelection) -> polars.Expr:
+    if isinstance(selection, polars.Expr):
+        return selection.cast(polars.Boolean)
+    if isinstance(selection, polars.Series):
+        return polars.lit(selection, dtype=polars.Boolean)
+
+    selection = numpy.asanyarray(selection, dtype=numpy.bool_)
+    return polars.lit(selection)
 
 
 class AtomFrame(polars.DataFrame):
@@ -98,19 +119,34 @@ class AtomFrame(polars.DataFrame):
         ]
         return AtomFrame(data)
 
+    def with_column(self, column: t.Union[polars.Series, polars.Expr]) -> AtomFrame:
+        new = super().with_column(column)
+        new.__class__ = type(self)
+        return t.cast(AtomFrame, new)
+
+    def with_columns(self, exprs: t.Union[t.Literal[None], polars.Series, polars.Expr, t.Sequence[t.Union[polars.Series, polars.Expr]]],
+                     **named_exprs: t.Union[polars.Expr, polars.Series]) -> AtomFrame:
+        new = super().with_columns(exprs, **named_exprs)
+        new.__class__ = type(self)
+        return t.cast(AtomFrame, new)
+
     def try_get_column(self, name: str) -> t.Optional[polars.Series]:
         try:
             return self.get_column(name)
         except polars.NotFoundError:
             return None
 
-    def coords(self) -> numpy.ndarray:
+    def coords(self, selection: t.Optional[AtomSelection] = None) -> numpy.ndarray:
         """Returns a (N, 3) ndarray of atom coordinates."""
         # TODO find a way to get a view
+        if selection is not None:
+            self = self.filter(_selection_to_expr(selection))
         return self.select(('x', 'y', 'z')).to_numpy()
 
-    def velocities(self) -> t.Optional[numpy.ndarray]:
+    def velocities(self, selection: t.Optional[AtomSelection] = None) -> t.Optional[numpy.ndarray]:
         """Returns a (N, 3) ndarray of atom velocities."""
+        if selection is not None:
+            self = self.filter(_selection_to_expr(selection))
         try:
             return self.select(('v_x', 'v_y', 'v_z')).to_numpy()
         except polars.NotFoundError:
@@ -163,7 +199,7 @@ class AtomFrame(polars.DataFrame):
         unique = self.unique(maintain_order=False, subset=['elem', 'symbol']).sort(['elem', 'symbol'])
         new = self.with_column(polars.Series('type', values=numpy.zeros(len(self)), dtype=polars.Int32))
 
-        logging.warn("Auto-assigning element types")
+        logging.warning("Auto-assigning element types")
         for (i, (elem, sym)) in enumerate(unique.select(('elem', 'symbol')).rows()):
             print(f"Assigning type {i+1} to element '{sym}'")
             new = new.with_column(polars.when((polars.col('elem') == elem) & (polars.col('symbol') == sym))
@@ -187,7 +223,7 @@ class AtomFrame(polars.DataFrame):
         unique_elems = self.get_column('elem').unique()
         new = self.with_column(polars.Series('mass', values=numpy.zeros(len(self)), dtype=polars.Float32))
 
-        logging.warn("Auto-assigning element masses")
+        logging.warning("Auto-assigning element masses")
         for elem in unique_elems:
             new = new.with_column(polars.when(polars.col('elem') == elem)
                                         .then(polars.lit(get_mass(elem)))
@@ -197,18 +233,26 @@ class AtomFrame(polars.DataFrame):
         assert (new.get_column('mass').abs() < 1e-10).sum() == 0
         return new
 
-    def with_coords(self, pts: ArrayLike) -> AtomFrame:
+    def with_coords(self, pts: ArrayLike, selection: t.Optional[AtomSelection] = None) -> AtomFrame:
         """
         Return `self` replaced with the given atomic positions.
         """
         pts = numpy.broadcast_to(pts, (len(self), 3))
+        if selection is None:
+            return self.__class__(self.with_columns((
+                polars.Series(pts[:, 0], dtype=polars.Float64).alias('x'),
+                polars.Series(pts[:, 1], dtype=polars.Float64).alias('y'),
+                polars.Series(pts[:, 2], dtype=polars.Float64).alias('z'),
+            )))
+
+        selection = _selection_to_series(self, selection)
         return self.__class__(self.with_columns((
-            polars.Series(pts[:, 0], dtype=polars.Float64).alias('x'),
-            polars.Series(pts[:, 1], dtype=polars.Float64).alias('y'),
-            polars.Series(pts[:, 2], dtype=polars.Float64).alias('z'),
+            self['x'].set_at_idx(selection, pts[:, 0]),
+            self['y'].set_at_idx(selection, pts[:, 1]),
+            self['z'].set_at_idx(selection, pts[:, 2]),
         )))
 
-    def with_velocity(self, pts: t.Optional[ArrayLike] = None) -> AtomFrame:
+    def with_velocity(self, pts: t.Optional[ArrayLike] = None, selection: t.Optional[AtomSelection] = None) -> AtomFrame:
         """
         Return `self` replaced with the given atomic velocities.
         If `pts` is not specified, use the already existing velocities or zero.
@@ -220,10 +264,18 @@ class AtomFrame(polars.DataFrame):
         else:
             pts = numpy.broadcast_to(pts, (len(self), 3))
 
+        if selection is None:
+            return self.__class__(self.with_columns((
+                polars.Series(pts[:, 0], dtype=polars.Float64).alias('v_x'),
+                polars.Series(pts[:, 1], dtype=polars.Float64).alias('v_y'),
+                polars.Series(pts[:, 2], dtype=polars.Float64).alias('v_z'),
+            )))
+
+        selection = _selection_to_series(self, selection)
         return self.__class__(self.with_columns((
-            polars.Series(pts[:, 0], dtype=polars.Float64).alias('v_x'),
-            polars.Series(pts[:, 1], dtype=polars.Float64).alias('v_y'),
-            polars.Series(pts[:, 2], dtype=polars.Float64).alias('v_z'),
+            self['v_x'].set_at_idx(selection, pts[:, 0]),
+            self['v_y'].set_at_idx(selection, pts[:, 1]),
+            self['v_z'].set_at_idx(selection, pts[:, 2]),
         )))
 
     @property
@@ -233,17 +285,17 @@ class AtomFrame(polars.DataFrame):
 
         return self._bbox
 
-    def transform(self, transform: IntoTransform, transform_velocities: bool = False) -> AtomFrame:
+    def transform(self, transform: IntoTransform, selection: t.Optional[AtomSelection] = None, *, transform_velocities: bool = False) -> AtomFrame:
         transform = Transform.make(transform)
-        transformed = self.with_coords(Transform.make(transform) @ self.coords())
+        selection = map_some(lambda s: _selection_to_series(self, s), selection)
+        transformed = self.with_coords(Transform.make(transform) @ self.coords(selection), selection)
         # try to transform velocities as well
-        if transform_velocities and (velocities := self.velocities()) is not None:
-            return transformed.with_velocity(transform.transform_vec(velocities))
+        if transform_velocities and (velocities := self.velocities(selection)) is not None:
+            return transformed.with_velocity(transform.transform_vec(velocities), selection)
         return transformed
 
 
-
-AtomSelection = t.NewType('AtomSelection', polars.Expr)
+AtomSelection = t.Union[polars.Series, polars.Expr, ArrayLike]
 """
 Polars expression selecting a subset of atoms from an AtomFrame. Can be used with DataFrame.filter()
 """

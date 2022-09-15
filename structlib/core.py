@@ -89,10 +89,12 @@ class AtomCollection(abc.ABC):
         ...
 
     @t.overload
+    @staticmethod
     def read(path: FileOrPath, ty: FileType) -> AtomCollection:
         ...
 
     @t.overload
+    @staticmethod
     def read(path: t.Union[str, Path, t.TextIO], ty: t.Literal[None] = None) -> AtomCollection:
         ...
 

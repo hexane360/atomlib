@@ -67,16 +67,20 @@ class XYZ:
             f= XYZToCSVReader(f)
             df = polars.read_csv(f, sep='\t',  # type: ignore
                                 new_columns=['symbol', 'x', 'y', 'z'],
-                                dtype=[polars.Utf8, polars.Float64, polars.Float64, polars.Float64],
+                                dtypes=[polars.Utf8, polars.Float64, polars.Float64, polars.Float64],
                                 has_header=False, use_pyarrow=False)
             if len(df.columns) > 4:
                 raise ValueError("Error parsing XYZ file: Extra columns in at least one row.")
 
             try:
+                #TODO .fill_null(Series) seems to be broken on polars 0.14.11
+                sym = df.select(polars.col('symbol')
+                                      .cast(polars.UInt8, False).map(get_sym)).to_series()
                 df = df.with_column(
-                    polars.col('symbol')
-                        .cast(polars.UInt8, False).map(get_sym)
-                        .fill_null(polars.col('symbol')))
+                    polars.when(sym.is_null())  # type: ignore
+                    .then(polars.col('symbol'))
+                    .otherwise(sym)  # type: ignore
+                    .alias('symbol'))
             except PanicException:
                 invalid = (polars.col('symbol').cast(polars.UInt8) > 118).first()
                 raise ValueError(f"Invalid atomic number {invalid}") from None
