@@ -158,13 +158,20 @@ class AtomFrame(polars.DataFrame):
     def masses(self) -> t.Optional[polars.Series]:
         return self.try_get_column('mass')
 
+    def with_index(self, index: t.Union[ArrayLike, polars.Series, None] = None) -> AtomFrame:
+        if index is None and 'i' in self:
+            return self
+        if index is None:
+            index = numpy.arange(len(self), dtype=numpy.int64)
+        return self.with_column(polars.lit(index, dtype=polars.Int64).alias('i'))
+
     def with_wobble(self, wobble: t.Optional[polars.Series] = None) -> AtomFrame:
         """
         Return self with the given displacements. If `wobble` is not specified,
         defaults to the already-existing wobbles or 0.
         """
         if wobble is not None:
-            return self.with_column(polars.Series('wobble', wobble, dtype=polars.Float64))
+            return self.with_column(polars.lit(wobble, dtype=polars.Float64).alias('wobble'))
         if 'wobble' in self:
             return self
 
@@ -181,6 +188,33 @@ class AtomFrame(polars.DataFrame):
             return self
 
         return self.with_column(polars.lit(1., dtype=polars.Float64).alias('frac_occupancy'))
+
+    def apply_wobble(self, rng: t.Union[numpy.random.Generator, int, None] = None) -> AtomFrame:
+        """
+        Displace the atoms in `self` by the amount in the `wobble` column.
+        `wobble` is interpretated as a mean-squared displacement, which is distributed
+        equally over each axis.
+        """
+        if 'wobble' not in self:
+            return self
+        rng = numpy.random.default_rng(seed=rng)
+
+        stddev = self.select((polars.col('wobble') / 3.).sqrt()).to_series().to_numpy()
+        coords = self.coords()
+        coords += stddev[:, None] * rng.standard_normal(coords.shape)
+        return self.with_coords(coords)
+
+    def apply_occupancy(self, rng: t.Union[numpy.random.Generator, int, None] = None) -> AtomFrame:
+        """
+        For each atom in `self`, use its `frac_occupancy` to randomly decide whether to remove it.
+        """
+        if 'frac_occupancy' not in self:
+            return self
+        rng = numpy.random.default_rng(seed=rng)
+
+        frac = self.select('frac_occupancy').to_series().to_numpy()
+        choice = rng.binomial(1, frac).astype(numpy.bool_)
+        return self.filter(polars.lit(choice))
 
     def with_type(self, types: t.Optional[polars.Series] = None) -> AtomFrame:
         """
