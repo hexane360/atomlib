@@ -93,7 +93,7 @@ def write_mslice(atoms: AtomCell, path: FileOrPath,
         et.indent(e, space="    ", level=1)
         db.append(e)
 
-    with open_file(path) as f:
+    with open_file(path, 'w') as f:
         out.write(f)
 
 

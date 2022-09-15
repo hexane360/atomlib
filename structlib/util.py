@@ -3,6 +3,8 @@ from io import TextIOBase, TextIOWrapper, IOBase, StringIO, BytesIO
 from pathlib import Path
 from fractions import Fraction
 from contextlib import nullcontext, AbstractContextManager
+import datetime
+import time
 import typing as t
 
 import numpy
@@ -86,6 +88,12 @@ def open_file_binary(f: BinaryFileOrPath,
             raise RuntimeError("Error: Provided file not writable.")
 
     return nullcontext(t.cast(IOBase, f))  # don't close a file we didn't open
+
+
+def localtime() -> datetime.datetime:
+    ltime = time.localtime()
+    tz = datetime.timezone(datetime.timedelta(seconds=ltime.tm_gmtoff), ltime.tm_zone)
+    return datetime.datetime.now(tz)
 
 
 def polygon_winding(poly: numpy.ndarray, pt: t.Optional[numpy.ndarray] = None) -> NDArray[numpy.int_]:
