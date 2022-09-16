@@ -3,15 +3,23 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from io import StringIO, TextIOBase
+from itertools import zip_longest
 import logging
 import operator
 import re
 import typing as t
 
+import numpy
+
 V = t.TypeVar('V')
-T = t.TypeVar('T', covariant=True)
+T_co = t.TypeVar('T_co', covariant=True)
 
 WSPACE_RE = re.compile(r"\s+")
+
+
+class VariadicCallable(t.Protocol, t.Generic[V]):
+    def __call__(self, *args: V) -> V:
+        ...
 
 
 @dataclass
@@ -26,6 +34,23 @@ class Op(ABC, t.Generic[V]):
 
 
 @dataclass
+class NaryOp(Op[V]):
+    call: VariadicCallable[V] = field(repr=False)
+    precedence: int = 5
+    requires_whitespace: bool = False
+
+    def __call__(self, *args: V) -> V:
+        return self.call(*args)
+
+    def precedes(self, other: t.Union[BinaryOp, NaryOp, int]) -> bool:
+        if isinstance(other, (BinaryOp, NaryOp)):
+            other = other.precedence
+
+        # default to lower precedence for Nary
+        return self.precedence > other
+
+
+@dataclass
 class BinaryOp(Op[V]):
     call: t.Callable[[V, V], V] = field(repr=False)
     precedence: int = 5
@@ -35,11 +60,11 @@ class BinaryOp(Op[V]):
     def __call__(self, lhs: V, rhs: V) -> V:
         return self.call(lhs, rhs)
 
-    def precedes(self, other: t.Union[BinaryOp, int]) -> bool:
+    def precedes(self, other: t.Union[BinaryOp, NaryOp, int]) -> bool:
         """Returns true if self is higher precedence than other.
         Handles a tie using the associativity of self.
         """
-        if isinstance(other, BinaryOp):
+        if isinstance(other, (BinaryOp, NaryOp)):
             other = other.precedence
 
         if self.precedence == other:
@@ -65,7 +90,7 @@ class BinaryOrUnaryOp(BinaryOp[V], UnaryOp[V]):
 
 
 @dataclass
-class Token(ABC, t.Generic[T, V]):
+class Token(ABC, t.Generic[T_co, V]):
     raw: str
     line: int
     span: t.Tuple[int, int]
@@ -75,7 +100,7 @@ class Token(ABC, t.Generic[T, V]):
 
 
 @dataclass
-class OpToken(Token[T, V]):
+class OpToken(Token[T_co, V]):
     op: Op[V]
 
 
@@ -94,19 +119,19 @@ class WhitespaceToken(Token):
 
 
 @dataclass
-class ValueToken(Token[T, V]):
-    val: T
+class ValueToken(Token[T_co, V]):
+    val: T_co
 
 
-class Expr(ABC, t.Generic[T, V]):
+class Expr(ABC, t.Generic[T_co, V]):
     @abstractmethod
-    def eval(self, map_f: t.Callable[[T], V]) -> V:
+    def eval(self, map_f: t.Callable[[T_co], V]) -> V:
         ...
 
     @abstractmethod
     def format(self,
-               format_scalar: t.Callable[[ValueToken[T, V]], str] = str,
-               format_op: t.Callable[[OpToken[T, V]], str] = str) -> str:
+               format_scalar: t.Callable[[ValueToken[T_co, V]], str] = str,
+               format_op: t.Callable[[OpToken[T_co, V]], str] = str) -> str:
         ...
 
     def __str__(self) -> str:
@@ -117,10 +142,10 @@ class Expr(ABC, t.Generic[T, V]):
 
 
 @dataclass
-class UnaryExpr(Expr[T, V]):
-    op_token: OpToken[T, V]
+class UnaryExpr(Expr[T_co, V]):
+    op_token: OpToken[T_co, V]
     op: UnaryOp[V] = field(init=False)
-    inner: Expr[T, V]
+    inner: Expr[T_co, V]
     lspace: str = ""
 
     def __post_init__(self):
@@ -128,74 +153,101 @@ class UnaryExpr(Expr[T, V]):
             raise TypeError()
         self.op = self.op_token.op
 
-    def eval(self, map_f: t.Callable[[T], V]) -> V:
+    def eval(self, map_f: t.Callable[[T_co], V]) -> V:
         return self.op.call(self.inner.eval(map_f))
 
     def format(self,
-               format_scalar: t.Callable[[ValueToken[T, V]], str] = str,
-               format_op: t.Callable[[OpToken[T, V]], str] = str) -> str:
+               format_scalar: t.Callable[[ValueToken[T_co, V]], str] = str,
+               format_op: t.Callable[[OpToken[T_co, V]], str] = str) -> str:
         return f"{self.lspace}{format_op(self.op_token)}{self.inner.format(format_scalar, format_op)}"
 
 
 @dataclass
-class BinaryExpr(Expr[T, V]):
-    op_token: OpToken[T, V]
+class BinaryExpr(Expr[T_co, V]):
+    op_token: OpToken[T_co, V]
     op: BinaryOp[V] = field(init=False)
-    lhs: Expr[T, V]
-    rhs: Expr[T, V]
+    lhs: Expr[T_co, V]
+    rhs: Expr[T_co, V]
 
     def __post_init__(self):
         if not isinstance(self.op_token.op, BinaryOp):
             raise TypeError()
         self.op = self.op_token.op
 
-    def eval(self, map_f: t.Callable[[T], V]) -> V:
+    def eval(self, map_f: t.Callable[[T_co], V]) -> V:
         return self.op.call(self.lhs.eval(map_f), self.rhs.eval(map_f))
 
     def format(self,
-               format_scalar: t.Callable[[ValueToken[T, V]], str] = str,
-               format_op: t.Callable[[OpToken[T, V]], str] = str) -> str:
+               format_scalar: t.Callable[[ValueToken[T_co, V]], str] = str,
+               format_op: t.Callable[[OpToken[T_co, V]], str] = str) -> str:
         return f"{self.lhs.format(format_scalar, format_op)}{format_op(self.op_token)}{self.rhs.format(format_scalar, format_op)}"
 
 
 @dataclass
-class GroupExpr(Expr[T, V]):
+class NaryExpr(Expr[T_co, V]):
+    op_tokens: t.Sequence[OpToken[T_co, V]]
+    op: NaryOp[V] = field(init=False)
+    args: t.Sequence[Expr[T_co, V]]
+    rspace: str = ""
+
+    def __post_init__(self):
+        op = next(token.op for token in self.op_tokens)
+        if not all(token.op == op for token in self.op_tokens[1:]):
+            raise ValueError("All `op`s must be identical inside a NaryExpr")
+        if not isinstance(op, NaryOp):
+            raise TypeError()
+        self.op = op
+
+        assert len(self.op_tokens) == len(self.args) - 1
+
+    def eval(self, map_f: t.Callable[[T_co], V]) -> V:
+        return self.op.call(*map(lambda expr: expr.eval(map_f), self.args))
+
+    def format(self,
+               format_scalar: t.Callable[[ValueToken[T_co, V]], str] = str,
+               format_op: t.Callable[[OpToken[T_co, V]], str] = str) -> str:
+        return "".join(interleave(
+            map(lambda expr: expr.format(format_scalar, format_op), self.args),
+            map(format_op, self.op_tokens)
+        )) + self.rspace
+
+
+@dataclass
+class GroupExpr(Expr[T_co, V]):
     open: GroupOpenToken
-    inner: Expr[T, V]
+    inner: Expr[T_co, V]
     close: GroupCloseToken
     lspace: str = ""
     rspace: str = ""
 
-    def eval(self, map_f: t.Callable[[T], V]) -> V:
+    def eval(self, map_f: t.Callable[[T_co], V]) -> V:
         return self.inner.eval(map_f)
     
     def format(self,
-               format_scalar: t.Callable[[ValueToken[T, V]], str] = str,
-               format_op: t.Callable[[OpToken[T, V]], str] = str) -> str:
+               format_scalar: t.Callable[[ValueToken[T_co, V]], str] = str,
+               format_op: t.Callable[[OpToken[T_co, V]], str] = str) -> str:
         return f"{self.lspace}{self.open}{self.inner.format(format_scalar, format_op)}{self.close}{self.rspace}"
 
 
 @dataclass
-class ValueExpr(Expr[T, V]):
-    token: ValueToken[T, V]
+class ValueExpr(Expr[T_co, V]):
+    token: ValueToken[T_co, V]
     lspace: str = ""
     rspace: str = ""
 
-    def eval(self, map_f: t.Callable[[T], V]) -> V:
+    def eval(self, map_f: t.Callable[[T_co], V]) -> V:
         return map_f(self.token.val)
 
     def format(self,
-               format_scalar: t.Callable[[ValueToken[T, V]], str] = str,
-               format_op: t.Callable[[OpToken[T, V]], str] = str) -> str:
+               format_scalar: t.Callable[[ValueToken[T_co, V]], str] = str,
+               format_op: t.Callable[[OpToken[T_co, V]], str] = str) -> str:
         return f"{self.lspace}{format_scalar(self.token)}{self.rspace}"
 
 
 @dataclass(init=False)
-class Parser(t.Generic[T, V]):
-    parse_scalar: t.Callable[[str], T]
+class Parser(t.Generic[T_co, V]):
+    parse_scalar: t.Callable[[str], T_co]
     ops: t.Dict[str, Op[V]]
-    binary_ops: t.Dict[str, BinaryOp[V]]
-    unary_ops: t.Dict[str, UnaryOp[V]]
     group_open: t.Dict[str, int]
     group_close: t.Dict[str, int]
 
@@ -209,50 +261,48 @@ class Parser(t.Generic[T, V]):
         ...
 
     @t.overload
-    def __init__(self: Parser[T, V], ops: t.Sequence[Op[V]],
-                 parse_scalar: t.Optional[t.Callable[[str], T]],
+    def __init__(self: Parser[T_co, V], ops: t.Sequence[Op[V]],
+                 parse_scalar: t.Optional[t.Callable[[str], T_co]],
                  groups: t.Optional[t.Sequence[t.Tuple[str, str]]] = None):
         ...
 
     def __init__(self, ops: t.Sequence[Op[V]],
-                 parse_scalar: t.Optional[t.Callable[[str], T]] = None,
+                 parse_scalar: t.Optional[t.Callable[[str], T_co]] = None,
                  groups: t.Optional[t.Sequence[t.Tuple[str, str]]] = None):
-        self.parse_scalar = parse_scalar or t.cast(t.Callable[[str], T], lambda s: s)
+        self.parse_scalar = parse_scalar or t.cast(t.Callable[[str], T_co], lambda s: s)
 
         if groups is None:
             groups = [('(', ')'), ('[', ']')]
 
+        match_dict: t.Dict[str, t.Optional[Op[V]]] = {}
+
         self.group_open = {}
         self.group_close = {}
         for (i, (group_open, group_close)) in enumerate(groups):
-            if group_open in self.group_open or group_open in self.group_close:
+            if group_open in match_dict:
                 raise ValueError(f"Group open token '{group_open}' already defined")
-            if group_close in self.group_open or group_open in self.group_close:
+            if group_close in match_dict:
                 raise ValueError(f"Group close token '{group_close}' already defined")
             self.group_open[group_open] = i
             self.group_close[group_close] = i
+            match_dict[group_open] = None
+            match_dict[group_close] = None
 
-        self.ops = {}
-        self.binary_ops = {}
-        self.unary_ops = {}
+        nary_precedences = set()
         for op in ops:
-            is_binary = isinstance(op, BinaryOp)
-            is_unary = isinstance(op, UnaryOp)
-            if not (is_binary or is_unary):
-                raise TypeError(f"Unknown operator type '{type(op)}'")
+            if isinstance(op, NaryOp):
+                if op.precedence in nary_precedences:
+                    raise ValueError("N-ary operators must have distinct precedences. "
+                                     f"Precedence {op.precedence} conflicts with {op!r}")
+                nary_precedences.add(op.precedence)
             for alias in op.aliases:
-                if alias in self.ops:
+                if alias in match_dict:
                     raise ValueError(f"Alias '{alias}' already defined")
-                if is_binary:
-                    self.binary_ops[alias] = op
-                if is_unary:
-                    self.unary_ops[alias] = op
-                self.ops[alias] = op
+                match_dict[alias] = op
 
-        match_list: t.List[t.Tuple[str, t.Optional[Op[V]]]] = list(self.ops.items())
-        match_list.extend((t, None) for t in self.group_open.keys())
-        match_list.extend((t, None) for t in self.group_close.keys())
+        match_list = list(match_dict.items())
         match_list.sort(key=lambda a: -len(a[0]))  #longer operators match first
+        self.ops = {k: v for (k, v) in match_list if v is not None}
 
         def op_to_regex(op):
             alias, op = op
@@ -265,7 +315,7 @@ class Parser(t.Generic[T, V]):
         op_alternation = "|".join(map(op_to_regex, match_list))
         self.token_re = re.compile(f"(\\s+|{op_alternation})")
 
-    def parse(self, reader: TextIOBase) -> Expr[T, V]:
+    def parse(self, reader: TextIOBase) -> Expr[T_co, V]:
         state = ParseState(self, reader)
         expr = state.parse_expr()
         if not state.empty():
@@ -273,12 +323,12 @@ class Parser(t.Generic[T, V]):
         return expr
 
 
-class ParseState(t.Generic[T, V]):
-    def __init__(self, parser: Parser[T, V], reader: TextIOBase):
-        self.parser: Parser[T, V] = parser
+class ParseState(t.Generic[T_co, V]):
+    def __init__(self, parser: Parser[T_co, V], reader: TextIOBase):
+        self.parser: Parser[T_co, V] = parser
         self._reader = reader
         self._buf: t.Optional[str] = None
-        self._peek: t.List[Token[T, V]] = []
+        self._peek: t.List[Token[T_co, V]] = []
         self.line = 0
         self.char = 1
 
@@ -318,7 +368,7 @@ class ParseState(t.Generic[T, V]):
 
         self._peek.reverse()
 
-    def peek(self) -> t.Optional[Token[T, V]]:
+    def peek(self) -> t.Optional[Token[T_co, V]]:
         self._refill_peek()
         return self._peek[-1] if len(self._peek) > 0 else None
 
@@ -332,7 +382,7 @@ class ParseState(t.Generic[T, V]):
             self.next()
         return wspace
 
-    def make_token(self, s, line, span) -> Token[T, V]:
+    def make_token(self, s, line, span) -> Token[T_co, V]:
         if s in self.parser.group_open:
             return GroupOpenToken(s, line, span)
         if s in self.parser.group_close:
@@ -345,39 +395,39 @@ class ParseState(t.Generic[T, V]):
         try:
             return ValueToken(s, line, span, self.parser.parse_scalar(s))
         except (ValueError, TypeError):
-            raise ValueError(f"Syntax error at {line}:{span[0]}-{span[1]}: Unexpected token '{s}'") from None
+            raise ValueError(f"Syntax error at {line}:{span[0]}: Unexpected token '{s}'") from None
 
-    def next(self) -> t.Optional[Token[T, V]]:
+    def next(self) -> t.Optional[Token[T_co, V]]:
         token = self.peek()
         if token is not None:
             self._peek.pop()
         return token
 
-    def parse_expr(self) -> Expr[T, V]:
+    def parse_expr(self) -> Expr[T_co, V]:
         """
             EXPR := PRIMARY, [ BINARY ]
         """
         logging.debug("parse_expr()")
         lhs = self.parse_primary()
-        return self.parse_binary(lhs)
+        return self.parse_nary(lhs)
 
-    def parse_binary(self, lhs: Expr[T, V], level: t.Optional[int] = None) -> Expr[T, V]:
+    def parse_nary(self, lhs: Expr[T_co, V], level: t.Optional[int] = None) -> Expr[T_co, V]:
         """
-            BINARY := { BINARY_OP, ( PRIMARY, ? higher precedence BINARY ? ) }
+            NARY := { BINARY_OP | NARY_OP, ( PRIMARY, ? higher precedence NARY ? ) }
         """
-        logging.debug(f"parse_binary({lhs}, level={level})")
+        logging.debug(f"parse_nary({lhs}, level={level})")
         token = self.peek()
         logging.debug(f"token: '{token!r}'")
         
         while token is not None:
             if not isinstance(token, OpToken) or \
-               not isinstance(token.op, BinaryOp):
+               not isinstance(token.op, (NaryOp, BinaryOp)):
                 break
 
             if level is not None and not token.op.precedes(level):
                 # next op has lower precedence, it needs to be parsed at a higher level
                 break
-            
+
             self.next()
             rhs = self.parse_primary()
             logging.debug(f"rhs: '{rhs}'")
@@ -385,18 +435,28 @@ class ParseState(t.Generic[T, V]):
             inner = self.peek()
             if not inner is None and isinstance(inner, OpToken):
                 inner_op = inner.op
-                if isinstance(inner_op, BinaryOp) and \
+                if isinstance(inner_op, (NaryOp, BinaryOp)) and \
                     inner_op.precedes(token.op):
                     #rhs is actually lhs of an inner expression
-                    rhs = self.parse_binary(rhs, token.op.precedence)
+                    rhs = self.parse_nary(rhs, token.op.precedence)
 
             # append rhs to lhs and loop
-            lhs = BinaryExpr(token, lhs, rhs)
+            if isinstance(token.op, NaryOp):
+                if isinstance(lhs, NaryExpr) and token.op == lhs.op:
+                    # append to existing n-ary node
+                    lhs = NaryExpr(list(lhs.op_tokens) + [token], list(lhs.args) + [rhs])
+                else:
+                    # make new n-ary expression
+                    lhs = NaryExpr([token], [lhs, rhs])
+            else:
+                # or make binary expression
+                lhs = BinaryExpr(token, lhs, rhs)
+
             token = self.peek()
 
         return lhs
 
-    def parse_primary(self) -> Expr[T, V]:
+    def parse_primary(self) -> Expr[T_co, V]:
         """
             PRIMARY := GROUP_OPEN, EXPR, GROUP_CLOSE | UNARY_OP, PRIMARY | SCALAR
         """
@@ -414,20 +474,20 @@ class ParseState(t.Generic[T, V]):
             close = self.next()
             rspace = self.collect_wspace()
             if close is None:
-                raise ValueError(f"At {token.line}:{token.span[0]}: Unclosed delimeter '{token.raw}'")
+                raise ValueError(f"Unclosed delimeter '{token.raw}' opened at {token.line}:{token.span[0]}")
             if not isinstance(close, GroupCloseToken):
-                raise ValueError(f"Expected operator or group close, instead got '{close.raw}'")
+                raise ValueError(f"At {close.line}:{close.span[0]}: Expected operator or group close, instead got '{close.raw}'")
             if self.parser.group_open[token.raw] != self.parser.group_close[close.raw]:
-                raise ValueError(f"Mismatched delimeters: Opener '{token.raw}' closed with '{close.raw}'")
+                raise ValueError(f"At {token.line}:{token.span[0]}-{close.span[1]}: Mismatched delimeters: '{token.raw}' closed with '{close.raw}'")
             return GroupExpr(token, inner, close, lspace, rspace)
-        
+
         if isinstance(token, GroupCloseToken):
-            raise ValueError(f"Unexpected close delimeter: '{token.raw.strip()}'")
-        
+            raise ValueError(f"At {token.line}:{token.span[0]}: Unexpected delimeter '{token.raw.strip()}'")
+
         if isinstance(token, OpToken):
             self.next()
             if not isinstance(token.op, UnaryOp):
-                raise ValueError(f"Unexpected binary operator '{token.raw}'. Expected a value or prefix operator.")
+                raise ValueError(f"At {token.line}:{token.span[0]}: Unexpected operator '{token.raw}'. Expected a value or prefix operator.")
             inner = self.parse_primary()
             return UnaryExpr(token, inner, lspace)
 
@@ -435,8 +495,56 @@ class ParseState(t.Generic[T, V]):
             self.next()
             rspace = self.collect_wspace()
             return ValueExpr(token, lspace, rspace)
-        
+
         raise TypeError(f"Unknown token type '{type(token)}'")
+
+
+def interleave(l1: t.Iterable[T_co], l2: t.Iterable[T_co]) -> t.Iterator[T_co]:
+    for (v1, v2) in zip_longest(l1, l2):
+        yield v1
+        if v2 is not None:
+            yield v2
+
+
+SupportsBoolSelf = t.TypeVar('SupportsBoolSelf', bound='SupportsBool')
+SupportsNumSelf = t.TypeVar('SupportsNumSelf', bound='SupportsNum')
+
+
+class SupportsBool(t.Protocol):
+    def __and__(self: SupportsBoolSelf, other: SupportsBoolSelf) -> SupportsBoolSelf:
+        ...
+
+    def __or__(self: SupportsBoolSelf, other: SupportsBoolSelf) -> SupportsBoolSelf:
+        ...
+
+    def __xor__(self: SupportsBoolSelf, other: SupportsBoolSelf) -> SupportsBoolSelf:
+        ...
+
+    def __invert__(self: SupportsBoolSelf) -> SupportsBoolSelf:
+        ...
+
+
+class SupportsNum(t.Protocol):
+    def __add__(self: SupportsNumSelf, other: SupportsNumSelf) -> SupportsNumSelf:
+        ...
+
+    def __sub__(self: SupportsNumSelf, other: SupportsNumSelf) -> SupportsNumSelf:
+        ...
+
+    def __mul__(self: SupportsNumSelf, other: SupportsNumSelf) -> SupportsNumSelf:
+        ...
+
+    def __truediv__(self: SupportsNumSelf, other: SupportsNumSelf) -> SupportsNumSelf:
+        ...
+
+    def __floordiv__(self: SupportsNumSelf, other: SupportsNumSelf) -> SupportsNumSelf:
+        ...
+
+    def __mod__(self: SupportsNumSelf, other: SupportsNumSelf) -> SupportsNumSelf:
+        ...
+
+    def __pow__(self: SupportsNumSelf, other: SupportsNumSelf) -> SupportsNumSelf:
+        ...
 
 
 def parse_numeric(s: str) -> t.Union[int, float]:
@@ -453,7 +561,7 @@ def sub(lhs, rhs=None):
     return lhs-rhs
 
 
-def parse_boolean(s) -> bool:
+def parse_boolean(s: str) -> bool:
     if s.lower() in ("0", "false", "f"):
         return False
     elif s.lower() in ("1", "true", "t"):
@@ -461,7 +569,7 @@ def parse_boolean(s) -> bool:
     raise ValueError(f"Can't parse '{s}' as boolean")
 
 
-NUMERIC_OPS: t.Sequence[Op[t.Union[int, float]]] = [
+NUMERIC_OPS: t.Sequence[Op[SupportsNum]] = [
     BinaryOrUnaryOp(['-'], sub, False, 5),
     BinaryOp(['+'], operator.add, 5),
     BinaryOp(['*'], operator.mul, 6),
@@ -469,16 +577,27 @@ NUMERIC_OPS: t.Sequence[Op[t.Union[int, float]]] = [
     BinaryOp(['//'], operator.floordiv, 6),
     BinaryOp(['^', '**'], operator.pow, 7)
 ]
-NUMERIC_PARSER: Parser[t.Union[int, float], t.Union[int, float]] = Parser(NUMERIC_OPS, parse_numeric)
+NUMERIC_PARSER = Parser(NUMERIC_OPS, parse_numeric)
 
 
-BOOLEAN_OPS: t.Sequence[Op[bool]] = [
+BOOLEAN_OPS: t.Sequence[Op[SupportsBool]] = [
     BinaryOp(['=', '=='], operator.eq, 3),
     BinaryOp(['!=', '<>'], operator.ne, 3),
     BinaryOp(['|', '||'], operator.or_, 4),
     BinaryOp(['&', '&&'], operator.and_, 5),
     BinaryOp(['^'], operator.xor, 6),
-    UnaryOp(['!', '~'], operator.not_)
+    UnaryOp(['!', '~'], operator.invert)
 ]
 BOOLEAN_PARSER = Parser(BOOLEAN_OPS, parse_boolean)
 """Parser for boolean expressions ([1 || false && true])"""
+
+
+def stack(*vs: numpy.ndarray) -> numpy.ndarray:
+    return numpy.stack(vs, axis=0)
+
+
+VECTOR_OPS: t.Sequence[Op[numpy.ndarray]] = [
+    *(t.cast(Op[numpy.ndarray], op) for op in NUMERIC_OPS),
+    NaryOp([','], call=stack, precedence=3),
+]
+VECTOR_PARSER = Parser(VECTOR_OPS, lambda v: numpy.array(parse_numeric(v)))
