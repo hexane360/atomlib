@@ -1,5 +1,5 @@
 
-from io import TextIOBase, TextIOWrapper, IOBase, StringIO, BytesIO
+from io import RawIOBase, BufferedIOBase, TextIOBase, TextIOWrapper, IOBase, StringIO, BytesIO
 from pathlib import Path
 from fractions import Fraction
 from contextlib import nullcontext, AbstractContextManager
@@ -40,20 +40,25 @@ def open_file(f: FileOrPath,
     the specified settings. Otherwise, make an effort to reconfigure
     the encoding, and check that it is readable/writable as specified.
     """
-    if not isinstance(f, (TextIOBase, t.TextIO)):
+    if not isinstance(f, (IOBase, t.BinaryIO, t.TextIO)):
         return open(f, mode, newline=newline, encoding=encoding)
 
     if isinstance(f, TextIOWrapper):
         f.reconfigure(newline=newline, encoding=encoding)
     elif isinstance(f, t.TextIO):
         f = TextIOWrapper(f.buffer, newline=newline, encoding=encoding)
+    elif isinstance(f, (BufferedIOBase, t.BinaryIO)):
+        f = TextIOWrapper(t.cast(t.BinaryIO, f), newline=newline, encoding=encoding)
+
+    if f.closed:
+        raise IOError("Error: Provided file is closed.")
 
     if mode == 'r':
         if not f.readable():
-            raise RuntimeError("Error: Provided file not readable.")
+            raise IOError("Error: Provided file not readable.")
     elif mode == 'w':
         if not f.writable():
-            raise RuntimeError("Error: Provided file not writable.")
+            raise IOError("Error: Provided file not writable.")
 
     return nullcontext(f)  # don't close a f we didn't open
 
@@ -80,12 +85,15 @@ def open_file_binary(f: BinaryFileOrPath,
     elif isinstance(f, TextIOBase):
         raise ValueError(f"Error: Couldn't get binary stream from text stream of type '{type(f)}'.")
 
+    if f.closed:
+        raise IOError("Error: Provided file is closed.")
+
     if mode == 'r':
         if not f.readable():
-            raise RuntimeError("Error: Provided file not readable.")
+            raise IOError("Error: Provided file not readable.")
     elif mode == 'w':
         if not f.writable():
-            raise RuntimeError("Error: Provided file not writable.")
+            raise IOError("Error: Provided file not writable.")
 
     return nullcontext(t.cast(IOBase, f))  # don't close a file we didn't open
 

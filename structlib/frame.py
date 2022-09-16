@@ -4,6 +4,7 @@ import logging
 import typing as t
 
 import numpy
+import scipy.spatial
 from numpy.typing import ArrayLike
 import polars
 
@@ -281,9 +282,9 @@ class AtomFrame(polars.DataFrame):
 
         selection = _selection_to_series(self, selection)
         return self.__class__(self.with_columns((
-            self['x'].set_at_idx(selection, pts[:, 0]),
-            self['y'].set_at_idx(selection, pts[:, 1]),
-            self['z'].set_at_idx(selection, pts[:, 2]),
+            self['x'].set_at_idx(selection, pts[:, 0]),  # type: ignore
+            self['y'].set_at_idx(selection, pts[:, 1]),  # type: ignore
+            self['z'].set_at_idx(selection, pts[:, 2]),  # type: ignore
         )))
 
     def with_velocity(self, pts: t.Optional[ArrayLike] = None, selection: t.Optional[AtomSelection] = None) -> AtomFrame:
@@ -307,9 +308,9 @@ class AtomFrame(polars.DataFrame):
 
         selection = _selection_to_series(self, selection)
         return self.__class__(self.with_columns((
-            self['v_x'].set_at_idx(selection, pts[:, 0]),
-            self['v_y'].set_at_idx(selection, pts[:, 1]),
-            self['v_z'].set_at_idx(selection, pts[:, 2]),
+            self['v_x'].set_at_idx(selection, pts[:, 0]),  # type: ignore
+            self['v_y'].set_at_idx(selection, pts[:, 1]),  # type: ignore
+            self['v_z'].set_at_idx(selection, pts[:, 2]),  # type: ignore
         )))
 
     @property
@@ -327,6 +328,42 @@ class AtomFrame(polars.DataFrame):
         if transform_velocities and (velocities := self.velocities(selection)) is not None:
             return transformed.with_velocity(transform.transform_vec(velocities), selection)
         return transformed
+
+    def deduplicate(self, tolerance: float = 1e-3, cols: t.Iterable[str] = ('x', 'y', 'z', 'symbol')) -> AtomFrame:
+        """
+        De-duplicate atoms in `self`. Atoms of the same `symbol` that are closer than `tolerance`
+        to each other (by Euclidian distance) will be removed, leaving only the first atom.
+
+        If `cols` is specified, only those columns will be included while assessing duplicates.
+        Floating point columns other than 'x', 'y', and 'z' will not by toleranced.
+        """
+
+        cols = set((cols,) if isinstance(cols, str) else cols)
+
+        indices = numpy.arange(len(self))
+
+        spatial_cols = cols.intersection(('x', 'y', 'z'))
+        cols -= spatial_cols
+        if len(spatial_cols) > 0:
+            coords = self.select(list(spatial_cols)).to_numpy()
+            print(coords.shape)
+            tree = scipy.spatial.KDTree(coords)
+
+            # TODO This is a bad algorithm, O(n) worst case
+            while True:
+                changed = False
+                for (i, j) in tree.query_pairs(tolerance, 2.):
+                    # whenever we encounter a pair, ensure their index matches
+                    i_i, i_j = indices[[i, j]]
+                    if i_i != i_j:
+                        indices[i] = indices[j] = min(i_i, i_j)
+                        changed = True
+                if not changed:
+                    break
+
+        self = self.with_column(polars.Series('_unique_pts', indices))
+        cols.add('_unique_pts')
+        return self.unique(subset=list(cols)).drop('_unique_pts')
 
 
 AtomSelection = t.Union[polars.Series, polars.Expr, ArrayLike]

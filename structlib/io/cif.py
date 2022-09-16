@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from abc import ABC
 from dataclasses import dataclass
-from io import TextIOBase
+from io import TextIOBase, StringIO
 from pathlib import Path
 from itertools import repeat
 import operator
@@ -33,8 +33,8 @@ class CIF:
 
     @staticmethod
     def from_file(file: FileOrPath) -> t.Iterator[CIF]:
-        with open_file(file, 'r') as f:
-            return CifReader(f).parse()
+        with open_file(file) as f:
+            yield from CifReader(f).parse()
 
     def stack_tags(self, *tags: str, dtype=None, rename: t.Optional[t.Sequence[str]] = None) -> polars.DataFrame:
         if dtype is None:
@@ -140,13 +140,13 @@ class SymmetryVec:
             raise ValueError("Can't multiply two symmetry directions")
         return SymmetryVec(rhs.inner * self.inner)
 
-    def __div__(self, rhs: SymmetryVec) -> SymmetryVec:
+    def __truediv__(self, rhs: SymmetryVec) -> SymmetryVec:
         if not self.is_scalar() and not rhs.is_scalar():
             raise ValueError("Can't divide two symmetry directions")
         return SymmetryVec(rhs.inner / self.inner)
 
 
-SYMMETRY_PARSER = Parser([
+SYMMETRY_PARSER: Parser[SymmetryVec, SymmetryVec] = Parser([
     BinaryOrUnaryOp(['-'], sub, False, 5),
     BinaryOp(['+'], operator.add, 5),
     BinaryOp(['*'], operator.mul, 6),
@@ -158,7 +158,8 @@ def parse_symmetry(s: str) -> AffineTransform:
     axes = s.split(',')
     if not len(axes) == 3:
         raise ValueError(f"Error parsing symmetry expression '{s}': Expected 3 values, got {len(axes)}")
-    axes = [SYMMETRY_PARSER.parse(ax).eval().to_vec() for ax in axes]  # type: ignore
+
+    axes = [SYMMETRY_PARSER.parse(StringIO(ax)).eval(lambda v: v).to_vec() for ax in axes]
     axes.append(numpy.array([0., 0., 0., 1.]))
     return AffineTransform(numpy.stack(axes, axis=0))
 

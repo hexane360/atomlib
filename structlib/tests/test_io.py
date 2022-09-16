@@ -1,3 +1,4 @@
+import logging
 from pathlib import Path
 
 import numpy
@@ -29,6 +30,10 @@ def test_xyz():
 
     with open(path) as f:
         s = read_xyz(f)
+    xyz_expected(s)
+
+    with open(path) as f:
+        s = read(f)
     xyz_expected(s)
 
     s = read_xyz(path)
@@ -78,3 +83,38 @@ def test_cfg():
 
     s = AtomCollection.read_cfg(path)
     cfg_expected(s)
+
+
+def cif_expected(s: AtomCollection):
+    assert isinstance(s, AtomCell)
+
+    assert s.cell_size == pytest.approx([22.75298600, 9.79283000, 5.65716000])
+    assert s.cell_angle == pytest.approx(numpy.full(3, numpy.pi/2.))
+    assert s.is_orthogonal()
+
+    assert len(s.atoms.filter(polars.col('symbol') == 'Al')) == 21
+    assert len(s.atoms.filter(polars.col('symbol') == 'O')) == 34
+    assert len(s.atoms.filter(polars.col('symbol') == 'Ag')) == 4
+
+
+def test_cif(caplog):
+    path = PATH / 'test.cif'
+
+    #caplog.set_level(logging.DEBUG)
+
+    with open(path, 'rb') as f:
+        s = read_cif(f)  # type: ignore
+        #print(s.atoms.filter(polars.col('symbol') == 'O').to_csv(sep='\t'))
+        cif_expected(s)
+
+    s = read_cif(path)
+    cif_expected(s)
+
+    s = read(path)
+    cif_expected(s)
+
+    s = AtomCollection.read(path)
+    cif_expected(s)
+
+    s = AtomCollection.read_cif(path)
+    cif_expected(s)

@@ -9,7 +9,7 @@ import re
 import typing as t
 
 V = t.TypeVar('V')
-T = t.TypeVar('T')
+T = t.TypeVar('T', covariant=True)
 
 WSPACE_RE = re.compile(r"\s+")
 
@@ -65,7 +65,7 @@ class BinaryOrUnaryOp(BinaryOp[V], UnaryOp[V]):
 
 
 @dataclass
-class Token(ABC, t.Generic[V]):
+class Token(ABC, t.Generic[T, V]):
     raw: str
     line: int
     span: t.Tuple[int, int]
@@ -75,38 +75,38 @@ class Token(ABC, t.Generic[V]):
 
 
 @dataclass
-class OpToken(Token[V]):
+class OpToken(Token[T, V]):
     op: Op[V]
 
 
 @dataclass
-class GroupOpenToken(Token[V]):
+class GroupOpenToken(Token):
     ...
 
 
 @dataclass
-class GroupCloseToken(Token[V]):
+class GroupCloseToken(Token):
     ...
 
 
-class WhitespaceToken(Token[V]):
+class WhitespaceToken(Token):
     ...
 
 
 @dataclass
-class ValueToken(Token[V]):
-    val: V
+class ValueToken(Token[T, V]):
+    val: T
 
 
-class Expr(ABC, t.Generic[V, T]):
+class Expr(ABC, t.Generic[T, V]):
     @abstractmethod
-    def eval(self, map_f: t.Callable[[V], T] = lambda v: v) -> T:
+    def eval(self, map_f: t.Callable[[T], V]) -> V:
         ...
 
     @abstractmethod
     def format(self,
-               format_scalar: t.Callable[[ValueToken[V]], str] = str,
-               format_op: t.Callable[[OpToken[V]], str] = str) -> str:
+               format_scalar: t.Callable[[ValueToken[T, V]], str] = str,
+               format_op: t.Callable[[OpToken[T, V]], str] = str) -> str:
         ...
 
     def __str__(self) -> str:
@@ -116,102 +116,111 @@ class Expr(ABC, t.Generic[V, T]):
         ...
 
 
-@dataclass(init=False)
-class UnaryExpr(Expr[V, T]):
-    op_token: OpToken[V]
+@dataclass
+class UnaryExpr(Expr[T, V]):
+    op_token: OpToken[T, V]
     op: UnaryOp[V] = field(init=False)
-    inner: Expr[V, T]
+    inner: Expr[T, V]
     lspace: str = ""
 
     def __post_init__(self):
-        if not isinstance(self.op_token.op, BinaryOp):
+        if not isinstance(self.op_token.op, UnaryOp):
             raise TypeError()
         self.op = self.op_token.op
 
-    def eval(self, map_f: t.Callable[[V], T] = lambda v: v) -> T:
+    def eval(self, map_f: t.Callable[[T], V]) -> V:
         return self.op.call(self.inner.eval(map_f))
 
     def format(self,
-               format_scalar: t.Callable[[ValueToken[V]], str] = str,
-               format_op: t.Callable[[OpToken[V]], str] = str) -> str:
+               format_scalar: t.Callable[[ValueToken[T, V]], str] = str,
+               format_op: t.Callable[[OpToken[T, V]], str] = str) -> str:
         return f"{self.lspace}{format_op(self.op_token)}{self.inner.format(format_scalar, format_op)}"
 
 
 @dataclass
-class BinaryExpr(Expr[V, T]):
-    op_token: OpToken[V]
+class BinaryExpr(Expr[T, V]):
+    op_token: OpToken[T, V]
     op: BinaryOp[V] = field(init=False)
-    lhs: Expr[V, T]
-    rhs: Expr[V, T]
+    lhs: Expr[T, V]
+    rhs: Expr[T, V]
 
     def __post_init__(self):
         if not isinstance(self.op_token.op, BinaryOp):
             raise TypeError()
         self.op = self.op_token.op
 
-    @t.overload
-    def eval(self, map_f: t.Callable[[V], V] = lambda v: v) -> V:
+    def eval(self, map_f: t.Callable[[T], V]) -> V:
         return self.op.call(self.lhs.eval(map_f), self.rhs.eval(map_f))
 
     def format(self,
-               format_scalar: t.Callable[[ValueToken[V]], str] = str,
-               format_op: t.Callable[[OpToken[V]], str] = str) -> str:
+               format_scalar: t.Callable[[ValueToken[T, V]], str] = str,
+               format_op: t.Callable[[OpToken[T, V]], str] = str) -> str:
         return f"{self.lhs.format(format_scalar, format_op)}{format_op(self.op_token)}{self.rhs.format(format_scalar, format_op)}"
 
 
 @dataclass
-class GroupExpr(Expr[V, T]):
-    open: GroupOpenToken[V]
-    inner: Expr[V, T]
-    close: GroupCloseToken[V]
+class GroupExpr(Expr[T, V]):
+    open: GroupOpenToken
+    inner: Expr[T, V]
+    close: GroupCloseToken
     lspace: str = ""
     rspace: str = ""
 
-    def eval(self, map_f: t.Callable[[V], T] = lambda v: v) -> T:
-        return self.inner.eval()
+    def eval(self, map_f: t.Callable[[T], V]) -> V:
+        return self.inner.eval(map_f)
     
     def format(self,
-               format_scalar: t.Callable[[V], str] = str,
-               format_op: t.Callable[[OpToken[V]], str] = str) -> str:
+               format_scalar: t.Callable[[ValueToken[T, V]], str] = str,
+               format_op: t.Callable[[OpToken[T, V]], str] = str) -> str:
         return f"{self.lspace}{self.open}{self.inner.format(format_scalar, format_op)}{self.close}{self.rspace}"
 
 
 @dataclass
-class ValueExpr(Expr[V, T]):
-    token: ValueToken[V]
+class ValueExpr(Expr[T, V]):
+    token: ValueToken[T, V]
     lspace: str = ""
     rspace: str = ""
 
-    def eval(self, map_f: t.Callable[[V], T] = lambda v: v) -> T:
+    def eval(self, map_f: t.Callable[[T], V]) -> V:
         return map_f(self.token.val)
 
     def format(self,
-               format_scalar: t.Callable[[V], str] = str,
-               format_op: t.Callable[[OpToken[V]], str] = str) -> str:
-        return f"{self.lspace}{format_scalar(self.token.val)}{self.rspace}"
+               format_scalar: t.Callable[[ValueToken[T, V]], str] = str,
+               format_op: t.Callable[[OpToken[T, V]], str] = str) -> str:
+        return f"{self.lspace}{format_scalar(self.token)}{self.rspace}"
 
 
 @dataclass(init=False)
-class Parser(t.Generic[V, T]):
-    parse_scalar: t.Callable[[str], V]
-    ops: t.Dict[str, Op[T]]
-    binary_ops: t.Dict[str, BinaryOp[T]]
-    unary_ops: t.Dict[str, UnaryOp[T]]
+class Parser(t.Generic[T, V]):
+    parse_scalar: t.Callable[[str], T]
+    ops: t.Dict[str, Op[V]]
+    binary_ops: t.Dict[str, BinaryOp[V]]
+    unary_ops: t.Dict[str, UnaryOp[V]]
     group_open: t.Dict[str, int]
     group_close: t.Dict[str, int]
 
     token_re: re.Pattern = field(init=False)
     """Regex matching operators, brackets, and whitespace"""
 
-    def __init__(self, ops: t.List[Op[V]],
-                 parse_scalar: t.Callable[[str], V] = None,
-                 groups: t.Sequence[t.Tuple[str, str]] = None):
-        if parse_scalar is None:
-            parse_scalar = lambda s: s
-        if groups is None:
-            groups = [('(', ')'), ['[', ']']]
+    @t.overload
+    def __init__(self: Parser[str, V], ops: t.Sequence[Op[V]],
+                 parse_scalar: t.Optional[t.Callable[[str], str]] = None,
+                 groups: t.Optional[t.Sequence[t.Tuple[str, str]]] = None):
+        ...
 
-        self.parse_scalar = parse_scalar
+    @t.overload
+    def __init__(self: Parser[T, V], ops: t.Sequence[Op[V]],
+                 parse_scalar: t.Optional[t.Callable[[str], T]],
+                 groups: t.Optional[t.Sequence[t.Tuple[str, str]]] = None):
+        ...
+
+    def __init__(self, ops: t.Sequence[Op[V]],
+                 parse_scalar: t.Optional[t.Callable[[str], T]] = None,
+                 groups: t.Optional[t.Sequence[t.Tuple[str, str]]] = None):
+        self.parse_scalar = parse_scalar or t.cast(t.Callable[[str], T], lambda s: s)
+
+        if groups is None:
+            groups = [('(', ')'), ('[', ']')]
 
         self.group_open = {}
         self.group_close = {}
@@ -239,8 +248,8 @@ class Parser(t.Generic[V, T]):
                 if is_unary:
                     self.unary_ops[alias] = op
                 self.ops[alias] = op
-        
-        match_list: t.List[t.Tuple[str, t.Optional[t.Op]]] = list(self.ops.items())
+
+        match_list: t.List[t.Tuple[str, t.Optional[Op[V]]]] = list(self.ops.items())
         match_list.extend((t, None) for t in self.group_open.keys())
         match_list.extend((t, None) for t in self.group_close.keys())
         match_list.sort(key=lambda a: -len(a[0]))  #longer operators match first
@@ -256,7 +265,7 @@ class Parser(t.Generic[V, T]):
         op_alternation = "|".join(map(op_to_regex, match_list))
         self.token_re = re.compile(f"(\\s+|{op_alternation})")
 
-    def parse(self, reader: t.Union[str, TextIOBase]) -> Expr[V, T]:
+    def parse(self, reader: TextIOBase) -> Expr[T, V]:
         state = ParseState(self, reader)
         expr = state.parse_expr()
         if not state.empty():
@@ -264,12 +273,12 @@ class Parser(t.Generic[V, T]):
         return expr
 
 
-class ParseState(t.Generic[T]):
-    def __init__(self, parser: Parser[T], reader: t.Union[str, TextIOBase]):
-        self.parser: Parser[T] = parser
-        self._reader = StringIO(reader) if isinstance(reader, str) else reader
+class ParseState(t.Generic[T, V]):
+    def __init__(self, parser: Parser[T, V], reader: TextIOBase):
+        self.parser: Parser[T, V] = parser
+        self._reader = reader
         self._buf: t.Optional[str] = None
-        self._peek: t.List[Token[T]] = []
+        self._peek: t.List[Token[T, V]] = []
         self.line = 0
         self.char = 1
 
@@ -309,7 +318,7 @@ class ParseState(t.Generic[T]):
 
         self._peek.reverse()
 
-    def peek(self) -> t.Optional[Token[T]]:
+    def peek(self) -> t.Optional[Token[T, V]]:
         self._refill_peek()
         return self._peek[-1] if len(self._peek) > 0 else None
 
@@ -323,7 +332,7 @@ class ParseState(t.Generic[T]):
             self.next()
         return wspace
 
-    def make_token(self, s, line, span) -> Token[T]:
+    def make_token(self, s, line, span) -> Token[T, V]:
         if s in self.parser.group_open:
             return GroupOpenToken(s, line, span)
         if s in self.parser.group_close:
@@ -338,13 +347,13 @@ class ParseState(t.Generic[T]):
         except (ValueError, TypeError):
             raise ValueError(f"Syntax error at {line}:{span[0]}-{span[1]}: Unexpected token '{s}'") from None
 
-    def next(self) -> t.Optional[Token[T]]:
+    def next(self) -> t.Optional[Token[T, V]]:
         token = self.peek()
         if token is not None:
             self._peek.pop()
         return token
 
-    def parse_expr(self) -> Expr[T]:
+    def parse_expr(self) -> Expr[T, V]:
         """
             EXPR := PRIMARY, [ BINARY ]
         """
@@ -352,7 +361,7 @@ class ParseState(t.Generic[T]):
         lhs = self.parse_primary()
         return self.parse_binary(lhs)
 
-    def parse_binary(self, lhs: Expr[T], level: t.Optional[int] = None) -> Expr[T]:
+    def parse_binary(self, lhs: Expr[T, V], level: t.Optional[int] = None) -> Expr[T, V]:
         """
             BINARY := { BINARY_OP, ( PRIMARY, ? higher precedence BINARY ? ) }
         """
@@ -387,7 +396,7 @@ class ParseState(t.Generic[T]):
 
         return lhs
 
-    def parse_primary(self) -> Expr[T]:
+    def parse_primary(self) -> Expr[T, V]:
         """
             PRIMARY := GROUP_OPEN, EXPR, GROUP_CLOSE | UNARY_OP, PRIMARY | SCALAR
         """
@@ -452,18 +461,18 @@ def parse_boolean(s) -> bool:
     raise ValueError(f"Can't parse '{s}' as boolean")
 
 
-NUMERIC_OPS = [
-    BinaryOrUnaryOp(['-'], sub, 5),
+NUMERIC_OPS: t.Sequence[Op[t.Union[int, float]]] = [
+    BinaryOrUnaryOp(['-'], sub, False, 5),
     BinaryOp(['+'], operator.add, 5),
     BinaryOp(['*'], operator.mul, 6),
     BinaryOp(['/'], operator.truediv, 6),
     BinaryOp(['//'], operator.floordiv, 6),
     BinaryOp(['^', '**'], operator.pow, 7)
 ]
-NUMERIC_PARSER: Parser[t.Union[int, float]] = Parser(NUMERIC_OPS, parse_numeric)
+NUMERIC_PARSER: Parser[t.Union[int, float], t.Union[int, float]] = Parser(NUMERIC_OPS, parse_numeric)
 
 
-BOOLEAN_OPS = [
+BOOLEAN_OPS: t.Sequence[Op[bool]] = [
     BinaryOp(['=', '=='], operator.eq, 3),
     BinaryOp(['!=', '<>'], operator.ne, 3),
     BinaryOp(['|', '||'], operator.or_, 4),
@@ -471,5 +480,5 @@ BOOLEAN_OPS = [
     BinaryOp(['^'], operator.xor, 6),
     UnaryOp(['!', '~'], operator.not_)
 ]
-BOOLEAN_PARSER: Parser[bool] = Parser(BOOLEAN_OPS, parse_boolean)
+BOOLEAN_PARSER = Parser(BOOLEAN_OPS, parse_boolean)
 """Parser for boolean expressions ([1 || false && true])"""

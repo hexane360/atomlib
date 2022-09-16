@@ -6,6 +6,7 @@ import logging
 import typing as t
 
 import numpy
+import polars
 
 from .cif import CIF
 from .xyz import XYZ
@@ -41,6 +42,21 @@ def read_cif(f: t.Union[FileOrPath, CIF]) -> AtomCollection:
                         'atom_site_type_symbol', 'atom_site_occupancy',
                         rename=('x', 'y', 'z', 'symbol', 'frac_occupancy'))
     atoms = AtomFrame(df)
+
+    # parse and apply symmetry
+    sym_atoms = []
+    for sym in cif.get_symmetry():
+        sym_atoms.append(atoms.transform(sym))
+
+    if len(sym_atoms) > 0:
+        atoms = AtomFrame(polars.concat(sym_atoms))
+        atoms = atoms.with_columns((
+            # we need numpy's behavior here (-0.6 % 1. = 0.4)
+            polars.col('x').apply(lambda x: numpy.mod(x, 1.)),
+            polars.col('y').apply(lambda x: numpy.mod(x, 1.)),
+            polars.col('z').apply(lambda x: numpy.mod(x, 1.)),
+        ))
+        atoms = atoms.deduplicate()
 
     if (cell_size := cif.cell_size()) is not None:
         cell_size = Vec3.make(cell_size)

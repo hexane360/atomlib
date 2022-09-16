@@ -1,0 +1,49 @@
+# generated using pymatgen
+data_Al11AgO17
+_symmetry_space_group_name_H-M   Ama2
+_cell_length_a   22.75298600
+_cell_length_b   9.79283000
+_cell_length_c   5.65716000
+_cell_angle_alpha   90.00000000
+_cell_angle_beta   90.00000000
+_cell_angle_gamma   90.00000000
+_symmetry_Int_Tables_number   40
+_chemical_formula_structural   Al11AgO17
+_chemical_formula_sum   'Al44 Ag4 O68'
+_cell_volume   1260.50646343
+_cell_formula_units_Z   4
+loop_
+ _symmetry_equiv_pos_site_id
+ _symmetry_equiv_pos_as_xyz
+  1  'x, y, z'
+  2  '-x, -y, z'
+  3  '-x+1/2, y, z'
+  4  'x+1/2, -y, z'
+  5  'x, y+1/2, z+1/2'
+  6  '-x, -y+1/2, z+1/2'
+  7  '-x+1/2, y+1/2, z+1/2'
+  8  'x+1/2, -y+1/2, z+1/2'
+loop_
+ _atom_site_type_symbol
+ _atom_site_label
+ _atom_site_symmetry_multiplicity
+ _atom_site_fract_x
+ _atom_site_fract_y
+ _atom_site_fract_z
+ _atom_site_occupancy
+  Al  Al0  8  0.02487100  0.16662700  0.50008800  1
+  Al  Al1  8  0.10688200  0.41650100  0.24937100  1
+  Al  Al2  8  0.10752300  0.16735950  0.99958950  1
+  Al  Al3  8  0.10752700  0.41615800  0.75083400  1
+  Al  Al4  8  0.17580700  0.16710450  0.50125550  1
+  Al  Al5  4  0.00000000  0.00000000  0.00032700  1
+  Ag  Ag6  4  0.25000000  0.35239500  0.05717500  1
+  O  O7  8  0.04988100  0.34281000  0.49974800  1
+  O  O8  8  0.04992200  0.07843350  0.76412250  1
+  O  O9  8  0.05010000  0.07864150  0.23604350  1
+  O  O10  8  0.05550700  0.33343050  0.00029350  1
+  O  O11  8  0.14184600  0.49988550  0.49973650  1
+  O  O12  8  0.14569900  0.25144700  0.75433700  1
+  O  O13  8  0.14639000  0.25212000  0.24517300  1
+  O  O14  8  0.14639600  0.49652650  0.00076150  1
+  O  O15  4  0.25000000  0.16564950  0.49693050  1

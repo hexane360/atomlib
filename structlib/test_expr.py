@@ -20,7 +20,7 @@ def iter_from_func(f, *args, **kwargs):
 
 
 def test_tokenize():
-    state = ParseState(NUMERIC_PARSER, "5 + (6 * 3)")
+    state = ParseState(NUMERIC_PARSER, StringIO("5 + (6 * 3)"))
     tokens = list(iter_from_func(state.next))
     
     assert tokens == [
@@ -39,7 +39,7 @@ def test_tokenize():
 
 
 def test_tokenize_error():
-    state = ParseState(NUMERIC_PARSER, "5 + (foo * 3)")
+    state = ParseState(NUMERIC_PARSER, StringIO("5 + (foo * 3)"))
 
     with pytest.raises(ValueError, match="Syntax error at 1:6-9: Unexpected token 'foo'"):
         tokens = list(iter_from_func(state.next))
@@ -47,7 +47,7 @@ def test_tokenize_error():
 
 def test_parse_binary():
     s = "6*3*9"
-    expr = NUMERIC_PARSER.parse(s)
+    expr = NUMERIC_PARSER.parse(StringIO(s))
     assert expr == BinaryExpr(OpToken('*', 1, (4, 5), NUMERIC_OPS[2]),
         BinaryExpr(OpToken('*', 1, (2, 3), NUMERIC_OPS[2]),
             ValueExpr(ValueToken('6', 1, (1, 2), 6)),
@@ -57,7 +57,7 @@ def test_parse_binary():
     )
 
     s = "6+3*9"
-    expr = NUMERIC_PARSER.parse(s)
+    expr = NUMERIC_PARSER.parse(StringIO(s))
     assert expr == BinaryExpr(OpToken('+', 1, (2, 3), NUMERIC_OPS[1]),
         ValueExpr(ValueToken('6', 1, (1, 2), 6)),
         BinaryExpr(OpToken('*', 1, (4, 5), NUMERIC_OPS[2]),
@@ -81,21 +81,21 @@ def format_precedence(expr: Expr) -> str:
 
 
 def test_precedence():
-    expr = NUMERIC_PARSER.parse("5 + 6 * 3 / 2")
+    expr = NUMERIC_PARSER.parse(StringIO("5 + 6 * 3 / 2"))
     assert format_precedence(expr) == "(5+((6*3)/2))"
 
-    expr = NUMERIC_PARSER.parse("2 * 3 * 4 * 5")
+    expr = NUMERIC_PARSER.parse(StringIO("2 * 3 * 4 * 5"))
     assert format_precedence(expr) == "(((2*3)*4)*5)"
 
     ops = deepcopy(NUMERIC_OPS)
-    ops[2].right_assoc = True
+    ops[2].right_assoc = True  # type: ignore
     parser = Parser(ops)
-    expr = parser.parse("2 * 3 * 4 * 5")
+    expr = parser.parse(StringIO("2 * 3 * 4 * 5"))
     assert format_precedence(expr) == "(2*(3*(4*5)))"
 
 def test_parse():
     s = "5 + (6 * 3 * 9)"
-    expr = NUMERIC_PARSER.parse(s)
+    expr = NUMERIC_PARSER.parse(StringIO(s))
     print(f"{expr!s}")
 
     assert expr == BinaryExpr(OpToken('+', 1, (3, 4), NUMERIC_OPS[1]),
