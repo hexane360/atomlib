@@ -9,6 +9,7 @@ import numpy
 from .vec import Vec3
 from .transform import LinearTransform
 from .types import VecLike, to_vec3
+from .util import reduce_vec
 
 
 @t.overload
@@ -76,3 +77,45 @@ def ortho_to_cell(ortho: LinearTransform) -> t.Tuple[Vec3, Vec3]:
     cell_angle = _validate_cell_angle(cell_angle)
 
     return (cell_size, cell_angle)
+
+
+def plane_to_zone(metric: LinearTransform, plane: VecLike, reduce: bool = True) -> Vec3:
+    """
+    Return the zone axis associated with a given crystallographic plane.
+    If `reduce` is True, call `reduce_vec` before returning. Otherwise,
+    return a unit vector.
+    """
+
+    plane = to_vec3(plane)
+    if metric.is_orthogonal():
+        return plane
+
+    # reciprocal lattice is transpose of inverse of real lattice
+    # [b1 b2 b3]^T = [a1 a2 a3]^-1
+    # so real indices [uvw] = O^-1 O^-1^T (hkl)
+    # O^-1 O^-1^T = (O^T O)^-1 = M^-1
+    zone = metric.inverse() @ plane
+
+    if reduce:
+        return to_vec3(reduce_vec(zone))
+    # otherwise reduce to unit vector
+    return zone / float(numpy.linalg.norm(zone))
+
+
+def zone_to_plane(metric: LinearTransform, zone: VecLike, reduce: bool = True) -> Vec3:
+    """
+    Return the crystallographic plane associated with a given zone axis.
+    If `reduce` is True, call `reduce_vec` before returning. Otherwise,
+    return a unit vector.
+    """
+
+    zone = to_vec3(zone)
+    if metric.is_orthogonal():
+        return zone
+
+    plane = metric @ zone
+
+    if reduce:
+        return to_vec3(reduce_vec(plane))
+    # otherwise reduce to unit vector
+    return plane / float(numpy.linalg.norm(plane))
