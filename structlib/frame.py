@@ -74,7 +74,8 @@ class AtomFrame(polars.DataFrame):
     """
 
     def __new__(cls, data: t.Optional[IntoAtoms] = None, columns: t.Optional[t.Sequence[str]] = None,
-                orient: t.Union[t.Literal['row'], t.Literal['col'], None] = None) -> AtomFrame:
+                orient: t.Union[t.Literal['row'], t.Literal['col'], None] = None,
+                _unchecked: bool = False) -> AtomFrame:
         if data is None:
             return super().__new__(cls)
         if isinstance(data, polars.DataFrame):
@@ -82,27 +83,30 @@ class AtomFrame(polars.DataFrame):
         else:
             obj = polars.DataFrame(data, columns, orient=orient)
 
-        missing: t.Tuple[str] = tuple(set(('symbol', 'elem')) - set(obj.columns))  # type: ignore
-        if len(missing) > 1:
-            raise ValueError("'AtomFrame' missing columns 'elem' and/or 'symbol'.")
-        if missing == ('symbol',):
-            obj = obj.with_columns(get_sym(obj['elem']))
-        elif missing == ('elem',):
-            obj = obj.with_columns(get_elem(obj['symbol']))
+        if not _unchecked:
+            missing: t.Tuple[str] = tuple(set(('symbol', 'elem')) - set(obj.columns))  # type: ignore
+            if len(missing) > 1:
+                raise ValueError("'AtomFrame' missing columns 'elem' and/or 'symbol'.")
+            if missing == ('symbol',):
+                obj = polars.DataFrame.with_columns(obj, get_sym(obj['elem']))
+            elif missing == ('elem',):
+                obj = polars.DataFrame.with_columns(obj, get_elem(obj['symbol']))
 
-        # cast to standard dtypes
-        obj = obj.with_columns([
-            obj.get_column(col).cast(dtype)
-            for (col, dtype) in _COLUMN_DTYPES.items() if col in obj
-        ])
+            # cast to standard dtypes
+            obj = polars.DataFrame.with_columns(obj, [
+                polars.DataFrame.get_column(obj, col).cast(dtype)
+                for (col, dtype) in _COLUMN_DTYPES.items() if col in obj
+            ])
 
         obj.__class__ = cls
         return t.cast(AtomFrame, obj)
 
     def __init__(self, data: IntoAtoms, columns: t.Optional[t.Sequence[str]] = None,
-                 orient: t.Union[t.Literal['row'], t.Literal['col'], None] = None):
-        self._validate_atoms()
+                 orient: t.Union[t.Literal['row'], t.Literal['col'], None] = None,
+                 _unchecked: bool = False):
         self._bbox: t.Optional[BBox] = None
+        if not _unchecked:
+            self._validate_atoms()
 
     def _validate_atoms(self):
         missing = [col for col in ['x', 'y', 'z', 'elem', 'symbol'] if col not in self]
@@ -121,15 +125,11 @@ class AtomFrame(polars.DataFrame):
         return AtomFrame(data)
 
     def with_column(self, column: t.Union[polars.Series, polars.Expr]) -> AtomFrame:
-        new = super().with_column(column)
-        new.__class__ = type(self)
-        return t.cast(AtomFrame, new)
+        return AtomFrame(super(AtomFrame, self).with_column(column), _unchecked=True)
 
     def with_columns(self, exprs: t.Union[t.Literal[None], polars.Series, polars.Expr, t.Sequence[t.Union[polars.Series, polars.Expr]]],
                      **named_exprs: t.Union[polars.Expr, polars.Series]) -> AtomFrame:
-        new = super().with_columns(exprs, **named_exprs)
-        new.__class__ = type(self)
-        return t.cast(AtomFrame, new)
+        return AtomFrame(super(AtomFrame, self).with_columns(exprs, **named_exprs), _unchecked=True)
 
     def try_get_column(self, name: str) -> t.Optional[polars.Series]:
         try:
@@ -272,19 +272,19 @@ class AtomFrame(polars.DataFrame):
         """
         Return `self` replaced with the given atomic positions.
         """
-        pts = numpy.broadcast_to(pts, (len(self), 3))
-        if selection is None:
-            return self.__class__(self.with_columns((
-                polars.Series(pts[:, 0], dtype=polars.Float64).alias('x'),
-                polars.Series(pts[:, 1], dtype=polars.Float64).alias('y'),
-                polars.Series(pts[:, 2], dtype=polars.Float64).alias('z'),
-            )))
+        if selection is not None:
+            selection = _selection_to_series(self, selection).to_numpy()
+            new_pts = self.coords()
+            pts = numpy.atleast_2d(pts)
+            assert pts.shape[-1] == 3
+            new_pts[selection] = pts
+            pts = new_pts
 
-        selection = _selection_to_series(self, selection)
+        pts = numpy.broadcast_to(pts, (len(self), 3))
         return self.__class__(self.with_columns((
-            self['x'].set_at_idx(selection, pts[:, 0]),  # type: ignore
-            self['y'].set_at_idx(selection, pts[:, 1]),  # type: ignore
-            self['z'].set_at_idx(selection, pts[:, 2]),  # type: ignore
+            polars.Series(pts[:, 0], dtype=polars.Float64).alias('x'),
+            polars.Series(pts[:, 1], dtype=polars.Float64).alias('y'),
+            polars.Series(pts[:, 2], dtype=polars.Float64).alias('z'),
         )))
 
     def with_velocity(self, pts: t.Optional[ArrayLike] = None, selection: t.Optional[AtomSelection] = None) -> AtomFrame:
@@ -329,6 +329,12 @@ class AtomFrame(polars.DataFrame):
             return transformed.with_velocity(transform.transform_vec(velocities), selection)
         return transformed
 
+    def round_near_zero(self, tolerance: float = 1e-14) -> AtomFrame:
+        return self.with_columns(tuple(
+            polars.when(col.abs() >= tolerance).then(col).otherwise(polars.lit(0.))
+            for col in map(polars.col, ('x', 'y', 'z'))
+        ))
+
     def deduplicate(self, tolerance: float = 1e-3, cols: t.Iterable[str] = ('x', 'y', 'z', 'symbol')) -> AtomFrame:
         """
         De-duplicate atoms in `self`. Atoms of the same `symbol` that are closer than `tolerance`
@@ -365,8 +371,26 @@ class AtomFrame(polars.DataFrame):
         cols.add('_unique_pts')
         return self.unique(subset=list(cols)).drop('_unique_pts')
 
+    def __eq__(self, other) -> bool:
+        if not isinstance(other, AtomFrame):
+            return False
+        if not self.schema == other.schema:
+            return False
+        for (col, dtype) in self.schema.items():
+            if dtype in (polars.Float32, polars.Float64):
+                eq = numpy.allclose(self[col].view(True), other[col].view(True))
+            else:
+                eq = self[col] == other[col]
+            if not eq:
+                return False
+        return True
+
 
 AtomSelection = t.Union[polars.Series, polars.Expr, ArrayLike]
 """
 Polars expression selecting a subset of atoms from an AtomFrame. Can be used with DataFrame.filter()
 """
+
+__ALL__ = [
+    'AtomFrame', 'IntoAtoms', 'AtomSelection',
+]

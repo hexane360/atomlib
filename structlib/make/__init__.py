@@ -81,6 +81,7 @@ def wurtzite(elems: t.Union[str, t.Sequence[ElemLike]], a: Num, c: t.Optional[Nu
     if not 0 < d < 0.5:  # type: ignore
         raise ValueError(f"Invalid 'd' parameter: {d}")
 
+    cell = t.cast(CellType, str(cell).lower())
     if cell not in ('prim', 'conv', 'ortho'):
         raise ValueError(f"Unknown cell type '{cell}'. Expected 'conv', 'prim', or 'ortho'.")
 
@@ -114,6 +115,7 @@ def graphite(elem: t.Union[str, ElemLike, None] = None, a: t.Optional[Num] = Non
     if c is None:
         c = 8.69
 
+    cell = t.cast(CellType, str(cell).lower())
     if cell not in ('prim', 'conv', 'ortho'):
         raise ValueError(f"Unknown cell type '{cell}'. Expected 'conv', 'prim', or 'ortho'.")
 

@@ -279,7 +279,7 @@ class AtomCell(AtomCollection):
 
         atoms = AtomFrame(atoms)
         if frac:
-            atoms = atoms.transform(ortho)
+            atoms = atoms.transform(ortho).round_near_zero()
 
         object.__setattr__(self, 'atoms', atoms)
 
@@ -359,6 +359,12 @@ class AtomCell(AtomCollection):
         )
         return self._replace_atoms(new_atoms, frame='local')
 
+    def wrap(self):
+        atoms = self.get_atoms('frac')
+        coords = atoms.coords()
+        coords = coords % 1.
+        return self._replace_atoms(atoms.with_coords(coords), frame='frac')
+
     def get_atoms(self, frame: CoordinateFrame = 'local') -> AtomFrame:
         if frame.lower() == 'frac':
             return self.atoms.transform(self.ortho.inverse())
@@ -385,7 +391,7 @@ class AtomCell(AtomCollection):
         return BBox.from_pts(self.cell_corners(frame))
 
     def is_orthogonal(self) -> bool:
-        return numpy.allclose(self.cell_angle, numpy.pi/2.)
+        return self.ortho.is_orthogonal()
 
     def orthogonalize(self) -> OrthoCell:
         if self.is_orthogonal:
@@ -427,6 +433,13 @@ class AtomCell(AtomCollection):
         return io.write_mslice(self, f, template)
 
     __mul__ = repeat
+
+    def __eq__(self, other):
+        if not isinstance(other, AtomCell):
+            return False
+        return numpy.allclose(self.ortho.inner, other.ortho.inner) \
+            and numpy.array_equal(self.n_cells, other.n_cells) \
+            and self.atoms == other.atoms
 
 
 class OrthoCell(AtomCell):

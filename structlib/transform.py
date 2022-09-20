@@ -410,6 +410,12 @@ class LinearTransform(AffineTransform):
 
 	def to_linear(self) -> LinearTransform:
 		return self
+
+	def is_orthogonal(self, tol: float = 1e-10) -> bool:
+		d = self.inner.shape[0]
+		p, q = self.inner.strides
+		offdiag = numpy.lib.stride_tricks.as_strided(self.inner[:, 1:], (d-1, d), (p+q, q))
+		return bool((numpy.abs(offdiag) < tol).all())
 	
 	@t.overload
 	@classmethod
@@ -604,3 +610,8 @@ class LinearTransform(AffineTransform):
 		if isinstance(other, Transform):
 			return other.compose(self)
 		return self.transform(other)
+
+
+__ALL__ = [
+	'Transform', 'FuncTransform', 'AffineTransform', 'LinearTransform',
+]

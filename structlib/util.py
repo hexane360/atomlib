@@ -31,6 +31,18 @@ FileOrPath = t.Union[str, Path, TextIOBase, t.TextIO]
 BinaryFileOrPath = t.Union[str, Path, t.TextIO, t.BinaryIO, IOBase]
 
 
+def _validate_file(f: t.Union[t.IO, IOBase], mode: t.Union[t.Literal['r'], t.Literal['w']]):
+    if f.closed:
+        raise IOError("Error: Provided file is closed.")
+
+    if mode == 'r':
+        if not f.readable():
+            raise IOError("Error: Provided file not readable.")
+    elif mode == 'w':
+        if not f.writable():
+            raise IOError("Error: Provided file not writable.")
+
+
 def open_file(f: FileOrPath,
               mode: t.Union[t.Literal['r'], t.Literal['w']] = 'r',
               newline: t.Optional[str] = None,
@@ -50,16 +62,7 @@ def open_file(f: FileOrPath,
     elif isinstance(f, (BufferedIOBase, t.BinaryIO)):
         f = TextIOWrapper(t.cast(t.BinaryIO, f), newline=newline, encoding=encoding)
 
-    if f.closed:
-        raise IOError("Error: Provided file is closed.")
-
-    if mode == 'r':
-        if not f.readable():
-            raise IOError("Error: Provided file not readable.")
-    elif mode == 'w':
-        if not f.writable():
-            raise IOError("Error: Provided file not writable.")
-
+    _validate_file(f, mode)
     return nullcontext(f)  # don't close a f we didn't open
 
 
@@ -85,16 +88,7 @@ def open_file_binary(f: BinaryFileOrPath,
     elif isinstance(f, TextIOBase):
         raise ValueError(f"Error: Couldn't get binary stream from text stream of type '{type(f)}'.")
 
-    if f.closed:
-        raise IOError("Error: Provided file is closed.")
-
-    if mode == 'r':
-        if not f.readable():
-            raise IOError("Error: Provided file not readable.")
-    elif mode == 'w':
-        if not f.writable():
-            raise IOError("Error: Provided file not writable.")
-
+    _validate_file(f, mode)
     return nullcontext(t.cast(IOBase, f))  # don't close a file we didn't open
 
 
@@ -187,6 +181,8 @@ def reduce_vec(a: numpy.ndarray, max_denom: int = 10000) -> numpy.ndarray:
     a = numpy.atleast_1d(a)
     if not numpy.issubdtype(a.dtype, numpy.floating):
         return a // numpy.gcd.reduce(a, axis=-1, keepdims=True)
+
+    a /= numpy.max(numpy.asarray(a))
 
     n = numpy.empty(shape=a.shape, dtype=numpy.int64)
     d = numpy.empty(shape=a.shape, dtype=numpy.int64)
