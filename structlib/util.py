@@ -8,7 +8,7 @@ import time
 import typing as t
 
 import numpy
-from numpy.typing import NDArray
+from numpy.typing import NDArray, ArrayLike
 import polars
 
 
@@ -98,16 +98,63 @@ def localtime() -> datetime.datetime:
     return datetime.datetime.now(tz)
 
 
-def polygon_winding(poly: numpy.ndarray, pt: t.Optional[numpy.ndarray] = None) -> NDArray[numpy.int_]:
+def polygon_solid_angle(poly: ArrayLike, pts: t.Optional[ArrayLike] = None,
+                        winding: t.Optional[ArrayLike] = None) -> NDArray[numpy.float_]:
     """
-    Return the winding number of the given polygon `poly` around the point `pt`.
+    Return the signed solid angle of the polygon `poly` in the xy plane, as viewed from `pts`.
+
+    `poly`: ndarray of shape (..., N, 2)
+    `pts`: ndarray of shape (..., 3)
+
+    Returns a ndarray of shape `broadcast(poly.shape[:-2], pts.shape[:-1])`
+    """
+    poly = numpy.atleast_2d(poly).astype(numpy.float_)
+    pts = (numpy.array([0., 0., 0.]) if pts is None else numpy.atleast_1d(pts)).astype(numpy.float_)
+
+    if poly.shape[-1] == 3:
+        raise ValueError("Only 2d polygons are supported.")
+    if poly.shape[-1] != 2:
+        raise ValueError("`poly` must be a list of 2d points.")
+    if winding is None:
+        # calculate winding
+        winding = polygon_winding(poly)
+    else:
+        winding = numpy.asarray(winding, dtype=int)
+    # extend to 3d
+    poly = numpy.concatenate((poly, numpy.zeros_like(poly, shape=(*poly.shape[:-1], 1))), axis=-1)
+
+    if pts.shape[-1] != 3:
+        raise ValueError("`pts` must be a list of 3d points.")
+
+    poly = poly - pts[..., None, :]
+    # normalize polygon points to unit sphere
+    numpy.divide(poly, numpy.linalg.norm(poly, axis=-1, keepdims=True), out=poly)
+
+    def _dot(v1: NDArray[numpy.float_], v2: NDArray[numpy.float_]) -> NDArray[numpy.float_]:
+        return numpy.add.reduce(v1 * v2, axis=-1)
+
+    # next and previous points in polygon
+    poly_n = numpy.roll(poly, -1, axis=-2)
+    poly_p = numpy.roll(poly, 1, axis=-2)
+
+    # spherical angle is 2*pi - sum(atan2(-|v1v2v3|, v1 dot v2 * v2 dot v3 - v1 dot v3))
+    angles = numpy.arctan2(_dot(poly_p, numpy.cross(poly, poly_n)), _dot(poly_p, poly) * _dot(poly, poly_n) - _dot(poly_p, poly_n))
+    raw = numpy.sum(angles, axis=-1)
+    # when winding is nonzero, we have to offset the calculated angle by the angle created by winding.
+    return numpy.where(winding == 0, raw, numpy.mod(raw, 4*numpy.pi*winding)) - 2*numpy.pi*winding
+
+
+def polygon_winding(poly: ArrayLike, pt: t.Optional[ArrayLike] = None) -> NDArray[numpy.int_]:
+    """
+    Return the winding number of the given 2d polygon `poly` around the point `pt`.
     If `pt` is not specified, return the polygon's total winding number (turning number).
 
     Vectorized. CCW winding is defined as positive.
     """
-    poly = t.cast(NDArray[numpy.floating], numpy.atleast_2d(poly))
+    poly = numpy.atleast_2d(poly)
     if poly.dtype == object:
         raise ValueError("Ragged arrays not supported.")
+    poly = poly.astype(numpy.float_)
 
     if pt is None:
         # return polygon's total winding number (turning number)
@@ -122,7 +169,7 @@ def polygon_winding(poly: numpy.ndarray, pt: t.Optional[numpy.ndarray] = None) -
                     numpy.isclose(poly[..., 1], 0., atol=1e-10))
         poly = poly[~zero_pts]
 
-    pt = numpy.atleast_1d(pt)[..., None, :]
+    pt = numpy.atleast_1d(pt)[..., None, :].astype(numpy.float_)
 
     # shift the polygon's origin to `pt`.
     poly = poly - pt

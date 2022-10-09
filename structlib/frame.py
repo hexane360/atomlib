@@ -32,24 +32,31 @@ _COLUMN_DTYPES: t.Mapping[str, t.Type[polars.DataType]] = {
 }
 
 
-def _selection_to_series(df: polars.DataFrame, selection: AtomSelection) -> polars.Series:
+def _values_to_series(df: polars.DataFrame, selection: AtomSelection, ty: t.Type[polars.DataType]) -> polars.Series:
     if isinstance(selection, polars.Series):
-        return selection.cast(polars.Boolean)
+        return selection.cast(ty)
     if isinstance(selection, polars.Expr):
-        return df.select(selection.cast(polars.Boolean)).to_series()
+        return df.select(selection.cast(ty)).to_series()
 
     selection = numpy.broadcast_to(selection, len(df))
-    return polars.Series(selection, dtype=polars.Boolean)
+    return polars.Series(selection, dtype=ty)
+
+
+def _values_to_expr(values: AtomValues, ty: t.Type[polars.DataType]) -> polars.Expr:
+    if isinstance(values, polars.Expr):
+        return values.cast(ty)
+    if isinstance(values, polars.Series):
+        return polars.lit(values, dtype=ty)
+    arr = numpy.asarray(values)
+    return polars.lit(polars.Series(arr, dtype=ty) if arr.size > 1 else values)
+    
+
+def _selection_to_series(df: polars.DataFrame, selection: AtomSelection) -> polars.Series:
+    return _values_to_series(df, selection, ty=polars.Boolean)
 
 
 def _selection_to_expr(selection: AtomSelection) -> polars.Expr:
-    if isinstance(selection, polars.Expr):
-        return selection.cast(polars.Boolean)
-    if isinstance(selection, polars.Series):
-        return polars.lit(selection, dtype=polars.Boolean)
-
-    selection = numpy.asanyarray(selection, dtype=numpy.bool_)
-    return polars.lit(selection)
+    return _values_to_expr(selection, ty=polars.Boolean)
 
 
 class AtomFrame(polars.DataFrame):
@@ -159,36 +166,32 @@ class AtomFrame(polars.DataFrame):
     def masses(self) -> t.Optional[polars.Series]:
         return self.try_get_column('mass')
 
-    def with_index(self, index: t.Union[ArrayLike, polars.Series, None] = None) -> AtomFrame:
+    def with_index(self, index: t.Optional[AtomValues] = None) -> AtomFrame:
         if index is None and 'i' in self:
             return self
         if index is None:
             index = numpy.arange(len(self), dtype=numpy.int64)
-        return self.with_column(polars.lit(index, dtype=polars.Int64).alias('i'))
+        return self.with_column(_values_to_expr(index, polars.Int64).alias('i'))
 
-    def with_wobble(self, wobble: t.Optional[polars.Series] = None) -> AtomFrame:
+    def with_wobble(self, wobble: t.Optional[AtomValues] = None) -> AtomFrame:
         """
         Return self with the given displacements. If `wobble` is not specified,
         defaults to the already-existing wobbles or 0.
         """
-        if wobble is not None:
-            return self.with_column(polars.lit(wobble, dtype=polars.Float64).alias('wobble'))
-        if 'wobble' in self:
+        if wobble is None and 'wobble' in self:
             return self
+        wobble = 0. if wobble is None else wobble
+        return self.with_column(_values_to_expr(wobble, polars.Float64).alias('wobble'))
 
-        return self.with_column(polars.lit(0., dtype=polars.Float64).alias('wobble'))
-
-    def with_occupancy(self, frac_occupancy: t.Optional[polars.Series] = None) -> AtomFrame:
+    def with_occupancy(self, frac_occupancy: t.Optional[AtomValues] = None) -> AtomFrame:
         """
         Return self with the given fractional occupancies. If `frac_occupancy` is not specified,
         defaults to the already-existing occupancies or 1.
         """
-        if frac_occupancy is not None:
-            return self.with_column(polars.Series('frac_occupancy', frac_occupancy, dtype=polars.Float64))
-        if 'frac_occupancy' in self:
+        if frac_occupancy is None and 'frac_occupancy' in self:
             return self
-
-        return self.with_column(polars.lit(1., dtype=polars.Float64).alias('frac_occupancy'))
+        frac_occupancy = 1. if frac_occupancy is None else frac_occupancy
+        return self.with_column(_values_to_expr(frac_occupancy, polars.Float64).alias('frac_occupancy'))
 
     def apply_wobble(self, rng: t.Union[numpy.random.Generator, int, None] = None) -> AtomFrame:
         """
@@ -217,7 +220,7 @@ class AtomFrame(polars.DataFrame):
         choice = rng.binomial(1, frac).astype(numpy.bool_)
         return self.filter(polars.lit(choice))
 
-    def with_type(self, types: t.Optional[polars.Series] = None) -> AtomFrame:
+    def with_type(self, types: t.Optional[AtomValues] = None) -> AtomFrame:
         """
         Return `self` with the given atom types in column 'types'.
         If `types` is not specified, use the already existing types or auto-assign them.
@@ -227,7 +230,7 @@ class AtomFrame(polars.DataFrame):
         For instance: ["Ag+", "Na", "H", "Ag"] => [3, 11, 1, 2]
         """
         if types is not None:
-            return self.with_column(polars.Series('type', types, dtype=polars.Int32))
+            return self.with_column(_values_to_expr(types, polars.Int32).alias('type'))
         if 'type' in self:
             return self
 
@@ -251,7 +254,7 @@ class AtomFrame(polars.DataFrame):
         If `mass` is not specified, use the already existing masses or auto-assign them.
         """
         if mass is not None:
-            return self.with_column(polars.Series('mass', mass, dtype=polars.Float32))
+            return self.with_column(_values_to_expr(mass, polars.Float32).alias('mass'))
         if 'mass' in self:
             return self
 
@@ -355,7 +358,7 @@ class AtomFrame(polars.DataFrame):
             print(coords.shape)
             tree = scipy.spatial.KDTree(coords)
 
-            # TODO This is a bad algorithm, O(n) worst case
+            # TODO This is a bad algorithm
             while True:
                 changed = False
                 for (i, j) in tree.query_pairs(tolerance, 2.):
@@ -388,9 +391,16 @@ class AtomFrame(polars.DataFrame):
 
 AtomSelection = t.Union[polars.Series, polars.Expr, ArrayLike]
 """
-Polars expression selecting a subset of atoms from an AtomFrame. Can be used with DataFrame.filter()
+Polars expression selecting a subset of atoms from an AtomFrame.
+Can be used with many AtomFrame methods.
+"""
+
+AtomValues = t.Union[polars.Series, polars.Expr, ArrayLike]
+"""
+Array, value, or polars expression mapping atoms to values.
+Can be used with `with_*` methods on AtomFrame
 """
 
 __ALL__ = [
-    'AtomFrame', 'IntoAtoms', 'AtomSelection',
+    'AtomFrame', 'IntoAtoms', 'AtomSelection', 'AtomValues',
 ]

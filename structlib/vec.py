@@ -185,23 +185,23 @@ class BBox:
     def from_pts(cls, pts: t.Union[numpy.ndarray, t.Sequence[Vec3]]) -> BBox:
         """Construct a BBox containing 'pts'."""
         pts = numpy.atleast_2d(pts).reshape(-1, 3)
-        return cls(numpy.min(pts, axis=0), numpy.max(pts, axis=0))
+        return cls(numpy.nanmin(pts, axis=0), numpy.nanmax(pts, axis=0))
 
     def __or__(self, other: t.Union[Vec3, BBox]) -> BBox:
         if isinstance(other, numpy.ndarray):
             return self.from_pts((self.min, self.max, other))
 
         return type(self)(
-            numpy.min(((self.min, other.min)), axis=0),
-            numpy.max(((self.max, other.max)), axis=0),
+            numpy.nanmin(((self.min, other.min)), axis=0),
+            numpy.nanmax(((self.max, other.max)), axis=0),
         )
 
     __ror__ = __or__
 
     def __and__(self, other: BBox) -> BBox:
         return type(self)(
-            numpy.max(((self.min, other.min)), axis=0),
-            numpy.min(((self.max, other.max)), axis=0),
+            numpy.nanmax(((self.min, other.min)), axis=0),
+            numpy.nanmin(((self.max, other.max)), axis=0),
         )
 
     def __repr__(self) -> str:

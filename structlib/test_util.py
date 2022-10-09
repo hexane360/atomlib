@@ -6,7 +6,11 @@ import pytest
 from matplotlib import pyplot
 
 from .util import reduce_vec, miller_3_to_4_plane, miller_3_to_4_vec, miller_4_to_3_plane, miller_4_to_3_vec
-from .util import polygon_winding, in_polygon, split_arr
+from .util import polygon_winding, polygon_solid_angle, in_polygon, split_arr
+
+
+square = [[-1, -1.], [1., -1.], [1., 1.], [-1., 1.]]
+hourglass = [[-1, -1.], [1., -1.], [-1., 1.], [1., 1.]]
 
 
 @pytest.mark.parametrize(['input', 'output'], [
@@ -60,11 +64,11 @@ def test_miller_vec(input, output):
 
 
 @pytest.mark.parametrize(['poly', 'pts', 'windings'], [
-    ([[-1, -1.], [1., -1.], [1., 1.], [-1., 1.]], # square
+    (square,
      [[0., 0.], [1., 0.], [-1., 0.], [0., 1.], [0., -1.], [-1.5, 0.]], [1, 0, 1, 0, 1, 0]),
-    ([[-1, -1.], [1., -1.], [-1., 1.], [1., 1.]],  # hourglass
+    (hourglass,
      [[0., 0.1], [0.2, 0.], [-0.2, 0.], [0.9, 0.95], [0.9, -0.95]], [-1, 0, 0, -1, 1]),
-    ([[-1, -1.], [1., -1.], [1., -1.], [1., 1.], [-1., 1.]], # square w/ duplicate point
+    ([square[0], *square], # square w/ duplicate point
      [[0., 0.], [1., 0.], [-1., 0.], [0., 1.], [0., -1.], [-1.5, 0.]], [1, 0, 1, 0, 1, 0]),
 ])
 def test_polygon_winding(poly, pts, windings):
@@ -72,9 +76,9 @@ def test_polygon_winding(poly, pts, windings):
 
 
 @pytest.mark.parametrize(['poly', 'turning'], [
-    ([[-1, -1.], [1., -1.], [1., 1.], [-1., 1.]], 1), # square
-    ([[-1, -1.], [1., -1.], [-1., 1.], [1., 1.]], 0), # hourglass
-    ([[-1, -1.], [1., -1.], [1., -1.], [1., 1.], [-1., 1.]], 1), # square w/ duplicate point
+    (square, 1), # square
+    (hourglass, 0),
+    ([square[0], *square], 1), # square w/ duplicate point
     ([[1., 0.], [-0.809, 0.588], [0.309, -0.951], [.309, 0.951], [-0.809, -0.588]], 2),  # 5-point star
 ])
 def test_polygon_turning(poly, turning):
@@ -93,3 +97,15 @@ def plot_polygon_winding(poly):
         *split_arr(poly, axis=-1), s=10,
         c=numpy.arange(poly.shape[-2])  # type: ignore
     )
+
+@pytest.mark.parametrize(['poly', 'pts', 'expected'], [
+    (square, [[0., 0., 0.01], [0., 0., -0.01], [0., 0., 0.05], [0., 0., 10.]], [6.22662, -6.22662, 6.000637, 0.0396046]),
+    (square, [[3., 1., 0.5], [-3., 1., 0.5], [3., -1., 0.5]], [0.0705337] * 3),
+    (hourglass,
+    [[0., 0., 0.5], [0., 1.5, 0.5], [0., 0.5, 0.5], [0., -0.5, 0.5], [0., -0.5, -0.5]], [0., -0.439289, -1.637512, 1.637512, -1.637512]),
+    ([*square, *square],
+    [[0., 0.5, 0.2], [0., 0.5, -0.2], [0., 1.5, 0.5], [0., 1.5, -0.5], [0., 1.5, 0.01]], [9.911478, -9.911478, 1.539936, -1.539936, 0.0463514]),
+    (list(reversed(square)), [[0., 0., 0.01], [0., 0., -0.01], [0., 0., 0.05], [0., 0., 10.]], [-6.22662, 6.22662, -6.000637, -0.0396046])
+])
+def test_solid_angle(poly, pts, expected):
+    numpy.testing.assert_array_almost_equal(polygon_solid_angle(poly, pts), expected)
