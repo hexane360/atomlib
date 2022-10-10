@@ -1,6 +1,7 @@
 import logging
 import warnings
 import typing as t
+from typing import cast
 
 import numpy
 from numpy.typing import NDArray, ArrayLike
@@ -8,7 +9,7 @@ import polars
 from scipy.special import ellipe, ellipk, elliprf, elliprj
 
 from .core import AtomCollectionT, VecLike, to_vec3
-from .transform import AffineTransform, FuncTransform
+from .transform import AffineTransform, LinearTransform
 from .util import split_arr, polygon_solid_angle, polygon_winding
 from .frame import AtomFrame, _selection_to_expr
 
@@ -21,6 +22,100 @@ def ellip_pi(n, m):
     rf = elliprf(0, y, 1)
     rj = elliprj(0, y, 1, 1 - n)
     return rf + rj * n / 3
+
+
+CutType = t.Union[t.Literal['shift'], t.Literal['add'], t.Literal['rm']]
+
+
+def disloc_edge(atoms: AtomCollectionT, center: VecLike, b: VecLike, t: VecLike, cut: t.Union[CutType, VecLike] = 'shift',
+                *, poisson: float = 0.25) -> AtomCollectionT:
+    """
+    Displace the structure, adding an edge dislocation which passes through `center`, with
+    line vector `t` and burger's vector `b`. `t` will be modified so it is perpendicular to `b`.
+
+    The `cut` parameter defines the cut (discontinuity) plane used to displace the atoms.
+    By default, `cut` is `'shift'`, which defines the cut plane to contain `b`, ensuring no atoms
+    need to be added or removed.
+    Instead, `add` or `rm` may be specified, which defines the cut plane as containing `b x t`.
+    this mode, atoms will be added or removed to create the dislocation.
+    Alternatively, a vector `cut` may be supplied. The cut plane will contain this vector.
+    """
+
+    center = to_vec3(center)
+    b_vec = to_vec3(b)
+    b_mag = numpy.linalg.norm(b_vec)
+
+    # get component of t perpendicular to b, normalize
+    t = to_vec3(t)
+    t = to_vec3(t - t * (t / t.norm()).view(numpy.ndarray).dot(b / b_mag))  # type: ignore
+    if t.norm() < 1e-10:
+        raise ValueError("`b` and `t` must be different.")
+    t = t / t.norm()
+
+    if isinstance(cut, str):
+        cut = cast(CutType, cut.lower())
+        if cut == 'shift':
+            plane_v = b_vec.copy()
+        elif cut == 'add':
+            # FS/RH convention: t x b points to extra half plane
+            plane_v = numpy.cross(t, b_vec)
+        elif cut == 'rm':
+            plane_v = -numpy.cross(t, b_vec)
+        else:
+            raise ValueError(f"Unknown cut plane type `{cut}`. Expected 'shift', 'add', 'rm', or a vector.")
+        plane_v /= numpy.linalg.norm(plane_v)
+    else:
+        plane_v = to_vec3(cut)
+        plane_v = plane_v / numpy.linalg.norm(plane_v.view(numpy.ndarray))
+        if numpy.linalg.norm(numpy.cross(plane_v.view(numpy.ndarray), t)) < 1e-10:
+            raise ValueError('`cut` and `t` must be different.')
+
+    # translate center to 0., and align t to [0, 0, 1], plane to +y
+    transform = AffineTransform.translate(center).inverse().compose(
+        LinearTransform.align_to(t, [0., 0., 1.], plane_v, [-1., 0., 0.])
+    )
+    frame = atoms.get_atoms('local').transform(transform)
+    b_vec = transform.transform_vec(b_vec)
+
+    d = numpy.dot(b_vec.view(numpy.ndarray), [0., 1., 0.])
+    if -d > 1e-8:
+        logging.info("Removing atoms.")
+        old_len = len(frame)
+        frame = frame.filter(~(
+            (polars.col('x') < 0) & (polars.col('y') >= d/2.) & (polars.col('y') <= -d/2.)
+        ))
+        logging.info(f"Removed {old_len - len(frame)} atoms")
+    if d > 1e-8:
+        logging.info("Duplicating atoms.")
+        duplicate = frame.filter(
+            (polars.col('x') < 0) & (polars.col('y') >= -d/2.) & (polars.col('y') <= d/2.)
+        )
+        logging.info(f"Duplicated {len(duplicate)} atoms")
+
+        frame = AtomFrame(polars.concat([frame, duplicate]))  # type: ignore
+        #atoms = atoms._replace_atoms(frame)
+        branch = numpy.ones(len(frame), dtype=float)
+        if len(duplicate) > 0:
+            branch[-len(duplicate):] *= -1  # flip branch of duplicated atoms
+    else:
+        branch = numpy.ones(len(frame), dtype=float)
+
+    pts = frame.coords()
+
+    x, y, _ = split_arr(pts, axis=-1)
+    r2 = x**2 + y**2
+
+    # displacement parallel and perpendicular to b
+    d_para = branch * numpy.arctan2(y, x) + x*y/(2*(1-poisson)*r2)
+    d_perp = -(1-2*poisson)/(4*(1-poisson)) * numpy.log(r2) + (y**2 - x**2)/(4*(1-poisson)*r2)
+
+    disps = numpy.stack([
+        d_para * b_vec[0] + d_perp * b_vec[1],
+        d_perp * b_vec[0] + d_para * b_vec[1],
+        numpy.zeros_like(x)
+    ], axis=-1) / (2*numpy.pi)
+
+    return atoms._replace_atoms(frame.with_coords(pts + disps).transform(transform.inverse()), 'local')
 
 
 def disloc_loop_z(atoms: AtomCollectionT, center: VecLike, b: VecLike,
@@ -80,6 +175,21 @@ def disloc_loop_z(atoms: AtomCollectionT, center: VecLike, b: VecLike,
     """
 
     return atoms._replace_atoms(frame.with_coords(pts + disps + center), 'local')
+
+
+def disloc_square_z(atoms: AtomCollectionT, center: VecLike, b: VecLike,
+                    loop_r: float, *, poisson: float = 0.25) -> AtomCollectionT:
+    """
+    Displace the structure, adding a square dislocation loop of radius `loop_r` centered at `center`.
+
+    The dislocation's sign is defined such that traveling upwards through the loop results in a displacement of `b`.
+    `poisson` is the material's poisson ratio, which affects the shape of dislocations with an edge component.
+
+    Adding the loop creates (or removes) a volume of `b dot nA`, where `nA` is the loop's normal times its area.
+    Consequently, this function will add or remove atoms to compensate for this volume change.
+    """
+    poly = loop_r * numpy.array([(1, 1), (-1, 1), (-1, -1), (1, -1)])
+    return disloc_poly_z(atoms, b, poly, center, poisson=poisson)
 
 
 def disloc_poly_z(atoms: AtomCollectionT, b: VecLike, poly: ArrayLike, center: t.Optional[VecLike] = None,

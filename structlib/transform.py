@@ -513,14 +513,15 @@ class LinearTransform(AffineTransform):
 
 		v3 = numpy.cross(v1, v2)
 		# rotate along v1 x v2 (geodesic rotation)
-		aligned = self.rotate(v3, numpy.arcsin(numpy.linalg.norm(v3)))
+		theta = numpy.arctan2(numpy.linalg.norm(v3), numpy.dot(v1, v2))
+		aligned = self.rotate(v3, theta)
 
 		if p1 is None and p2 is None:
 			return aligned.round_near_zero()
 		if p1 is None:
-			raise ValueError("If `p1` is specified, `p2` must also be specified.")
-		if p2 is None:
 			raise ValueError("If `p2` is specified, `p1` must also be specified.")
+		if p2 is None:
+			raise ValueError("If `p1` is specified, `p2` must also be specified.")
 
 		p1_align = aligned.transform(numpy.broadcast_to(p1, 3))
 		p2 = numpy.broadcast_to(p2, 3)
@@ -528,8 +529,9 @@ class LinearTransform(AffineTransform):
 		p2_perp = p2 - v2 * numpy.dot(p2, v2)
 		p1_perp = p1_align - v2 * numpy.dot(p1_align, v2)
 		# now rotate along v2
-		theta = numpy.arctan2(numpy.linalg.norm(numpy.cross(p2_perp, p1_perp)), numpy.dot(p2_perp, p1_perp))
-		return aligned.rotate(v2, -theta).round_near_zero()
+		theta = numpy.arctan2(numpy.dot(v2, numpy.cross(p1_perp, p2_perp)), numpy.dot(p1_perp, p2_perp))
+		#theta = numpy.arctan2(numpy.linalg.norm(numpy.cross(p1_perp, p2_perp)), numpy.dot(p1_perp, p2_perp))
+		return aligned.rotate(v2, theta).round_near_zero()
 
 	@t.overload
 	@classmethod

@@ -184,3 +184,40 @@ def test_transform_compose():
 
     assert_allclose((t1 @ affine).inner, expected, atol=1e-12)
     assert_allclose(affine.compose(t1).inner, expected, atol=1e-12)
+
+
+@pytest.mark.parametrize(('v1', 'v2', 'p1', 'p2'), [
+    ((1, 0, 0), (0, 0, 1), (0, 1, 0), (0, 1, 0)),
+    ((1, 1, 1), (0, 0, 1), (1, 0, 0), (0, 1, 0)),
+    ((0, 0, 1), (1, 1, 1), None, None),
+])
+def test_transform_align_to(v1, v2, p1, p2):
+    _test_transform_align_to(v1, v2, p1, p2)
+
+
+def test_transform_align_to_rand():
+    rng = numpy.random.default_rng(1024)
+    for _ in range(30):
+        (v1, v2, p1, p2) = rng.standard_normal((4, 3))
+        _test_transform_align_to(v1, v2, p1, p2)
+
+
+def _test_transform_align_to(v1, v2, p1, p2):
+    print(f"Aligning {v1} to {v2}, {p1} to {p2}")
+    transform = LinearTransform.align_to(v1, v2, p1, p2)
+
+    v1_t = transform @ (v1 / numpy.linalg.norm(v1))
+    assert numpy.linalg.norm(v1_t) == pytest.approx(1.)
+    v2 = v2 / numpy.linalg.norm(v2)
+    assert_allclose(v1_t, v2, atol=1e-10)
+
+    if p1 is None or p2 is None:
+        return
+
+    p1_t = transform @ (p1 / numpy.linalg.norm(p1))
+    assert numpy.linalg.norm(p1_t) == pytest.approx(1.)
+    p2 = p2 / numpy.linalg.norm(p2)
+
+    p1_perp = p1_t - v2 * numpy.dot(p1_t, v2)
+    p2_perp = p2 - v2 * numpy.dot(p2, v2)
+    assert_allclose(p1_perp / numpy.linalg.norm(p1_perp), p2_perp / numpy.linalg.norm(p2_perp), atol=1e-10)

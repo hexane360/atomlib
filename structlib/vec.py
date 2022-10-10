@@ -23,6 +23,9 @@ class Vec3(numpy.ndarray):
     def sum(self, *args, **kwargs) -> numpy.ndarray:
         return self.view(numpy.ndarray).sum(*args, **kwargs)
 
+    def norm(self, ord: float = 2., axis=0, keepdims: bool = False) -> numpy.ndarray:
+        return numpy.linalg.norm(self.view(numpy.ndarray), ord, axis, keepdims)
+
     @t.overload
     def __mul__(self, other: t.Union[float, int, complex, Vec3]) -> Vec3:
         ...
