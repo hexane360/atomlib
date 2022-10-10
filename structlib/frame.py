@@ -374,19 +374,14 @@ class AtomFrame(polars.DataFrame):
         cols.add('_unique_pts')
         return self.unique(subset=list(cols)).drop('_unique_pts')
 
-    def __eq__(self, other) -> bool:
-        if not isinstance(other, AtomFrame):
-            return False
-        if not self.schema == other.schema:
-            return False
+    def assert_equal(self, other):
+        assert isinstance(other, AtomFrame)
+        assert self.schema == other.schema
         for (col, dtype) in self.schema.items():
             if dtype in (polars.Float32, polars.Float64):
-                eq = numpy.allclose(self[col].view(True), other[col].view(True))
+                numpy.testing.assert_array_almost_equal(self[col].view(True), other[col].view(True), 5)
             else:
-                eq = self[col] == other[col]
-            if not eq:
-                return False
-        return True
+                assert (self[col] == other[col]).all()
 
 
 AtomSelection = t.Union[polars.Series, polars.Expr, ArrayLike]

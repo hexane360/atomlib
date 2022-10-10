@@ -12,7 +12,10 @@ def check_structure_equal(name: t.Union[str, Path]) -> t.Callable[[t.Callable[..
         @pytest.mark.expected_structure_filename(name)
         def wrapper(expected_structure: AtomCollection, *args, **kwargs):
             result = f(*args, **kwargs)
-            assert expected_structure == result
+            if hasattr(result, 'assert_equal'):
+                result.assert_equal(expected_structure)
+            else:
+                assert expected_structure == result
 
         wrapper.pytestmark += getattr(f, "pytestmark", [])
         wrapper.__name__ = f.__name__

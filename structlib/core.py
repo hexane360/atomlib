@@ -434,12 +434,11 @@ class AtomCell(AtomCollection):
 
     __mul__ = repeat
 
-    def __eq__(self, other):
-        if not isinstance(other, AtomCell):
-            return False
-        return numpy.allclose(self.ortho.inner, other.ortho.inner) \
-            and numpy.array_equal(self.n_cells, other.n_cells) \
-            and self.atoms == other.atoms
+    def assert_equal(self, other):
+        assert isinstance(other, AtomCell)
+        numpy.testing.assert_array_almost_equal(self.ortho.inner, other.ortho.inner, 6)
+        numpy.testing.assert_array_equal(self.n_cells, other.n_cells)
+        self.atoms.assert_equal(other.atoms)
 
 
 class OrthoCell(AtomCell):

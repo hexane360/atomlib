@@ -16,7 +16,7 @@ def test_fcc():
         'symbol': ['Al', 'Al', 'Al', 'Al'],
     }), ortho=LinearTransform.scale(all=2.))
 
-    assert cell == expected
+    expected.assert_equal(cell)
 
     cell = fcc('Al', 2., cell='prim')
 
@@ -30,7 +30,7 @@ def test_fcc():
         'symbol': ['Al'],
     }), ortho=ortho)
 
-    assert cell == expected
+    expected.assert_equal(cell)
 
 
 def test_wurtzite():
@@ -51,5 +51,4 @@ def test_wurtzite():
         'z': [      0., 3.114475,    2.510, 0.604475],
     }), ortho=ortho)
 
-    assert cell.ortho.inner == pytest.approx(expected.ortho.inner)
-    assert cell == expected
+    expected.assert_equal(cell)
