@@ -8,7 +8,7 @@ import scipy.spatial
 from numpy.typing import ArrayLike
 import polars
 
-from .vec import BBox
+from .bbox import BBox
 from .elem import get_elem, get_sym, get_mass
 from .transform import Transform, IntoTransform
 from .util import map_some

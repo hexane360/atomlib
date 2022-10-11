@@ -6,9 +6,8 @@ import typing as t
 
 import numpy
 
-from .vec import Vec3
 from .transform import LinearTransform
-from .types import VecLike, to_vec3
+from .types import VecLike, Vec3, to_vec3
 from .util import reduce_vec
 
 
@@ -31,11 +30,11 @@ def _validate_cell_size(cell_size: t.Optional[VecLike]) -> t.Optional[Vec3]:
 
 def _validate_cell_angle(cell_angle: t.Optional[VecLike]) -> Vec3:
     if cell_angle is None:
-        return numpy.pi/2. * numpy.ones((3,)).view(Vec3)
+        return numpy.pi/2. * numpy.ones((3,))
     cell_angle = to_vec3(cell_angle)
     if (cell_angle < 0).any() or (cell_angle > numpy.pi).any() or cell_angle.sum() > 2*numpy.pi:
         raise ValueError(f"Invalid cell angle: {cell_angle}")
-    return cell_angle.view(Vec3)
+    return cell_angle
 
 
 def cell_to_ortho(cell_size: VecLike, cell_angle: t.Optional[VecLike] = None) -> LinearTransform:
@@ -65,7 +64,7 @@ def cell_to_ortho(cell_size: VecLike, cell_angle: t.Optional[VecLike] = None) ->
 def ortho_to_cell(ortho: LinearTransform) -> t.Tuple[Vec3, Vec3]:
     """Get unit cell parameters (cell_size, cell_angle) from orthogonalization transform."""
     # TODO suspect
-    cell_size = numpy.linalg.norm(ortho.inner, axis=-2).view(Vec3)
+    cell_size = numpy.linalg.norm(ortho.inner, axis=-2)
     cell_size = _validate_cell_size(cell_size)
     normed = ortho.inner / cell_size
     cosines = numpy.array([
@@ -73,7 +72,7 @@ def ortho_to_cell(ortho: LinearTransform) -> t.Tuple[Vec3, Vec3]:
         numpy.dot(normed[..., 2], normed[..., 0]), # beta
         numpy.dot(normed[..., 0], normed[..., 1]), # gamma
     ])
-    cell_angle = numpy.arccos(cosines).view(Vec3)
+    cell_angle = numpy.arccos(cosines)
     cell_angle = _validate_cell_angle(cell_angle)
 
     return (cell_size, cell_angle)

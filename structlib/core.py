@@ -10,8 +10,8 @@ import typing as t
 import numpy
 import polars
 
-from .vec import Vec3, BBox
-from .types import VecLike, to_vec3
+from .bbox import BBox
+from .types import VecLike, Vec3, to_vec3
 from .transform import LinearTransform, AffineTransform, Transform, IntoTransform
 from .cell import cell_to_ortho, ortho_to_cell
 from .frame import AtomFrame, AtomSelection, IntoAtoms
@@ -162,7 +162,7 @@ class SimpleAtoms(AtomCollection):
         """Get this structure's bounding box."""
         return self.atoms.bbox
 
-    def with_bounds(self, cell_size: t.Optional[Vec3] = None) -> AtomCell:
+    def with_bounds(self, cell_size: t.Optional[VecLike] = None) -> AtomCell:
         """
         Return a periodic cell with the given orthogonal cell dimensions.
 
@@ -252,9 +252,9 @@ class AtomCell(AtomCollection):
                  ortho: t.Optional[LinearTransform] = None,
                  frac: bool = False):
         if n_cells is None:
-            n_cells = to_vec3(numpy.ones((3,), dtype=int))
+            n_cells = to_vec3(numpy.ones((3,), dtype=int), numpy.int_)
         else:
-            n_cells = to_vec3(n_cells)
+            n_cells = to_vec3(n_cells, numpy.int_)
             if not numpy.issubdtype(n_cells.dtype, numpy.integer):
                 raise TypeError(f"n_cells must be an integer dtype. Instead got dtype '{n_cells.dtype}'")
         object.__setattr__(self, 'n_cells', n_cells)
@@ -401,7 +401,7 @@ class AtomCell(AtomCollection):
     def repeat(self, n: t.Union[int, t.Tuple[int, int, int]], /, *, explode: bool = False) -> AtomCell:
         """Tile the cell"""
 
-        n_cells = (self.n_cells * numpy.broadcast_to(n, 3)).view(Vec3)
+        n_cells = (self.n_cells * numpy.broadcast_to(n, 3))
         new = self.__class__(self.atoms, ortho=self.ortho, n_cells=n_cells)
         return new.explode() if explode else new
 

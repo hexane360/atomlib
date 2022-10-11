@@ -12,6 +12,7 @@ from .core import AtomCollectionT, VecLike, to_vec3
 from .transform import AffineTransform, LinearTransform
 from .util import split_arr, polygon_solid_angle, polygon_winding
 from .frame import AtomFrame, _selection_to_expr
+from .vec import norm, dot, perp
 
 
 def ellip_pi(n, m):
@@ -47,14 +48,14 @@ def disloc_edge(atoms: AtomCollectionT, center: VecLike, b: VecLike, t: VecLike,
 
     center = to_vec3(center)
     b_vec = to_vec3(b)
-    b_mag = numpy.linalg.norm(b_vec)
+    b_mag = norm(b_vec)
 
     # get component of t perpendicular to b, normalize
     t = to_vec3(t)
-    t = to_vec3(t - t * (t / t.norm()).view(numpy.ndarray).dot(b / b_mag))  # type: ignore
-    if t.norm() < 1e-10:
+    t = perp(t, b)
+    if norm(t) < 1e-10:
         raise ValueError("`b` and `t` must be different.")
-    t = t / t.norm()
+    t /= norm(t)
 
     if isinstance(cut, str):
         cut = cast(CutType, cut.lower())
@@ -67,11 +68,11 @@ def disloc_edge(atoms: AtomCollectionT, center: VecLike, b: VecLike, t: VecLike,
             plane_v = -numpy.cross(t, b_vec)
         else:
             raise ValueError(f"Unknown cut plane type `{cut}`. Expected 'shift', 'add', 'rm', or a vector.")
-        plane_v /= numpy.linalg.norm(plane_v)
+        plane_v /= norm(plane_v)
     else:
         plane_v = to_vec3(cut)
-        plane_v = plane_v / numpy.linalg.norm(plane_v.view(numpy.ndarray))
-        if numpy.linalg.norm(numpy.cross(plane_v.view(numpy.ndarray), t)) < 1e-10:
+        plane_v = plane_v / norm(plane_v)
+        if numpy.linalg.norm(numpy.cross(plane_v, t)) < 1e-10:
             raise ValueError('`cut` and `t` must be different.')
 
     # translate center to 0., and align t to [0, 0, 1], plane to +y
@@ -81,7 +82,7 @@ def disloc_edge(atoms: AtomCollectionT, center: VecLike, b: VecLike, t: VecLike,
     frame = atoms.get_atoms('local').transform(transform)
     b_vec = transform.transform_vec(b_vec)
 
-    d = numpy.dot(b_vec.view(numpy.ndarray), [0., 1., 0.])
+    d = numpy.dot(b_vec, [0., 1., 0.])
     if -d > 1e-8:
         logging.info("Removing atoms.")
         old_len = len(frame)
@@ -137,6 +138,7 @@ def disloc_screw(atoms: AtomCollectionT, center: VecLike, b: VecLike, cut: t.Opt
     crystal.
     """
 
+    center = to_vec3(center)
     b_vec = to_vec3(b)
     t = b_vec / float(numpy.linalg.norm(b_vec))
     t = -t if not sign else t
@@ -146,10 +148,10 @@ def disloc_screw(atoms: AtomCollectionT, center: VecLike, b: VecLike, cut: t.Opt
             cut = to_vec3([1., 0., 0.])
         else:
             # otherwise find plane by rotating around 111
-            cut = LinearTransform.rotate([1., 1., 1.], 2*numpy.pi/3).transform(t)
+            cut = cast(NDArray[numpy.float_], LinearTransform.rotate([1., 1., 1.], 2*numpy.pi/3).transform(t))
     else:
         cut = to_vec3(cut)
-        cut = cut / float(numpy.linalg.norm(cut))
+        cut /= norm(cut)
         if numpy.allclose(cut, t, atol=1e-2):
             raise ValueError("`t` and `cut` must be different.")
 
@@ -159,11 +161,11 @@ def disloc_screw(atoms: AtomCollectionT, center: VecLike, b: VecLike, cut: t.Opt
     pts = frame.coords() - center
 
     # components perpendicular to t
-    cut_perp = -(cut - t * _dot(cut, t))
-    pts_perp = pts - t * _dot(pts, t)
+    cut_perp = -perp(cut, t)
+    pts_perp = perp(pts, t)
 
     # signed angle around dislocation
-    theta = numpy.arctan2(_dot(t, numpy.cross(cut_perp, pts_perp)), _dot(cut_perp, pts_perp))
+    theta = numpy.arctan2(dot(t, numpy.cross(cut_perp, pts_perp)), dot(cut_perp, pts_perp))
     # FS/RH convention
     disp = b_vec * (theta / (2*numpy.pi))
 
@@ -188,7 +190,7 @@ def disloc_loop_z(atoms: AtomCollectionT, center: VecLike, b: VecLike,
     frame = atoms.get_atoms('local')
     branch = None
 
-    d = numpy.dot(b_vec.view(numpy.ndarray), [0, 0, 1])
+    d = numpy.dot(b_vec, [0, 0, 1])
     if -d > 1e-8:
         logging.info("Non-conservative dislocation. Removing atoms.")
         frame = frame.filter(~(
@@ -268,7 +270,7 @@ def disloc_poly_z(atoms: AtomCollectionT, b: VecLike, poly: ArrayLike, center: t
     coords = coords - center
 
     branch = None
-    d = numpy.dot(b_vec.view(numpy.ndarray), [0, 0, 1])
+    d = numpy.dot(b_vec, [0, 0, 1])
     if abs(d) > 1e-8:
         logging.info("Non-conservative dislocation.")
         windings = polygon_winding(poly, coords[..., :2])
@@ -308,11 +310,6 @@ def disloc_poly_z(atoms: AtomCollectionT, b: VecLike, poly: ArrayLike, center: t
     return atoms._replace_atoms(frame.with_coords(coords + disp + center), 'local')
 
 
-
-def _dot(v1: NDArray[numpy.float_], v2: NDArray[numpy.float_], keepdims: bool = True) -> NDArray[numpy.float_]:
-        return numpy.add.reduce((v1 * v2).view(numpy.ndarray), axis=-1, keepdims=keepdims)
-
-
 def _poly_disp_z(pts: NDArray[numpy.float_], b_vec: NDArray[numpy.float_], poly: NDArray[numpy.float_], *,
                  poisson: float = 0.25, branch: t.Optional[numpy.ndarray] = None) -> NDArray[numpy.float_]:
 
@@ -332,7 +329,7 @@ def _poly_disp_z(pts: NDArray[numpy.float_], b_vec: NDArray[numpy.float_], poly:
 
     def _disp(r):
         r_norm = numpy.linalg.norm(r, axis=-1, keepdims=True)
-        disps = (1-2*poisson)*numpy.cross(b_vec, eta) * numpy.log(r_norm + _dot(r, eta)) - _dot(b_vec, e2) * numpy.cross(r / r_norm, e2)
+        disps = (1-2*poisson)*numpy.cross(b_vec, eta) * numpy.log(r_norm + dot(r, eta)) - dot(b_vec, e2) * numpy.cross(r / r_norm, e2)
         return numpy.sum(disps, axis=-2)
 
     return b_vec * omega[:, None] / (4*numpy.pi) + 1/(8*numpy.pi*(1-poisson)) * (_disp(r_n) - _disp(r))

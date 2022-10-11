@@ -16,7 +16,7 @@ from .mslice import write_mslice
 from .lmp import write_lmp
 
 from ..core import AtomCollection, AtomFrame, SimpleAtoms, AtomCell
-from ..vec import Vec3
+from ..types import Vec3, to_vec3
 from ..transform import LinearTransform
 from ..elem import get_sym
 from ..util import FileOrPath
@@ -59,9 +59,9 @@ def read_cif(f: t.Union[FileOrPath, CIF]) -> AtomCollection:
         atoms = atoms.deduplicate()
 
     if (cell_size := cif.cell_size()) is not None:
-        cell_size = Vec3.make(cell_size)
+        cell_size = to_vec3(cell_size)
         if (cell_angle := cif.cell_angle()) is not None:
-            cell_angle = Vec3.make(cell_angle) * numpy.pi/180.
+            cell_angle = to_vec3(cell_angle) * numpy.pi/180.
         return AtomCell(atoms, cell_size, cell_angle, frac=True)
     return SimpleAtoms(atoms)
 

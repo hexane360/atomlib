@@ -1,14 +1,18 @@
 import typing as t
 
 import numpy
+from numpy.typing import ArrayLike, NDArray
 
-from .vec import Vec3, BBox
+from .bbox import BBox
 
 
-VecLike = t.Union[t.Sequence[float], t.Sequence[int], Vec3, numpy.ndarray]
+Vec3 = NDArray[numpy.floating[t.Any]]
+
+
+VecLike = ArrayLike
 """3d vector-like"""
 
-PtsLike = t.Union[BBox, Vec3, t.Sequence[Vec3], numpy.ndarray]
+PtsLike = t.Union[BBox, ArrayLike]
 """Sequence of 3d points-like"""
 
 Num = t.Union[float, int]
@@ -17,10 +21,21 @@ Num = t.Union[float, int]
 ElemLike = t.Union[str, int]
 """Element-like"""
 
+NumDTypeT = t.TypeVar('NumDTypeT', bound=numpy.number[t.Any])
+DTypeT = t.TypeVar('DTypeT', bound=numpy.dtype[t.Any])
 
-def to_vec3(v: VecLike) -> Vec3:
+
+@t.overload
+def to_vec3(v: VecLike, dtype: None = None) -> NDArray[numpy.float_]:
+    ...
+
+@t.overload
+def to_vec3(v: VecLike, dtype: t.Type[NumDTypeT]) -> NDArray[NumDTypeT]:
+    ...
+
+def to_vec3(v: VecLike, dtype: t.Optional[t.Type[numpy.number[t.Any]]] = None) -> NDArray[numpy.number[t.Any]]:
     try:
-        v = numpy.broadcast_to(v, (3,)).view(Vec3)
+        v = numpy.broadcast_to(v, (3,)).astype(dtype or numpy.float_)
     except (ValueError, TypeError):
         raise TypeError("Expected a vector of 3 elements.") from None
     return v

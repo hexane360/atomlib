@@ -2,14 +2,14 @@
 import numpy
 from pytest import approx
 
-from .cell import cell_to_ortho, ortho_to_cell, Vec3
+from .cell import cell_to_ortho, ortho_to_cell
 
 
 def test_cell_ortho_roundtrip():
     rng = numpy.random.default_rng()
 
-    cell_size = rng.uniform(low=0.1, high=5.0, size=3).view(Vec3)
-    cell_angle = Vec3.make((1.8, 1.5, 2.0))
+    cell_size = rng.uniform(low=0.1, high=5.0, size=3)
+    cell_angle = numpy.array((1.8, 1.5, 2.0))
 
     ortho = cell_to_ortho(cell_size, cell_angle)
     print(ortho)

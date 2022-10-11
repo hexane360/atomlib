@@ -25,3 +25,8 @@ lcov.info
 coverage.xml
 
 .vscode/
+
+notebooks/*.xsf
+notebooks/*.lmp
+notebooks/*.cif
+notebooks/*.xyz

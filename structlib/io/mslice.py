@@ -98,7 +98,7 @@ def write_mslice(atoms: AtomCell, path: FileOrPath,
 
 
 def _atom_elem(i: int, atomic_number: int, x: float, y: float, z: float, wobble: float = 0., frac_occupancy=1.) -> et.Element:
-	return et.XML(f"""
+    return et.XML(f"""
 <object type="STRUCTUREATOM" id="atom{i}">
     <attribute name="z" type="float">{z}</attribute>
     <attribute name="y" type="float">{y}</attribute>
