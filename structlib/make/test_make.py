@@ -46,9 +46,9 @@ def test_wurtzite():
     print(cell)
     expected = AtomCell(AtomFrame({
         'symbol': ['Al', 'N', 'Al', 'N'],
-        'x': [   1.565,    1.565,       0.,       0.],
+        'x': [   1.565,    1.565,      0.0,      0.0],
         'y': [0.903553, 0.903553, 1.807106, 1.807106],
-        'z': [      0., 3.114475,    2.510, 0.604475],
+        'z': [    2.51,  4.41552,      0.0,  1.90552],
     }), ortho=ortho)
 
     expected.assert_equal(cell)

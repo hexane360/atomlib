@@ -122,7 +122,8 @@ def disloc_edge(atoms: AtomCollectionT, center: VecLike, b: VecLike, t: VecLike,
     return atoms._replace_atoms(frame.with_coords(pts + disps).transform(transform.inverse()), 'local')
 
 
-def disloc_screw(atoms: AtomCollectionT, center: VecLike, b: VecLike, cut: t.Optional[VecLike] = None) -> AtomCollectionT:
+def disloc_screw(atoms: AtomCollectionT, center: VecLike, b: VecLike, cut: t.Optional[VecLike] = None,
+                 sign: bool = True) -> AtomCollectionT:
     """
     Displace the structure, adding a screw dislocation which passes through `center` with
     burger's vector `b`.
@@ -138,6 +139,7 @@ def disloc_screw(atoms: AtomCollectionT, center: VecLike, b: VecLike, cut: t.Opt
 
     b_vec = to_vec3(b)
     t = b_vec / float(numpy.linalg.norm(b_vec))
+    t = -t if not sign else t
     if cut is None:
         if numpy.linalg.norm(numpy.cross(t, [1., 1., 1.])) < numpy.pi/4:
             # near 111, choose x as cut plane direction

@@ -91,7 +91,8 @@ def wurtzite(elems: t.Union[str, t.Sequence[ElemLike]], a: Num, c: t.Optional[Nu
     )
     xs = [2/3, 2/3, 1/3, 1/3]
     ys = [1/3, 1/3, 2/3, 2/3]
-    zs = [0., 1. - d, 0.5, 0.5 - d]
+    #zs = [1. - d, 0., 0.5 - d, 0.5]
+    zs = [0.5, 0.5 + d, 0., d]
     elems *= 2
 
     frame = AtomFrame(dict(x=xs, y=ys, z=zs, elem=elems))
