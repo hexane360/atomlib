@@ -39,6 +39,10 @@ def disloc_edge(atoms: AtomCollectionT, center: VecLike, b: VecLike, t: VecLike,
     Instead, `add` or `rm` may be specified, which defines the cut plane as containing `b x t`.
     this mode, atoms will be added or removed to create the dislocation.
     Alternatively, a vector `cut` may be supplied. The cut plane will contain this vector.
+
+    The dislocation is defined by the FS/RH convention: Performing one loop of positive sense
+    relative to the tangent vector displaces the real crystal one `b` relative to a reference
+    crystal.
     """
 
     center = to_vec3(center)
@@ -116,6 +120,52 @@ def disloc_edge(atoms: AtomCollectionT, center: VecLike, b: VecLike, t: VecLike,
     ], axis=-1) / (2*numpy.pi)
 
     return atoms._replace_atoms(frame.with_coords(pts + disps).transform(transform.inverse()), 'local')
+
+
+def disloc_screw(atoms: AtomCollectionT, center: VecLike, b: VecLike, cut: t.Optional[VecLike] = None) -> AtomCollectionT:
+    """
+    Displace the structure, adding a screw dislocation which passes through `center` with
+    burger's vector `b`.
+
+    The `cut` parameter defines the cut (discontinuity) plane used to displace the atoms.
+    By default, `cut` is chosen automtically, but it may also be specified as a vector
+    which points from the dislocation core towards the cut plane (not normal to the cut plane!)
+
+    The dislocation is defined by the FS/RH convention: Performing one loop of positive sense
+    relative to the tangent vector displaces the real crystal one `b` relative to a reference
+    crystal.
+    """
+
+    b_vec = to_vec3(b)
+    t = b_vec / float(numpy.linalg.norm(b_vec))
+    if cut is None:
+        if numpy.linalg.norm(numpy.cross(t, [1., 1., 1.])) < numpy.pi/4:
+            # near 111, choose x as cut plane direction
+            cut = to_vec3([1., 0., 0.])
+        else:
+            # otherwise find plane by rotating around 111
+            cut = LinearTransform.rotate([1., 1., 1.], 2*numpy.pi/3).transform(t)
+    else:
+        cut = to_vec3(cut)
+        cut = cut / float(numpy.linalg.norm(cut))
+        if numpy.allclose(cut, t, atol=1e-2):
+            raise ValueError("`t` and `cut` must be different.")
+
+    print(f"Cut plane direction: {cut}")
+
+    frame = atoms.get_atoms('local')
+    pts = frame.coords() - center
+
+    # components perpendicular to t
+    cut_perp = -(cut - t * _dot(cut, t))
+    pts_perp = pts - t * _dot(pts, t)
+
+    # signed angle around dislocation
+    theta = numpy.arctan2(_dot(t, numpy.cross(cut_perp, pts_perp)), _dot(cut_perp, pts_perp))
+    # FS/RH convention
+    disp = b_vec * (theta / (2*numpy.pi))
+
+    return atoms._replace_atoms(frame.with_coords(pts + center + disp), 'local')
 
 
 def disloc_loop_z(atoms: AtomCollectionT, center: VecLike, b: VecLike,
@@ -258,7 +308,7 @@ def disloc_poly_z(atoms: AtomCollectionT, b: VecLike, poly: ArrayLike, center: t
 
 
 def _dot(v1: NDArray[numpy.float_], v2: NDArray[numpy.float_], keepdims: bool = True) -> NDArray[numpy.float_]:
-        return numpy.add.reduce(v1 * v2, axis=-1, keepdims=keepdims)
+        return numpy.add.reduce((v1 * v2).view(numpy.ndarray), axis=-1, keepdims=keepdims)
 
 
 def _poly_disp_z(pts: NDArray[numpy.float_], b_vec: NDArray[numpy.float_], poly: NDArray[numpy.float_], *,
