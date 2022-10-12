@@ -20,28 +20,26 @@ from ..core import AtomCollection, AtomCell, OrthoCell
 MSliceTemplate = t.Union[et.ElementTree, FileOrPath]
 
 
-DEFAULT_TEMPLATE_PATH: Path = Path(__file__).parent / 'template.mslice'
+DEFAULT_TEMPLATE_PATH: Path = Path(__file__).parents[2] / 'data' / 'template.mslice'
 DEFAULT_TEMPLATE: t.Optional[et.ElementTree] = None
 
 
 def default_template() -> et.ElementTree:
     global DEFAULT_TEMPLATE
 
-    if DEFAULT_TEMPLATE is not None:
-        return deepcopy(DEFAULT_TEMPLATE)
+    if DEFAULT_TEMPLATE is None:
+        with open(DEFAULT_TEMPLATE_PATH, 'r') as f:
+            DEFAULT_TEMPLATE = et.parse(f)
 
-    with open(DEFAULT_TEMPLATE_PATH, 'r') as f:
-        DEFAULT_TEMPLATE = et.parse(f)
-    return DEFAULT_TEMPLATE
+    return deepcopy(DEFAULT_TEMPLATE)
 
 
 def load_mslice(path: FileOrPath) -> OrthoCell:
-    ...
+    raise NotImplementedError()
 
 
-def write_mslice(atoms: AtomCell, path: FileOrPath,
-                 template: t.Optional[MSliceTemplate] = None):
-
+def write_mslice(atoms: AtomCell, path: FileOrPath, template: t.Optional[MSliceTemplate] = None, *,
+                 slice_thickness: t.Optional[float] = None, scan_points: t.Optional[t.Tuple[int, int]] = None):
     if not isinstance(atoms, AtomCell):
             raise TypeError("mslice format requires an AtomCell.")
     if not atoms.is_orthogonal():
@@ -55,7 +53,7 @@ def write_mslice(atoms: AtomCell, path: FileOrPath,
     else:
         out = deepcopy(template)
 
-    db = out.find("./database")
+    db = out.getroot() if out.getroot().tag == 'database' else out.find("./database")
     if db is None:
         raise ValueError("Couldn't find 'database' tag in template.")
 
@@ -63,7 +61,11 @@ def write_mslice(atoms: AtomCell, path: FileOrPath,
     if struct is None:
         raise ValueError("Couldn't find STRUCTURE object in template.")
 
-    def set_struct_attr(name: str, type: str, val: str):
+    params = db.find("./object[@type='SIMPARAMETERS']")
+    if params is None:
+        raise ValueError("Couldn't find SIMPARAMETERS object in template.")
+
+    def set_attr(struct: et.Element, name: str, type: str, val: str):
         node = struct.find(f"./attribute[@name='{name}']")
         if node is None:
             node = et.Element('attribute', dict(name=name, type=type))
@@ -73,37 +75,56 @@ def write_mslice(atoms: AtomCell, path: FileOrPath,
         node.text = val
 
     (n_a, n_b, n_c) = map(str, atoms.n_cells)
-    set_struct_attr('repeata', 'int16', n_a)
-    set_struct_attr('repeatb', 'int16', n_b)
-    set_struct_attr('repeatc', 'int16', n_c)
+    set_attr(struct, 'repeata', 'int16', n_a)
+    set_attr(struct, 'repeatb', 'int16', n_b)
+    set_attr(struct, 'repeatc', 'int16', n_c)
 
-    (a, b, c) = map(str, atoms.cell_size)
-    set_struct_attr('aparam', 'float', a)
-    set_struct_attr('bparam', 'float', b)
-    set_struct_attr('cparam', 'float', c)
+    (a, b, c) = map(lambda v: f"{v:.8f}", atoms.cell_size)
+    set_attr(struct, 'aparam', 'float', a)
+    set_attr(struct, 'bparam', 'float', b)
+    set_attr(struct, 'cparam', 'float', c)
+
+    if slice_thickness is not None:
+        set_attr(params, 'slicethickness', 'float', f"{float(slice_thickness):.8f}")
+
+    if scan_points is not None:
+        (nx, ny) = map(int, scan_points)
+        set_attr(params, 'numscanx', 'int16', str(nx))
+        set_attr(params, 'numscany', 'int16', str(ny))
 
     # remove existing atoms
     for elem in db.findall("./object[@type='STRUCTUREATOM']"):
         db.remove(elem)
 
     frame = atoms.get_atoms('frac').with_wobble().with_occupancy()
-
-    for (i, (elem, x, y, z, wobble, frac_occupancy)) in enumerate(atoms.get_atoms('frac').select(('elem', 'x', 'y', 'z', 'wobble', 'frac_occupancy'))):
+    rows = frame.select(('elem', 'x', 'y', 'z', 'wobble', 'frac_occupancy')).rows()
+    for (i, (elem, x, y, z, wobble, frac_occupancy)) in enumerate(rows):
         e = _atom_elem(i, elem, x, y, z, wobble, frac_occupancy)
-        et.indent(e, space="    ", level=1)
+        #et.indent(e, space="    ", level=1)
         db.append(e)
 
+    et.indent(db, space="    ", level=0)
+
+    if (first := db.find("./object[@type='STRUCTUREATOM']")):
+        pass
+
     with open_file(path, 'w') as f:
-        out.write(f)
+        # hack to specify doctype of output
+        f.write("""\
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE database SYSTEM "file:///System/Library/DTDs/CoreData.dtd">
+
+""")
+        out.write(f, encoding='unicode', xml_declaration=False, short_empty_elements=False)
 
 
 def _atom_elem(i: int, atomic_number: int, x: float, y: float, z: float, wobble: float = 0., frac_occupancy=1.) -> et.Element:
-    return et.XML(f"""
+    return et.XML(f"""\
 <object type="STRUCTUREATOM" id="atom{i}">
-    <attribute name="z" type="float">{z}</attribute>
-    <attribute name="y" type="float">{y}</attribute>
-    <attribute name="x" type="float">{x}</attribute>
-    <attribute name="wobble" type="float">{wobble}</attribute>
-    <attribute name="fracoccupancy" type="float">{frac_occupancy}</attribute>
+    <attribute name="z" type="float">{z:.8f}</attribute>
+    <attribute name="y" type="float">{y:.8f}</attribute>
+    <attribute name="x" type="float">{x:.8f}</attribute>
+    <attribute name="wobble" type="float">{wobble:.4f}</attribute>
+    <attribute name="fracoccupancy" type="float">{frac_occupancy:.4f}</attribute>
     <attribute name="atomicnumber" type="int16">{atomic_number}</attribute>
 </object>""")

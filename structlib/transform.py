@@ -7,6 +7,7 @@ import numpy
 from numpy.typing import ArrayLike, NDArray
 
 from .types import VecLike, PtsLike, Num, to_vec3
+from .vec import perp
 from .bbox import BBox
 
 TransformT = t.TypeVar('TransformT', bound='Transform')
@@ -483,8 +484,8 @@ class LinearTransform(AffineTransform):
         p1_align = aligned.transform(numpy.broadcast_to(p1, 3))
         p2 = numpy.broadcast_to(p2, 3)
         # components perpendicular to v2
-        p2_perp = p2 - v2 * numpy.dot(p2, v2)
-        p1_perp = p1_align - v2 * numpy.dot(p1_align, v2)
+        p2_perp = perp(p2, v2)
+        p1_perp = perp(p1_align, v2)
         # now rotate along v2
         theta = numpy.arctan2(numpy.dot(v2, numpy.cross(p1_perp, p2_perp)), numpy.dot(p1_perp, p2_perp))
         #theta = numpy.arctan2(numpy.linalg.norm(numpy.cross(p1_perp, p2_perp)), numpy.dot(p1_perp, p2_perp))
