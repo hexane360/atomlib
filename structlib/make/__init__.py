@@ -7,7 +7,7 @@ import typing as t
 import numpy
 import polars
 
-from ..core import AtomFrame, AtomCell, IntoAtoms
+from ..core import Atoms, AtomCell, IntoAtoms
 from ..transform import LinearTransform
 from ..elem import get_elem, get_elems
 from ..types import ElemLike, Num
@@ -51,9 +51,9 @@ def fcc(elem: ElemLike, a: Num, *, cell: CellType = 'conv', additional: t.Option
     else:
         raise ValueError(f"Unknown cell type '{cell}'. Expected 'conv', 'prim', or 'ortho'.")
 
-    frame = AtomFrame(dict(x=xs, y=ys, z=zs, elem=elems))
+    frame = Atoms(dict(x=xs, y=ys, z=zs, elem=elems))
     if additional is not None:
-        frame = frame + AtomFrame(additional)
+        frame = frame + Atoms(additional)
 
     return AtomCell(frame, ortho=ortho, frac=True)
 
@@ -94,7 +94,7 @@ def wurtzite(elems: t.Union[str, t.Sequence[ElemLike]], a: Num, c: t.Optional[Nu
     zs = [0.5, 0.5 + d, 0., d]
     elems *= 2
 
-    frame = AtomFrame(dict(x=xs, y=ys, z=zs, elem=elems))
+    frame = Atoms(dict(x=xs, y=ys, z=zs, elem=elems))
     atoms = AtomCell(frame, ortho=ortho, frac=True)
     if cell == 'ortho':
         return _ortho_hexagonal(atoms)
@@ -128,7 +128,7 @@ def graphite(elem: t.Union[str, ElemLike, None] = None, a: t.Optional[Num] = Non
     zs = [0., 0., 1/2, 1/2]
     elems = [elem] * 4
 
-    frame = AtomFrame(dict(x=xs, y=ys, z=zs, elem=elems))
+    frame = Atoms(dict(x=xs, y=ys, z=zs, elem=elems))
     atoms = AtomCell(frame, ortho=ortho, frac=True)
 
     if cell == 'ortho':

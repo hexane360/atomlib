@@ -2,12 +2,12 @@
 import pytest
 import numpy
 
-from .core import AtomCell, AtomFrame, SimpleAtoms, OrthoCell
+from .core import AtomCell, Atoms, SimpleAtoms, OrthoCell
 from .transform import LinearTransform
 
 
 def test_core_bbox():
-    cell = AtomCell(AtomFrame({
+    cell = AtomCell(Atoms({
         'x': [0., 1., -2., 3.],
         'y': [0., 2., -3., 4.],
         'z': [0., 1., -1., 1.],
@@ -36,7 +36,7 @@ def test_core_bbox():
 
 
 def test_ortho_cell():
-    cell = AtomCell(AtomFrame({
+    cell = AtomCell(Atoms({
         'x': [0., 1., -2., 3.],
         'y': [0., 2., -3., 4.],
         'z': [0., 1., -1., 1.],

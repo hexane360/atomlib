@@ -2,11 +2,11 @@
 from io import StringIO
 
 from . import write_lmp
-from .. import AtomCell, AtomFrame
+from .. import AtomCell, Atoms
 
 
 def test_write_lmp():
-    cell = AtomCell(AtomFrame({
+    cell = AtomCell(Atoms({
         'x': [0., 5., 8.],
         'y': [2., 5., 9.],
         'z': [2., 5., 9.],

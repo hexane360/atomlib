@@ -11,7 +11,7 @@ from scipy.special import ellipe, ellipk, elliprf, elliprj
 from .core import AtomCollectionT, VecLike, to_vec3
 from .transform import AffineTransform, LinearTransform
 from .util import split_arr, polygon_solid_angle, polygon_winding
-from .frame import AtomFrame, _selection_to_expr
+from .frame import Atoms, _selection_to_expr
 from .vec import norm, dot, perp
 
 
@@ -97,7 +97,7 @@ def disloc_edge(atoms: AtomCollectionT, center: VecLike, b: VecLike, t: VecLike,
         )
         logging.info(f"Duplicated {len(duplicate)} atoms")
 
-        frame = AtomFrame(polars.concat([frame, duplicate]))  # type: ignore
+        frame = Atoms.concat((frame, duplicate))
         #atoms = atoms._replace_atoms(frame)
         branch = numpy.ones(len(frame), dtype=float)
         if len(duplicate) > 0:
@@ -206,7 +206,7 @@ def disloc_loop_z(atoms: AtomCollectionT, center: VecLike, b: VecLike,
         )
         logging.info(f"Adding {len(duplicate)} atoms")
 
-        frame = AtomFrame(polars.concat([frame, duplicate]))  # type: ignore
+        frame = Atoms.concat((frame, duplicate))
         #atoms = atoms._replace_atoms(frame)
         branch = numpy.sign(frame['z'].to_numpy())
         if len(duplicate) > 0:
@@ -286,7 +286,7 @@ def disloc_poly_z(atoms: AtomCollectionT, b: VecLike, poly: ArrayLike, center: t
         n_duplicate = numpy.sum(duplicate, dtype=int)
         if n_duplicate:
             logging.info(f"Duplicating {n_duplicate} atoms")
-            frame = AtomFrame(polars.concat([frame, frame.filter(polars.lit(duplicate, dtype=polars.Boolean))]))
+            frame = Atoms.concat((frame, frame.filter(polars.lit(duplicate, dtype=polars.Boolean))))
 
             branch = numpy.ones(len(frame))
             branch[-n_duplicate:] = -1  # flip branch of duplicated atoms

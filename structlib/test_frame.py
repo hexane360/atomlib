@@ -4,11 +4,11 @@ import pytest
 import numpy
 import polars
 
-from .frame import AtomFrame
+from .frame import Atoms
 
 
 def test_atom_frame_creation():
-    frame = AtomFrame({
+    frame = Atoms({
         'x': [0., 0., 0.],
         'y': [0., 0., 0.],
         'z': [0., 0., 0.],
@@ -19,7 +19,7 @@ def test_atom_frame_creation():
 
     assert list(frame.select('symbol').to_series()) == ["H", "B", "Ti"]
 
-    frame = AtomFrame({
+    frame = Atoms({
         'x': [0., 0., 0.],
         'y': [0., 0., 0.],
         'z': [0., 0., 0.],
@@ -28,27 +28,27 @@ def test_atom_frame_creation():
 
     assert list(frame.select('elem').to_series()) == [1, 5, 22]
 
-    with pytest.raises(ValueError, match=re.escape("'AtomFrame' missing column(s) 'x', 'y'")):
-        frame = AtomFrame({
+    with pytest.raises(ValueError, match=re.escape("'Atoms' missing column(s) 'x', 'y'")):
+        frame = Atoms({
             'z': [0., 0., 0.],
             'symbol': ["H", "b+", "tI2+"],
         })
 
-    with pytest.raises(ValueError, match=re.escape("'AtomFrame' missing columns 'elem' and/or 'symbol'")):
-        frame = AtomFrame({
+    with pytest.raises(ValueError, match=re.escape("'Atoms' missing columns 'elem' and/or 'symbol'")):
+        frame = Atoms({
             'x': [0., 0., 0.],
             'y': [0., 0., 0.],
             'z': [0., 0., 0.],
             'ele': [1, 5, 22],
         })
 
-    empty = AtomFrame.empty()
+    empty = Atoms.empty()
     assert empty.select(('x', 'y', 'z')).dtypes == [polars.Float64] * 3
     assert empty.select('elem').dtypes[0] == polars.Int8
 
 
 def test_coords():
-    frame = AtomFrame({
+    frame = Atoms({
         'x': [0., 1., -1., -3.],
         'y': [1., 1., 1., 2.],
         'z': [0., 2., 5., 8.],
@@ -71,7 +71,7 @@ def test_coords():
 
 
 def test_mass():
-    frame = AtomFrame({
+    frame = Atoms({
         'x': [0., 0., 0.],
         'y': [0., 0., 0.],
         'z': [0., 0., 0.],
@@ -99,7 +99,7 @@ def test_mass():
 
 
 def test_type():
-    frame = AtomFrame({
+    frame = Atoms({
         'x': [0., 0., 0., 0.],
         'y': [0., 0., 0., 0.],
         'z': [0., 0., 0., 0.],
@@ -116,7 +116,7 @@ def test_type():
     # idempotence
     assert new.with_type() is new
 
-    frame = AtomFrame({
+    frame = Atoms({
         'x': [0., 0., 0., 0., 0.],
         'y': [0., 0., 0., 0., 0.],
         'z': [0., 0., 0., 0., 0.],
@@ -131,7 +131,7 @@ def test_type():
 
 
 def test_wobble():
-    frame = AtomFrame({
+    frame = Atoms({
         'x': [0., 0., 0., 0.],
         'y': [0., 0., 0., 0.],
         'z': [0., 0., 0., 0.],
@@ -146,7 +146,7 @@ def test_wobble():
 
 
 def test_occupancy():
-    frame = AtomFrame({
+    frame = Atoms({
         'x': [0., 0., 0., 0.],
         'y': [0., 0., 0., 0.],
         'z': [0., 0., 0., 0.],

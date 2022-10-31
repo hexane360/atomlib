@@ -14,7 +14,7 @@ from .bbox import BBox
 from .types import VecLike, Vec3, to_vec3
 from .transform import LinearTransform, AffineTransform, Transform, IntoTransform
 from .cell import cell_to_ortho, ortho_to_cell
-from .frame import AtomFrame, AtomSelection, IntoAtoms
+from .frame import Atoms, AtomSelection, IntoAtoms
 
 
 if t.TYPE_CHECKING:
@@ -59,7 +59,7 @@ class AtomCollection(abc.ABC):
         ...
 
     @abc.abstractmethod
-    def get_atoms(self, frame: CoordinateFrame = 'local') -> AtomFrame:
+    def get_atoms(self, frame: CoordinateFrame = 'local') -> Atoms:
         ...
 
     @abc.abstractmethod
@@ -76,7 +76,7 @@ class AtomCollection(abc.ABC):
         ...
 
     @abc.abstractmethod
-    def _replace_atoms(self: AtomCollectionT, atoms: AtomFrame, frame: CoordinateFrame = 'local') -> AtomCollectionT:
+    def _replace_atoms(self: AtomCollectionT, atoms: Atoms, frame: CoordinateFrame = 'local') -> AtomCollectionT:
         ...
 
     def __repr__(self) -> str:
@@ -152,11 +152,11 @@ class SimpleAtoms(AtomCollection):
     Cell of atoms with no known structure or periodicity.
     """
 
-    atoms: AtomFrame
+    atoms: Atoms
     """Atoms in the cell. Stored in 'local' coordinates (i.e. relative to the enclosing group but not relative to box dimensions)."""
 
     def __init__(self, atoms: IntoAtoms):
-        object.__setattr__(self, 'atoms', AtomFrame(atoms))
+        object.__setattr__(self, 'atoms', Atoms(atoms))
 
     def bbox(self) -> BBox:
         """Get this structure's bounding box."""
@@ -183,13 +183,13 @@ class SimpleAtoms(AtomCollection):
 
     transform_atoms = transform
 
-    def get_atoms(self, frame: CoordinateFrame = 'local') -> AtomFrame:
+    def get_atoms(self, frame: CoordinateFrame = 'local') -> Atoms:
         if frame.lower() == 'frac':
             raise ValueError("Can't use 'frac' coordinate frame when box is unknown.")
 
         return self.atoms
 
-    def _replace_atoms(self: AtomCollectionT, atoms: AtomFrame, frame: CoordinateFrame = 'local') -> AtomCollectionT:
+    def _replace_atoms(self: AtomCollectionT, atoms: Atoms, frame: CoordinateFrame = 'local') -> AtomCollectionT:
         if frame.lower() == 'frac':
             raise ValueError("Can't use 'frac' coordinate frame when box is unknown.")
         
@@ -211,7 +211,7 @@ class AtomCell(AtomCollection):
     Cell of atoms with known size and periodic boundary conditions.
     """
 
-    atoms: AtomFrame
+    atoms: Atoms
     """Atoms in the cell. Stored in 'local' coordinates (i.e. relative to the enclosing group but not relative to box dimensions)."""
 
     cell_size: Vec3
@@ -277,7 +277,7 @@ class AtomCell(AtomCollection):
         object.__setattr__(self, 'cell_angle', cell_angle)
         object.__setattr__(self, 'metric', self.ortho.T @ self.ortho)
 
-        atoms = AtomFrame(atoms)
+        atoms = Atoms(atoms)
         if frac:
             atoms = atoms.transform(ortho).round_near_zero()
 
@@ -394,13 +394,13 @@ class AtomCell(AtomCollection):
         coords = (coords + eps) % 1. - eps
         return self._replace_atoms(atoms.with_coords(coords), frame='frac')
 
-    def get_atoms(self, frame: CoordinateFrame = 'local') -> AtomFrame:
+    def get_atoms(self, frame: CoordinateFrame = 'local') -> Atoms:
         if frame.lower() == 'frac':
             return self.atoms.transform(self.ortho.inverse())
 
         return self.atoms
 
-    def _replace_atoms(self, atoms: AtomFrame, frame: CoordinateFrame = 'local') -> AtomCell:
+    def _replace_atoms(self, atoms: Atoms, frame: CoordinateFrame = 'local') -> AtomCell:
         if frame.lower() == 'frac':
             atoms = atoms.transform(self.ortho)
         return AtomCell(atoms, n_cells=self.n_cells, ortho=self.ortho)
@@ -445,10 +445,10 @@ class AtomCell(AtomCollection):
         cells = numpy.stack(numpy.meshgrid(a, b, c)).reshape(3, -1).T.astype(float)
 
         ortho_inv = self.ortho.inverse()
-        atoms = AtomFrame(polars.concat([
+        atoms = Atoms.concat([
             self.atoms.transform(self.ortho @ AffineTransform.translate(cell) @ ortho_inv)
             for cell in cells
-        ]))
+        ])
 
         ortho = self.ortho @ LinearTransform.scale(self.n_cells)
         new = self.__class__(atoms, ortho=ortho)
@@ -483,5 +483,5 @@ from . import io
 
 
 __ALL__ = [
-    'CoordinateFrame', 'AtomFrame', 'IntoAtoms', 'AtomSelection', 'AtomCollection', 'Cell', 'PeriodicCell', 'Lattice',
+    'CoordinateFrame', 'Atoms', 'IntoAtoms', 'AtomSelection', 'AtomCollection', 'Cell', 'PeriodicCell', 'Lattice',
 ]
