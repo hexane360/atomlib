@@ -229,7 +229,7 @@ def reduce_vec(a: numpy.ndarray, max_denom: int = 10000) -> numpy.ndarray:
     if not numpy.issubdtype(a.dtype, numpy.floating):
         return a // numpy.gcd.reduce(a, axis=-1, keepdims=True)
 
-    a /= numpy.max(numpy.asarray(a))
+    a /= numpy.max(numpy.abs(a))
 
     n = numpy.empty(shape=a.shape, dtype=numpy.int64)
     d = numpy.empty(shape=a.shape, dtype=numpy.int64)

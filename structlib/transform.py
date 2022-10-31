@@ -5,10 +5,12 @@ import typing as t
 
 import numpy
 from numpy.typing import ArrayLike, NDArray
+import scipy.linalg
 
 from .types import VecLike, PtsLike, Num, to_vec3
 from .vec import perp
 from .bbox import BBox
+from .util import reduce_vec
 
 TransformT = t.TypeVar('TransformT', bound='Transform')
 PtsT = t.TypeVar('PtsT', bound=PtsLike)
@@ -369,17 +371,32 @@ class LinearTransform(AffineTransform):
     def to_linear(self) -> LinearTransform:
         return self
 
-    def is_orthogonal(self, tol: float = 1e-10) -> bool:
+    def is_diagonal(self, tol: float = 1e-10) -> bool:
         d = self.inner.shape[0]
         p, q = self.inner.strides
         offdiag = numpy.lib.stride_tricks.as_strided(self.inner[:, 1:], (d-1, d), (p+q, q))
         return bool((numpy.abs(offdiag) < tol).all())
-    
+
+    def is_normal(self, rtol: float = 1e-5, atol: float = 1e-8) -> bool:
+        """
+        Returns `True` if `self` is diagonal in some coordinate system.
+        """
+        return bool(numpy.allclose(
+            self.inner.T @ self.inner, self.inner @ self.inner.T,
+            rtol=rtol, atol=atol
+        ))
+
+    def is_orthogonal(self, rtol: float = 1e-5, atol: float = 1e-8) -> bool:
+        """
+        Returns `True` if `self` is an orthogonal matrix (i.e. a pure rotation or roto-reflection).
+        """
+        return bool(numpy.isclose(abs(self.det()), 1., rtol, atol)) and self.is_normal(rtol, atol)
+
     @t.overload
     @classmethod
     def mirror(cls, a: VecLike, /) -> LinearTransform:
         ...
-    
+
     @t.overload
     @classmethod
     def mirror(cls, a: Num, b: Num, c: Num) -> LinearTransform:
@@ -491,6 +508,32 @@ class LinearTransform(AffineTransform):
         #theta = numpy.arctan2(numpy.linalg.norm(numpy.cross(p1_perp, p2_perp)), numpy.dot(p1_perp, p2_perp))
         return aligned.rotate(v2, theta).round_near_zero()
 
+    def align_standard(self) -> LinearTransform:
+        """
+        Align `self` so `v1` is in the x-axis and `v2` is in the xy-plane.
+        """
+        assert self.det() > 0  # only works on right handed crystal systems
+        q, r = scipy.linalg.qr(self.inner)  # type: ignore
+        # qr unique up to the sign of the digonal
+        r = r * numpy.sign(r.diagonal())
+        assert numpy.linalg.det(r) > 0
+        return LinearTransform(r).round_near_zero()
+
+    def _orthogonal_axes(self, max_denom: int = 1000) -> NDArray[numpy.int_]:
+        """
+        Given a linear transformation A, compute an optimal linear
+        combination of basis vectors to form an orthogonal basis.
+
+        More formally, returns a small integer matrix M such that A@M is normal.
+        """
+        inv = self.inverse().inner
+        r, q = scipy.linalg.rq(inv)
+        # rq unique up to the sign of the digonal
+        r = r * numpy.sign(r.diagonal())
+
+        int_r = numpy.array([reduce_vec(v, max_denom) for v in r.T]).T
+        return int_r
+
     @t.overload
     @classmethod
     def scale(cls, x: VecLike, /) -> LinearTransform:
@@ -515,7 +558,7 @@ class LinearTransform(AffineTransform):
         a = numpy.zeros((3, 3))
         a[numpy.diag_indices(3)] = all * v
         return LinearTransform(a @ self.inner)
-    
+
     def compose(self, other: TransformT) -> TransformT:
         if isinstance(other, LinearTransform):
             return other.__class__(other.inner @ self.inner)

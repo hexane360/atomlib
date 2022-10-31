@@ -53,11 +53,7 @@ class BBox:
         Pad the given BBox by `amount`. If a vector [x, y, z] is given,
         pad each axis by the given amount.
         """
-
-        if isinstance(amount, float):
-            amount_v = numpy.full(3, amount)
-        else:
-            amount_v = numpy.broadcast_to(amount, 3)
+        amount_v = numpy.broadcast_to(amount, 3)
 
         return type(self)(
             self.min - amount_v,

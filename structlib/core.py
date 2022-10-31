@@ -391,7 +391,7 @@ class AtomCell(AtomCollection):
         return BBox.from_pts(self.cell_corners(frame))
 
     def is_orthogonal(self) -> bool:
-        return self.ortho.is_orthogonal()
+        return self.ortho.is_diagonal()
 
     def orthogonalize(self) -> OrthoCell:
         if self.is_orthogonal:
