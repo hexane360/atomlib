@@ -6,9 +6,7 @@ pytest.register_assert_rewrite("structlib.core", "structlib.frame", "structlib.t
 
 from structlib import AtomCollection
 from structlib.io import read
-
-STRUCTURE_PATH = Path(__file__).parent / 'result_structures'
-assert STRUCTURE_PATH.exists()
+from structlib.tests.util import STRUCTURE_PATH
 
 
 @pytest.fixture(scope='function')

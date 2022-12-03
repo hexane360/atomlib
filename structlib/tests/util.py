@@ -7,8 +7,10 @@ import pytest
 
 from structlib import AtomCollection
 
-
 CallableT = t.TypeVar('CallableT', bound=t.Callable)
+
+STRUCTURE_PATH = Path(__file__).parents[2] / 'result_structures'
+assert STRUCTURE_PATH.exists()
 
 
 def _wrap_pytest(wrapper: CallableT, wrapped: t.Callable,
@@ -43,10 +45,19 @@ def check_structure_equal(name: t.Union[str, Path]) -> t.Callable[[t.Callable[..
         @pytest.mark.expected_filename(name)
         def wrapper(expected_structure: AtomCollection, *args, **kwargs):
             result = f(*args, **kwargs)
-            if hasattr(result, 'assert_equal'):
-                result.assert_equal(expected_structure)  # type: ignore
-            else:
-                assert expected_structure == result
+            try:
+                if hasattr(result, 'assert_equal'):
+                    result.assert_equal(expected_structure)  # type: ignore
+                else:
+                    assert expected_structure == result
+            except AssertionError:
+                try:
+                    actual_path = Path(name).with_stem(Path(name).stem + '_actual').name
+                    print(f"Saving result structure to '{actual_path}'")
+                    result.write(STRUCTURE_PATH / actual_path)
+                except Exception as e:
+                    print("Failed to save result structure.")
+                raise
 
         return _wrap_pytest(wrapper, f, [inspect.Parameter('expected_structure', inspect.Parameter.POSITIONAL_OR_KEYWORD)])
 
