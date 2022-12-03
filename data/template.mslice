@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE database SYSTEM "file:///System/Library/DTDs/CoreData.dtd">
+
+<database>
+    <databaseInfo>
+        <version>134481920</version>
+        <UUID>D1E2667A-3268-45DB-8AA0-DF69A046A0F1</UUID>
+        <nextObjectID>118</nextObjectID>
+        <metadata>
+            <plist version="1.0">
+                <dict>
+                    <key>NSPersistenceFrameworkVersion</key>
+                    <integer>977</integer>
+                    <key>NSStoreModelVersionHashes</key>
+                    <dict>
+                        <key>Aberration</key>
+                        <data>
+                        UXNYvhGfAZGC49DHY75VKihj5GPq2R8M+2L7QhekMmk=
+                        </data>
+                        <key>Detector</key>
+                        <data>
+                        uJuVKALoqyt/oG6mH49teZTkSE+mkbjp/rY1fplbw1I=
+                        </data>
+                        <key>Microscope</key>
+                        <data>
+                        UlR07Rk0b6X1qzhXcmo5lVucE24cBD4ON5bTEMF6nwo=
+                        </data>
+                        <key>SimParameters</key>
+                        <data>
+                        Dxbr+dxiyWuFqo9wbE7miwyXTDQWyxJHhHIaXjfifCY=
+                        </data>
+                        <key>Structure</key>
+                        <data>
+                        e95nHUW6ZbQm5tswhzS+MMc6na7juAQzhA9+z4fqLD0=
+                        </data>
+                        <key>StructureAtom</key>
+                        <data>
+                        boqYojFisRQc7Ui/nA4KYfOt58vOXLXUe8TNOJEQC+k=
+                        </data>
+                        <key>Unit</key>
+                        <data>
+                        91H2vpCfT2XscqlHbquFh62aqBOrVY0ozbfIR0V8fqM=
+                        </data>
+                    </dict>
+                    <key>NSStoreModelVersionHashesDigest</key>
+                    <string>9SQG0FT96IWNxz9CKG5H+mlch0ltlf1ugFqbZ55R8KvYfQFtoAfOXu8ggpr++FRYZdYwhJ2hvbLH6zOKyGB+uw==</string>
+                    <key>NSStoreModelVersionHashesVersion</key>
+                    <integer>3</integer>
+                    <key>NSStoreModelVersionIdentifiers</key>
+                    <array>
+                        <string>0.9</string>
+                    </array>
+                </dict>
+            </plist>
+        </metadata>
+    </databaseInfo>
+    <object type="UNIT" id="z102">
+        <attribute name="value" type="int32">10000</attribute>
+        <attribute name="name" type="string">µm</attribute>
+    </object>
+    <object type="MICROSCOPE" id="z103">
+        <attribute name="kv" type="float">200</attribute>
+        <attribute name="aperture" type="float">19.6</attribute>
+    </object>
+    <object type="ABERRATION" id="z104">
+        <attribute name="name" type="string">Defocus</attribute>
+        <attribute name="n" type="int16">1</attribute>
+        <attribute name="m" type="int16">0</attribute>
+        <attribute name="cnmb" type="float">0</attribute>
+        <attribute name="cnma" type="float">0</attribute>
+        <relationship name="unit" type="0/1" destination="UNIT" idrefs="z106"></relationship>
+    </object>
+    <object type="ABERRATION" id="z105">
+        <attribute name="name" type="string">Two-fold Stig</attribute>
+        <attribute name="n" type="int16">1</attribute>
+        <attribute name="m" type="int16">2</attribute>
+        <attribute name="cnmb" type="float">0</attribute>
+        <attribute name="cnma" type="float">0</attribute>
+        <relationship name="unit" type="0/1" destination="UNIT" idrefs="z106"></relationship>
+    </object>
+    <object type="UNIT" id="z106">
+        <attribute name="value" type="int32">1</attribute>
+        <attribute name="name" type="string">Å</attribute>
+    </object>
+    <object type="SIMPARAMETERS" id="z107">
+        <attribute name="realspace" type="bool">0</attribute>
+        <attribute name="wavesamples" type="int16">1024</attribute>
+        <attribute name="thermalconfigs" type="int16">30</attribute>
+        <attribute name="temperature" type="float">300</attribute>
+        <attribute name="slicethickness" type="float">1.0</attribute>
+        <attribute name="pacbed" type="bool">1</attribute>
+        <attribute name="overrideslices" type="bool">1</attribute>
+        <attribute name="numscany" type="int16">64</attribute>
+        <attribute name="numscanx" type="int16">64</attribute>
+        <attribute name="numsaves" type="int16">2</attribute>
+        <attribute name="inty" type="float">0</attribute>
+        <attribute name="intx" type="float">0</attribute>
+        <attribute name="includetds" type="bool">0</attribute>
+        <attribute name="finy" type="float">1</attribute>
+        <attribute name="finx" type="float">1</attribute>
+        <attribute name="cbed" type="bool">1</attribute>
+        <attribute name="saveSlices" type="bool">1</attribute>
+    </object>
+    <object type="UNIT" id="z108">
+        <attribute name="value" type="int32">10000000</attribute>
+        <attribute name="name" type="string">mm</attribute>
+    </object>
+    <object type="ABERRATION" id="z109">
+        <attribute name="name" type="string">Spherical</attribute>
+        <attribute name="n" type="int16">3</attribute>
+        <attribute name="m" type="int16">0</attribute>
+        <attribute name="cnmb" type="float">0</attribute>
+        <attribute name="cnma" type="float">0</attribute>
+        <relationship name="unit" type="0/1" destination="UNIT" idrefs="z102"></relationship>
+    </object>
+    <object type="STRUCTURE" id="z110">
+        <attribute name="tilty" type="float">0</attribute>
+        <attribute name="tiltx" type="float">0</attribute>
+        <attribute name="repeatc" type="int16">1</attribute>
+        <attribute name="repeatb" type="int16">1</attribute>
+        <attribute name="repeata" type="int16">1</attribute>
+        <attribute name="aparam" type="float">35.95809669</attribute>
+        <attribute name="bparam" type="float">33.90161868</attribute>
+        <attribute name="cparam" type="float">71.91619339</attribute>
+        <relationship name="atoms" type="0/1" destination="STRUCTUREATOM"></relationship>
+    </object>
+    <object type="DETECTOR" id="ABF">
+        <attribute name="outerangle" type="float">30</attribute>
+        <attribute name="innerangle" type="float">10</attribute>
+        <attribute name="dpc" type="bool">1</attribute>
+    </object>
+    <object type="DETECTOR" id="HAADF">
+        <attribute name="outerangle" type="float">70</attribute>
+        <attribute name="innerangle" type="float">50</attribute>
+    </object>
+    <object type="DETECTOR" id="LAADF">
+        <attribute name="outerangle" type="float">50</attribute>
+        <attribute name="innerangle" type="float">20</attribute>
+    </object>
+</database>
