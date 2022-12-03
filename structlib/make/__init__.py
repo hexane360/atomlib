@@ -141,8 +141,9 @@ def _ortho_hexagonal(cell: AtomCell) -> AtomCell:
     cell = cell.repeat((2, 2, 1), explode=True)
     frame = cell.get_atoms('local')
 
+    eps = 1e-6
     frame = frame.filter(
-        (polars.col('x') >= 0.) & (polars.col('x') < a)
+        (polars.col('x') >= -eps) & (polars.col('x') < a - eps)
     )
 
     ortho = cell_to_ortho([a, a * numpy.sqrt(3), c])

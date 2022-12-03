@@ -359,10 +359,10 @@ class AtomCell(AtomCollection):
         )
         return self._replace_atoms(new_atoms, frame='local')
 
-    def wrap(self):
+    def wrap(self, eps: float = 1e-5):
         atoms = self.get_atoms('frac')
         coords = atoms.coords()
-        coords = coords % 1.
+        coords = (coords + eps) % 1. - eps
         return self._replace_atoms(atoms.with_coords(coords), frame='frac')
 
     def get_atoms(self, frame: CoordinateFrame = 'local') -> AtomFrame:
