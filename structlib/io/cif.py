@@ -75,7 +75,7 @@ class CIF:
             b = float(self['cell_length_b'])  # type: ignore
             c = float(self['cell_length_c'])  # type: ignore
             return (a, b, c)
-        except (ValueError, TypeError):
+        except (ValueError, TypeError, KeyError):
             return None
 
     def cell_angle(self) -> t.Optional[t.Tuple[float, float, float]]:
@@ -85,7 +85,7 @@ class CIF:
             b = float(self['cell_angle_beta'])   # type: ignore
             g = float(self['cell_angle_gamma'])  # type: ignore
             return (a, b, g)
-        except (ValueError, TypeError):
+        except (ValueError, TypeError, KeyError):
             return None
 
     def get_symmetry(self) -> t.Iterator[AffineTransform]:
@@ -340,10 +340,10 @@ class CifReader:
         if w in ('.', '?'):
             self.next_word()
             return None
-        
+
         if self.after_eol() and w == ';':
             return self.parse_text_field()
-        
+
         if w[0] in ('"', "'"):
             return self.parse_quoted()
 
@@ -370,9 +370,8 @@ class CifReader:
         quote = w[0]
         if quote not in ('"', "'"):
             raise ValueError(f"While parsing string at line {line}: Invalid quote char {quote}")
-        
+
         s = self.next_until(quote)
         if s is None:
             raise ValueError(f"While parsing string {w}... at line {line}: Unexpected EOF")
-        
-        return s[1:-1]
+        return s.lstrip()[1:-1]
