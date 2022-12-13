@@ -97,6 +97,7 @@ def write_mslice(atoms: AtomCell, path: FileOrPath, template: t.Optional[MSliceT
         db.remove(elem)
 
     frame = atoms.get_atoms('frac').with_wobble().with_occupancy()
+    frame = frame.with_wobble((polars.col('wobble') / 3.).sqrt())  # pyMultislicer wants wobble in one dimension
     rows = frame.select(('elem', 'x', 'y', 'z', 'wobble', 'frac_occupancy')).rows()
     for (i, (elem, x, y, z, wobble, frac_occupancy)) in enumerate(rows):
         e = _atom_elem(i, elem, x, y, z, wobble, frac_occupancy)
