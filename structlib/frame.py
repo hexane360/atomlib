@@ -120,6 +120,9 @@ class AtomFrame(polars.DataFrame):
         if len(missing):
             raise ValueError(f"'AtomFrame' missing column(s) {', '.join(map(repr, missing))}")
 
+    def filter(self, predicate: t.Union[polars.Expr, str, polars.Series, t.List[bool], numpy.ndarray]) -> AtomFrame:
+        return AtomFrame(super().filter(predicate))
+
     @staticmethod
     def empty() -> AtomFrame:
         data = [
