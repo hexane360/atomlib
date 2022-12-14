@@ -1,9 +1,19 @@
+import sys
 import typing as t
 
 import numpy
 from numpy.typing import ArrayLike, NDArray
 
 from .bbox import BBox
+
+
+if sys.version_info < (3, 10):
+    import typing_extensions
+    ParamSpec = typing_extensions.ParamSpec
+    Concatenate = typing_extensions.Concatenate
+else:
+    ParamSpec = t.ParamSpec
+    Concatenate = t.Concatenate
 
 
 Vec3 = NDArray[numpy.floating[t.Any]]

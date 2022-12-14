@@ -7,17 +7,18 @@ import numpy
 from numpy.typing import ArrayLike, NDArray
 import scipy.linalg
 
-from .types import VecLike, PtsLike, Num, to_vec3
+from .types import VecLike, PtsLike, Num, to_vec3, ParamSpec, Concatenate
 from .vec import perp
 from .bbox import BBox
 from .util import reduce_vec
 
+
 TransformT = t.TypeVar('TransformT', bound='Transform')
 PtsT = t.TypeVar('PtsT', bound=PtsLike)
 NumT = t.TypeVar('NumT', bound=t.Union[float, int])
-P = t.ParamSpec('P')
 T = t.TypeVar('T')
 U = t.TypeVar('U')
+P = ParamSpec('P')
 
 AffineSelf = t.TypeVar('AffineSelf', bound='AffineTransform')
 IntoTransform = t.Union['Transform', t.Callable[[numpy.ndarray], numpy.ndarray], numpy.ndarray]
@@ -29,8 +30,8 @@ class opt_classmethod(classmethod, t.Generic[T, P, U]):
     If called on the class, a default instance will be constructed.
     """
 
-    __func__: t.Callable[t.Concatenate[T, P], U]
-    def __init__(self, f: t.Callable[t.Concatenate[T, P], U]):
+    __func__: t.Callable[Concatenate[T, P], U]
+    def __init__(self, f: t.Callable[Concatenate[T, P], U]):
         super().__init__(f)
 
     def __get__(self, obj: t.Optional[T], ty: t.Optional[t.Type[T]] = None) -> t.Callable[P, U]:

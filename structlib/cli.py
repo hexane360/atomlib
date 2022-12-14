@@ -9,11 +9,12 @@ import logging
 import click
 
 from . import CoordinateFrame, AtomCollection, AtomSelection
+from .types import ParamSpec, Concatenate
 from .transform import LinearTransform, AffineTransform
 
 
 frame_type = click.Choice(('global', 'local', 'frac'), case_sensitive=False)
-P = t.ParamSpec('P')
+P = ParamSpec('P')
 
 
 @dataclass
@@ -81,7 +82,7 @@ def run_chain(cmds: t.Sequence[CmdType], verbose: int = 0):
         pass
 
 
-def lazy(f: t.Callable[t.Concatenate[t.Iterable[State], P], t.Iterable[State]]) -> t.Callable[P, CmdType]:
+def lazy(f: t.Callable[Concatenate[t.Iterable[State], P], t.Iterable[State]]) -> t.Callable[P, CmdType]:
     def wrapped(*args: P.args, **kwargs: P.kwargs):
         return lambda states: f(states, *args, **kwargs)
 
@@ -113,7 +114,7 @@ def lazy_append(f: t.Callable[P, t.Iterable[AtomCollection]]) -> t.Callable[P, C
     return update_wrapper(wrapped, f)
 
 
-def lazy_map(f: t.Callable[t.Concatenate[State, P], t.Iterable[State]]) -> t.Callable[P, CmdType]:
+def lazy_map(f: t.Callable[Concatenate[State, P], t.Iterable[State]]) -> t.Callable[P, CmdType]:
     def wrapped(*args: P.args, **kwargs: P.kwargs):
         def inner(states: t.Iterable[State]) -> t.Iterable[State]:
             for state in states:
