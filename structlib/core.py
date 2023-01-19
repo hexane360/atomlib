@@ -310,6 +310,35 @@ class AtomCell(AtomCollection):
         ortho = transform.to_linear() @ self.ortho
         return AtomCell(self.atoms.transform(transform), ortho=ortho)
 
+    def permute_axes(self, shift: t.Optional[int] = None) -> AtomCell:
+        """Permutes the axes of the crystal, such that 'a' is closest to the 'x' axis."""
+
+        if shift is None:
+            dots = numpy.array([numpy.dot([1, 0, 0], vec / numpy.linalg.norm(vec)) for vec in self.ortho.inner.T])
+            print(f"dots: {dots}")
+            new_i = numpy.argmax(dots)
+        else:
+            new_i = shift
+        if new_i == 0:
+            return self
+
+        print(f"new_i: {shift}")
+        atoms = self.get_atoms('frac')
+        atoms = atoms.with_coords(numpy.roll(atoms.coords(), -new_i, axis=1))
+        ortho = LinearTransform(numpy.roll(self.ortho.inner, -new_i, axis=1))
+        print(f"old ortho:\n{self.ortho.inner}")
+        print(f"new ortho:\n{ortho}")
+
+        return AtomCell(atoms, ortho=ortho, frac=True)
+
+    def transform_axes(self, transform: AffineTransform) -> AtomCell:
+        """Transform the local axes of the crystal, without affecting the atom positions."""
+        if isinstance(transform, Transform) and not isinstance(transform, AffineTransform):
+            raise ValueError("Non-affine transforms cannot change the box dimensions. Use `transform_atoms` instead.")
+
+        ortho = transform.to_linear() @ self.ortho
+        return AtomCell(self.atoms, ortho=ortho)
+
     def transform_atoms(self, transform: IntoTransform, frame: CoordinateFrame = 'local') -> AtomCell:
         if frame.lower() == 'frac':
             # coordinate change the transform
