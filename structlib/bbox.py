@@ -42,7 +42,7 @@ class BBox:
         return self.max - self.min
 
     def volume(self) -> float:
-        return numpy.prod(self.size)  # type: ignore
+        return float(numpy.prod(self.size))
 
     def corners(self) -> numpy.ndarray:
         """Return a (8, 3) ndarray containing the corners of self."""

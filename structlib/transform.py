@@ -180,7 +180,7 @@ class AffineTransform(Transform):
         return AffineTransform(numpy.block([
             [linear.inner, numpy.zeros((3, 1), dtype=dtype)],
             [numpy.zeros((1, 3), dtype=dtype), numpy.ones((), dtype=dtype)]
-        ]))  # type: ignore
+        ]))
 
     def to_linear(self) -> LinearTransform:
         """Return the linear part of an affine transformation."""
@@ -190,14 +190,14 @@ class AffineTransform(Transform):
         """Return the determinant of an affine transformation."""
         return numpy.linalg.det(self.inner[:3, :3])
 
-    def _translation(self) -> numpy.ndarray:
+    def translation(self) -> numpy.ndarray:
         return self.inner[:3, -1]
 
     def inverse(self) -> AffineTransform:
         """Return the inverse of an affine transformation."""
         linear_inv = LinearTransform(self.inner[:3, :3]).inverse()
         # first undo translation, then undo linear transformation
-        return linear_inv @ AffineTransform.translate(*-self._translation())
+        return linear_inv @ AffineTransform.translate(*-self.translation())
 
     @t.overload
     @classmethod
@@ -240,7 +240,7 @@ class AffineTransform(Transform):
     def scale(self, x: t.Union[Num, VecLike] = 1., y: Num = 1., z: Num = 1., *,
               all: Num = 1.) -> AffineTransform:
         """Create or append a scaling transformation"""
-        return self.compose(LinearTransform.scale(x, y, z, all=all))  # type: ignore
+        return self.compose(LinearTransform.scale(x, y, z, all=all))
 
     @opt_classmethod
     def rotate(self, v: VecLike, theta: Num) -> AffineTransform:
@@ -277,7 +277,7 @@ class AffineTransform(Transform):
         """
         Create or append a mirror transformation across the given plane.
         """
-        return self.compose(LinearTransform.mirror(a, b, c))  # type: ignore
+        return self.compose(LinearTransform.mirror(a, b, c))
 
     @t.overload
     def transform(self, points: BBox) -> BBox:
@@ -355,9 +355,8 @@ class LinearTransform(AffineTransform):
     def __repr__(self) -> str:
         return f"LinearTransform(\n{self.inner!r}\n)"
 
-    def _translation(self):
-        # not defined for LinearTransform
-        raise NotImplementedError()
+    def translation(self):
+        return numpy.zeros(3, dtype=self.inner.dtype)
 
     @staticmethod
     def identity() -> LinearTransform:
@@ -430,9 +429,9 @@ class LinearTransform(AffineTransform):
         v /= l
 
         # Rodrigues rotation formula
-        w = numpy.array([[   0, -v[2],  v[1]],
-                         [ v[2],    0, -v[0]],
-                         [-v[1], v[0],    0]])
+        w = numpy.array([[  0., -v[2],  v[1]],
+                         [ v[2],   0., -v[0]],
+                         [-v[1], v[0],   0.]], dtype=float)
         # I + sin(t) W + (1 - cos(t)) W^2 = I + sin(t) W + 2*sin^2(t/2) W^2
         a = numpy.eye(3) + numpy.sin(theta) * w + 2 * (numpy.sin(theta / 2)**2) * w @ w
         return LinearTransform(a @ self.inner)
@@ -514,7 +513,7 @@ class LinearTransform(AffineTransform):
         Align `self` so `v1` is in the x-axis and `v2` is in the xy-plane.
         """
         assert self.det() > 0  # only works on right handed crystal systems
-        q, r = scipy.linalg.qr(self.inner)  # type: ignore
+        q, r = t.cast(t.Tuple[numpy.ndarray, numpy.ndarray], scipy.linalg.qr(self.inner))
         # qr unique up to the sign of the digonal
         r = r * numpy.sign(r.diagonal())
         assert numpy.linalg.det(r) > 0

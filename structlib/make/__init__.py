@@ -74,10 +74,10 @@ def wurtzite(elems: t.Union[str, t.Sequence[ElemLike]], a: Num, c: t.Optional[Nu
         raise ValueError("Expected two elements.")
 
     # default to ideal c/a
-    c_a: float = numpy.sqrt(8. / 3.) if c is None else c / a
+    c_a = float(numpy.sqrt(8. / 3.) if c is None else c / a)
 
     d = 0.25 + 1 / (3 * c_a**2) if d is None else d
-    if not 0 < d < 0.5:  # type: ignore
+    if not 0 < d < 0.5:
         raise ValueError(f"Invalid 'd' parameter: {d}")
 
     cell = t.cast(CellType, str(cell).lower())
