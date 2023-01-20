@@ -20,7 +20,7 @@ T = t.TypeVar('T')
 U = t.TypeVar('U')
 
 AffineSelf = t.TypeVar('AffineSelf', bound='AffineTransform')
-IntoTransform = t.Union['Transform', t.Callable[[numpy.ndarray], numpy.ndarray], numpy.ndarray]
+IntoTransform = t.Union['Transform', t.Callable[[NDArray[numpy.floating]], numpy.ndarray], numpy.ndarray]
 
 
 class opt_classmethod(classmethod, t.Generic[T, P, U]):
@@ -344,7 +344,7 @@ class AffineTransform(Transform):
 class LinearTransform(AffineTransform):
     def __init__(self, array=None):
         if array is None:
-            array = numpy.eye(3)
+            array = numpy.eye(3, dtype=numpy.float_)
         self.inner = numpy.broadcast_to(array, (3, 3))
 
     @property
@@ -406,11 +406,11 @@ class LinearTransform(AffineTransform):
                b: t.Optional[Num] = None,
                c: t.Optional[Num] = None) -> LinearTransform:
         if isinstance(a, t.Sized):
-            v = numpy.array(numpy.broadcast_to(a, 3), dtype=float)
+            v = numpy.array(numpy.broadcast_to(a, 3), dtype=numpy.float_)
             if b is not None or c is not None:
                 raise ValueError("mirror() must be passed a sequence or three numbers.")
         else:
-            v = numpy.array([a, b, c], dtype=float)
+            v = numpy.array([a, b, c], dtype=numpy.float_)
         v /= numpy.linalg.norm(v)
         mirror = numpy.eye(3) - 2 * numpy.outer(v, v)
         return LinearTransform(mirror @ self.inner)
@@ -418,7 +418,7 @@ class LinearTransform(AffineTransform):
     @opt_classmethod
     def rotate(self, v: VecLike, theta: Num) -> LinearTransform:
         theta = float(theta)
-        v = numpy.array(numpy.broadcast_to(v, (3,)), dtype=float)
+        v = numpy.array(numpy.broadcast_to(v, (3,)), dtype=numpy.float_)
         l = numpy.linalg.norm(v)
         if numpy.isclose(l, 0.):
             if numpy.isclose(theta, 0.):
@@ -430,14 +430,14 @@ class LinearTransform(AffineTransform):
         # Rodrigues rotation formula
         w = numpy.array([[  0., -v[2],  v[1]],
                          [ v[2],   0., -v[0]],
-                         [-v[1], v[0],   0.]], dtype=float)
+                         [-v[1], v[0],   0.]], dtype=numpy.float_)
         # I + sin(t) W + (1 - cos(t)) W^2 = I + sin(t) W + 2*sin^2(t/2) W^2
         a = numpy.eye(3) + numpy.sin(theta) * w + 2 * (numpy.sin(theta / 2)**2) * w @ w
         return LinearTransform(a @ self.inner)
 
     @opt_classmethod
     def rotate_euler(self, x: Num = 0., y: Num = 0., z: Num = 0.) -> LinearTransform:
-        angles = numpy.array([x, y, z], dtype=float)
+        angles = numpy.array([x, y, z], dtype=numpy.float_)
         c, s = numpy.cos(angles), numpy.sin(angles)
         a = numpy.array([
             [c[1]*c[2], s[0]*s[1]*c[2] - c[0]*s[2], c[0]*s[1]*c[2] + s[0]*s[2]],
@@ -554,7 +554,7 @@ class LinearTransform(AffineTransform):
         else:
             v = numpy.array([x, y, z])
 
-        a = numpy.zeros((3, 3))
+        a = numpy.zeros((3, 3), dtype=self.inner.dtype)
         a[numpy.diag_indices(3)] = all * v
         return LinearTransform(a @ self.inner)
 

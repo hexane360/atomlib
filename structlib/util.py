@@ -7,12 +7,10 @@ import time
 import typing as t
 
 import numpy
-from numpy.typing import NDArray, ArrayLike
 
 
 T = t.TypeVar('T')
 U = t.TypeVar('U')
-ScalarType = t.TypeVar("ScalarType", bound=numpy.generic, covariant=True)
 
 
 def map_some(f: t.Callable[[T], U], val: t.Optional[T]) -> t.Optional[U]:

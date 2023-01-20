@@ -2,14 +2,17 @@
 Helper functions for working with crystallographic unit cells and coordinate frames.
 """
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from warnings import warn
 import typing as t
 
 import numpy
+from numpy.typing import NDArray
 
 from .transform import LinearTransform, AffineTransform
 from .types import VecLike, Vec3, to_vec3
 from .vec import reduce_vec
+from .bbox import BBox
 
 
 CoordinateFrame = t.Union[
@@ -31,19 +34,37 @@ A coordinate frame to use.
 
 
 @dataclass(kw_only=True)
-class CrystalFrame:
-    """Internal class for representing the coordinate systems of a crystal."""
+class Cell:
+    """
+    Internal class for representing the coordinate systems of a crystal.
+
+    The overall transformation from crystal coordinates to real-space coordinates is
+    is split into four transformations, applied from bottom to top. First is `n_cells`,
+    which scales from fractions of a unit cell to fractions of a supercell. Next is
+    `cell_size`, which scales to real-space units. `ortho` is an orthogonalization
+    matrix, a det = 1 upper-triangular matrix which transforms crystal axes to
+    an orthogonal coordinate system. Finally, `affine` contains any remaining
+    transformations to the local coordinate system, which atoms are stored in.
+    """
 
     affine: AffineTransform = AffineTransform()
     ortho: LinearTransform = LinearTransform()
-    n_cells: LinearTransform = LinearTransform()
-    cell_size: LinearTransform = LinearTransform()
+    cell_size: NDArray[numpy.float_]
+    ortho_size: NDArray[numpy.float_] = field(init=False)
+    n_cells: NDArray[numpy.int_] = to_vec3([1, 1, 1], numpy.int_)
+
+    def __post_init__(self):
+        # compute the orthogonal cell from the 
+        pts = numpy.zeros((4, 3), dtype=numpy.float_)
+        numpy.fill_diagonal(pts, self.cell_size)
+        self.ortho_size = BBox.from_pts(self.ortho @ pts).max
 
     @staticmethod
-    def from_cell(cell_size: VecLike, cell_angle: t.Optional[VecLike] = None, n_cells: t.Optional[VecLike] = None):
-        return CrystalFrame(
-            ortho = cell_to_ortho(cell_size, cell_angle),
-            n_cells = LinearTransform() if n_cells is None else LinearTransform.scale(n_cells)
+    def from_unit_cell(cell_size: VecLike, cell_angle: t.Optional[VecLike] = None, n_cells: t.Optional[VecLike] = None):
+        return Cell(
+            ortho = cell_to_ortho([1., 1., 1.], cell_angle),
+            n_cells = to_vec3([1, 1, 1] if n_cells is None else n_cells, numpy.int_),
+            cell_size = to_vec3(cell_size),
         )
 
     @staticmethod
@@ -52,19 +73,28 @@ class CrystalFrame:
         # decompose into orthogonal and upper triangular
         q, r = numpy.linalg.qr(lin.inner)
 
-        cell_size = LinearTransform.scale(numpy.linalg.norm(r, axis=-2))
-        return CrystalFrame(
+        # flip QR decomposition so R has positive diagonals
+        signs = numpy.sign(numpy.diagonal(r))
+        # multiply flips to columns of Q, rows of R
+        q = q * signs; r = r * signs[:, None]
+        #numpy.testing.assert_allclose(q @ r, lin.inner)
+        if numpy.linalg.det(q) < 0:
+            warn("Crystal axes are left-handed. This is currently unsupported, and may cause errors.")
+            # currently, behavior is to leave `ortho` proper, and move the inversion into the affine transform
+
+        cell_size = numpy.linalg.norm(r, axis=-2)
+        return Cell(
             affine=LinearTransform(q).translate(ortho.translation()),
-            ortho=LinearTransform(r) @ cell_size.inverse(),
+            ortho=LinearTransform(r / cell_size),
             cell_size=cell_size,
-            n_cells = LinearTransform() if n_cells is None else LinearTransform.scale(n_cells)
+            n_cells=to_vec3([1, 1, 1] if n_cells is None else n_cells, numpy.int_),
         )
 
-    def transform_cell(self, transform: LinearTransform) -> 'CrystalFrame':
-        """Apply the given transform to the unit cell, and return a new `CrystalFrame`."""
+    def transform_cell(self, transform: LinearTransform) -> 'Cell':
+        """Apply the given transform to the unit cell, and return a new `Cell`."""
         raise NotImplementedError()
 
-    def _get_transform_inverse(self, frame: CoordinateFrame) -> AffineTransform:
+    def _get_transform_to_local(self, frame: CoordinateFrame) -> AffineTransform:
         """Get the transform from 'frame' to local coordinates."""
         frame = t.cast(CoordinateFrame, frame.lower())
 
@@ -72,9 +102,11 @@ class CrystalFrame:
             return LinearTransform()
 
         if frame.startswith('cell'):
-            transform = self.ortho
+            transform = self.affine @ self.ortho
+            cell_size = self.cell_size
         elif frame.startswith('ortho'):
-            transform = LinearTransform()
+            transform = self.affine
+            cell_size = self.ortho_size
         else:
             raise ValueError(f"Unknown coordinate frame '{frame}'")
 
@@ -82,18 +114,21 @@ class CrystalFrame:
             return transform
         end = frame.split('_', 2)[1]
         if end == 'frac':
-            return self.n_cells @ self.cell_size @ transform
+            return transform @ LinearTransform.scale(cell_size)
         if end == 'box':
-            return self.cell_size @ transform
+            return transform @ LinearTransform.scale(cell_size * self.n_cells)
         raise ValueError(f"Unknown coordinate frame '{frame}'")
 
-    def get_transform(self, frame_to: CoordinateFrame, frame_from: t.Optional[CoordinateFrame] = None) -> AffineTransform:
-        """Get the transform from local coordinates to 'frame'."""
-        if frame_from is None:
-            return self._get_transform_inverse(frame_to).inverse()
-        if frame_to == 'local' or frame_to == 'global':
-            return self._get_transform_inverse(frame_from)
-        return self._get_transform_inverse(frame_to).inverse() @ self._get_transform_inverse(frame_from)
+    def get_transform(self, frame_to: t.Optional[CoordinateFrame] = None, frame_from: t.Optional[CoordinateFrame] = None) -> AffineTransform:
+        """
+        In the two-argument form, get the transform to 'frame_to' from 'frame_from'.
+        In the one-argument form, get the transform from local coordinates to 'frame'.
+        """
+        transform_from = self._get_transform_to_local(frame_from) if frame_from is not None else AffineTransform()
+        transform_to = self._get_transform_to_local(frame_to) if frame_to is not None else AffineTransform()
+        if frame_from is not None and frame_to is not None and frame_from.lower() == frame_to.lower():
+            return AffineTransform()
+        return transform_to.inverse() @ transform_from
 
 
 @t.overload
@@ -123,7 +158,9 @@ def _validate_cell_angle(cell_angle: t.Optional[VecLike]) -> Vec3:
 
 
 def cell_to_ortho(cell_size: VecLike, cell_angle: t.Optional[VecLike] = None) -> LinearTransform:
-    """Get orthogonalization transform from unit cell parameters (which turns fractional cell coordinates into real-space coordinates)."""
+    """
+    Get orthogonalization transform from unit cell parameters (which turns fractional cell coordinates into real-space coordinates).
+    ."""
     cell_size = _validate_cell_size(cell_size)
     cell_angle = _validate_cell_angle(cell_angle)
     (a, b, c) = cell_size if cell_size is not None else (1., 1., 1.)
