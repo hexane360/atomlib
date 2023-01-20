@@ -8,17 +8,16 @@ from numpy.typing import ArrayLike, NDArray
 import scipy.linalg
 
 from .types import VecLike, PtsLike, Num, to_vec3, ParamSpec, Concatenate
-from .vec import perp
+from .vec import perp, reduce_vec
 from .bbox import BBox
-from .util import reduce_vec
 
 
 TransformT = t.TypeVar('TransformT', bound='Transform')
 PtsT = t.TypeVar('PtsT', bound=PtsLike)
 NumT = t.TypeVar('NumT', bound=t.Union[float, int])
+P = ParamSpec('P')
 T = t.TypeVar('T')
 U = t.TypeVar('U')
-P = ParamSpec('P')
 
 AffineSelf = t.TypeVar('AffineSelf', bound='AffineTransform')
 IntoTransform = t.Union['Transform', t.Callable[[numpy.ndarray], numpy.ndarray], numpy.ndarray]

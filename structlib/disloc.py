@@ -10,9 +10,8 @@ from scipy.special import ellipe, ellipk, elliprf, elliprj
 
 from .core import AtomCollectionT, VecLike, to_vec3
 from .transform import AffineTransform, LinearTransform
-from .util import split_arr, polygon_solid_angle, polygon_winding
-from .frame import Atoms, _selection_to_expr
-from .vec import norm, dot, perp
+from .atoms import Atoms, _selection_to_expr
+from .vec import norm, dot, perp, split_arr, polygon_solid_angle, polygon_winding
 
 
 def ellip_pi(n, m):

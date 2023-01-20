@@ -4,7 +4,7 @@ import pytest
 import numpy
 import polars
 
-from .frame import Atoms
+from .atoms import Atoms
 
 
 def test_atom_frame_creation():

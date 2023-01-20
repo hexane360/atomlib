@@ -14,7 +14,7 @@ from .bbox import BBox
 from .types import VecLike, Vec3, to_vec3
 from .transform import LinearTransform, AffineTransform, Transform, IntoTransform
 from .cell import cell_to_ortho, ortho_to_cell
-from .frame import Atoms, AtomSelection, IntoAtoms
+from .atoms import Atoms, AtomSelection, IntoAtoms
 
 
 if t.TYPE_CHECKING:

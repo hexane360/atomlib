@@ -53,7 +53,7 @@ def fcc(elem: ElemLike, a: Num, *, cell: CellType = 'conv', additional: t.Option
 
     frame = Atoms(dict(x=xs, y=ys, z=zs, elem=elems))
     if additional is not None:
-        frame = frame + Atoms(additional)
+        frame = frame.concat(Atoms(additional))
 
     return AtomCell(frame, ortho=ortho, frac=True)
 

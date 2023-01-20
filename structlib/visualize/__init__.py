@@ -1,21 +1,21 @@
 """Visualization of atomic structures. Useful for debugging."""
 
 from abc import abstractmethod, ABC
-from re import A
 import typing as t
 
 import numpy
 from matplotlib import pyplot
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
-from matplotlib.colors import Colormap
+#from matplotlib.colors import Colormap
 from mpl_toolkits.mplot3d import Axes3D
-from mpl_toolkits.mplot3d.art3d import PathPatch3D
+#from mpl_toolkits.mplot3d.art3d import PathPatch3D
 
 from ..core import AtomCollection, AtomCell
 from ..transform import LinearTransform
-from ..util import FileOrPath, BinaryFileOrPath, split_arr
-from ..types import VecLike
+from ..util import FileOrPath
+from ..types import VecLike, to_vec3
+from ..vec import split_arr
 
 
 BackendName = t.Union[t.Literal['mpl'], t.Literal['ase']]
@@ -112,7 +112,7 @@ def get_zone(atoms: AtomCollection, zone: t.Optional[VecLike] = None,
 
 
 def get_azim_elev(zone: VecLike) -> t.Tuple[float, float]:
-    (a, b, c) = zone
+    (a, b, c) = to_vec3(zone)
     l = numpy.sqrt(a**2 + b**2)
     return (numpy.angle(a + b*1.j, deg=True), numpy.angle(l + c*1.j, deg=True))  # type: ignore
 

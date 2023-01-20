@@ -177,7 +177,9 @@ class Atoms:
         return Atoms(self.inner.sort(by, reverse), _unchecked=True)
 
     @staticmethod
-    def concat(atoms: t.Iterable[Atoms], rechunk: bool = True) -> Atoms:
+    def concat(atoms: t.Union[Atoms, t.Iterable[Atoms]], rechunk: bool = True) -> Atoms:
+        if isinstance(atoms, Atoms):
+            atoms = (atoms,)
         return Atoms(polars.concat(tuple(a.inner for a in atoms), rechunk=rechunk))
 
     def coords(self, selection: t.Optional[AtomSelection] = None) -> numpy.ndarray:
@@ -436,6 +438,6 @@ Array, value, or polars expression mapping atoms to values.
 Can be used with `with_*` methods on Atoms
 """
 
-__ALL__ = [
+__all__ = [
     'Atoms', 'IntoAtoms', 'AtomSelection', 'AtomValues',
 ]

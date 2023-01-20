@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from .frame import Atoms, AtomSelection
+from .atoms import Atoms, AtomSelection
 from .core import CoordinateFrame, AtomCollection, AtomCell, SimpleAtoms
 
 from . import io, visualize, make, disloc, transform
