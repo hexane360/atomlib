@@ -55,7 +55,7 @@ def fcc(elem: ElemLike, a: Num, *, cell: CellType = 'conv', additional: t.Option
     if additional is not None:
         frame = frame.concat(Atoms(additional))
 
-    return AtomCell(frame, ortho=ortho, frac=True)
+    return AtomCell.from_ortho(frame, ortho, frame='cell_frac')
 
 
 def wurtzite(elems: t.Union[str, t.Sequence[ElemLike]], a: Num, c: t.Optional[Num] = None,
@@ -95,7 +95,7 @@ def wurtzite(elems: t.Union[str, t.Sequence[ElemLike]], a: Num, c: t.Optional[Nu
     elems *= 2
 
     frame = Atoms(dict(x=xs, y=ys, z=zs, elem=elems))
-    atoms = AtomCell(frame, ortho=ortho, frac=True)
+    atoms = AtomCell.from_ortho(frame, ortho, frame='cell_frac')
     if cell == 'ortho':
         return _ortho_hexagonal(atoms)
     return atoms
@@ -129,7 +129,7 @@ def graphite(elem: t.Union[str, ElemLike, None] = None, a: t.Optional[Num] = Non
     elems = [elem] * 4
 
     frame = Atoms(dict(x=xs, y=ys, z=zs, elem=elems))
-    atoms = AtomCell(frame, ortho=ortho, frac=True)
+    atoms = AtomCell.from_ortho(frame, ortho, frame='cell_frac')
 
     if cell == 'ortho':
         return _ortho_hexagonal(atoms)
@@ -137,8 +137,8 @@ def graphite(elem: t.Union[str, ElemLike, None] = None, a: t.Optional[Num] = Non
 
 
 def _ortho_hexagonal(cell: AtomCell) -> AtomCell:
-    a, _, c = cell.cell_size
-    cell = cell.repeat((2, 2, 1), explode=True)
+    a, _, c = cell.cell.cell_size
+    cell = cell.repeat((2, 2, 1)).explode()
     frame = cell.get_atoms('local')
 
     eps = 1e-6
@@ -148,4 +148,4 @@ def _ortho_hexagonal(cell: AtomCell) -> AtomCell:
 
     ortho = cell_to_ortho([a, a * numpy.sqrt(3), c])
 
-    return AtomCell(frame, ortho=ortho)
+    return AtomCell.from_ortho(frame, ortho, frame='local')

@@ -6,7 +6,7 @@ from .. import AtomCell, Atoms
 
 
 def test_write_lmp():
-    cell = AtomCell(Atoms({
+    cell = AtomCell.from_unit_cell(Atoms({
         'x': [0., 5., 8.],
         'y': [2., 5., 9.],
         'z': [2., 5., 9.],

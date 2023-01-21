@@ -139,14 +139,13 @@ def show_atoms_mpl_3d(atoms: AtomCollection, *, fig: t.Optional[Figure] = None,
     ax.set_zlabel('Z')
 
     frame = atoms.get_atoms('global')
-
     coords = frame.coords()
     elem_colors = numpy.array(list(map(get_elem_color, frame['elem']))) / 255.
     s = 100
 
     if isinstance(atoms, AtomCell):  # TODO raise this API to AtomCollection
         # plot cell corners
-        corners = atoms.cell_corners('global')
+        corners = atoms.cell.corners('global')
         faces = [
             numpy.array([
                 corners[(val*2**axis + v1*2**((axis+1) % 3) + v2*2**((axis+2) % 3))]

@@ -15,8 +15,8 @@ PATH = Path(__file__).absolute().parent
 def xyz_expected(s: AtomCollection):
     assert isinstance(s, AtomCell)
 
-    assert s.cell_angle == pytest.approx([numpy.pi/2] * 3)
-    assert s.cell_size == pytest.approx([5.44] * 3)
+    assert s.cell.cell_angle == pytest.approx([numpy.pi/2] * 3)
+    assert s.cell.cell_size == pytest.approx([5.44] * 3)
 
     assert list(s.atoms['elem']) == [14] * 8
     assert list(s.atoms['symbol']) == ['Si'] * 8
@@ -52,8 +52,8 @@ def test_xyz():
 def cfg_expected(s: AtomCollection):
     assert isinstance(s, AtomCell)
 
-    assert s.cell_angle == pytest.approx([numpy.pi/2] * 3)
-    assert s.cell_size == pytest.approx([5.44] * 3)
+    assert s.cell.cell_angle == pytest.approx([numpy.pi/2] * 3)
+    assert s.cell.cell_size == pytest.approx([5.44] * 3)
 
     assert list(s.atoms['elem']) == [14] * 4
     assert list(s.atoms['symbol']) == ['Si'] * 4
@@ -88,8 +88,8 @@ def test_cfg():
 def cif_expected(s: AtomCollection):
     assert isinstance(s, AtomCell)
 
-    assert s.cell_size == pytest.approx([22.75298600, 9.79283000, 5.65716000])
-    assert s.cell_angle == pytest.approx(numpy.full(3, numpy.pi/2.))
+    assert s.cell.cell_size == pytest.approx([22.75298600, 9.79283000, 5.65716000])
+    assert s.cell.cell_angle == pytest.approx(numpy.full(3, numpy.pi/2.))
     assert s.is_orthogonal()
 
     assert len(s.atoms.filter(polars.col('symbol') == 'Al')) == 21

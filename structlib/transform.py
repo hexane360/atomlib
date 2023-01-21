@@ -8,7 +8,7 @@ from numpy.typing import ArrayLike, NDArray
 import scipy.linalg
 
 from .types import VecLike, PtsLike, Num, to_vec3, ParamSpec, Concatenate
-from .vec import perp, reduce_vec
+from .vec import perp, reduce_vec, is_diagonal
 from .bbox import BBox
 
 
@@ -377,19 +377,24 @@ class LinearTransform(AffineTransform):
         return bool((numpy.abs(offdiag) < tol).all())
 
     def is_normal(self, rtol: float = 1e-5, atol: float = 1e-8) -> bool:
-        """
-        Returns `True` if `self` is diagonal in some coordinate system.
-        """
+        """Returns `True` if `self` is a normal matrix."""
         return bool(numpy.allclose(
             self.inner.T @ self.inner, self.inner @ self.inner.T,
             rtol=rtol, atol=atol
         ))
 
-    def is_orthogonal(self, rtol: float = 1e-5, atol: float = 1e-8) -> bool:
+    def is_orthogonal(self, tol: float = 1e-8) -> bool:
         """
         Returns `True` if `self` is an orthogonal matrix (i.e. a pure rotation or roto-reflection).
         """
-        return bool(numpy.isclose(abs(self.det()), 1., rtol, atol)) and self.is_normal(rtol, atol)
+        return numpy.allclose(self.inner @ self.inner.T, numpy.eye(3), atol=tol)
+
+    def is_scaled_orthogonal(self, tol: float = 1e-8) -> bool:
+        """
+        Returns `True` if `self` is a scaled orthogonal matrix (composed of orthogonal
+        basis vectors, i.e. a scaling + a rotation or roto-reflection)
+        """
+        return is_diagonal(self.inner @ self.inner.T, tol=tol)
 
     @t.overload
     @classmethod

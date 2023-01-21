@@ -2,16 +2,18 @@
 Helper functions for working with crystallographic unit cells and coordinate frames.
 """
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
+import itertools
 from warnings import warn
 import typing as t
 
 import numpy
 from numpy.typing import NDArray
 
-from .transform import LinearTransform, AffineTransform
+from .transform import LinearTransform, AffineTransform, Transform
 from .types import VecLike, Vec3, to_vec3
 from .vec import reduce_vec
+from .bbox import BBox
 
 
 CoordinateFrame = t.Union[
@@ -49,23 +51,48 @@ class Cell:
     affine: AffineTransform = AffineTransform()
     ortho: LinearTransform = LinearTransform()
     cell_size: NDArray[numpy.float_]
-    ortho_size: NDArray[numpy.float_] = field(init=False)
+    cell_angle: NDArray[numpy.float_] = numpy.full(3, numpy.pi/2.)
     n_cells: NDArray[numpy.int_] = to_vec3([1, 1, 1], numpy.int_)
 
-    def __post_init__(self):
-        # compute an orthogonal cell which tiles the same as the primitive cell.
-        # this is not the most convenient coordinate system, but may be useful sometimes.
-        self.ortho_size = numpy.diag(self.ortho.inner) * self.cell_size
+    @property
+    def ortho_size(self) -> NDArray[numpy.float_]:
+        """
+        Return size of orthogonal unit cell. Equivalent
+        to the diagonal of the orthogonalization matrix.
+        """
+        return self.cell_size * numpy.diag(self.ortho.inner)
 
-    def is_orthogonal(self):
-        return self.ortho.is_diagonal()
+    def corners(self, frame: CoordinateFrame = 'local') -> numpy.ndarray:
+        corners = numpy.array(list(itertools.product((0., 1.), repeat=3)))
+        return self.get_transform(frame, 'cell_box') @ corners
+
+    def bbox(self, frame: CoordinateFrame = 'local') -> BBox:
+        """Return the bounding box of the cell box in the given coordinate system."""
+        return BBox.from_pts(self.corners(frame))
+
+    def is_orthogonal(self, tol: float = 1e-8) -> bool:
+        """Returns whether this cell is orthogonal (axes are at right angles.)"""
+        return self.ortho.is_diagonal(tol=tol)
+
+    def is_orthogonal_in_local(self, tol: float = 1e-8) -> bool:
+        """Returns whether this cell is orthogonal and aligned with the local coordinate system."""
+        transform = (self.affine @ self.ortho).to_linear()
+        if not transform.is_scaled_orthogonal(tol):
+            return False
+        normed = transform.inner / numpy.linalg.norm(transform.inner, axis=-2, keepdims=True)
+        # every row of transform must be a +/- 1 times a basis vector (i, j, or k)
+        return all(
+            any(numpy.isclose(numpy.abs(numpy.dot(row, v)), 1., atol=tol) for v in numpy.eye(3))
+            for row in normed
+        )
 
     @staticmethod
     def from_unit_cell(cell_size: VecLike, cell_angle: t.Optional[VecLike] = None, n_cells: t.Optional[VecLike] = None):
         return Cell(
-            ortho=cell_to_ortho([1., 1., 1.], cell_angle),
-            n_cells=to_vec3([1, 1, 1] if n_cells is None else n_cells, numpy.int_),
+            ortho=cell_to_ortho([1.]*3, cell_angle),
+            n_cells=to_vec3([1]*3 if n_cells is None else n_cells, numpy.int_),
             cell_size=to_vec3(cell_size),
+            cell_angle=to_vec3([numpy.pi/2.]*3 if cell_angle is None else cell_angle),
         )
 
     @staticmethod
@@ -83,17 +110,51 @@ class Cell:
             warn("Crystal is left-handed. This is currently unsupported, and may cause errors.")
             # currently, behavior is to leave `ortho` proper, and move the inversion into the affine transform
 
-        cell_size = numpy.linalg.norm(r, axis=-2)
+        cell_size, cell_angle = ortho_to_cell(LinearTransform(r))
         return Cell(
             affine=LinearTransform(q).translate(ortho.translation()),
             ortho=LinearTransform(r / cell_size),
-            cell_size=cell_size,
-            n_cells=to_vec3([1, 1, 1] if n_cells is None else n_cells, numpy.int_),
+            cell_size=cell_size, cell_angle=cell_angle,
+            n_cells=to_vec3([1]*3 if n_cells is None else n_cells, numpy.int_),
         )
 
-    def transform_cell(self, transform: LinearTransform) -> 'Cell':
-        """Apply the given transform to the unit cell, and return a new `Cell`."""
-        raise NotImplementedError()
+    def transform_cell(self, transform: AffineTransform, frame: CoordinateFrame = 'local') -> 'Cell':
+        """
+        Apply the given transform to the unit cell, and return a new `Cell`.
+        The transform is applied in coordinate frame 'frame'.
+        Orthogonal and affine transformations are applied to the affine matrix component,
+        while skew and scaling is applied to the orthogonalization matrix/cell_size.
+        """
+        transform = t.cast(AffineTransform, self.change_transform(transform, 'local', frame))
+        if not transform.to_linear().is_orthogonal():
+            raise NotImplementedError()
+        return Cell(
+            affine=transform @ self.affine,
+            ortho=self.ortho,
+            cell_size=self.cell_size,
+            cell_angle=self.cell_angle,
+        )
+
+    def repeat(self, n: t.Union[int, VecLike]) -> 'Cell':
+        """Tile the cell by `n` in each dimension."""
+        ns = numpy.broadcast_to(n, 3)
+        if not numpy.issubdtype(ns.dtype, numpy.integer):
+            raise ValueError(f"repeat() argument must be an integer or integer array.")
+        return Cell(
+            affine=self.affine,
+            ortho=self.ortho,
+            cell_size=self.cell_size,
+            cell_angle=self.cell_angle,
+            n_cells=self.n_cells * numpy.broadcast_to(n, 3),
+        )
+
+    def explode(self) -> 'Cell':
+        return Cell(
+            affine=self.affine,
+            ortho=self.ortho,
+            cell_size=self.cell_size*self.n_cells,
+            cell_angle=self.cell_angle,
+        )
 
     def _get_transform_to_local(self, frame: CoordinateFrame) -> AffineTransform:
         """Get the transform from 'frame' to local coordinates."""
@@ -130,6 +191,21 @@ class Cell:
         if frame_from is not None and frame_to is not None and frame_from.lower() == frame_to.lower():
             return AffineTransform()
         return transform_to.inverse() @ transform_from
+
+    def change_transform(self, transform: Transform,
+                         frame_to: t.Optional[CoordinateFrame] = None,
+                         frame_from: t.Optional[CoordinateFrame] = None) -> Transform:
+        """Coordinate-change a transformation to 'frame_to' from 'frame_from'."""
+        if frame_to == frame_from and frame_to is not None:
+            return transform
+        coord_change = self.get_transform(frame_to, frame_from)
+        return coord_change @ transform @ coord_change.inverse()
+
+    def assert_equal(self, other):
+        assert isinstance(other, Cell)
+        numpy.testing.assert_array_almost_equal(self.affine.inner, other.affine.inner, 6)
+        numpy.testing.assert_array_almost_equal(self.ortho.inner, other.ortho.inner, 6)
+        numpy.testing.assert_array_equal(self.n_cells, other.n_cells)
 
 
 @t.overload

@@ -35,6 +35,14 @@ def para(v1: ArrayLike, v2: ArrayLike) -> NDArray[numpy.floating]:
     return v2 * dot(v1, v2)
 
 
+def is_diagonal(matrix, tol: float = 1e-10) -> bool:
+    d = matrix.shape[0]
+    assert matrix.shape == (d, d)
+    p, q = matrix.strides
+    offdiag = numpy.lib.stride_tricks.as_strided(matrix[:, 1:], (d-1, d), (p+q, q))
+    return bool((numpy.abs(offdiag) < tol).all())
+
+
 def split_arr(a: NDArray[ScalarType], axis: int = 0) -> t.Iterator[NDArray[ScalarType]]:
     return (numpy.squeeze(sub_a, axis) for sub_a in numpy.split(a, a.shape[axis], axis))
 

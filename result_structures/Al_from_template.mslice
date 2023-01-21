@@ -116,9 +116,9 @@
     <object type="STRUCTURE" id="z110">
         <attribute name="tilty" type="float">0</attribute>
         <attribute name="tiltx" type="float">0</attribute>
-        <attribute name="repeatc" type="int16">4</attribute>
-        <attribute name="repeatb" type="int16">3</attribute>
-        <attribute name="repeata" type="int16">2</attribute>
+        <attribute name="repeatc" type="int16">1</attribute>
+        <attribute name="repeatb" type="int16">1</attribute>
+        <attribute name="repeata" type="int16">1</attribute>
         <attribute name="aparam" type="float">4.05000000</attribute>
         <attribute name="bparam" type="float">4.05000000</attribute>
         <attribute name="cparam" type="float">4.05000000</attribute>

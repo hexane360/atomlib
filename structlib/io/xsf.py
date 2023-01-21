@@ -48,16 +48,16 @@ class XSF:
     @staticmethod
     def from_cell(cell: AtomCell) -> XSF:
         return XSF(
-            primitive_cell=cell.ortho,
-            conventional_cell=cell.ortho,
-            prim_coords=cell.get_atoms('local')
+            primitive_cell=cell.cell.ortho,
+            conventional_cell=cell.cell.ortho,
+            prim_coords=cell.get_atoms('local').inner
         )
 
     @staticmethod
     def from_atoms(atoms: AtomCollection) -> XSF:
         return XSF(
             periodicity='molecule',
-            atoms=atoms.get_atoms('local')
+            atoms=atoms.get_atoms('local').inner
         )
 
     @staticmethod
