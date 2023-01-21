@@ -118,6 +118,9 @@ class Cell:
             n_cells=to_vec3([1]*3 if n_cells is None else n_cells, numpy.int_),
         )
 
+    def to_ortho(self) -> AffineTransform:
+        return self.get_transform('local', 'cell_frac')
+
     def transform_cell(self, transform: AffineTransform, frame: CoordinateFrame = 'local') -> 'Cell':
         """
         Apply the given transform to the unit cell, and return a new `Cell`.
