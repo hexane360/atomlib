@@ -12,7 +12,6 @@ from numpy.typing import NDArray
 from .transform import LinearTransform, AffineTransform
 from .types import VecLike, Vec3, to_vec3
 from .vec import reduce_vec
-from .bbox import BBox
 
 
 CoordinateFrame = t.Union[
@@ -54,17 +53,19 @@ class Cell:
     n_cells: NDArray[numpy.int_] = to_vec3([1, 1, 1], numpy.int_)
 
     def __post_init__(self):
-        # compute the orthogonal cell from the 
-        pts = numpy.zeros((4, 3), dtype=numpy.float_)
-        numpy.fill_diagonal(pts, self.cell_size)
-        self.ortho_size = BBox.from_pts(self.ortho @ pts).max
+        # compute an orthogonal cell which tiles the same as the primitive cell.
+        # this is not the most convenient coordinate system, but may be useful sometimes.
+        self.ortho_size = numpy.diag(self.ortho.inner) * self.cell_size
+
+    def is_orthogonal(self):
+        return self.ortho.is_diagonal()
 
     @staticmethod
     def from_unit_cell(cell_size: VecLike, cell_angle: t.Optional[VecLike] = None, n_cells: t.Optional[VecLike] = None):
         return Cell(
-            ortho = cell_to_ortho([1., 1., 1.], cell_angle),
-            n_cells = to_vec3([1, 1, 1] if n_cells is None else n_cells, numpy.int_),
-            cell_size = to_vec3(cell_size),
+            ortho=cell_to_ortho([1., 1., 1.], cell_angle),
+            n_cells=to_vec3([1, 1, 1] if n_cells is None else n_cells, numpy.int_),
+            cell_size=to_vec3(cell_size),
         )
 
     @staticmethod
@@ -79,7 +80,7 @@ class Cell:
         q = q * signs; r = r * signs[:, None]
         #numpy.testing.assert_allclose(q @ r, lin.inner)
         if numpy.linalg.det(q) < 0:
-            warn("Crystal axes are left-handed. This is currently unsupported, and may cause errors.")
+            warn("Crystal is left-handed. This is currently unsupported, and may cause errors.")
             # currently, behavior is to leave `ortho` proper, and move the inversion into the affine transform
 
         cell_size = numpy.linalg.norm(r, axis=-2)

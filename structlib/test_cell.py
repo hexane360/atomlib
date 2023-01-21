@@ -37,7 +37,7 @@ def test_cell_from_ortho(mono_cell: Cell):
     assert_array_almost_equal(mono_cell.ortho.inner, [
         [1., numpy.cos(1.8), 0.],
         [0., numpy.sin(1.8), 0.],
-        [0.,              0., 1.],
+        [0.,             0., 1.],
     ])
 
     assert_array_equal(mono_cell.cell_size, [3., 4., 5.])
