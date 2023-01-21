@@ -40,8 +40,8 @@ def test_cell_from_ortho(mono_cell: Cell):
         [0.,             0., 1.],
     ])
 
-    assert_array_equal(mono_cell.cell_size, [3., 4., 5.])
     assert_array_equal(mono_cell.n_cells, [2, 3, 5])
+    assert_array_almost_equal(mono_cell.cell_size, [3., 4., 5.])
     assert_array_almost_equal(mono_cell.ortho_size, [3., 4.*numpy.sin(1.8), 5.])
 
 

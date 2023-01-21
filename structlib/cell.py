@@ -2,7 +2,7 @@
 Helper functions for working with crystallographic unit cells and coordinate frames.
 """
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import itertools
 from warnings import warn
 import typing as t
@@ -51,8 +51,8 @@ class Cell:
     affine: AffineTransform = AffineTransform()
     ortho: LinearTransform = LinearTransform()
     cell_size: NDArray[numpy.float_]
-    cell_angle: NDArray[numpy.float_] = numpy.full(3, numpy.pi/2.)
-    n_cells: NDArray[numpy.int_] = to_vec3([1, 1, 1], numpy.int_)
+    cell_angle: NDArray[numpy.float_] = field(default_factory=lambda: numpy.full(3, numpy.pi/2.))
+    n_cells: NDArray[numpy.int_] = field(default_factory=lambda: numpy.ones(3, numpy.int_))
 
     @property
     def ortho_size(self) -> NDArray[numpy.float_]:
