@@ -34,7 +34,7 @@ A coordinate frame to use.
 """
 
 
-@dataclass(kw_only=True)
+@dataclass(frozen=True, init=False)
 class Cell:
     """
     Internal class for representing the coordinate systems of a crystal.
@@ -53,6 +53,17 @@ class Cell:
     cell_size: NDArray[numpy.float_]
     cell_angle: NDArray[numpy.float_] = field(default_factory=lambda: numpy.full(3, numpy.pi/2.))
     n_cells: NDArray[numpy.int_] = field(default_factory=lambda: numpy.ones(3, numpy.int_))
+
+    def __init__(self, *,
+        affine: t.Optional[AffineTransform] = None, ortho: t.Optional[LinearTransform] = None,
+        cell_size: VecLike, cell_angle: t.Optional[VecLike] = None,
+        n_cells: t.Optional[VecLike] = None):
+
+        object.__setattr__(self, 'affine', AffineTransform() if affine is None else affine)
+        object.__setattr__(self, 'ortho', LinearTransform() if ortho is None else ortho)
+        object.__setattr__(self, 'cell_size', to_vec3(cell_size))
+        object.__setattr__(self, 'cell_angle', numpy.full(3, numpy.pi/2.) if cell_angle is None else to_vec3(cell_angle))
+        object.__setattr__(self, 'n_cells', numpy.ones(3, numpy.int_) if n_cells is None else to_vec3(n_cells, numpy.int_))
 
     @property
     def ortho_size(self) -> NDArray[numpy.float_]:
