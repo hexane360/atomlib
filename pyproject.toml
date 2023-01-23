@@ -4,3 +4,23 @@ requires = [
   "wheel",
 ]
 build-backend = "setuptools.build_meta"
+
+[tool.pyright]
+include = ['structlib']
+ignore = ['structlib/cli.py']
+exclude = ['**/test_*.py', 'structlib/tests']
+typeCheckingMode = "strict"
+reportUnknownParameterType = "none"
+reportUnknownArgumentType = "none"
+reportUnknownLambdaType = "none"
+reportUnknownVariableType = "none"
+reportUnknownMemberType = "none"
+reportMissingTypeArgument = "none"
+reportMissingTypeStubs = "information"
+reportUnusedImport = "warning"
+reportImportCycles = "information"
+reportUnusedVariable = "warning"
+reportPrivateUsage = "none"
+reportUnnecessaryIsInstance = "none"
+reportUntypedBaseClass = "information"
+reportConstantRedefinition = "none"

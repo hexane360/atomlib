@@ -2,12 +2,12 @@
 import pytest
 import numpy
 
-from .core import AtomCell, AtomFrame, SimpleAtoms, OrthoCell
+from .core import AtomCell, Atoms, SimpleAtoms, OrthoCell
 from .transform import LinearTransform
 
 
 def test_core_bbox():
-    cell = AtomCell(AtomFrame({
+    cell = AtomCell.from_ortho(Atoms({
         'x': [0., 1., -2., 3.],
         'y': [0., 2., -3., 4.],
         'z': [0., 1., -1., 1.],
@@ -18,11 +18,11 @@ def test_core_bbox():
     assert bbox.min == pytest.approx([-2., -3., -1])
     assert bbox.max == pytest.approx([3., 4., 1.])
 
-    bbox = cell.cell_bbox()
+    bbox = cell.cell.bbox()
     assert bbox.min == pytest.approx([0., 0., 0.])
     assert bbox.max == pytest.approx([1., 1., 1.])
 
-    corners = cell.cell_corners('frac')
+    corners = cell.cell.corners('cell_frac')
     assert corners == pytest.approx(numpy.array([
         [0., 0., 0.],
         [0., 0., 1.],
@@ -36,7 +36,7 @@ def test_core_bbox():
 
 
 def test_ortho_cell():
-    cell = AtomCell(AtomFrame({
+    cell = AtomCell.from_ortho(Atoms({
         'x': [0., 1., -2., 3.],
         'y': [0., 2., -3., 4.],
         'z': [0., 1., -1., 1.],
@@ -50,6 +50,6 @@ def test_ortho_cell():
     assert ortho.is_orthogonal()
 
     with pytest.raises(ValueError, match="OrthoCell constructed with non-orthogonal angles"):
-        OrthoCell(cell.atoms, cell_angle=[numpy.pi/2, numpy.pi/2, numpy.pi/3], cell_size=[2., 3., 5.])
+        OrthoCell.from_unit_cell(cell.atoms, cell_angle=[numpy.pi/2, numpy.pi/2, numpy.pi/3], cell_size=[2., 3., 5.])
 
-    OrthoCell(cell.atoms, ortho=cell.ortho.rotate([1, 1, 1], numpy.pi/8))
+    OrthoCell.from_ortho(cell.atoms, ortho=cell.cell.ortho.rotate([1, 1, 1], numpy.pi/8))

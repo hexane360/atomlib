@@ -8,39 +8,38 @@ from numpy.typing import ArrayLike, NDArray
 import scipy.linalg
 
 from .types import VecLike, PtsLike, Num, to_vec3, ParamSpec, Concatenate
-from .vec import perp
+from .vec import perp, reduce_vec, is_diagonal
 from .bbox import BBox
-from .util import reduce_vec
 
 
 TransformT = t.TypeVar('TransformT', bound='Transform')
 PtsT = t.TypeVar('PtsT', bound=PtsLike)
 NumT = t.TypeVar('NumT', bound=t.Union[float, int])
-T = t.TypeVar('T')
-U = t.TypeVar('U')
 P = ParamSpec('P')
+T = t.TypeVar('T')
+U_co = t.TypeVar('U_co', covariant=True)
 
 AffineSelf = t.TypeVar('AffineSelf', bound='AffineTransform')
-IntoTransform = t.Union['Transform', t.Callable[[numpy.ndarray], numpy.ndarray], numpy.ndarray]
+IntoTransform = t.Union['Transform', t.Callable[[NDArray[numpy.floating]], numpy.ndarray], numpy.ndarray]
 
 
-class opt_classmethod(classmethod, t.Generic[T, P, U]):
+class opt_classmethod(classmethod, t.Generic[T, P, U_co]):
     """
     Method that may be called either on an instance or on the class.
     If called on the class, a default instance will be constructed.
     """
 
-    __func__: t.Callable[Concatenate[T, P], U]
-    def __init__(self, f: t.Callable[Concatenate[T, P], U]):
+    __func__: t.Callable[Concatenate[T, P], U_co]  # type: ignore
+    def __init__(self, f: t.Callable[Concatenate[T, P], U_co]):
         super().__init__(f)
 
-    def __get__(self, obj: t.Optional[T], ty: t.Optional[t.Type[T]] = None) -> t.Callable[P, U]:
+    def __get__(self, obj: t.Optional[T], ty: t.Optional[t.Type[T]] = None) -> t.Callable[P, U_co]:  # type: ignore
         if obj is None:
             if ty is None:
                 raise RuntimeError()
             obj = ty()
         return t.cast(
-            t.Callable[P, U],
+            t.Callable[P, U_co],
             super().__get__(obj, obj)  # type: ignore
         )
 
@@ -111,7 +110,7 @@ class Transform(ABC):
             return other.compose(self)
         return self.transform(other)
 
-    def __rmatmul__(self, other):
+    def __rmatmul__(self, other: t.Any):
         raise ValueError("Transform must be applied to points, not the other way around.")
 
 
@@ -121,9 +120,9 @@ class FuncTransform(Transform):
     def __init__(self, f: t.Callable[[numpy.ndarray], numpy.ndarray]):
         self.f: t.Callable[[numpy.ndarray], numpy.ndarray] = f
 
-    @classmethod
-    def identity(cls) -> FuncTransform:
-        return cls(lambda pts: pts)
+    @staticmethod
+    def identity() -> FuncTransform:
+        return FuncTransform(lambda pts: pts)
 
     @t.overload
     def transform(self, points: BBox) -> BBox:
@@ -151,7 +150,7 @@ class FuncTransform(Transform):
 class AffineTransform(Transform):
     __array_ufunc__ = None
 
-    def __init__(self, array=None):
+    def __init__(self, array: t.Optional[ArrayLike] = None):
         if array is None:
             array = numpy.eye(4)
         self.inner = numpy.broadcast_to(array, (4, 4))
@@ -163,9 +162,9 @@ class AffineTransform(Transform):
     def __repr__(self) -> str:
         return f"AffineTransform(\n{self.inner!r}\n)"
 
-    @classmethod
-    def identity(cls: t.Type[TransformT]) -> TransformT:
-        return cls()
+    @staticmethod
+    def identity() -> AffineTransform:
+        return AffineTransform()
 
     def round_near_zero(self: AffineSelf) -> AffineSelf:
         """Round near-zero matrix elements in self."""
@@ -190,14 +189,14 @@ class AffineTransform(Transform):
         """Return the determinant of an affine transformation."""
         return numpy.linalg.det(self.inner[:3, :3])
 
-    def _translation(self) -> numpy.ndarray:
+    def translation(self) -> numpy.ndarray:
         return self.inner[:3, -1]
 
     def inverse(self) -> AffineTransform:
         """Return the inverse of an affine transformation."""
         linear_inv = LinearTransform(self.inner[:3, :3]).inverse()
         # first undo translation, then undo linear transformation
-        return linear_inv @ AffineTransform.translate(*-self._translation())
+        return linear_inv @ AffineTransform.translate(*-self.translation())
 
     @t.overload
     @classmethod
@@ -240,7 +239,7 @@ class AffineTransform(Transform):
     def scale(self, x: t.Union[Num, VecLike] = 1., y: Num = 1., z: Num = 1., *,
               all: Num = 1.) -> AffineTransform:
         """Create or append a scaling transformation"""
-        return self.compose(LinearTransform.scale(x, y, z, all=all))  # type: ignore
+        return self.compose(LinearTransform.scale(x, y, z, all=all))
 
     @opt_classmethod
     def rotate(self, v: VecLike, theta: Num) -> AffineTransform:
@@ -277,7 +276,7 @@ class AffineTransform(Transform):
         """
         Create or append a mirror transformation across the given plane.
         """
-        return self.compose(LinearTransform.mirror(a, b, c))  # type: ignore
+        return self.compose(LinearTransform.mirror(a, b, c))
 
     @t.overload
     def transform(self, points: BBox) -> BBox:
@@ -293,7 +292,7 @@ class AffineTransform(Transform):
 
         points = numpy.atleast_1d(points)
         pts = numpy.concatenate((points, numpy.broadcast_to(1., (*points.shape[:-1], 1))), axis=-1)
-        return (self.inner @ pts.T)[:3].T
+        return (self.inner.astype(numpy.float_) @ pts.T)[:3].T
 
     __call__ = transform
 
@@ -343,9 +342,9 @@ class AffineTransform(Transform):
 
 
 class LinearTransform(AffineTransform):
-    def __init__(self, array=None):
+    def __init__(self, array: t.Optional[ArrayLike] = None):
         if array is None:
-            array = numpy.eye(3)
+            array = numpy.eye(3, dtype=numpy.float_)
         self.inner = numpy.broadcast_to(array, (3, 3))
 
     @property
@@ -355,9 +354,8 @@ class LinearTransform(AffineTransform):
     def __repr__(self) -> str:
         return f"LinearTransform(\n{self.inner!r}\n)"
 
-    def _translation(self):
-        # not defined for LinearTransform
-        raise NotImplementedError()
+    def translation(self):
+        return numpy.zeros(3, dtype=self.inner.dtype)
 
     @staticmethod
     def identity() -> LinearTransform:
@@ -379,19 +377,24 @@ class LinearTransform(AffineTransform):
         return bool((numpy.abs(offdiag) < tol).all())
 
     def is_normal(self, rtol: float = 1e-5, atol: float = 1e-8) -> bool:
-        """
-        Returns `True` if `self` is diagonal in some coordinate system.
-        """
+        """Returns `True` if `self` is a normal matrix."""
         return bool(numpy.allclose(
             self.inner.T @ self.inner, self.inner @ self.inner.T,
             rtol=rtol, atol=atol
         ))
 
-    def is_orthogonal(self, rtol: float = 1e-5, atol: float = 1e-8) -> bool:
+    def is_orthogonal(self, tol: float = 1e-8) -> bool:
         """
         Returns `True` if `self` is an orthogonal matrix (i.e. a pure rotation or roto-reflection).
         """
-        return bool(numpy.isclose(abs(self.det()), 1., rtol, atol)) and self.is_normal(rtol, atol)
+        return numpy.allclose(self.inner @ self.inner.T, numpy.eye(3), atol=tol)
+
+    def is_scaled_orthogonal(self, tol: float = 1e-8) -> bool:
+        """
+        Returns `True` if `self` is a scaled orthogonal matrix (composed of orthogonal
+        basis vectors, i.e. a scaling + a rotation or roto-reflection)
+        """
+        return is_diagonal(self.inner @ self.inner.T, tol=tol)
 
     @t.overload
     @classmethod
@@ -408,11 +411,11 @@ class LinearTransform(AffineTransform):
                b: t.Optional[Num] = None,
                c: t.Optional[Num] = None) -> LinearTransform:
         if isinstance(a, t.Sized):
-            v = numpy.array(numpy.broadcast_to(a, 3), dtype=float)
+            v = numpy.array(numpy.broadcast_to(a, 3), dtype=numpy.float_)
             if b is not None or c is not None:
                 raise ValueError("mirror() must be passed a sequence or three numbers.")
         else:
-            v = numpy.array([a, b, c], dtype=float)
+            v = numpy.array([a, b, c], dtype=numpy.float_)
         v /= numpy.linalg.norm(v)
         mirror = numpy.eye(3) - 2 * numpy.outer(v, v)
         return LinearTransform(mirror @ self.inner)
@@ -420,7 +423,7 @@ class LinearTransform(AffineTransform):
     @opt_classmethod
     def rotate(self, v: VecLike, theta: Num) -> LinearTransform:
         theta = float(theta)
-        v = numpy.array(numpy.broadcast_to(v, (3,)), dtype=float)
+        v = numpy.array(numpy.broadcast_to(v, (3,)), dtype=numpy.float_)
         l = numpy.linalg.norm(v)
         if numpy.isclose(l, 0.):
             if numpy.isclose(theta, 0.):
@@ -430,16 +433,16 @@ class LinearTransform(AffineTransform):
         v /= l
 
         # Rodrigues rotation formula
-        w = numpy.array([[   0, -v[2],  v[1]],
-                         [ v[2],    0, -v[0]],
-                         [-v[1], v[0],    0]])
+        w = numpy.array([[  0., -v[2],  v[1]],
+                         [ v[2],   0., -v[0]],
+                         [-v[1], v[0],   0.]], dtype=numpy.float_)
         # I + sin(t) W + (1 - cos(t)) W^2 = I + sin(t) W + 2*sin^2(t/2) W^2
         a = numpy.eye(3) + numpy.sin(theta) * w + 2 * (numpy.sin(theta / 2)**2) * w @ w
         return LinearTransform(a @ self.inner)
 
     @opt_classmethod
     def rotate_euler(self, x: Num = 0., y: Num = 0., z: Num = 0.) -> LinearTransform:
-        angles = numpy.array([x, y, z], dtype=float)
+        angles = numpy.array([x, y, z], dtype=numpy.float_)
         c, s = numpy.cos(angles), numpy.sin(angles)
         a = numpy.array([
             [c[1]*c[2], s[0]*s[1]*c[2] - c[0]*s[2], c[0]*s[1]*c[2] + s[0]*s[2]],
@@ -514,7 +517,7 @@ class LinearTransform(AffineTransform):
         Align `self` so `v1` is in the x-axis and `v2` is in the xy-plane.
         """
         assert self.det() > 0  # only works on right handed crystal systems
-        q, r = scipy.linalg.qr(self.inner)  # type: ignore
+        _q, r = t.cast(t.Tuple[numpy.ndarray, numpy.ndarray], scipy.linalg.qr(self.inner))
         # qr unique up to the sign of the digonal
         r = r * numpy.sign(r.diagonal())
         assert numpy.linalg.det(r) > 0
@@ -528,7 +531,7 @@ class LinearTransform(AffineTransform):
         More formally, returns a small integer matrix M such that A@M is normal.
         """
         inv = self.inverse().inner
-        r, q = scipy.linalg.rq(inv)
+        r, _q = scipy.linalg.rq(inv)
         # rq unique up to the sign of the digonal
         r = r * numpy.sign(r.diagonal())
 
@@ -556,7 +559,7 @@ class LinearTransform(AffineTransform):
         else:
             v = numpy.array([x, y, z])
 
-        a = numpy.zeros((3, 3))
+        a = numpy.zeros((3, 3), dtype=self.inner.dtype)
         a[numpy.diag_indices(3)] = all * v
         return LinearTransform(a @ self.inner)
 
@@ -587,7 +590,7 @@ class LinearTransform(AffineTransform):
         if points.shape[-1] != 3:
             raise ValueError(f"{self.__class__} works on 3d points only.")
 
-        return (self.inner @ points.T).T
+        return (self.inner.astype(numpy.float_) @ points.T).T
 
     @t.overload
     def __matmul__(self, other: TransformT) -> TransformT:

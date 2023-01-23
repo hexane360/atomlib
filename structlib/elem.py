@@ -5,7 +5,6 @@ import typing as t
 
 import polars
 import numpy
-from numpy.typing import ArrayLike
 
 from .types import ElemLike
 
@@ -133,11 +132,11 @@ def get_mass(elem: t.Union[int, t.Sequence[int], numpy.ndarray, polars.Series]):
     global _ELEMENT_MASSES
 
     if _ELEMENT_MASSES is None:
-        _ELEMENT_MASSES = t.cast(numpy.ndarray, numpy.load(DATA_PATH / 'masses.npy', allow_pickle=False))
+        _ELEMENT_MASSES = numpy.load(DATA_PATH / 'masses.npy', allow_pickle=False)
 
     if isinstance(elem, polars.Series):
-        return polars.Series(_ELEMENT_MASSES)[elem-1]
+        return polars.Series(values=_ELEMENT_MASSES)[elem-1]
 
     if isinstance(elem, (int, numpy.ndarray)):
-        return _ELEMENT_MASSES[elem-1]
-    return _ELEMENT_MASSES[[e-1 for e in elem]]
+        return _ELEMENT_MASSES[elem-1]  # type: ignore
+    return _ELEMENT_MASSES[[e-1 for e in elem]]  # type: ignore

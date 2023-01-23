@@ -7,7 +7,7 @@ import typing as t
 import numpy
 import polars
 
-from ..core import AtomFrame, AtomCell, IntoAtoms
+from ..core import Atoms, AtomCell, IntoAtoms
 from ..transform import LinearTransform
 from ..elem import get_elem, get_elems
 from ..types import ElemLike, Num
@@ -51,11 +51,11 @@ def fcc(elem: ElemLike, a: Num, *, cell: CellType = 'conv', additional: t.Option
     else:
         raise ValueError(f"Unknown cell type '{cell}'. Expected 'conv', 'prim', or 'ortho'.")
 
-    frame = AtomFrame(dict(x=xs, y=ys, z=zs, elem=elems))
+    frame = Atoms(dict(x=xs, y=ys, z=zs, elem=elems))
     if additional is not None:
-        frame = frame + AtomFrame(additional)
+        frame = frame.concat(Atoms(additional))
 
-    return AtomCell(frame, ortho=ortho, frac=True)
+    return AtomCell.from_ortho(frame, ortho, frame='cell_frac')
 
 
 def wurtzite(elems: t.Union[str, t.Sequence[ElemLike]], a: Num, c: t.Optional[Num] = None,
@@ -74,10 +74,10 @@ def wurtzite(elems: t.Union[str, t.Sequence[ElemLike]], a: Num, c: t.Optional[Nu
         raise ValueError("Expected two elements.")
 
     # default to ideal c/a
-    c_a: float = numpy.sqrt(8. / 3.) if c is None else c / a
+    c_a = float(numpy.sqrt(8. / 3.) if c is None else c / a)
 
     d = 0.25 + 1 / (3 * c_a**2) if d is None else d
-    if not 0 < d < 0.5:  # type: ignore
+    if not 0 < d < 0.5:
         raise ValueError(f"Invalid 'd' parameter: {d}")
 
     cell = t.cast(CellType, str(cell).lower())
@@ -94,8 +94,8 @@ def wurtzite(elems: t.Union[str, t.Sequence[ElemLike]], a: Num, c: t.Optional[Nu
     zs = [0.5, 0.5 + d, 0., d]
     elems *= 2
 
-    frame = AtomFrame(dict(x=xs, y=ys, z=zs, elem=elems))
-    atoms = AtomCell(frame, ortho=ortho, frac=True)
+    frame = Atoms(dict(x=xs, y=ys, z=zs, elem=elems))
+    atoms = AtomCell.from_ortho(frame, ortho, frame='cell_frac')
     if cell == 'ortho':
         return _ortho_hexagonal(atoms)
     return atoms
@@ -128,8 +128,8 @@ def graphite(elem: t.Union[str, ElemLike, None] = None, a: t.Optional[Num] = Non
     zs = [0., 0., 1/2, 1/2]
     elems = [elem] * 4
 
-    frame = AtomFrame(dict(x=xs, y=ys, z=zs, elem=elems))
-    atoms = AtomCell(frame, ortho=ortho, frac=True)
+    frame = Atoms(dict(x=xs, y=ys, z=zs, elem=elems))
+    atoms = AtomCell.from_ortho(frame, ortho, frame='cell_frac')
 
     if cell == 'ortho':
         return _ortho_hexagonal(atoms)
@@ -137,8 +137,8 @@ def graphite(elem: t.Union[str, ElemLike, None] = None, a: t.Optional[Num] = Non
 
 
 def _ortho_hexagonal(cell: AtomCell) -> AtomCell:
-    a, _, c = cell.cell_size
-    cell = cell.repeat((2, 2, 1), explode=True)
+    a, _, c = cell.cell.cell_size
+    cell = cell.repeat((2, 2, 1)).explode()
     frame = cell.get_atoms('local')
 
     eps = 1e-6
@@ -148,4 +148,4 @@ def _ortho_hexagonal(cell: AtomCell) -> AtomCell:
 
     ortho = cell_to_ortho([a, a * numpy.sqrt(3), c])
 
-    return AtomCell(frame, ortho=ortho)
+    return AtomCell.from_ortho(frame, ortho, frame='local')

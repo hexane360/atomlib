@@ -15,7 +15,7 @@ from .cfg import CFG
 from .mslice import write_mslice
 from .lmp import write_lmp
 
-from ..core import AtomCollection, AtomFrame, SimpleAtoms, AtomCell
+from ..core import AtomCollection, Atoms, SimpleAtoms, AtomCell
 from ..types import Vec3, to_vec3
 from ..transform import LinearTransform
 from ..elem import get_sym
@@ -41,7 +41,7 @@ def read_cif(f: t.Union[FileOrPath, CIF]) -> AtomCollection:
     df = cif.stack_tags('atom_site_fract_x', 'atom_site_fract_y', 'atom_site_fract_z',
                         'atom_site_type_symbol', 'atom_site_occupancy',
                         rename=('x', 'y', 'z', 'symbol', 'frac_occupancy'))
-    atoms = AtomFrame(df)
+    atoms = Atoms(df)
 
     # parse and apply symmetry
     sym_atoms = []
@@ -49,20 +49,14 @@ def read_cif(f: t.Union[FileOrPath, CIF]) -> AtomCollection:
         sym_atoms.append(atoms.transform(sym))
 
     if len(sym_atoms) > 0:
-        atoms = AtomFrame(polars.concat(sym_atoms))
-        atoms = atoms.with_columns((
-            # we need numpy's behavior here (-0.6 % 1. = 0.4)
-            polars.col('x').apply(lambda x: numpy.mod(x, 1.)),
-            polars.col('y').apply(lambda x: numpy.mod(x, 1.)),
-            polars.col('z').apply(lambda x: numpy.mod(x, 1.)),
-        ))
-        atoms = atoms.deduplicate()
+        atoms = AtomCell.from_ortho(Atoms.concat(sym_atoms), LinearTransform()) \
+            .wrap().atoms.deduplicate()
 
     if (cell_size := cif.cell_size()) is not None:
         cell_size = to_vec3(cell_size)
         if (cell_angle := cif.cell_angle()) is not None:
             cell_angle = to_vec3(cell_angle) * numpy.pi/180.
-        return AtomCell(atoms, cell_size, cell_angle, frac=True)
+        return AtomCell.from_unit_cell(atoms, cell_size, cell_angle, frame='cell_frac')
     return SimpleAtoms(atoms)
 
 
@@ -73,10 +67,10 @@ def read_xyz(f: t.Union[FileOrPath, XYZ]) -> AtomCollection:
     else:
         xyz = XYZ.from_file(f)
 
-    atoms = AtomFrame(xyz.atoms)
+    atoms = Atoms(xyz.atoms)
 
     if (cell_matrix := xyz.cell_matrix()) is not None:
-        return AtomCell(atoms, ortho=LinearTransform(cell_matrix))
+        return AtomCell.from_ortho(atoms, LinearTransform(cell_matrix))
     return SimpleAtoms(atoms)
 
 
@@ -91,7 +85,7 @@ def read_xsf(f: t.Union[FileOrPath, XSF]) -> AtomCollection:
     atoms = atoms.with_column(get_sym(atoms['elem']))
 
     if (primitive_cell := xsf.primitive_cell) is not None:
-        return AtomCell(atoms, ortho=primitive_cell)
+        return AtomCell.from_ortho(atoms, primitive_cell)
         #return cell.transform_atoms(cell.ortho, 'local')  # transform to real-space coordinates
     return SimpleAtoms(atoms)
 
@@ -117,8 +111,8 @@ def read_cfg(f: t.Union[FileOrPath, CFG]) -> AtomCell:
         sqrtm = (eigenvecs * numpy.sqrt(eigenvals)) @ eigenvecs.T
         ortho = LinearTransform(sqrtm) @ ortho
 
-    frame = AtomFrame(cfg.atoms).transform(ortho, transform_velocities=True)
-    return AtomCell(frame, ortho=ortho)
+    frame = Atoms(cfg.atoms).transform(ortho, transform_velocities=True)
+    return AtomCell.from_ortho(frame, ortho)
 
 
 def write_xsf(atoms: t.Union[AtomCollection, XSF], f: FileOrPath):

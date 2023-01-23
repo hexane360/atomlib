@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-from .frame import AtomFrame, AtomSelection
+from .atoms import Atoms, AtomSelection
 from .core import CoordinateFrame, AtomCollection, AtomCell, SimpleAtoms
 
 from . import io, visualize, make, disloc, transform
 
 __all__ = [
     'io', 'visualize', 'make', 'disloc', 'transform',
-    'AtomFrame', 'AtomSelection', 'CoordinateFrame',
+    'Atoms', 'AtomSelection', 'CoordinateFrame',
     'AtomCollection', 'AtomCell', 'SimpleAtoms',
 ]

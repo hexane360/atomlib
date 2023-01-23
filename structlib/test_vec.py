@@ -5,8 +5,8 @@ import numpy.testing
 import pytest
 from matplotlib import pyplot
 
-from .util import reduce_vec, miller_3_to_4_plane, miller_3_to_4_vec, miller_4_to_3_plane, miller_4_to_3_vec
-from .util import polygon_winding, polygon_solid_angle, in_polygon, split_arr
+from .vec import reduce_vec, miller_3_to_4_plane, miller_3_to_4_vec, miller_4_to_3_plane, miller_4_to_3_vec
+from .vec import polygon_winding, polygon_solid_angle, in_polygon, split_arr
 
 
 square = [[-1, -1.], [1., -1.], [1., 1.], [-1., 1.]]

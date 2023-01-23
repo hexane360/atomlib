@@ -21,17 +21,17 @@ def _wrap_pytest(wrapper: CallableT, wrapped: t.Callable,
     params = [*prepend_params, *old_sig.parameters.values(), *append_params]
     new_sig = old_sig.replace(parameters=params)
 
-    wrapper.pytestmark = getattr(wrapped, "pytestmark", []) + wrapper.pytestmark
+    wrapper.pytestmark = getattr(wrapped, "pytestmark", []) + wrapper.pytestmark  # type: ignore
     wrapper.__name__ = wrapped.__name__
     wrapper.__doc__ = wrapped.__doc__
-    wrapper.__signature__ = new_sig
+    wrapper.__signature__ = new_sig  # type: ignore
     return wrapper
 
 
 def check_file_equal(name: t.Union[str, Path]) -> t.Callable[[t.Callable[..., str]], t.Callable[..., None]]:
     def decorator(f: t.Callable[..., str]):
         @pytest.mark.expected_filename(name)
-        def wrapper(expected_contents: str, *args, **kwargs):
+        def wrapper(expected_contents: str, *args, **kwargs):  # type: ignore
             result = f(*args, **kwargs)
             assert result == expected_contents
 
@@ -43,7 +43,7 @@ def check_file_equal(name: t.Union[str, Path]) -> t.Callable[[t.Callable[..., st
 def check_structure_equal(name: t.Union[str, Path]) -> t.Callable[[t.Callable[..., AtomCollection]], t.Callable[..., None]]:
     def decorator(f: t.Callable[..., AtomCollection]):
         @pytest.mark.expected_filename(name)
-        def wrapper(expected_structure: AtomCollection, *args, **kwargs):
+        def wrapper(expected_structure: AtomCollection, *args, **kwargs):  # type: ignore
             result = f(*args, **kwargs)
             try:
                 if hasattr(result, 'assert_equal'):

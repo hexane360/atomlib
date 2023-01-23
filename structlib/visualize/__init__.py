@@ -1,21 +1,21 @@
 """Visualization of atomic structures. Useful for debugging."""
 
 from abc import abstractmethod, ABC
-from re import A
 import typing as t
 
 import numpy
 from matplotlib import pyplot
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
-from matplotlib.colors import Colormap
+#from matplotlib.colors import Colormap
 from mpl_toolkits.mplot3d import Axes3D
-from mpl_toolkits.mplot3d.art3d import PathPatch3D
+#from mpl_toolkits.mplot3d.art3d import PathPatch3D
 
 from ..core import AtomCollection, AtomCell
 from ..transform import LinearTransform
-from ..util import FileOrPath, BinaryFileOrPath, split_arr
-from ..types import VecLike
+from ..util import FileOrPath
+from ..types import VecLike, to_vec3
+from ..vec import split_arr
 
 
 BackendName = t.Union[t.Literal['mpl'], t.Literal['ase']]
@@ -100,7 +100,7 @@ def get_zone(atoms: AtomCollection, zone: t.Optional[VecLike] = None,
     if zone is not None and plane is not None:
         raise ValueError("'zone' and 'plane' can't both be specified.")
     if plane is not None:
-        if isinstance(atoms, AtomCell) and not atoms.is_orthogonal:
+        if isinstance(atoms, AtomCell) and not atoms.is_orthogonal():
             # convert plane into zone
             raise NotImplementedError()
         zone = plane
@@ -112,7 +112,7 @@ def get_zone(atoms: AtomCollection, zone: t.Optional[VecLike] = None,
 
 
 def get_azim_elev(zone: VecLike) -> t.Tuple[float, float]:
-    (a, b, c) = zone
+    (a, b, c) = to_vec3(zone)
     l = numpy.sqrt(a**2 + b**2)
     return (numpy.angle(a + b*1.j, deg=True), numpy.angle(l + c*1.j, deg=True))  # type: ignore
 
@@ -139,14 +139,13 @@ def show_atoms_mpl_3d(atoms: AtomCollection, *, fig: t.Optional[Figure] = None,
     ax.set_zlabel('Z')
 
     frame = atoms.get_atoms('global')
-
     coords = frame.coords()
     elem_colors = numpy.array(list(map(get_elem_color, frame['elem']))) / 255.
     s = 100
 
     if isinstance(atoms, AtomCell):  # TODO raise this API to AtomCollection
         # plot cell corners
-        corners = atoms.cell_corners('global')
+        corners = atoms.cell.corners('global')
         faces = [
             numpy.array([
                 corners[(val*2**axis + v1*2**((axis+1) % 3) + v2*2**((axis+2) % 3))]

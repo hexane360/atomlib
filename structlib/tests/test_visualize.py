@@ -10,7 +10,7 @@ from .. import make, AtomCell
 @pytest.fixture
 def aln_cell():
     cell = make.wurtzite('AlN', 3.13, 5.02)
-    cell = cell.repeat((2, 2, 2), explode=True)
+    cell = cell.repeat((2, 2, 2)).explode()
     return cell
 
 
@@ -22,8 +22,8 @@ def test_show_atoms_mpl_2d(fig_test, fig_ref, aln_cell: AtomCell):
 
     rect = [0.05, 0.05, 0.95, 0.95]
     ax = fig_ref.add_axes(rect)
-    ax.set_xbound(*cell.cell_bbox().x)
-    ax.set_ybound(*cell.cell_bbox().y)
+    ax.set_xbound(*cell.cell.bbox().x)
+    ax.set_ybound(*cell.cell.bbox().y)
     ax.set_aspect('equal')
 
     coords = cell.atoms.coords()

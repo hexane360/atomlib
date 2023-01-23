@@ -7,7 +7,7 @@ import typing as t
 import numpy
 
 from ..core import AtomCell
-from ..frame import AtomFrame
+from ..atoms import Atoms
 from ..elem import get_elem
 from ..transform import LinearTransform
 
@@ -65,5 +65,5 @@ def load_materials_project(id: t.Union[str, int], *, api_key: t.Optional[str] = 
                 **site['properties'],
             })
 
-    frame = AtomFrame(rows, orient='row')
-    return AtomCell(frame, ortho=ortho)
+    frame = Atoms(rows, orient='row')
+    return AtomCell.from_ortho(frame, ortho)

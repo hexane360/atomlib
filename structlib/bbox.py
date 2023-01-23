@@ -5,17 +5,22 @@ import typing as t
 import numpy
 
 
-if t.TYPE_CHECKING:
-    from .types import Vec3, VecLike
+from .types import Vec3, VecLike
+from .vec import to_vec3
 
 
 class BBox:
     """3D Bounding Box"""
 
-    def __init__(self, min: Vec3, max: Vec3):
+    def __init__(self, min: VecLike, max: VecLike):
         # shape: (3, 2)
         # self._inner[1, 0]: min of y
+        min, max = to_vec3(min), to_vec3(max)
         self.inner: numpy.ndarray = numpy.stack((min, max), axis=-1)
+
+    @classmethod
+    def unit(cls) -> BBox:
+        return cls([0., 0., 0.], [1., 1., 1.])
 
     @property
     def min(self) -> Vec3:
@@ -42,7 +47,7 @@ class BBox:
         return self.max - self.min
 
     def volume(self) -> float:
-        return numpy.prod(self.size)  # type: ignore
+        return float(numpy.prod(self.size))
 
     def corners(self) -> numpy.ndarray:
         """Return a (8, 3) ndarray containing the corners of self."""

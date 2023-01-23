@@ -27,15 +27,15 @@ class XYZToCSVReader(io.IOBase):
     def __init__(self, inner: io.IOBase):
         self.inner = inner
 
-    def read(self, n) -> bytes:
+    def read(self, n: int) -> bytes:  # type: ignore
         buf = self.inner.read(n)
         buf = re.sub(rb'[ \t]+', rb'\t', buf)
         return buf
 
-    def seek(self, offset: int, whence: int, /):
+    def seek(self, offset: int, whence: int = 0, /):  # type: ignore
         self.inner.seek(offset, whence)
 
-    def __getattr__(self, name):
+    def __getattr__(self, name: str):
         if name in ('name', 'getvalue'):
             # don't let polars steal the buffer from us
             raise AttributeError()

@@ -5,7 +5,7 @@ from ..util import open_file, FileOrPath, localtime
 
 def write_lmp(atoms: AtomCollection, f: FileOrPath):
     with open_file(f, 'w') as f:
-        def p(s):
+        def p(s: object):
             print(s, file=f)
 
         now = localtime()
@@ -20,9 +20,9 @@ def write_lmp(atoms: AtomCollection, f: FileOrPath):
         p(f" {len(types):8} atom types\n")
 
         if isinstance(atoms, AtomCell):
-            if not atoms.is_orthogonal():
+            if not atoms.cell.is_orthogonal_in_local():
                 raise NotImplementedError()  # triclinic output not yet supported (https://docs.lammps.org/Howto_triclinic.html)
-            bbox = atoms.cell_bbox()
+            bbox = atoms.cell.bbox()
         else:
             bbox = atoms.bbox()
 

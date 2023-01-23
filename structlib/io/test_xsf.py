@@ -5,7 +5,7 @@ from pytest import approx
 import polars
 
 from .xsf import XSF, XSFParser
-from .. import SimpleAtoms, AtomFrame
+from .. import SimpleAtoms, Atoms
 
 
 def test_xsf_molecule():
@@ -30,7 +30,7 @@ def test_xsf_molecule():
 
 
 def test_xsf_simple_write():
-    atoms = SimpleAtoms(AtomFrame({
+    atoms = SimpleAtoms(Atoms({
         'x': [1., 2., 3.],
         'y': [4., 5., 6.],
         'z': [7., 8., 9.],
