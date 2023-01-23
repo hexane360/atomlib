@@ -8,6 +8,7 @@ import scipy.spatial
 from numpy.typing import ArrayLike
 import polars
 
+from .types import to_vec3
 from .bbox import BBox
 from .elem import get_elem, get_sym, get_mass
 from .transform import Transform, IntoTransform
@@ -114,8 +115,17 @@ class Atoms:
         if len(missing):
             raise ValueError(f"'Atoms' missing column(s) {', '.join(map(repr, missing))}")
 
-    def filter(self, predicate: t.Union[polars.Expr, str, polars.Series, t.List[bool], numpy.ndarray]) -> AtomFrame:
-        return AtomFrame(super().filter(predicate))
+    def crop(self, x_min: float = -numpy.inf, x_max: float = numpy.inf,
+             y_min: float = -numpy.inf, y_max: float = numpy.inf,
+             z_min: float = -numpy.inf, z_max: float = numpy.inf) -> Atoms:
+        min = to_vec3([x_min, y_min, z_min])
+        max = to_vec3([x_max, y_max, z_max])
+
+        return Atoms(self.inner.filter(
+            (polars.col('x') >= min[0]) & (polars.col('x') <= max[0]) &
+            (polars.col('y') >= min[1]) & (polars.col('y') <= max[1]) &
+            (polars.col('z') >= min[2]) & (polars.col('z') <= max[2])
+        ))
 
     @staticmethod
     def empty() -> Atoms:
@@ -352,7 +362,6 @@ class Atoms:
             self['v_z'].set_at_idx(selection, pts[:, 2]),  # type: ignore
         )))
 
-    @property
     def bbox(self) -> BBox:
         if self._bbox is None:
             self._bbox = BBox.from_pts(self.coords())

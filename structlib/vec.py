@@ -7,6 +7,9 @@ import typing as t
 import numpy
 from numpy.typing import ArrayLike, NDArray
 
+# re-export to_vec3
+from .types import to_vec3
+
 
 ScalarType = t.TypeVar("ScalarType", bound=numpy.generic, covariant=True)
 
@@ -235,7 +238,7 @@ def miller_3_to_4_plane(a: numpy.ndarray, reduce: bool = True, max_denom: int = 
 
 
 __all__ = [
-    'dot', 'norm', 'perp', 'para', 'reduce_vec', 'split_arr',
+    'dot', 'norm', 'perp', 'para', 'reduce_vec', 'split_arr', 'to_vec3',
     'polygon_winding', 'polygon_solid_angle', 'in_polygon',
     'miller_4_to_3_vec', 'miller_3_to_4_vec',
     'miller_4_to_3_plane', 'miller_3_to_4_plane'

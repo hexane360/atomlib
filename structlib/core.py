@@ -282,43 +282,16 @@ class AtomCell(AtomCollection):
              y_min: float = -numpy.inf, y_max: float = numpy.inf,
              z_min: float = -numpy.inf, z_max: float = numpy.inf, *,
              frame: CoordinateFrame = 'local') -> AtomCell:
-        self = self.explode()
-
-        mins = to_vec3([x_min, y_min, z_min])
-        maxs = to_vec3([x_max, y_max, z_max])
-
-        if not frame.lower().startswith('cell'):
-            if not self.cell.is_orthogonal():
-                raise ValueError("Cannot crop a non-orthogonal cell in orthogonal coordinates. Use crop_atoms instead.")
-            [mins, maxs] = self.ortho.inverse().transform([mins, maxs])
-
-        frac_atoms = self.get_atoms('frac')
-        new_atoms = frac_atoms.filter(
-            (polars.col('x') >= mins[0]) & (polars.col('x') <= maxs[0]) &
-            (polars.col('y') >= mins[1]) & (polars.col('y') <= maxs[1]) &
-            (polars.col('z') >= mins[2]) & (polars.col('z') <= maxs[2])
-        )
-        # TODO this is broken for shifted cell minimums
-        new_ortho = LinearTransform(numpy.diag([min(v_max, 1.) for v_max in maxs])).compose(self.ortho)
-        return AtomCell(new_atoms, ortho=new_ortho, frac=True)
+        new_atoms = self.get_atoms(frame).crop(x_min, x_max, y_min, y_max, z_min, z_max)
+        new_cell = self.cell.crop(x_min, x_max, y_min, y_max, z_min, z_max, frame=frame)
+        return self._replace_atoms(new_atoms, frame)._replace_cell(new_cell)
 
     def crop_atoms(self, x_min: float = -numpy.inf, x_max: float = numpy.inf,
                    y_min: float = -numpy.inf, y_max: float = numpy.inf,
                    z_min: float = -numpy.inf, z_max: float = numpy.inf, *,
                    frame: CoordinateFrame = 'local') -> AtomCell:
-        self = self.explode()
-        min = to_vec3([x_min, y_min, z_min])
-        max = to_vec3([x_max, y_max, z_max])
-
-        if frame.lower() == 'frac':
-            [min, max] = self.ortho.transform([min, max])
-
-        new_atoms = self.get_atoms('local').filter(
-            (polars.col('x') >= min[0]) & (polars.col('x') <= max[0]) &
-            (polars.col('y') >= min[1]) & (polars.col('y') <= max[1]) &
-            (polars.col('z') >= min[2]) & (polars.col('z') <= max[2])
-        )
-        return self._replace_atoms(new_atoms, frame='local')
+        new_atoms = self.get_atoms(frame).crop(x_min, x_max, y_min, y_max, z_min, z_max)
+        return self._replace_atoms(new_atoms, frame)
 
     def wrap(self, eps: float = 1e-5):
         atoms = self.get_atoms('cell_box')
@@ -334,10 +307,13 @@ class AtomCell(AtomCollection):
     def _replace_atoms(self, atoms: Atoms, frame: CoordinateFrame = 'local') -> AtomCell:
         if frame != self.frame:
             atoms = atoms.transform(self.cell.get_transform(self.frame, frame))
-        return AtomCell(atoms, self.cell, frame=self.frame)
+        return AtomCell(atoms, self.cell, frame=self.frame, keep_frame=True)
+
+    def _replace_cell(self, cell: Cell) -> AtomCell:
+        return AtomCell(self.atoms, cell, frame=self.frame, keep_frame=True)
 
     def bbox(self) -> BBox:
-        return self.atoms.bbox | self.cell.bbox()
+        return self.atoms.bbox() | self.cell.bbox()
 
     def is_orthogonal(self) -> bool:
         return self.cell.is_orthogonal()

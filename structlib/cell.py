@@ -1,6 +1,7 @@
 """
 Helper functions for working with crystallographic unit cells and coordinate frames.
 """
+from __future__ import annotations
 
 from dataclasses import dataclass, field
 import itertools
@@ -132,7 +133,7 @@ class Cell:
     def to_ortho(self) -> AffineTransform:
         return self.get_transform('local', 'cell_frac')
 
-    def transform_cell(self, transform: AffineTransform, frame: CoordinateFrame = 'local') -> 'Cell':
+    def transform_cell(self, transform: AffineTransform, frame: CoordinateFrame = 'local') -> Cell:
         """
         Apply the given transform to the unit cell, and return a new `Cell`.
         The transform is applied in coordinate frame 'frame'.
@@ -149,7 +150,7 @@ class Cell:
             cell_angle=self.cell_angle,
         )
 
-    def repeat(self, n: t.Union[int, VecLike]) -> 'Cell':
+    def repeat(self, n: t.Union[int, VecLike]) -> Cell:
         """Tile the cell by `n` in each dimension."""
         ns = numpy.broadcast_to(n, 3)
         if not numpy.issubdtype(ns.dtype, numpy.integer):
@@ -162,11 +163,37 @@ class Cell:
             n_cells=self.n_cells * numpy.broadcast_to(n, 3),
         )
 
-    def explode(self) -> 'Cell':
+    def explode(self) -> Cell:
         return Cell(
             affine=self.affine,
             ortho=self.ortho,
             cell_size=self.cell_size*self.n_cells,
+            cell_angle=self.cell_angle,
+        )
+
+    def crop(self, x_min: float = -numpy.inf, x_max: float = numpy.inf,
+             y_min: float = -numpy.inf, y_max: float = numpy.inf,
+             z_min: float = -numpy.inf, z_max: float = numpy.inf, *,
+             frame: CoordinateFrame = 'local') -> Cell:
+        """
+        Crop 'cell' to the given extents. For a non-orthogonal
+        cell, this must be specified in cell coordinates. This
+        function implicity `explode`s the cell as well.
+        """
+
+        if not frame.lower().startswith('cell'):
+            if not self.is_orthogonal():
+                raise ValueError("Cannot crop a non-orthogonal cell in orthogonal coordinates. Use crop_atoms instead.")
+
+        min = to_vec3([x_min, y_min, z_min])
+        max = to_vec3([x_max, y_max, z_max])
+        (min, max) = self.get_transform('cell_box').transform([min, max])
+        new_box = BBox(min, max) & BBox.unit()
+
+        return Cell(
+            affine=self.affine @ AffineTransform.translate(-new_box.min),
+            ortho=self.ortho,
+            cell_size=new_box.size * self.cell_size * self.n_cells,
             cell_angle=self.cell_angle,
         )
 
