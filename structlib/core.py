@@ -24,6 +24,7 @@ if t.TYPE_CHECKING:
 
 AtomCollectionT = t.TypeVar('AtomCollectionT', bound='AtomCollection')
 AtomCellT = t.TypeVar('AtomCellT', bound='AtomCell')
+SimpleAtomsT = t.TypeVar('SimpleAtomsT', bound='SimpleAtoms')
 
 
 class AtomCollection(abc.ABC):
@@ -147,7 +148,11 @@ class SimpleAtoms(AtomCollection):
 
     def bbox(self) -> BBox:
         """Get this structure's bounding box."""
-        return self.atoms.bbox
+        return self.atoms.bbox()
+
+    def _check_allowed_frame(self, frame: CoordinateFrame):
+        if frame.lower() not in ('local', 'global'):
+            raise ValueError("Can't use 'cell'/'ortho' coordinate frames when box is unknown.")
 
     def with_bounds(self, cell_size: t.Optional[VecLike] = None, cell_origin: t.Optional[VecLike] = None) -> AtomCell:
         """
@@ -157,8 +162,8 @@ class SimpleAtoms(AtomCollection):
         """
         if cell_size is None:
             warnings.warn("Cell boundary unknown. Defaulting to cell BBox")
-            cell_size = self.atoms.bbox.size
-            cell_origin = self.atoms.bbox.min
+            cell_size = self.atoms.bbox().size
+            cell_origin = self.atoms.bbox().min
 
         # TODO test this origin code
         cell = Cell.from_unit_cell(cell_size)
@@ -168,26 +173,20 @@ class SimpleAtoms(AtomCollection):
         return AtomCell(self.atoms, cell, frame='local')
 
     def transform(self, transform: IntoTransform, frame: CoordinateFrame = 'local') -> SimpleAtoms:
-        if frame.lower() == 'frac':
-            raise ValueError("Can't use 'frac' coordinate frame when box is unknown.")
-
+        self._check_allowed_frame(frame)
         return replace(self, atoms=self.atoms.transform(transform))
 
     transform_atoms = transform
 
     def get_atoms(self, frame: CoordinateFrame = 'local') -> Atoms:
-        if frame.lower() == 'frac':
-            raise ValueError("Can't use 'frac' coordinate frame when box is unknown.")
-
+        self._check_allowed_frame(frame)
         return self.atoms
 
-    def _replace_atoms(self: AtomCollectionT, atoms: Atoms, frame: CoordinateFrame = 'local') -> AtomCollectionT:
-        if frame.lower() == 'frac':
-            raise ValueError("Can't use 'frac' coordinate frame when box is unknown.")
-        
+    def _replace_atoms(self: SimpleAtomsT, atoms: Atoms, frame: CoordinateFrame = 'local') -> SimpleAtomsT:
+        self._check_allowed_frame(frame)
         return replace(self, frame=atoms)
 
-    def clone(self) -> SimpleAtoms:
+    def clone(self: SimpleAtomsT) -> SimpleAtomsT:
         return self.__class__(**{field.name: copy.deepcopy(getattr(self, field.name)) for field in fields(self)})
 
     def _str_parts(self) -> t.Iterable[t.Any]:

@@ -66,4 +66,4 @@ def load_materials_project(id: t.Union[str, int], *, api_key: t.Optional[str] = 
             })
 
     frame = Atoms(rows, orient='row')
-    return AtomCell(frame, ortho=ortho)
+    return AtomCell.from_ortho(frame, ortho)

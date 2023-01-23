@@ -7,6 +7,7 @@ import numpy
 import scipy.spatial
 from numpy.typing import ArrayLike
 import polars
+import polars.datatypes
 
 from .types import to_vec3
 from .bbox import BBox
@@ -25,6 +26,9 @@ _COLUMN_DTYPES: t.Mapping[str, t.Type[polars.DataType]] = {
     'elem': polars.Int8,
     'mass': polars.Float32,
 }
+
+SchemaDict: t.TypeAlias = t.Mapping[str, t.Union[t.Type[polars.DataType], polars.DataType]]
+UniqueKeepStrategy: t.TypeAlias = t.Literal['first', 'last', 'none']
 
 
 def _values_to_series(df: polars.DataFrame, selection: AtomSelection, ty: t.Type[polars.DataType]) -> polars.Series:
@@ -143,8 +147,8 @@ class Atoms:
         return self.inner.columns
 
     @property
-    def schema(self) -> t.Mapping[str, t.Type[polars.DataType]]:
-        return self.inner.schema
+    def schema(self) -> SchemaDict:
+        return t.cast(SchemaDict, self.inner.schema)
 
     def __len__(self) -> int:
         return self.inner.__len__()
@@ -180,7 +184,7 @@ class Atoms:
         """Select `exprs` from `self`."""
         return self.inner.select(exprs)
 
-    def unique(self, maintain_order: bool = True, subset: t.Optional[t.Union[str, t.List[str]]] = None, keep: str = 'first') -> Atoms:
+    def unique(self, maintain_order: bool = True, subset: t.Optional[t.Union[str, t.List[str]]] = None, keep: UniqueKeepStrategy = 'first') -> Atoms:
         return Atoms(self.inner.unique(maintain_order, subset, keep), _unchecked=True)
 
     def sort(self, by: t.Union[str, polars.Expr, t.List[str], t.List[polars.Expr]], reverse: t.Union[bool, t.List[bool]] = False) -> Atoms:
