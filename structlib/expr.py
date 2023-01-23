@@ -29,15 +29,15 @@ class Op(ABC, t.Generic[V]):
 
     @property
     @abstractmethod
-    def requires_whitespace(self):
+    def requires_whitespace(self) -> bool:
         ...
 
 
 @dataclass
 class NaryOp(Op[V]):
-    call: VariadicCallable[V] = field(repr=False)
+    call: VariadicCallable[V] = field(repr=False)  # type: ignore
     precedence: int = 5
-    requires_whitespace: bool = False
+    requires_whitespace: bool = False  # type: ignore
 
     def __call__(self, *args: V) -> V:
         return self.call(*args)
@@ -52,10 +52,10 @@ class NaryOp(Op[V]):
 
 @dataclass
 class BinaryOp(Op[V]):
-    call: t.Callable[[V, V], V] = field(repr=False)
+    call: t.Callable[[V, V], V] = field(repr=False)  # type: ignore
     precedence: int = 5
     right_assoc: bool = False
-    requires_whitespace: bool = False
+    requires_whitespace: bool = False  # type: ignore
 
     def __call__(self, lhs: V, rhs: V) -> V:
         return self.call(lhs, rhs)
@@ -74,8 +74,8 @@ class BinaryOp(Op[V]):
 
 @dataclass
 class UnaryOp(Op[V]):
-    call: t.Callable[[V], V] = field(repr=False)
-    requires_whitespace: bool = False
+    call: t.Callable[[V], V] = field(repr=False)  # type: ignore
+    requires_whitespace: bool = False  # type: ignore
 
     def __call__(self, inner: V) -> V:
         return self.call(inner)
@@ -83,7 +83,7 @@ class UnaryOp(Op[V]):
 
 @dataclass
 class BinaryOrUnaryOp(BinaryOp[V], UnaryOp[V]):
-    call: t.Callable[[V, t.Optional[V]], V] = field(repr=False)
+    call: t.Callable[[V, t.Optional[V]], V] = field(repr=False)  # type: ignore
 
     def __call__(self, lhs: V, rhs: t.Optional[V] = None) -> V:
         return self.call(lhs, rhs)
@@ -304,8 +304,8 @@ class Parser(t.Generic[T_co, V]):
         match_list.sort(key=lambda a: -len(a[0]))  #longer operators match first
         self.ops = {k: v for (k, v) in match_list if v is not None}
 
-        def op_to_regex(op):
-            alias, op = op
+        def op_to_regex(tup: t.Tuple[str, t.Optional[Op[V]]]):
+            alias, op = tup
             s = re.escape(alias)  #escape operator for use in regex
             if op is not None and op.requires_whitespace:
                 #assert operator must be surrounded by whitespace
@@ -382,7 +382,7 @@ class ParseState(t.Generic[T_co, V]):
             self.next()
         return wspace
 
-    def make_token(self, s, line, span) -> Token[T_co, V]:
+    def make_token(self, s: str, line: int, span: t.Tuple[int, int]) -> Token[T_co, V]:
         if s in self.parser.group_open:
             return GroupOpenToken(s, line, span)
         if s in self.parser.group_close:
@@ -546,6 +546,9 @@ class SupportsNum(t.Protocol):
     def __pow__(self: SupportsNumSelf, other: SupportsNumSelf) -> SupportsNumSelf:
         ...
 
+    def __neg__(self: SupportsNumSelf) -> SupportsNumSelf:
+        ...
+
 
 def parse_numeric(s: str) -> t.Union[int, float]:
     try:
@@ -555,7 +558,7 @@ def parse_numeric(s: str) -> t.Union[int, float]:
     return float(s)
 
 
-def sub(lhs, rhs=None):
+def sub(lhs: SupportsNum, rhs: t.Optional[SupportsNum] = None):
     if rhs is None:
         return -lhs
     return lhs-rhs

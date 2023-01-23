@@ -14,7 +14,7 @@ import typing as t
 import polars
 
 from ..util import FileOrPath, open_file
-from ..core import AtomCollection, AtomCell, OrthoCell
+from ..core import AtomCell, OrthoCell
 from ..transform import AffineTransform
 
 
@@ -30,7 +30,7 @@ def default_template() -> et.ElementTree:
 
     if DEFAULT_TEMPLATE is None:
         with open(DEFAULT_TEMPLATE_PATH, 'r') as f:
-            DEFAULT_TEMPLATE = et.parse(f)
+            DEFAULT_TEMPLATE = et.parse(f)  # type: ignore
 
     return deepcopy(DEFAULT_TEMPLATE)
 
@@ -130,7 +130,7 @@ def write_mslice(cell: AtomCell, path: FileOrPath, template: t.Optional[MSliceTe
         out.write(f, encoding='unicode', xml_declaration=False, short_empty_elements=False)
 
 
-def _atom_elem(i: int, atomic_number: int, x: float, y: float, z: float, wobble: float = 0., frac_occupancy=1.) -> et.Element:
+def _atom_elem(i: int, atomic_number: int, x: float, y: float, z: float, wobble: float = 0., frac_occupancy: float = 1.) -> et.Element:
     return et.XML(f"""\
 <object type="STRUCTUREATOM" id="atom{i}">
     <attribute name="z" type="float">{z:.8f}</attribute>

@@ -8,13 +8,12 @@ import copy
 import typing as t
 
 import numpy
-import polars
 
 from .bbox import BBox
-from .types import VecLike, Vec3, to_vec3
+from .types import VecLike, to_vec3
 from .transform import LinearTransform, AffineTransform, Transform, IntoTransform
 from .cell import CoordinateFrame, Cell
-from .atoms import Atoms, AtomSelection, IntoAtoms
+from .atoms import Atoms, IntoAtoms
 
 
 if t.TYPE_CHECKING:
@@ -87,14 +86,14 @@ class AtomCollection(abc.ABC):
         ...
 
     @staticmethod
-    def read(path, ty=None) -> AtomCollection:
+    def read(path: FileOrPath, ty: t.Optional[FileType] = None) -> AtomCollection:
         """
         Read a structure from a file.
 
         Currently, supported file types are 'cif', 'xyz', and 'xsf'.
         If no `ty` is specified, it is inferred from the file's extension.
         """
-        return io.read(path, ty)
+        return io.read(path, ty)  # type: ignore
 
     @staticmethod
     def read_cif(f: t.Union[FileOrPath, CIF]) -> AtomCollection:
@@ -124,14 +123,14 @@ class AtomCollection(abc.ABC):
     def write(self, path: t.Union[str, Path, t.TextIO], ty: t.Literal[None] = None):
         ...
 
-    def write(self, path, ty=None):
+    def write(self, path: FileOrPath, ty: t.Optional[FileType] = None):
         """
         Write this structure to a file.
 
         A file type may be specified using `ty`.
         If no `ty` is specified, it is inferred from the path's extension.
         """
-        io.write(self, path, ty)
+        io.write(self, path, ty)  # type: ignore
 
 
 @dataclass(init=False, repr=False, frozen=True)
@@ -318,7 +317,7 @@ class AtomCell(AtomCollection):
         return self.cell.is_orthogonal()
 
     def orthogonalize(self) -> OrthoCell:
-        if self.is_orthogonal:
+        if self.is_orthogonal():
             return OrthoCell(self.atoms, self.cell, frame=self.frame)
         raise NotImplementedError()
 
@@ -351,7 +350,7 @@ class AtomCell(AtomCollection):
 
     __mul__ = repeat
 
-    def assert_equal(self, other):
+    def assert_equal(self, other: t.Any):
         assert isinstance(other, AtomCell)
         self.cell.assert_equal(other.cell)
         self.get_atoms('local').assert_equal(other.get_atoms('local'))

@@ -100,7 +100,7 @@ def get_zone(atoms: AtomCollection, zone: t.Optional[VecLike] = None,
     if zone is not None and plane is not None:
         raise ValueError("'zone' and 'plane' can't both be specified.")
     if plane is not None:
-        if isinstance(atoms, AtomCell) and not atoms.is_orthogonal:
+        if isinstance(atoms, AtomCell) and not atoms.is_orthogonal():
             # convert plane into zone
             raise NotImplementedError()
         zone = plane

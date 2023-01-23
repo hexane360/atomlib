@@ -1,4 +1,3 @@
-import logging
 from pathlib import Path
 
 import numpy
@@ -97,7 +96,7 @@ def cif_expected(s: AtomCollection):
     assert len(s.atoms.filter(polars.col('symbol') == 'Ag')) == 4
 
 
-def test_cif(caplog):
+def test_cif(caplog: pytest.LogCaptureFixture):
     path = PATH / 'test.cif'
 
     #caplog.set_level(logging.DEBUG)

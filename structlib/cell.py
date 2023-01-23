@@ -125,7 +125,7 @@ class Cell:
         cell_size, cell_angle = ortho_to_cell(LinearTransform(r))
         return Cell(
             affine=LinearTransform(q).translate(ortho.translation()),
-            ortho=LinearTransform(r / cell_size),
+            ortho=LinearTransform(r / cell_size).round_near_zero(),
             cell_size=cell_size, cell_angle=cell_angle,
             n_cells=to_vec3([1]*3 if n_cells is None else n_cells, numpy.int_),
         )
@@ -242,7 +242,7 @@ class Cell:
         coord_change = self.get_transform(frame_to, frame_from)
         return coord_change @ transform @ coord_change.inverse()
 
-    def assert_equal(self, other):
+    def assert_equal(self, other: t.Any):
         assert isinstance(other, Cell)
         numpy.testing.assert_array_almost_equal(self.affine.inner, other.affine.inner, 6)
         numpy.testing.assert_array_almost_equal(self.ortho.inner, other.ortho.inner, 6)

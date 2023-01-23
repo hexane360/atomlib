@@ -4,10 +4,8 @@ IO for the CIF1.1 file format, specified here: https://www.iucr.org/resources/ci
 
 from __future__ import annotations
 
-from abc import ABC
 from dataclasses import dataclass
 from io import TextIOBase, StringIO
-from pathlib import Path
 from itertools import repeat
 import operator
 import re
@@ -36,25 +34,26 @@ class CIF:
         with open_file(file) as f:
             yield from CifReader(f).parse()
 
-    def stack_tags(self, *tags: str, dtype=None, rename: t.Optional[t.Sequence[str]] = None) -> polars.DataFrame:
+    def stack_tags(self, *tags: str, dtype: t.Union[str, numpy.dtype, t.Iterable[t.Union[str, numpy.dtype]], None] = None, rename: t.Optional[t.Sequence[str]] = None) -> polars.DataFrame:
+        dtypes: t.Iterable[t.Optional[numpy.dtype]]
         if dtype is None:
             dtypes = repeat(None)
-        elif not isinstance(dtype, str) and hasattr(dtype, '__iter__'):
-            dtypes = tuple(dtype)
-            if len(dtype) != len(tags):
-                raise ValueError(f"dtype list of invalid length")
+        elif isinstance(dtype, (numpy.dtype, str)):
+            dtypes = (numpy.dtype(dtype),) * len(tags)
         else:
-            dtypes = (dtype,) * len(tags)
+            dtypes = tuple(map(lambda ty: numpy.dtype(ty), dtype))
+            if len(dtypes) != len(tags):
+                raise ValueError(f"dtype list of invalid length")
 
         if len(tags) == 0:
             return polars.DataFrame({})
 
         arrs = []
-        for (tag, dtype) in zip(tags, dtypes):
+        for (tag, ty) in zip(tags, dtypes):
             if tag not in self.data:
                 raise ValueError(f"Tag '{tag}' missing from CIF file")
             try:
-                arrs.append(numpy.array(self.data[tag], dtype=dtype))
+                arrs.append(numpy.array(self.data[tag], dtype=ty))
             except TypeError:
                 raise TypeError(f"Tag '{tag}' of invalid or heterogeneous type.")
 
@@ -102,7 +101,7 @@ class CIF:
 
 class SymmetryVec:
     @classmethod
-    def parse(cls, s) -> SymmetryVec:
+    def parse(cls, s: str) -> SymmetryVec:
         if s[0] in ('x', 'y', 'z'):
             a = numpy.zeros((4,))
             a[('x', 'y', 'z').index(s[0])] += 1.
@@ -249,7 +248,7 @@ class CifReader:
             self._after_eol = False
         return w
 
-    def _try_fill_buf(self, force=False) -> t.Optional[str]:
+    def _try_fill_buf(self, force: bool = False) -> t.Optional[str]:
         if force:
             self._buf = None
         if self._buf is None:

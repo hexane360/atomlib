@@ -14,7 +14,7 @@ from .atoms import Atoms, _selection_to_expr
 from .vec import norm, dot, perp, split_arr, polygon_solid_angle, polygon_winding
 
 
-def ellip_pi(n, m):
+def ellip_pi(n: NDArray[numpy.float_], m: NDArray[numpy.float_]) -> NDArray[numpy.float_]:
     """Complete elliptic integral of the third kind"""
     y = 1 - m
     assert numpy.all(y > 0)
@@ -47,7 +47,7 @@ def disloc_edge(atoms: AtomCollectionT, center: VecLike, b: VecLike, t: VecLike,
 
     center = to_vec3(center)
     b_vec = to_vec3(b)
-    b_mag = norm(b_vec)
+    #b_mag = norm(b_vec)
 
     # get component of t perpendicular to b, normalize
     t = to_vec3(t)
@@ -326,7 +326,7 @@ def _poly_disp_z(pts: NDArray[numpy.float_], b_vec: NDArray[numpy.float_], poly:
     e2 = numpy.cross(eta, r)
     e2 /= numpy.linalg.norm(e2, axis=-1, keepdims=True)
 
-    def _disp(r):
+    def _disp(r: NDArray[numpy.float_]) -> NDArray[numpy.float_]:
         r_norm = numpy.linalg.norm(r, axis=-1, keepdims=True)
         disps = (1-2*poisson)*numpy.cross(b_vec, eta) * numpy.log(r_norm + dot(r, eta)) - dot(b_vec, e2) * numpy.cross(r / r_norm, e2)
         return numpy.sum(disps, axis=-2)

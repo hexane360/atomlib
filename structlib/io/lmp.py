@@ -5,7 +5,7 @@ from ..util import open_file, FileOrPath, localtime
 
 def write_lmp(atoms: AtomCollection, f: FileOrPath):
     with open_file(f, 'w') as f:
-        def p(s):
+        def p(s: object):
             print(s, file=f)
 
         now = localtime()

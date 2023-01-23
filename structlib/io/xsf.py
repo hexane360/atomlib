@@ -4,17 +4,12 @@ IO for XCrySDen's XSF format. (http://www.xcrysden.org/doc/XSF.html)
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from io import TextIOBase
-from multiprocessing.sharedctypes import Value
-from pathlib import Path
-import re
 import logging
 import typing as t
 
 import numpy
-from numpy.typing import NDArray
 import polars
 
 from ..transform import LinearTransform
@@ -199,7 +194,7 @@ class XSFParser:
 
     def parse_lattice(self) -> LinearTransform:
         rows = []
-        for i in range(3):
+        for _ in range(3):
             line = self.next_line()
             if line is None:
                 raise ValueError("Unexpected EOF in vector section.")

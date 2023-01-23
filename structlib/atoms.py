@@ -27,8 +27,8 @@ _COLUMN_DTYPES: t.Mapping[str, t.Type[polars.DataType]] = {
     'mass': polars.Float32,
 }
 
-SchemaDict: t.TypeAlias = t.Mapping[str, t.Union[t.Type[polars.DataType], polars.DataType]]
-UniqueKeepStrategy: t.TypeAlias = t.Literal['first', 'last', 'none']
+SchemaDict = t.Mapping[str, t.Union[t.Type[polars.DataType], polars.DataType]]
+UniqueKeepStrategy = t.Literal['first', 'last', 'none']
 
 
 def _values_to_series(df: polars.DataFrame, selection: AtomSelection, ty: t.Type[polars.DataType]) -> polars.Series:
@@ -423,7 +423,7 @@ class Atoms:
         cols.add('_unique_pts')
         return Atoms(self.inner.unique(subset=list(cols)).drop('_unique_pts'), _unchecked=True)
 
-    def assert_equal(self, other):
+    def assert_equal(self, other: t.Any):
         assert isinstance(other, Atoms)
         assert self.schema == other.schema
         for (col, dtype) in self.schema.items():
@@ -433,7 +433,7 @@ class Atoms:
                 assert (self[col] == other[col]).all()
 
 
-IntoAtoms: t.TypeAlias = t.Union[t.Dict[str, t.Sequence[t.Any]], t.Sequence[t.Any], numpy.ndarray, polars.DataFrame, Atoms]
+IntoAtoms = t.Union[t.Dict[str, t.Sequence[t.Any]], t.Sequence[t.Any], numpy.ndarray, polars.DataFrame, Atoms]
 """
 A type convertible into an `Atoms`.
 """
