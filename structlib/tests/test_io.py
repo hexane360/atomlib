@@ -5,6 +5,7 @@ import polars
 import pytest
 
 from structlib import AtomCollection, AtomCell, Atoms
+from structlib.transform import LinearTransform3D
 from structlib.io import *
 
 
@@ -47,6 +48,26 @@ def test_xyz():
     s = AtomCollection.read_xyz(path)
     xyz_expected(s)
 
+
+def test_xyz_hex():
+    path = PATH / 'AlN.xyz'
+    s = read_xyz(path)
+
+    a = 3.13; c = 5.02
+    ortho = LinearTransform3D([
+        [a, -a*numpy.cos(numpy.pi/3), 0.],
+        [0., a*numpy.sin(numpy.pi/3), 0.],
+        [0., 0., c],
+    ])
+    print(s)
+    expected = AtomCell.from_ortho(Atoms({
+        'symbol': ['Al', 'Al', 'N', 'N'],
+        'x': [   1.565,      0.0,    1.565,      0.0],
+        'y': [0.903146, 1.806291, 0.903146, 1.806291],
+        'z': [2.504900, 5.013377, 4.418497, 1.910020],
+    }), ortho, frame='local')
+
+    expected.assert_equal(s)
 
 def cfg_expected(s: AtomCollection):
     assert isinstance(s, AtomCell)
@@ -94,7 +115,7 @@ def test_cfg_hex():
         'elem': [13, 7, 13, 7],
         'symbol': ['Al', 'N', 'Al', 'N'],
         'x': [0.0, 0.0, 1.565, 1.565],
-        'y': [1.8071, 1.8071, 0.90355, 0.90355],
+        'y': [1.8071, 1.8071, 0.903553, 0.903553],
         'z': [5.01642, 1.91118, 2.50642, 4.42118],
         'v_x': [0.0, 0.0, 0.0, 0.0],
         'v_y': [0.0, 0.0, 0.0, 0.0],
