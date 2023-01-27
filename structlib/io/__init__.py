@@ -81,7 +81,7 @@ def read_xsf(f: t.Union[FileOrPath, XSF]) -> AtomCollection:
         xsf = XSF.from_file(f)
 
     atoms = xsf.get_atoms()
-    atoms = atoms.with_column(get_sym(atoms['elem']))
+    atoms = atoms.with_columns(get_sym(atoms['elem']))
 
     if (primitive_cell := xsf.primitive_cell) is not None:
         return AtomCell.from_ortho(atoms, primitive_cell)

@@ -213,7 +213,7 @@ class CFGParser:
         if n != len(rows):
             raise ValueError(f"# of atom rows doesn't match declared number ({len(rows)} vs. {n})")
 
-        return polars.DataFrame(rows, columns=columns, orient='row')  # type: ignore
+        return polars.DataFrame(rows, schema=columns, orient='row')  # type: ignore
 
 
 class LineBuffer:

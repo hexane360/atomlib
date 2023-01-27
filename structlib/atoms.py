@@ -102,7 +102,7 @@ class Atoms:
             _unchecked = True
         else:
             self.inner = polars.DataFrame(
-                data, columns=columns, orient=orient
+                data, schema=columns, orient=orient
             )
 
         if not _unchecked:
@@ -157,7 +157,7 @@ class Atoms:
 
     def with_column(self, column: t.Union[polars.Series, polars.Expr]) -> Atoms:
         """Return a copy of `self` with the given column added."""
-        return Atoms(self.inner.with_column(column), _unchecked=True)
+        return Atoms(self.inner.with_columns((column,)), _unchecked=True)
 
     def with_columns(self, exprs: t.Union[t.Literal[None], polars.Series, polars.Expr, t.Sequence[t.Union[polars.Series, polars.Expr]]],
                      **named_exprs: t.Union[polars.Expr, polars.Series]) -> Atoms:
@@ -484,9 +484,6 @@ class Atoms:
     def __radd__(self, other: IntoAtoms) -> Atoms:
         return Atoms.concat((Atoms(other), self))
 
-    def __eq__(self, other: t.Any) -> bool:
-        return self.inner == other.inner
-
     def __str__(self) -> str:
         return f"Atoms, {self.inner!s}"
 
@@ -494,7 +491,7 @@ class Atoms:
         # real __repr__ that polars doesn't provide
         lines = ["Atoms(["]
         for (col, series) in self.inner.to_dict().items():
-            lines.append(f"    Series({col!r}, {list(series)!r}, {series.dtype.string_repr()!r}),")
+            lines.append(f"    Series({col!r}, {list(series)!r}, {series.dtype!r}),")
         lines.append("])")
         return "\n".join(lines)
 

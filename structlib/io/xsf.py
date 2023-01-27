@@ -165,7 +165,7 @@ class XSFParser:
             raise ValueError(f"Expected atom list after keyword 'ATOMS'. Got '{line or 'EOF'}' instead.")
 
         if len(zs) == 0:
-            return polars.DataFrame({}, columns=['elem', 'x', 'y', 'z'])
+            return polars.DataFrame({}, schema=['elem', 'x', 'y', 'z'])
 
         coord_lens = list(map(len, coords))
         if not all(l == coord_lens[0] for l in coord_lens[1:]):

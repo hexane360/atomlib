@@ -48,7 +48,7 @@ def test_atom_frame_creation():
 
 
 def test_repr():
-    from polars import Series  # type: ignore
+    from polars import Series, Float64, Int8, Int64, Utf8  # type: ignore
 
     atoms = Atoms({
         'x': [0., 1., 2.],
@@ -61,7 +61,7 @@ def test_repr():
     new_atoms = eval(atoms.__repr__())
 
     assert atoms.schema == new_atoms.schema
-    assert atoms == new_atoms
+    atoms.assert_equal(new_atoms)
 
     assert str(atoms) == """\
 Atoms, shape: (3, 6)
@@ -71,9 +71,7 @@ Atoms, shape: (3, 6)
 │ f64 ┆ f64 ┆ f64 ┆ i8   ┆ i64  ┆ str    │
 ╞═════╪═════╪═════╪══════╪══════╪════════╡
 │ 0.0 ┆ 1.0 ┆ 0.0 ┆ 1    ┆ 1    ┆ H      │
-├╌╌╌╌╌┼╌╌╌╌╌┼╌╌╌╌╌┼╌╌╌╌╌╌┼╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌┤
 │ 1.0 ┆ 1.0 ┆ 2.0 ┆ 5    ┆ 2    ┆ B      │
-├╌╌╌╌╌┼╌╌╌╌╌┼╌╌╌╌╌┼╌╌╌╌╌╌┼╌╌╌╌╌╌┼╌╌╌╌╌╌╌╌┤
 │ 2.0 ┆ 1.0 ┆ 5.0 ┆ 22   ┆ 3    ┆ Ti     │
 └─────┴─────┴─────┴──────┴──────┴────────┘\
 """
@@ -95,19 +93,19 @@ def test_concat():
         'elem': [1, 5, 22],
     })
 
-    assert frame1.concat(frame2) == Atoms({
+    frame1.concat(frame2).assert_equal(Atoms({
         'x': [0., 1., 2., 3., 4., 5.],
         'y': [1., 1., 1., 1., 1., 1.],
         'z': [0., 2., 5., 0., 2., 5.],
         'elem': [1, 5, 22, 1, 5, 22],
-    })
+    }))
 
-    assert Atoms.concat((frame2, frame1)) == Atoms({
+    Atoms.concat((frame2, frame1)).assert_equal(Atoms({
         'x': [3., 4., 5., 0., 1., 2.],
         'y': [1., 1., 1., 1., 1., 1.],
         'z': [0., 2., 5., 0., 2., 5.],
         'elem': [1, 5, 22, 1, 5, 22],
-    })
+    }))
 
 
 def test_coords():

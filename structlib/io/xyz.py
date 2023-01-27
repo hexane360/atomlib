@@ -76,7 +76,7 @@ class XYZ:
                 #TODO .fill_null(Series) seems to be broken on polars 0.14.11
                 sym = df.select(polars.col('symbol')
                                       .cast(polars.UInt8, False).map(get_sym)).to_series()
-                df = df.with_column(
+                df = df.with_columns(
                     polars.when(sym.is_null())  # type: ignore
                     .then(polars.col('symbol'))
                     .otherwise(sym)  # type: ignore
