@@ -7,40 +7,17 @@ import numpy
 from numpy.typing import ArrayLike, NDArray
 import scipy.linalg
 
-from .types import VecLike, Pts3DLike, Num, to_vec3, ParamSpec, Concatenate
+from .types import VecLike, Pts3DLike, Num, to_vec3
 from .vec import perp, reduce_vec, is_diagonal
 from .bbox import BBox3D
+from .util import opt_classmethod
 
 
 Transform3DT = t.TypeVar('Transform3DT', bound='Transform3D')
 NumT = t.TypeVar('NumT', bound=t.Union[float, int])
-P = ParamSpec('P')
-T = t.TypeVar('T')
-U_co = t.TypeVar('U_co', covariant=True)
 
 Affine3DSelf = t.TypeVar('Affine3DSelf', bound='AffineTransform3D')
 IntoTransform3D = t.Union['Transform3D', t.Callable[[NDArray[numpy.floating]], numpy.ndarray], numpy.ndarray]
-
-
-class opt_classmethod(classmethod, t.Generic[T, P, U_co]):
-    """
-    Method that may be called either on an instance or on the class.
-    If called on the class, a default instance will be constructed.
-    """
-
-    __func__: t.Callable[Concatenate[T, P], U_co]  # type: ignore
-    def __init__(self, f: t.Callable[Concatenate[T, P], U_co]):
-        super().__init__(f)
-
-    def __get__(self, obj: t.Optional[T], ty: t.Optional[t.Type[T]] = None) -> t.Callable[P, U_co]:  # type: ignore
-        if obj is None:
-            if ty is None:
-                raise RuntimeError()
-            obj = ty()
-        return t.cast(
-            t.Callable[P, U_co],
-            super().__get__(obj, obj)  # type: ignore
-        )
 
 
 class Transform3D(ABC):

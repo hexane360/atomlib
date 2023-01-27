@@ -6,9 +6,13 @@ import datetime
 import time
 import typing as t
 
+from .types import ParamSpec, Concatenate
+
 
 T = t.TypeVar('T')
 U = t.TypeVar('U')
+P = ParamSpec('P')
+U_co = t.TypeVar('U_co', covariant=True)
 
 
 def map_some(f: t.Callable[[T], U], val: t.Optional[T]) -> t.Optional[U]:
@@ -86,3 +90,24 @@ def localtime() -> datetime.datetime:
     ltime = time.localtime()
     tz = datetime.timezone(datetime.timedelta(seconds=ltime.tm_gmtoff), ltime.tm_zone)
     return datetime.datetime.now(tz)
+
+
+class opt_classmethod(classmethod, t.Generic[T, P, U_co]):
+    """
+    Method that may be called either on an instance or on the class.
+    If called on the class, a default instance will be constructed.
+    """
+
+    __func__: t.Callable[Concatenate[T, P], U_co]  # type: ignore
+    def __init__(self, f: t.Callable[Concatenate[T, P], U_co]):
+        super().__init__(f)
+
+    def __get__(self, obj: t.Optional[T], ty: t.Optional[t.Type[T]] = None) -> t.Callable[P, U_co]:  # type: ignore
+        if obj is None:
+            if ty is None:
+                raise RuntimeError()
+            obj = ty()
+        return t.cast(
+            t.Callable[P, U_co],
+            super().__get__(obj, obj)  # type: ignore
+        )
