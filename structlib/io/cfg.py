@@ -135,9 +135,9 @@ class CFGParser:
                         array_tags[tag] = [[None] * 3, [None] * 3, [None] * 3]
                     try:
                         val = self.parse_value_with_unit(value)[0]
-                        array_tags[tag][i-1][j-1] = val
+                        array_tags[tag][j-1][i-1] = val
                         if tag == 'eta':
-                            array_tags[tag][j-1][i-1] = val
+                            array_tags[tag][i-1][j-1] = val
                     except ValueError:
                         raise ValueError(f"Invalid value '{value}' at line {self.buf.line}") from None
                 except ValueError:
@@ -159,7 +159,7 @@ class CFGParser:
         for (tag, value) in array_tags.items():
             for i in range(3):
                 for j in range(3):
-                    if value[i][j] is None:
+                    if value[j][i] is None:
                         raise ValueError(f"Tag '{tag}' missing value for index ({i+1},{j+1})")
             ndarray_tags[tag] = numpy.array(value)
 

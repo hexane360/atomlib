@@ -4,7 +4,7 @@ import numpy
 import polars
 import pytest
 
-from structlib import AtomCollection, AtomCell
+from structlib import AtomCollection, AtomCell, Atoms
 from structlib.io import *
 
 
@@ -82,6 +82,25 @@ def test_cfg():
 
     s = AtomCollection.read_cfg(path)
     cfg_expected(s)
+
+
+def test_cfg_hex():
+    path = PATH / 'test_hex.cfg'
+    s = read_cfg(path)
+
+    assert s.cell.cell_angle == pytest.approx(numpy.pi/180. * numpy.array([90., 90., 120.]))
+    assert s.cell.cell_size == pytest.approx([3.13, 3.13, 5.02])
+    s.get_atoms('local').assert_equal(Atoms({
+        'elem': [13, 7, 13, 7],
+        'symbol': ['Al', 'N', 'Al', 'N'],
+        'x': [0.0, 0.0, 1.565, 1.565],
+        'y': [1.8071, 1.8071, 0.90355, 0.90355],
+        'z': [5.01642, 1.91118, 2.50642, 4.42118],
+        'v_x': [0.0, 0.0, 0.0, 0.0],
+        'v_y': [0.0, 0.0, 0.0, 0.0],
+        'v_z': [0.0, 0.0, 0.0, 0.0],
+        'mass': [26.9815, 14.0067, 26.9815, 14.0067],
+    }))
 
 
 def cif_expected(s: AtomCollection):

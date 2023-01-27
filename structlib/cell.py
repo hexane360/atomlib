@@ -122,7 +122,7 @@ class Cell:
             warn("Crystal is left-handed. This is currently unsupported, and may cause errors.")
             # currently, behavior is to leave `ortho` proper, and move the inversion into the affine transform
 
-        cell_size, cell_angle = ortho_to_cell(LinearTransform3D(r))
+        cell_size, cell_angle = ortho_to_cell(lin)
         return Cell(
             affine=LinearTransform3D(q).translate(ortho.translation()),
             ortho=LinearTransform3D(r / cell_size).round_near_zero(),
