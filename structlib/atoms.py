@@ -10,9 +10,9 @@ import polars
 import polars.datatypes
 
 from .types import to_vec3
-from .bbox import BBox
+from .bbox import BBox3D
 from .elem import get_elem, get_sym, get_mass
-from .transform import Transform, IntoTransform
+from .transform import Transform3D, IntoTransform3D
 from .util import map_some
 
 
@@ -84,7 +84,7 @@ class Atoms:
     def __init__(self, data: IntoAtoms, columns: t.Optional[t.Sequence[str]] = None,
                  orient: t.Union[t.Literal['row'], t.Literal['col'], None] = None,
                  _unchecked: bool = False):
-        self._bbox: t.Optional[BBox] = None
+        self._bbox: t.Optional[BBox3D] = None
 
         if isinstance(data, polars.DataFrame):
             self.inner = data
@@ -366,16 +366,16 @@ class Atoms:
             self['v_z'].set_at_idx(selection, pts[:, 2]),  # type: ignore
         )))
 
-    def bbox(self) -> BBox:
+    def bbox(self) -> BBox3D:
         if self._bbox is None:
-            self._bbox = BBox.from_pts(self.coords())
+            self._bbox = BBox3D.from_pts(self.coords())
 
         return self._bbox
 
-    def transform(self, transform: IntoTransform, selection: t.Optional[AtomSelection] = None, *, transform_velocities: bool = False) -> Atoms:
-        transform = Transform.make(transform)
+    def transform(self, transform: IntoTransform3D, selection: t.Optional[AtomSelection] = None, *, transform_velocities: bool = False) -> Atoms:
+        transform = Transform3D.make(transform)
         selection = map_some(lambda s: _selection_to_series(self, s), selection)
-        transformed = self.with_coords(Transform.make(transform) @ self.coords(selection), selection)
+        transformed = self.with_coords(Transform3D.make(transform) @ self.coords(selection), selection)
         # try to transform velocities as well
         if transform_velocities and (velocities := self.velocities(selection)) is not None:
             return transformed.with_velocity(transform.transform_vec(velocities), selection)

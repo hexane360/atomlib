@@ -6,7 +6,6 @@ import logging
 import typing as t
 
 import numpy
-import polars
 
 from .cif import CIF
 from .xyz import XYZ
@@ -16,8 +15,8 @@ from .mslice import write_mslice
 from .lmp import write_lmp
 
 from ..core import AtomCollection, Atoms, SimpleAtoms, AtomCell
-from ..types import Vec3, to_vec3
-from ..transform import LinearTransform
+from ..types import to_vec3
+from ..transform import LinearTransform3D
 from ..elem import get_sym
 from ..util import FileOrPath
 
@@ -49,7 +48,7 @@ def read_cif(f: t.Union[FileOrPath, CIF]) -> AtomCollection:
         sym_atoms.append(atoms.transform(sym))
 
     if len(sym_atoms) > 0:
-        atoms = AtomCell.from_ortho(Atoms.concat(sym_atoms), LinearTransform()) \
+        atoms = AtomCell.from_ortho(Atoms.concat(sym_atoms), LinearTransform3D()) \
             .wrap().atoms.deduplicate()
 
     if (cell_size := cif.cell_size()) is not None:
@@ -70,7 +69,7 @@ def read_xyz(f: t.Union[FileOrPath, XYZ]) -> AtomCollection:
     atoms = Atoms(xyz.atoms)
 
     if (cell_matrix := xyz.cell_matrix()) is not None:
-        return AtomCell.from_ortho(atoms, LinearTransform(cell_matrix))
+        return AtomCell.from_ortho(atoms, LinearTransform3D(cell_matrix))
     return SimpleAtoms(atoms)
 
 
@@ -109,7 +108,7 @@ def read_cfg(f: t.Union[FileOrPath, CFG]) -> AtomCell:
         # matrix sqrt using eigenvals, eigenvecs
         eigenvals, eigenvecs = numpy.linalg.eigh(m)
         sqrtm = (eigenvecs * numpy.sqrt(eigenvals)) @ eigenvecs.T
-        ortho = LinearTransform(sqrtm) @ ortho
+        ortho = LinearTransform3D(sqrtm) @ ortho
 
     frame = Atoms(cfg.atoms).transform(ortho, transform_velocities=True)
     return AtomCell.from_ortho(frame, ortho)

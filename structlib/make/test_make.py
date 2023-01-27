@@ -1,10 +1,9 @@
 
 import numpy
-import pytest
 
 from . import fcc, wurtzite, graphite
 from .. import AtomCell, Atoms
-from ..transform import LinearTransform
+from ..transform import LinearTransform3D
 from ..tests.util import check_structure_equal
 
 
@@ -15,13 +14,13 @@ def test_fcc():
         'y': [0., 1.0, 0., 1.0],
         'z': [0., 1.0, 1.0, 0.],
         'symbol': ['Al', 'Al', 'Al', 'Al'],
-    }), LinearTransform.scale(all=2.), frame='local')
+    }), LinearTransform3D.scale(all=2.), frame='local')
 
     expected.assert_equal(cell)
 
     cell = fcc('Al', 2., cell='prim')
 
-    ortho = LinearTransform([
+    ortho = LinearTransform3D([
         [0., 1., 1.],
         [1., 0., 1.],
         [1., 1., 0.],
@@ -35,7 +34,7 @@ def test_fcc():
 
     cell = fcc('Al', 2., cell='ortho')
 
-    ortho = LinearTransform.scale(numpy.sqrt(2), numpy.sqrt(2), 2.)
+    ortho = LinearTransform3D.scale(numpy.sqrt(2), numpy.sqrt(2), 2.)
     expected = AtomCell.from_ortho(Atoms({
         'x': [0.0, 1/numpy.sqrt(2)],
         'y': [0.0, 1/numpy.sqrt(2)],
@@ -51,7 +50,7 @@ def test_wurtzite():
     c = 5.02
     cell = wurtzite('AlN', a, c, cell='prim')
 
-    ortho = LinearTransform([
+    ortho = LinearTransform3D([
         [a, -a*numpy.cos(numpy.pi/3), 0.],
         [0., a*numpy.sin(numpy.pi/3), 0.],
         [0., 0., c],
@@ -78,7 +77,7 @@ def test_graphite():
 
     a = 2.47
     c = 8.69
-    ortho = LinearTransform([
+    ortho = LinearTransform3D([
         [a, -a*numpy.cos(numpy.pi/3), 0.],
         [0., a*numpy.sin(numpy.pi/3), 0.],
         [0., 0., c],

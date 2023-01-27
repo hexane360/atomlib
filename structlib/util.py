@@ -6,8 +6,6 @@ import datetime
 import time
 import typing as t
 
-import numpy
-
 
 T = t.TypeVar('T')
 U = t.TypeVar('U')

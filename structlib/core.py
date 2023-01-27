@@ -9,9 +9,9 @@ import typing as t
 
 import numpy
 
-from .bbox import BBox
+from .bbox import BBox3D
 from .types import VecLike, to_vec3
-from .transform import LinearTransform, AffineTransform, Transform, IntoTransform
+from .transform import LinearTransform3D, AffineTransform3D, Transform3D, IntoTransform3D
 from .cell import CoordinateFrame, Cell
 from .atoms import Atoms, IntoAtoms
 
@@ -30,7 +30,7 @@ class AtomCollection(abc.ABC):
     """Abstract class representing any (possibly compound) collection of atoms."""
 
     @abc.abstractmethod
-    def transform(self: AtomCollectionT, transform: AffineTransform, frame: CoordinateFrame = 'local') -> AtomCollectionT:
+    def transform(self: AtomCollectionT, transform: AffineTransform3D, frame: CoordinateFrame = 'local') -> AtomCollectionT:
         """
         Transform atoms by `transform`, in the coordinate frame `frame`.
         Transforms cell boxes in addition to atoms.
@@ -38,7 +38,7 @@ class AtomCollection(abc.ABC):
         ...
 
     @abc.abstractmethod
-    def transform_atoms(self: AtomCollectionT, transform: IntoTransform, frame: CoordinateFrame = 'local') -> AtomCollectionT:
+    def transform_atoms(self: AtomCollectionT, transform: IntoTransform3D, frame: CoordinateFrame = 'local') -> AtomCollectionT:
         """
         Transform atoms by `transform`, in the coordinate frame `frame`.
         Never transforms cell boxes.
@@ -50,7 +50,7 @@ class AtomCollection(abc.ABC):
         ...
 
     @abc.abstractmethod
-    def bbox(self) -> BBox:
+    def bbox(self) -> BBox3D:
         """Return the bounding box of self, in global coordinates."""
         ...
 
@@ -145,7 +145,7 @@ class SimpleAtoms(AtomCollection):
     def __init__(self, atoms: IntoAtoms):
         object.__setattr__(self, 'atoms', Atoms(atoms))
 
-    def bbox(self) -> BBox:
+    def bbox(self) -> BBox3D:
         """Get this structure's bounding box."""
         return self.atoms.bbox()
 
@@ -167,11 +167,11 @@ class SimpleAtoms(AtomCollection):
         # TODO test this origin code
         cell = Cell.from_unit_cell(cell_size)
         if cell_origin is not None:
-            cell = cell.transform_cell(AffineTransform.translate(to_vec3(cell_origin)))
+            cell = cell.transform_cell(AffineTransform3D.translate(to_vec3(cell_origin)))
 
         return AtomCell(self.atoms, cell, frame='local')
 
-    def transform(self, transform: IntoTransform, frame: CoordinateFrame = 'local') -> SimpleAtoms:
+    def transform(self, transform: IntoTransform3D, frame: CoordinateFrame = 'local') -> SimpleAtoms:
         self._check_allowed_frame(frame)
         return replace(self, atoms=self.atoms.transform(transform))
 
@@ -211,7 +211,7 @@ class AtomCell(AtomCollection):
     """Coordinate frame 'atoms' are stored in."""
 
     @classmethod
-    def from_ortho(cls, atoms: IntoAtoms, ortho: LinearTransform, *,
+    def from_ortho(cls, atoms: IntoAtoms, ortho: LinearTransform3D, *,
                    n_cells: t.Optional[VecLike] = None,
                    frame: CoordinateFrame = 'local',
                    keep_frame: bool = False):
@@ -264,16 +264,16 @@ class AtomCell(AtomCollection):
     def __len__(self) -> int:
         return self.atoms.__len__()
 
-    def transform(self, transform: AffineTransform, frame: CoordinateFrame = 'local') -> AtomCell:
-        if isinstance(transform, Transform) and not isinstance(transform, AffineTransform):
+    def transform(self, transform: AffineTransform3D, frame: CoordinateFrame = 'local') -> AtomCell:
+        if isinstance(transform, Transform3D) and not isinstance(transform, AffineTransform3D):
             raise ValueError("Non-affine transforms cannot change the box dimensions. Use `transform_atoms` instead.")
         # coordinate change the transform into atomic coordinates
         new_cell = self.cell.transform_cell(transform, frame)
         transform = self.cell.change_transform(transform, self.frame, frame)  # type: ignore
         return AtomCell(self.atoms.transform(transform), cell=new_cell)
 
-    def transform_atoms(self, transform: IntoTransform, frame: CoordinateFrame = 'local') -> AtomCell:
-        transform = self.cell.change_transform(Transform.make(transform), self.frame, frame)
+    def transform_atoms(self, transform: IntoTransform3D, frame: CoordinateFrame = 'local') -> AtomCell:
+        transform = self.cell.change_transform(Transform3D.make(transform), self.frame, frame)
         return AtomCell(self.atoms.transform(transform), cell=self.cell)
 
     def crop(self, x_min: float = -numpy.inf, x_max: float = numpy.inf,
@@ -310,7 +310,7 @@ class AtomCell(AtomCollection):
     def _replace_cell(self, cell: Cell) -> AtomCell:
         return AtomCell(self.atoms, cell, frame=self.frame, keep_frame=True)
 
-    def bbox(self) -> BBox:
+    def bbox(self) -> BBox3D:
         return self.atoms.bbox() | self.cell.bbox()
 
     def is_orthogonal(self) -> bool:
@@ -332,7 +332,7 @@ class AtomCell(AtomCollection):
 
         atoms = self.get_atoms('cell_frac')
         atoms = Atoms.concat([
-            atoms.transform(AffineTransform.translate(cell))
+            atoms.transform(AffineTransform3D.translate(cell))
             for cell in cells
         ]) #.transform(self.cell.get_transform('local', 'cell_frac'))
         return AtomCell(atoms, self.cell.repeat(ns), frame='cell_frac')

@@ -3,7 +3,7 @@ import numpy
 from numpy.testing import assert_array_almost_equal, assert_array_equal
 import pytest
 
-from .transform import AffineTransform
+from .transform import AffineTransform3D
 from .cell import cell_to_ortho, ortho_to_cell, Cell
 
 
@@ -32,7 +32,7 @@ def mono_cell() -> Cell:
 
 def test_cell_from_ortho(mono_cell: Cell):
     assert mono_cell.affine.to_linear().is_orthogonal()
-    #assert mono_cell.affine.inner == pytest.approx(AffineTransform.rotate([0., 0., 1.], numpy.pi/2.).inner)
+    #assert mono_cell.affine.inner == pytest.approx(AffineTransform3D.rotate([0., 0., 1.], numpy.pi/2.).inner)
 
     assert_array_almost_equal(mono_cell.ortho.inner, [
         [1., numpy.cos(1.8), 0.],

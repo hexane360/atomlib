@@ -12,7 +12,7 @@ from mpl_toolkits.mplot3d import Axes3D
 #from mpl_toolkits.mplot3d.art3d import PathPatch3D
 
 from ..core import AtomCollection, AtomCell
-from ..transform import LinearTransform
+from ..transform import LinearTransform3D
 from ..util import FileOrPath
 from ..types import VecLike, to_vec3
 from ..vec import split_arr
@@ -178,7 +178,7 @@ def show_atoms_mpl_2d(atoms: AtomCollection, *, fig: t.Optional[Figure] = None,
     coords = frame.coords()
     elem_colors = numpy.array(list(map(get_elem_color, frame['elem']))) / 255.
 
-    transform = LinearTransform.align(zone, horz)
+    transform = LinearTransform3D.align(zone, horz)
     bbox_2d = transform @ atoms.bbox()
     coords_2d = (transform @ coords)[..., :2]
 

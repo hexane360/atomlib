@@ -18,7 +18,7 @@ import polars
 from polars.exceptions import PanicException
 
 from ..util import open_file, open_file_binary, BinaryFileOrPath, FileOrPath
-from ..elem import get_sym, get_elem
+from ..elem import get_sym
 
 _COMMENT_RE = re.compile(r"(=|\s+|\")")
 

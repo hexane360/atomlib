@@ -2,9 +2,8 @@ from io import StringIO
 import logging
 
 from pytest import approx
-import polars
 
-from .xsf import XSF, XSFParser
+from .xsf import XSF
 from .. import SimpleAtoms, Atoms
 
 

@@ -11,7 +11,7 @@ import typing as t
 import numpy
 import polars
 
-from ..transform import LinearTransform
+from ..transform import LinearTransform3D
 from ..util import FileOrPath, open_file, map_some
 from ..elem import get_elem
 
@@ -19,9 +19,9 @@ from ..elem import get_elem
 class CFG:
     atoms: polars.DataFrame
 
-    cell: LinearTransform
-    transform: t.Optional[LinearTransform] = None
-    eta: t.Optional[LinearTransform] = None
+    cell: LinearTransform3D
+    transform: t.Optional[LinearTransform3D] = None
+    eta: t.Optional[LinearTransform3D] = None
 
     length_scale: t.Optional[float] = None
     length_unit: t.Optional[str] = None
@@ -70,9 +70,9 @@ class CFGParser:
 
         return CFG(
             atoms=atoms,
-            cell=LinearTransform(cell),
-            transform=map_some(LinearTransform, array_tags.get('transform')),
-            eta=map_some(LinearTransform, array_tags.get('eta')),
+            cell=LinearTransform3D(cell),
+            transform=map_some(LinearTransform3D, array_tags.get('transform')),
+            eta=map_some(LinearTransform3D, array_tags.get('eta')),
             length_scale=length_scale,
             length_unit=length_unit,
             rate_scale=rate_scale,

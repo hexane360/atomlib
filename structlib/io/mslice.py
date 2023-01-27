@@ -15,7 +15,7 @@ import polars
 
 from ..util import FileOrPath, open_file
 from ..core import AtomCell, OrthoCell
-from ..transform import AffineTransform
+from ..transform import AffineTransform3D
 
 
 MSliceTemplate = t.Union[et.ElementTree, FileOrPath]
@@ -52,7 +52,7 @@ def write_mslice(cell: AtomCell, path: FileOrPath, template: t.Optional[MSliceTe
     bbox = cell.cell.bbox()
     cell_size = bbox.size
     atoms = cell.get_atoms('local') \
-        .transform(AffineTransform.translate(bbox.min).scale(cell_size).inverse()) \
+        .transform(AffineTransform3D.translate(bbox.min).scale(cell_size).inverse()) \
         .with_wobble().with_occupancy()
 
     if template is None:

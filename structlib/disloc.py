@@ -9,7 +9,7 @@ import polars
 from scipy.special import ellipe, ellipk, elliprf, elliprj
 
 from .core import AtomCollectionT, VecLike, to_vec3
-from .transform import AffineTransform, LinearTransform
+from .transform import AffineTransform3D, LinearTransform3D
 from .atoms import Atoms, _selection_to_expr
 from .vec import norm, dot, perp, split_arr, polygon_solid_angle, polygon_winding
 
@@ -75,8 +75,8 @@ def disloc_edge(atoms: AtomCollectionT, center: VecLike, b: VecLike, t: VecLike,
             raise ValueError('`cut` and `t` must be different.')
 
     # translate center to 0., and align t to [0, 0, 1], plane to +y
-    transform = AffineTransform.translate(center).inverse().compose(
-        LinearTransform.align_to(t, [0., 0., 1.], plane_v, [-1., 0., 0.])
+    transform = AffineTransform3D.translate(center).inverse().compose(
+        LinearTransform3D.align_to(t, [0., 0., 1.], plane_v, [-1., 0., 0.])
     )
     frame = atoms.get_atoms('local').transform(transform)
     b_vec = transform.transform_vec(b_vec)
@@ -147,7 +147,7 @@ def disloc_screw(atoms: AtomCollectionT, center: VecLike, b: VecLike, cut: t.Opt
             cut = to_vec3([1., 0., 0.])
         else:
             # otherwise find plane by rotating around 111
-            cut = cast(NDArray[numpy.float_], LinearTransform.rotate([1., 1., 1.], 2*numpy.pi/3).transform(t))
+            cut = cast(NDArray[numpy.float_], LinearTransform3D.rotate([1., 1., 1.], 2*numpy.pi/3).transform(t))
     else:
         cut = to_vec3(cut)
         cut /= norm(cut)
@@ -185,7 +185,7 @@ def disloc_loop_z(atoms: AtomCollectionT, center: VecLike, b: VecLike,
     center = to_vec3(center)
     b_vec = to_vec3(b)
 
-    atoms = atoms.transform_atoms(AffineTransform.translate(center).inverse())
+    atoms = atoms.transform_atoms(AffineTransform3D.translate(center).inverse())
     frame = atoms.get_atoms('local')
     branch = None
 
