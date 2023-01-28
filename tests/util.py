@@ -89,7 +89,8 @@ def check_parse_structure(name: t.Union[str, Path]) -> t.Callable[[t.Callable[..
     return decorator
 
 
-def check_figure_draw(name: t.Union[str, Path, t.Sequence[t.Union[str, Path]]], savefig_kwarg=None) -> t.Callable[[t.Callable[..., None]], t.Callable[..., None]]:
+def check_figure_draw(name: t.Union[str, Path, t.Sequence[t.Union[str, Path]]],
+                      savefig_kwarg=None) -> t.Callable[[t.Callable[..., None]], t.Callable[..., None]]:
     """Test that the wrapped function draws an identical figure to `name` in `baseline_images`."""
 
     if isinstance(name, (str, Path)):

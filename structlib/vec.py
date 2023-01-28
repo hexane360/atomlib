@@ -138,7 +138,7 @@ def polygon_winding(poly: ArrayLike, pt: t.Optional[ArrayLike] = None) -> NDArra
     return numpy.sum(up_crossing, axis=-1) - numpy.sum(down_crossing, axis=-1)
 
 
-WindingRule = t.Union[t.Literal['nonzero'], t.Literal['evenodd'], t.Literal['positive'], t.Literal['negative']]
+WindingRule = t.Literal['nonzero', 'evenodd', 'positive', 'negative']
 
 
 @t.overload
@@ -161,6 +161,7 @@ def in_polygon(poly: numpy.ndarray, pt: t.Optional[numpy.ndarray] = None, *,
         return lambda pt: in_polygon(poly, pt, rule=rule)
     winding = polygon_winding(poly, pt)
 
+    rule = t.cast(WindingRule, rule.lower())
     if rule == 'nonzero':
         return winding.astype(numpy.bool_)
     elif rule == 'evenodd':
@@ -169,6 +170,8 @@ def in_polygon(poly: numpy.ndarray, pt: t.Optional[numpy.ndarray] = None, *,
         return winding > 0
     elif rule == 'negative':
         return winding < 0
+    raise ValueError(f"Unknown winding rule '{rule}'. Expected one of "
+                     "'nonzero', 'evenodd', 'positive', or 'negative'.")
 
 
 def reduce_vec(a: numpy.ndarray, max_denom: int = 10000) -> numpy.ndarray:
