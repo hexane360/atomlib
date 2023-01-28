@@ -11,10 +11,10 @@ import typing as t
 import numpy
 from numpy.typing import NDArray
 
-from .transform import LinearTransform, AffineTransform, Transform
+from .transform import LinearTransform3D, AffineTransform3D, Transform3D
 from .types import VecLike, Vec3, to_vec3
 from .vec import reduce_vec
-from .bbox import BBox
+from .bbox import BBox3D
 
 
 CoordinateFrame = t.Union[
@@ -49,19 +49,19 @@ class Cell:
     transformations to the local coordinate system, which atoms are stored in.
     """
 
-    affine: AffineTransform = AffineTransform()
-    ortho: LinearTransform = LinearTransform()
+    affine: AffineTransform3D = AffineTransform3D()
+    ortho: LinearTransform3D = LinearTransform3D()
     cell_size: NDArray[numpy.float_]
     cell_angle: NDArray[numpy.float_] = field(default_factory=lambda: numpy.full(3, numpy.pi/2.))
     n_cells: NDArray[numpy.int_] = field(default_factory=lambda: numpy.ones(3, numpy.int_))
 
     def __init__(self, *,
-        affine: t.Optional[AffineTransform] = None, ortho: t.Optional[LinearTransform] = None,
+        affine: t.Optional[AffineTransform3D] = None, ortho: t.Optional[LinearTransform3D] = None,
         cell_size: VecLike, cell_angle: t.Optional[VecLike] = None,
         n_cells: t.Optional[VecLike] = None):
 
-        object.__setattr__(self, 'affine', AffineTransform() if affine is None else affine)
-        object.__setattr__(self, 'ortho', LinearTransform() if ortho is None else ortho)
+        object.__setattr__(self, 'affine', AffineTransform3D() if affine is None else affine)
+        object.__setattr__(self, 'ortho', LinearTransform3D() if ortho is None else ortho)
         object.__setattr__(self, 'cell_size', to_vec3(cell_size))
         object.__setattr__(self, 'cell_angle', numpy.full(3, numpy.pi/2.) if cell_angle is None else to_vec3(cell_angle))
         object.__setattr__(self, 'n_cells', numpy.ones(3, numpy.int_) if n_cells is None else to_vec3(n_cells, numpy.int_))
@@ -78,9 +78,9 @@ class Cell:
         corners = numpy.array(list(itertools.product((0., 1.), repeat=3)))
         return self.get_transform(frame, 'cell_box') @ corners
 
-    def bbox(self, frame: CoordinateFrame = 'local') -> BBox:
+    def bbox(self, frame: CoordinateFrame = 'local') -> BBox3D:
         """Return the bounding box of the cell box in the given coordinate system."""
-        return BBox.from_pts(self.corners(frame))
+        return BBox3D.from_pts(self.corners(frame))
 
     def is_orthogonal(self, tol: float = 1e-8) -> bool:
         """Returns whether this cell is orthogonal (axes are at right angles.)"""
@@ -108,7 +108,7 @@ class Cell:
         )
 
     @staticmethod
-    def from_ortho(ortho: AffineTransform, n_cells: t.Optional[VecLike] = None):
+    def from_ortho(ortho: AffineTransform3D, n_cells: t.Optional[VecLike] = None):
         lin = ortho.to_linear()
         # decompose into orthogonal and upper triangular
         q, r = numpy.linalg.qr(lin.inner)
@@ -122,25 +122,25 @@ class Cell:
             warn("Crystal is left-handed. This is currently unsupported, and may cause errors.")
             # currently, behavior is to leave `ortho` proper, and move the inversion into the affine transform
 
-        cell_size, cell_angle = ortho_to_cell(LinearTransform(r))
+        cell_size, cell_angle = ortho_to_cell(lin)
         return Cell(
-            affine=LinearTransform(q).translate(ortho.translation()),
-            ortho=LinearTransform(r / cell_size).round_near_zero(),
+            affine=LinearTransform3D(q).translate(ortho.translation()),
+            ortho=LinearTransform3D(r / cell_size).round_near_zero(),
             cell_size=cell_size, cell_angle=cell_angle,
             n_cells=to_vec3([1]*3 if n_cells is None else n_cells, numpy.int_),
         )
 
-    def to_ortho(self) -> AffineTransform:
+    def to_ortho(self) -> AffineTransform3D:
         return self.get_transform('local', 'cell_frac')
 
-    def transform_cell(self, transform: AffineTransform, frame: CoordinateFrame = 'local') -> Cell:
+    def transform_cell(self, transform: AffineTransform3D, frame: CoordinateFrame = 'local') -> Cell:
         """
         Apply the given transform to the unit cell, and return a new `Cell`.
         The transform is applied in coordinate frame 'frame'.
         Orthogonal and affine transformations are applied to the affine matrix component,
         while skew and scaling is applied to the orthogonalization matrix/cell_size.
         """
-        transform = t.cast(AffineTransform, self.change_transform(transform, 'local', frame))
+        transform = t.cast(AffineTransform3D, self.change_transform(transform, 'local', frame))
         if not transform.to_linear().is_orthogonal():
             raise NotImplementedError()
         return Cell(
@@ -188,21 +188,21 @@ class Cell:
         min = to_vec3([x_min, y_min, z_min])
         max = to_vec3([x_max, y_max, z_max])
         (min, max) = self.get_transform('cell_box').transform([min, max])
-        new_box = BBox(min, max) & BBox.unit()
+        new_box = BBox3D(min, max) & BBox3D.unit()
 
         return Cell(
-            affine=self.affine @ AffineTransform.translate(-new_box.min),
+            affine=self.affine @ AffineTransform3D.translate(-new_box.min),
             ortho=self.ortho,
             cell_size=new_box.size * self.cell_size * self.n_cells,
             cell_angle=self.cell_angle,
         )
 
-    def _get_transform_to_local(self, frame: CoordinateFrame) -> AffineTransform:
+    def _get_transform_to_local(self, frame: CoordinateFrame) -> AffineTransform3D:
         """Get the transform from 'frame' to local coordinates."""
         frame = t.cast(CoordinateFrame, frame.lower())
 
         if frame == 'local' or frame == 'global':
-            return LinearTransform()
+            return LinearTransform3D()
 
         if frame.startswith('cell'):
             transform = self.affine @ self.ortho
@@ -217,25 +217,25 @@ class Cell:
             return transform
         end = frame.split('_', 2)[1]
         if end == 'frac':
-            return transform @ LinearTransform.scale(cell_size)
+            return transform @ LinearTransform3D.scale(cell_size)
         if end == 'box':
-            return transform @ LinearTransform.scale(cell_size * self.n_cells)
+            return transform @ LinearTransform3D.scale(cell_size * self.n_cells)
         raise ValueError(f"Unknown coordinate frame '{frame}'")
 
-    def get_transform(self, frame_to: t.Optional[CoordinateFrame] = None, frame_from: t.Optional[CoordinateFrame] = None) -> AffineTransform:
+    def get_transform(self, frame_to: t.Optional[CoordinateFrame] = None, frame_from: t.Optional[CoordinateFrame] = None) -> AffineTransform3D:
         """
         In the two-argument form, get the transform to 'frame_to' from 'frame_from'.
         In the one-argument form, get the transform from local coordinates to 'frame'.
         """
-        transform_from = self._get_transform_to_local(frame_from) if frame_from is not None else AffineTransform()
-        transform_to = self._get_transform_to_local(frame_to) if frame_to is not None else AffineTransform()
+        transform_from = self._get_transform_to_local(frame_from) if frame_from is not None else AffineTransform3D()
+        transform_to = self._get_transform_to_local(frame_to) if frame_to is not None else AffineTransform3D()
         if frame_from is not None and frame_to is not None and frame_from.lower() == frame_to.lower():
-            return AffineTransform()
+            return AffineTransform3D()
         return transform_to.inverse() @ transform_from
 
-    def change_transform(self, transform: Transform,
+    def change_transform(self, transform: Transform3D,
                          frame_to: t.Optional[CoordinateFrame] = None,
-                         frame_from: t.Optional[CoordinateFrame] = None) -> Transform:
+                         frame_from: t.Optional[CoordinateFrame] = None) -> Transform3D:
         """Coordinate-change a transformation to 'frame_to' from 'frame_from'."""
         if frame_to == frame_from and frame_to is not None:
             return transform
@@ -275,7 +275,7 @@ def _validate_cell_angle(cell_angle: t.Optional[VecLike]) -> Vec3:
     return cell_angle
 
 
-def cell_to_ortho(cell_size: VecLike, cell_angle: t.Optional[VecLike] = None) -> LinearTransform:
+def cell_to_ortho(cell_size: VecLike, cell_angle: t.Optional[VecLike] = None) -> LinearTransform3D:
     """
     Get orthogonalization transform from unit cell parameters (which turns fractional cell coordinates into real-space coordinates).
     ."""
@@ -284,7 +284,7 @@ def cell_to_ortho(cell_size: VecLike, cell_angle: t.Optional[VecLike] = None) ->
     (a, b, c) = cell_size if cell_size is not None else (1., 1., 1.)
 
     if numpy.allclose(cell_angle.view(numpy.ndarray), numpy.pi/2.):
-        return LinearTransform.scale(a, b, c)
+        return LinearTransform3D.scale(a, b, c)
 
     (alpha, beta, gamma) = cell_angle
     alphastar = numpy.cos(beta) * numpy.cos(gamma) - numpy.cos(alpha)
@@ -294,14 +294,14 @@ def cell_to_ortho(cell_size: VecLike, cell_angle: t.Optional[VecLike] = None) ->
 
     # aligns a axis along x
     # aligns b axis in the x-y plane
-    return LinearTransform(numpy.array([
+    return LinearTransform3D(numpy.array([
         [a,  b * numpy.cos(gamma),  c * numpy.cos(beta)],
         [0.,  b * numpy.sin(gamma), -c * numpy.sin(beta) * numpy.cos(alphastar)],
         [0.,  0.,                     c * numpy.sin(beta) * numpy.sin(alphastar)],
     ], dtype=float)).round_near_zero()
 
 
-def ortho_to_cell(ortho: LinearTransform) -> t.Tuple[Vec3, Vec3]:
+def ortho_to_cell(ortho: LinearTransform3D) -> t.Tuple[Vec3, Vec3]:
     """Get unit cell parameters (cell_size, cell_angle) from orthogonalization transform."""
     # TODO suspect
     cell_size = numpy.linalg.norm(ortho.inner, axis=-2)
@@ -318,7 +318,7 @@ def ortho_to_cell(ortho: LinearTransform) -> t.Tuple[Vec3, Vec3]:
     return (cell_size, cell_angle)
 
 
-def plane_to_zone(metric: LinearTransform, plane: VecLike, reduce: bool = True) -> Vec3:
+def plane_to_zone(metric: LinearTransform3D, plane: VecLike, reduce: bool = True) -> Vec3:
     """
     Return the zone axis associated with a given crystallographic plane.
     If `reduce` is True, call `reduce_vec` before returning. Otherwise,
@@ -341,7 +341,7 @@ def plane_to_zone(metric: LinearTransform, plane: VecLike, reduce: bool = True) 
     return zone / float(numpy.linalg.norm(zone))
 
 
-def zone_to_plane(metric: LinearTransform, zone: VecLike, reduce: bool = True) -> Vec3:
+def zone_to_plane(metric: LinearTransform3D, zone: VecLike, reduce: bool = True) -> Vec3:
     """
     Return the crystallographic plane associated with a given zone axis.
     If `reduce` is True, call `reduce_vec` before returning. Otherwise,

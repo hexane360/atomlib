@@ -8,7 +8,7 @@ import numpy
 import polars
 
 from ..core import Atoms, AtomCell, IntoAtoms
-from ..transform import LinearTransform
+from ..transform import LinearTransform3D
 from ..elem import get_elem, get_elems
 from ..types import ElemLike, Num
 from ..cell import cell_to_ortho
@@ -32,7 +32,7 @@ def fcc(elem: ElemLike, a: Num, *, cell: CellType = 'conv', additional: t.Option
 
     if cell == 'prim':
         xs = ys = zs = [0.]
-        ortho = LinearTransform(a / 2. * numpy.array([
+        ortho = LinearTransform3D(a / 2. * numpy.array([
             [0., 1., 1.],
             [1., 0., 1.],
             [1., 1., 0.],
@@ -41,13 +41,13 @@ def fcc(elem: ElemLike, a: Num, *, cell: CellType = 'conv', additional: t.Option
         elems *= 2
         xs = ys = zs = [0., 0.5]
         b = a / numpy.sqrt(2)
-        ortho = LinearTransform.scale(b, b, a)
+        ortho = LinearTransform3D.scale(b, b, a)
     elif cell == 'conv':
         elems *= 4
         xs = [0., 0., 0.5, 0.5]
         ys = [0., 0.5, 0., 0.5]
         zs = [0., 0.5, 0.5, 0.]
-        ortho = LinearTransform.scale(all=a)
+        ortho = LinearTransform3D.scale(all=a)
     else:
         raise ValueError(f"Unknown cell type '{cell}'. Expected 'conv', 'prim', or 'ortho'.")
 

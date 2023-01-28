@@ -12,7 +12,7 @@ import typing as t
 import numpy
 import polars
 
-from ..transform import LinearTransform
+from ..transform import LinearTransform3D
 from ..util import open_file, FileOrPath
 
 Periodicity = t.Union[t.Literal['crystal'], t.Literal['slab'], t.Literal['polymer'], t.Literal['molecule']]
@@ -24,8 +24,8 @@ if t.TYPE_CHECKING:
 @dataclass
 class XSF:
     periodicity: Periodicity = 'crystal'
-    primitive_cell: t.Optional[LinearTransform] = None
-    conventional_cell: t.Optional[LinearTransform] = None
+    primitive_cell: t.Optional[LinearTransform3D] = None
+    conventional_cell: t.Optional[LinearTransform3D] = None
 
     prim_coords: t.Optional[polars.DataFrame] = None
     conv_coords: t.Optional[polars.DataFrame] = None
@@ -98,7 +98,7 @@ class XSF:
                 print("ATOMS", file=f)
                 self._write_coords(f, self.atoms)
 
-    def _write_cell(self, f: TextIOBase, cell: LinearTransform):
+    def _write_cell(self, f: TextIOBase, cell: LinearTransform3D):
         for row in cell.inner:
             for val in row:
                 f.write(f"{val:12.7f}")
@@ -165,7 +165,7 @@ class XSFParser:
             raise ValueError(f"Expected atom list after keyword 'ATOMS'. Got '{line or 'EOF'}' instead.")
 
         if len(zs) == 0:
-            return polars.DataFrame({}, columns=['elem', 'x', 'y', 'z'])
+            return polars.DataFrame({}, schema=['elem', 'x', 'y', 'z'])
 
         coord_lens = list(map(len, coords))
         if not all(l == coord_lens[0] for l in coord_lens[1:]):
@@ -192,7 +192,7 @@ class XSFParser:
 
         return self.parse_atoms(n)
 
-    def parse_lattice(self) -> LinearTransform:
+    def parse_lattice(self) -> LinearTransform3D:
         rows = []
         for _ in range(3):
             line = self.next_line()
@@ -208,7 +208,7 @@ class XSFParser:
                 raise ValueError(f"Invalid lattice vector: {line}") from None
 
         matrix = numpy.stack(rows, axis=0)
-        return LinearTransform(matrix)
+        return LinearTransform3D(matrix)
 
     def eat_sandwich(self, keyword: str):
         begin_keyword = 'begin_' + keyword

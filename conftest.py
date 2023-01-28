@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-pytest.register_assert_rewrite("structlib.core", "structlib.frame", "structlib.tests.util")
+pytest.register_assert_rewrite("structlib.core", "structlib.atoms", "structlib.tests.util")
 
 from structlib import AtomCollection
 from structlib.io import read

@@ -7,72 +7,48 @@ import numpy
 from numpy.typing import ArrayLike, NDArray
 import scipy.linalg
 
-from .types import VecLike, PtsLike, Num, to_vec3, ParamSpec, Concatenate
+from .types import VecLike, Pts3DLike, Num, to_vec3
 from .vec import perp, reduce_vec, is_diagonal
-from .bbox import BBox
+from .bbox import BBox3D
+from .util import opt_classmethod
 
 
-TransformT = t.TypeVar('TransformT', bound='Transform')
-PtsT = t.TypeVar('PtsT', bound=PtsLike)
+Transform3DT = t.TypeVar('Transform3DT', bound='Transform3D')
 NumT = t.TypeVar('NumT', bound=t.Union[float, int])
-P = ParamSpec('P')
-T = t.TypeVar('T')
-U_co = t.TypeVar('U_co', covariant=True)
 
-AffineSelf = t.TypeVar('AffineSelf', bound='AffineTransform')
-IntoTransform = t.Union['Transform', t.Callable[[NDArray[numpy.floating]], numpy.ndarray], numpy.ndarray]
+Affine3DSelf = t.TypeVar('Affine3DSelf', bound='AffineTransform3D')
+IntoTransform3D = t.Union['Transform3D', t.Callable[[NDArray[numpy.floating]], numpy.ndarray], numpy.ndarray]
 
 
-class opt_classmethod(classmethod, t.Generic[T, P, U_co]):
-    """
-    Method that may be called either on an instance or on the class.
-    If called on the class, a default instance will be constructed.
-    """
-
-    __func__: t.Callable[Concatenate[T, P], U_co]  # type: ignore
-    def __init__(self, f: t.Callable[Concatenate[T, P], U_co]):
-        super().__init__(f)
-
-    def __get__(self, obj: t.Optional[T], ty: t.Optional[t.Type[T]] = None) -> t.Callable[P, U_co]:  # type: ignore
-        if obj is None:
-            if ty is None:
-                raise RuntimeError()
-            obj = ty()
-        return t.cast(
-            t.Callable[P, U_co],
-            super().__get__(obj, obj)  # type: ignore
-        )
-
-
-class Transform(ABC):
+class Transform3D(ABC):
     @staticmethod
     @abstractmethod
-    def identity() -> Transform:
+    def identity() -> Transform3D:
         """Return an identity transformation."""
         ...
 
     @staticmethod
-    def make(data: IntoTransform) -> Transform:
+    def make(data: IntoTransform3D) -> Transform3D:
         """Make a transformation from a function or numpy array."""
-        if isinstance(data, Transform):
+        if isinstance(data, Transform3D):
             return data
         if not isinstance(data, numpy.ndarray) and hasattr(data, '__call__'):
-            return FuncTransform(data)
+            return FuncTransform3D(data)
         data = numpy.array(data)
         if data.shape == (3, 3):
-            return LinearTransform(data)
+            return LinearTransform3D(data)
         if data.shape == (4, 4):
-            return AffineTransform(data)
-        raise ValueError(f"Transform of invalid shape {data.shape}")
+            return AffineTransform3D(data)
+        raise ValueError(f"Transform3D of invalid shape {data.shape}")
 
     @abstractmethod
-    def compose(self, other: Transform) -> Transform:
+    def compose(self, other: Transform3D) -> Transform3D:
         """Compose this transformation with another."""
         ...
 
     @t.overload
     @abstractmethod
-    def transform(self, points: BBox) -> BBox:
+    def transform(self, points: BBox3D) -> BBox3D:
         ...
     
     @t.overload
@@ -81,7 +57,7 @@ class Transform(ABC):
         ...
 
     @abstractmethod
-    def transform(self, points: PtsLike) -> t.Union[BBox, NDArray[numpy.floating]]:
+    def transform(self, points: Pts3DLike) -> t.Union[BBox3D, NDArray[numpy.floating]]:
         """Transform points according to the given transformation."""
         ...
 
@@ -93,20 +69,20 @@ class Transform(ABC):
         return self.transform(a) - self.transform(numpy.zeros_like(a))
     
     @t.overload
-    def __matmul__(self, other: Transform) -> Transform:
+    def __matmul__(self, other: Transform3D) -> Transform3D:
         ...
 
     @t.overload
-    def __matmul__(self, other: BBox) -> BBox:
+    def __matmul__(self, other: BBox3D) -> BBox3D:
         ...
     
     @t.overload
     def __matmul__(self, other: ArrayLike) -> NDArray[numpy.floating]:
         ...
 
-    def __matmul__(self, other: t.Union[Transform, PtsLike]) -> t.Union[Transform, BBox, NDArray[numpy.floating]]:
+    def __matmul__(self, other: t.Union[Transform3D, Pts3DLike]) -> t.Union[Transform3D, BBox3D, NDArray[numpy.floating]]:
         """Compose this transformation, or apply it to a given set of points."""
-        if isinstance(other, Transform):
+        if isinstance(other, Transform3D):
             return other.compose(self)
         return self.transform(other)
 
@@ -114,40 +90,40 @@ class Transform(ABC):
         raise ValueError("Transform must be applied to points, not the other way around.")
 
 
-class FuncTransform(Transform):
+class FuncTransform3D(Transform3D):
     """Transformation which applies a function to the given points."""
 
     def __init__(self, f: t.Callable[[numpy.ndarray], numpy.ndarray]):
         self.f: t.Callable[[numpy.ndarray], numpy.ndarray] = f
 
     @staticmethod
-    def identity() -> FuncTransform:
-        return FuncTransform(lambda pts: pts)
+    def identity() -> FuncTransform3D:
+        return FuncTransform3D(lambda pts: pts)
 
     @t.overload
-    def transform(self, points: BBox) -> BBox:
+    def transform(self, points: BBox3D) -> BBox3D:
         ...
     
     @t.overload
     def transform(self, points: ArrayLike) -> NDArray[numpy.floating]:
         ...
 
-    def transform(self, points: PtsLike) -> t.Union[BBox, NDArray[numpy.floating]]:
-        if isinstance(points, BBox):
+    def transform(self, points: Pts3DLike) -> t.Union[BBox3D, NDArray[numpy.floating]]:
+        if isinstance(points, BBox3D):
             return points.from_pts(self.transform(points.corners()))
 
         return self.f(numpy.atleast_1d(points))
 
-    def compose(self, other: Transform) -> FuncTransform:
-        return FuncTransform(lambda pts: other.transform(self.f(pts)))
+    def compose(self, other: Transform3D) -> FuncTransform3D:
+        return FuncTransform3D(lambda pts: other.transform(self.f(pts)))
 
-    def _rcompose(self, after: Transform) -> FuncTransform:
-        return FuncTransform(lambda pts: self.f(after.transform(pts)))
+    def _rcompose(self, after: Transform3D) -> FuncTransform3D:
+        return FuncTransform3D(lambda pts: self.f(after.transform(pts)))
 
     __call__ = transform
 
 
-class AffineTransform(Transform):
+class AffineTransform3D(Transform3D):
     __array_ufunc__ = None
 
     def __init__(self, array: t.Optional[ArrayLike] = None):
@@ -160,30 +136,30 @@ class AffineTransform(Transform):
         return self.inner.__array_interface__
 
     def __repr__(self) -> str:
-        return f"AffineTransform(\n{self.inner!r}\n)"
+        return f"AffineTransform3D(\n{self.inner!r}\n)"
 
     @staticmethod
-    def identity() -> AffineTransform:
-        return AffineTransform()
+    def identity() -> AffineTransform3D:
+        return AffineTransform3D()
 
-    def round_near_zero(self: AffineSelf) -> AffineSelf:
+    def round_near_zero(self: Affine3DSelf) -> Affine3DSelf:
         """Round near-zero matrix elements in self."""
         return type(self)(
             numpy.where(numpy.abs(self.inner) < 1e-15, 0., self.inner)
         )
 
     @staticmethod
-    def from_linear(linear: LinearTransform) -> AffineTransform:
+    def from_linear(linear: LinearTransform3D) -> AffineTransform3D:
         """Make an affine transformation from a linear transformation."""
         dtype = linear.inner.dtype
-        return AffineTransform(numpy.block([
+        return AffineTransform3D(numpy.block([
             [linear.inner, numpy.zeros((3, 1), dtype=dtype)],
             [numpy.zeros((1, 3), dtype=dtype), numpy.ones((), dtype=dtype)]
         ]))  # type: ignore
 
-    def to_linear(self) -> LinearTransform:
+    def to_linear(self) -> LinearTransform3D:
         """Return the linear part of an affine transformation."""
-        return LinearTransform(self.inner[:3, :3])
+        return LinearTransform3D(self.inner[:3, :3])
 
     def det(self) -> float:
         """Return the determinant of an affine transformation."""
@@ -192,24 +168,24 @@ class AffineTransform(Transform):
     def translation(self) -> numpy.ndarray:
         return self.inner[:3, -1]
 
-    def inverse(self) -> AffineTransform:
+    def inverse(self) -> AffineTransform3D:
         """Return the inverse of an affine transformation."""
-        linear_inv = LinearTransform(self.inner[:3, :3]).inverse()
+        linear_inv = LinearTransform3D(self.inner[:3, :3]).inverse()
         # first undo translation, then undo linear transformation
-        return linear_inv @ AffineTransform.translate(*-self.translation())
+        return linear_inv @ AffineTransform3D.translate(*-self.translation())
 
     @t.overload
     @classmethod
-    def translate(cls, x: VecLike, /) -> AffineTransform:
+    def translate(cls, x: VecLike, /) -> AffineTransform3D:
         ...
 
     @t.overload
     @classmethod
-    def translate(cls, x: Num = 0., y: Num = 0., z: Num = 0.) -> AffineTransform:
+    def translate(cls, x: Num = 0., y: Num = 0., z: Num = 0.) -> AffineTransform3D:
         ...
 
     @opt_classmethod
-    def translate(self, x: t.Union[Num, VecLike] = 0., y: Num = 0., z: Num = 0.) -> AffineTransform:
+    def translate(self, x: t.Union[Num, VecLike] = 0., y: Num = 0., z: Num = 0.) -> AffineTransform3D:
         """Create or append an affine translation"""
         if isinstance(x, t.Sized) and len(x) > 1:
             try:
@@ -217,77 +193,77 @@ class AffineTransform(Transform):
             except ValueError:
                 raise ValueError("translate() must be called with a sequence or three numbers.")
 
-        if isinstance(self, LinearTransform):
-            self = AffineTransform.from_linear(self)
+        if isinstance(self, LinearTransform3D):
+            self = AffineTransform3D.from_linear(self)
 
         a = self.inner.copy()
         a[:3, -1] += [x, y, z]
-        return AffineTransform(a)
+        return AffineTransform3D(a)
 
     @t.overload
     @classmethod
-    def scale(cls, x: VecLike, /) -> AffineTransform:
+    def scale(cls, x: VecLike, /) -> AffineTransform3D:
         ...
 
     @t.overload
     @classmethod
     def scale(cls, x: Num = 1., y: Num = 1., z: Num = 1., *,
-              all: Num = 1.) -> AffineTransform:
+              all: Num = 1.) -> AffineTransform3D:
         ...
 
     @opt_classmethod
     def scale(self, x: t.Union[Num, VecLike] = 1., y: Num = 1., z: Num = 1., *,
-              all: Num = 1.) -> AffineTransform:
+              all: Num = 1.) -> AffineTransform3D:
         """Create or append a scaling transformation"""
-        return self.compose(LinearTransform.scale(x, y, z, all=all))
+        return self.compose(LinearTransform3D.scale(x, y, z, all=all))
 
     @opt_classmethod
-    def rotate(self, v: VecLike, theta: Num) -> AffineTransform:
+    def rotate(self, v: VecLike, theta: Num) -> AffineTransform3D:
         """
         Create or append a rotation transformation of `theta`
         radians CCW around the given vector `v`
         """
-        return self.compose(LinearTransform.rotate(v, theta))
+        return self.compose(LinearTransform3D.rotate(v, theta))
 
     @opt_classmethod
-    def rotate_euler(cls, x: Num = 0., y: Num = 0., z: Num = 0.) -> AffineTransform:
+    def rotate_euler(cls, x: Num = 0., y: Num = 0., z: Num = 0.) -> AffineTransform3D:
         """
         Create or append a Euler rotation transformation.
         Rotation is performed on the x axis first, then y axis and z axis.
         Values are specified in radians.
         """
         self = cls() if isinstance(cls, type) else cls
-        return self.compose(LinearTransform.rotate_euler(x, y, z))
+        return self.compose(LinearTransform3D.rotate_euler(x, y, z))
 
     @t.overload
     @classmethod
-    def mirror(cls, a: VecLike, /) -> AffineTransform:
+    def mirror(cls, a: VecLike, /) -> AffineTransform3D:
         ...
     
     @t.overload
     @classmethod
-    def mirror(cls, a: Num, b: Num, c: Num) -> AffineTransform:
+    def mirror(cls, a: Num, b: Num, c: Num) -> AffineTransform3D:
         ...
 
     @opt_classmethod
     def mirror(self, a: t.Union[Num, VecLike],
                b: t.Optional[Num] = None,
-               c: t.Optional[Num] = None) -> AffineTransform:
+               c: t.Optional[Num] = None) -> AffineTransform3D:
         """
         Create or append a mirror transformation across the given plane.
         """
-        return self.compose(LinearTransform.mirror(a, b, c))
+        return self.compose(LinearTransform3D.mirror(a, b, c))
 
     @t.overload
-    def transform(self, points: BBox) -> BBox:
+    def transform(self, points: BBox3D) -> BBox3D:
         ...
     
     @t.overload
     def transform(self, points: ArrayLike) -> NDArray[numpy.floating]:
         ...
 
-    def transform(self, points: PtsLike) -> t.Union[BBox, NDArray[numpy.floating]]:
-        if isinstance(points, BBox):
+    def transform(self, points: Pts3DLike) -> t.Union[BBox3D, NDArray[numpy.floating]]:
+        if isinstance(points, BBox3D):
             return points.from_pts(self.transform(points.corners()))
 
         points = numpy.atleast_1d(points)
@@ -300,48 +276,48 @@ class AffineTransform(Transform):
         return self.to_linear().transform(vecs)
 
     @t.overload
-    def compose(self, other: AffineTransform) -> AffineTransform:
+    def compose(self, other: AffineTransform3D) -> AffineTransform3D:
         ...
 
     @t.overload
-    def compose(self, other: Transform) -> Transform:
+    def compose(self, other: Transform3D) -> Transform3D:
         ...
 
-    def compose(self, other: Transform) -> Transform:
-        if not isinstance(other, Transform):
-            raise TypeError(f"Expected a Transform, got {type(other)}")
-        if isinstance(other, LinearTransform):
-            return self.compose(AffineTransform.from_linear(other))
-        if isinstance(other, AffineTransform):
-            return AffineTransform(other.inner @ self.inner)
+    def compose(self, other: Transform3D) -> Transform3D:
+        if not isinstance(other, Transform3D):
+            raise TypeError(f"Expected a Transform3D, got {type(other)}")
+        if isinstance(other, LinearTransform3D):
+            return self.compose(AffineTransform3D.from_linear(other))
+        if isinstance(other, AffineTransform3D):
+            return AffineTransform3D(other.inner @ self.inner)
         elif hasattr(other, '_rcompose'):
             return other._rcompose(self)  # type: ignore
         else:
             raise NotImplementedError()
 
     @t.overload
-    def __matmul__(self, other: AffineTransform) -> AffineTransform:
+    def __matmul__(self, other: AffineTransform3D) -> AffineTransform3D:
         ...
 
     @t.overload
-    def __matmul__(self, other: Transform) -> Transform:
+    def __matmul__(self, other: Transform3D) -> Transform3D:
         ...
 
     @t.overload
-    def __matmul__(self, other: BBox) -> BBox:
+    def __matmul__(self, other: BBox3D) -> BBox3D:
         ...
     
     @t.overload
     def __matmul__(self, other: ArrayLike) -> NDArray[numpy.floating]:
         ...
 
-    def __matmul__(self, other: t.Union[Transform, ArrayLike, BBox]):
-        if isinstance(other, Transform):
+    def __matmul__(self, other: t.Union[Transform3D, ArrayLike, BBox3D]):
+        if isinstance(other, Transform3D):
             return other.compose(self)
         return self.transform(other)
 
 
-class LinearTransform(AffineTransform):
+class LinearTransform3D(AffineTransform3D):
     def __init__(self, array: t.Optional[ArrayLike] = None):
         if array is None:
             array = numpy.eye(3, dtype=numpy.float_)
@@ -349,25 +325,25 @@ class LinearTransform(AffineTransform):
 
     @property
     def T(self):
-        return LinearTransform(self.inner.T)
+        return LinearTransform3D(self.inner.T)
 
     def __repr__(self) -> str:
-        return f"LinearTransform(\n{self.inner!r}\n)"
+        return f"LinearTransform3D(\n{self.inner!r}\n)"
 
     def translation(self):
         return numpy.zeros(3, dtype=self.inner.dtype)
 
     @staticmethod
-    def identity() -> LinearTransform:
-        return LinearTransform()
+    def identity() -> LinearTransform3D:
+        return LinearTransform3D()
 
     def det(self) -> float:
         return numpy.linalg.det(self.inner)
 
-    def inverse(self) -> LinearTransform:
-        return LinearTransform(numpy.linalg.inv(self.inner))
+    def inverse(self) -> LinearTransform3D:
+        return LinearTransform3D(numpy.linalg.inv(self.inner))
 
-    def to_linear(self) -> LinearTransform:
+    def to_linear(self) -> LinearTransform3D:
         return self
 
     def is_diagonal(self, tol: float = 1e-10) -> bool:
@@ -398,18 +374,18 @@ class LinearTransform(AffineTransform):
 
     @t.overload
     @classmethod
-    def mirror(cls, a: VecLike, /) -> LinearTransform:
+    def mirror(cls, a: VecLike, /) -> LinearTransform3D:
         ...
 
     @t.overload
     @classmethod
-    def mirror(cls, a: Num, b: Num, c: Num) -> LinearTransform:
+    def mirror(cls, a: Num, b: Num, c: Num) -> LinearTransform3D:
         ...
 
     @opt_classmethod
     def mirror(self, a: t.Union[Num, VecLike],
                b: t.Optional[Num] = None,
-               c: t.Optional[Num] = None) -> LinearTransform:
+               c: t.Optional[Num] = None) -> LinearTransform3D:
         if isinstance(a, t.Sized):
             v = numpy.array(numpy.broadcast_to(a, 3), dtype=numpy.float_)
             if b is not None or c is not None:
@@ -418,10 +394,10 @@ class LinearTransform(AffineTransform):
             v = numpy.array([a, b, c], dtype=numpy.float_)
         v /= numpy.linalg.norm(v)
         mirror = numpy.eye(3) - 2 * numpy.outer(v, v)
-        return LinearTransform(mirror @ self.inner)
+        return LinearTransform3D(mirror @ self.inner)
 
     @opt_classmethod
-    def rotate(self, v: VecLike, theta: Num) -> LinearTransform:
+    def rotate(self, v: VecLike, theta: Num) -> LinearTransform3D:
         theta = float(theta)
         v = numpy.array(numpy.broadcast_to(v, (3,)), dtype=numpy.float_)
         l = numpy.linalg.norm(v)
@@ -438,10 +414,10 @@ class LinearTransform(AffineTransform):
                          [-v[1], v[0],   0.]], dtype=numpy.float_)
         # I + sin(t) W + (1 - cos(t)) W^2 = I + sin(t) W + 2*sin^2(t/2) W^2
         a = numpy.eye(3) + numpy.sin(theta) * w + 2 * (numpy.sin(theta / 2)**2) * w @ w
-        return LinearTransform(a @ self.inner)
+        return LinearTransform3D(a @ self.inner)
 
     @opt_classmethod
-    def rotate_euler(self, x: Num = 0., y: Num = 0., z: Num = 0.) -> LinearTransform:
+    def rotate_euler(self, x: Num = 0., y: Num = 0., z: Num = 0.) -> LinearTransform3D:
         angles = numpy.array([x, y, z], dtype=numpy.float_)
         c, s = numpy.cos(angles), numpy.sin(angles)
         a = numpy.array([
@@ -449,10 +425,10 @@ class LinearTransform(AffineTransform):
             [c[1]*s[2], s[0]*s[1]*s[2] + c[0]*c[2], c[0]*s[1]*s[2] - s[0]*c[2]],
             [-s[1],     s[0]*c[1],                  c[0]*c[1]],
         ])
-        return LinearTransform(a @ self.inner)
+        return LinearTransform3D(a @ self.inner)
 
     @opt_classmethod
-    def align(self, v1: VecLike, horz: t.Optional[VecLike] = None) -> LinearTransform:
+    def align(self, v1: VecLike, horz: t.Optional[VecLike] = None) -> LinearTransform3D:
         """
         Create a transformation which transforms `v1` to align with [0, 0, 1].
         If `horz` is specified, it will be aligned in the direction of [1, 0, 0].
@@ -471,16 +447,16 @@ class LinearTransform(AffineTransform):
         return self.align_to(v1, [0., 0., 1.], horz, [1., 0., 0.])
 
     @t.overload
-    def align_to(self, v1: VecLike, v2: VecLike, p1: t.Literal[None] = None, p2: t.Literal[None] = None) -> LinearTransform:
+    def align_to(self, v1: VecLike, v2: VecLike, p1: t.Literal[None] = None, p2: t.Literal[None] = None) -> LinearTransform3D:
         ...
 
     @t.overload
-    def align_to(self, v1: VecLike, v2: VecLike, p1: VecLike, p2: VecLike) -> LinearTransform:
+    def align_to(self, v1: VecLike, v2: VecLike, p1: VecLike, p2: VecLike) -> LinearTransform3D:
         ...
 
     @opt_classmethod
     def align_to(self, v1: VecLike, v2: VecLike,
-                 p1: t.Optional[VecLike] = None, p2: t.Optional[VecLike] = None) -> LinearTransform:
+                 p1: t.Optional[VecLike] = None, p2: t.Optional[VecLike] = None) -> LinearTransform3D:
         """
         Create a transformation which transforms `v1` to align with `v2`.
         If specified, additionally ensure that `p1` aligns with `p2` in the plane of `v2`.
@@ -512,7 +488,7 @@ class LinearTransform(AffineTransform):
         #theta = numpy.arctan2(numpy.linalg.norm(numpy.cross(p1_perp, p2_perp)), numpy.dot(p1_perp, p2_perp))
         return aligned.rotate(v2, theta).round_near_zero()
 
-    def align_standard(self) -> LinearTransform:
+    def align_standard(self) -> LinearTransform3D:
         """
         Align `self` so `v1` is in the x-axis and `v2` is in the xy-plane.
         """
@@ -521,7 +497,7 @@ class LinearTransform(AffineTransform):
         # qr unique up to the sign of the digonal
         r = r * numpy.sign(r.diagonal())
         assert numpy.linalg.det(r) > 0
-        return LinearTransform(r).round_near_zero()
+        return LinearTransform3D(r).round_near_zero()
 
     def _orthogonal_axes(self, max_denom: int = 1000) -> NDArray[numpy.int_]:
         """
@@ -540,18 +516,18 @@ class LinearTransform(AffineTransform):
 
     @t.overload
     @classmethod
-    def scale(cls, x: VecLike, /) -> LinearTransform:
+    def scale(cls, x: VecLike, /) -> LinearTransform3D:
         ...
 
     @t.overload
     @classmethod
     def scale(cls, x: Num = 1., y: Num = 1., z: Num = 1., *,
-              all: Num = 1.) -> LinearTransform:
+              all: Num = 1.) -> LinearTransform3D:
         ...
 
     @opt_classmethod
     def scale(self, x: t.Union[Num, VecLike] = 1., y: Num = 1., z: Num = 1., *,
-              all: Num = 1.) -> LinearTransform:
+              all: Num = 1.) -> LinearTransform3D:
         if isinstance(x, t.Sized):
             v = numpy.broadcast_to(x, 3)
             if y != 1. or z != 1.:
@@ -561,29 +537,29 @@ class LinearTransform(AffineTransform):
 
         a = numpy.zeros((3, 3), dtype=self.inner.dtype)
         a[numpy.diag_indices(3)] = all * v
-        return LinearTransform(a @ self.inner)
+        return LinearTransform3D(a @ self.inner)
 
-    def compose(self, other: TransformT) -> TransformT:
-        if isinstance(other, LinearTransform):
+    def compose(self, other: Transform3DT) -> Transform3DT:
+        if isinstance(other, LinearTransform3D):
             return other.__class__(other.inner @ self.inner)
-        if isinstance(other, AffineTransform):
-            return AffineTransform.from_linear(self).compose(other)
-        if not isinstance(other, Transform):
-            raise TypeError(f"Expected a Transform, got {type(other)}")
+        if isinstance(other, AffineTransform3D):
+            return AffineTransform3D.from_linear(self).compose(other)
+        if not isinstance(other, Transform3D):
+            raise TypeError(f"Expected a Transform3D, got {type(other)}")
         elif hasattr(other, '_rcompose'):
             return other._rcompose(self)  # type: ignore
         raise NotImplementedError()
 
     @t.overload
-    def transform(self, points: BBox) -> BBox:
+    def transform(self, points: BBox3D) -> BBox3D:
         ...
     
     @t.overload
     def transform(self, points: ArrayLike) -> NDArray[numpy.floating]:
         ...
 
-    def transform(self, points: PtsLike) -> t.Union[BBox, NDArray[numpy.floating]]:
-        if isinstance(points, BBox):
+    def transform(self, points: Pts3DLike) -> t.Union[BBox3D, NDArray[numpy.floating]]:
+        if isinstance(points, BBox3D):
             return points.from_pts(self.transform(points.corners()))
 
         points = numpy.atleast_1d(points)
@@ -593,23 +569,23 @@ class LinearTransform(AffineTransform):
         return (self.inner.astype(numpy.float_) @ points.T).T
 
     @t.overload
-    def __matmul__(self, other: TransformT) -> TransformT:
+    def __matmul__(self, other: Transform3DT) -> Transform3DT:
         ...
 
     @t.overload
-    def __matmul__(self, other: BBox) -> BBox:
+    def __matmul__(self, other: BBox3D) -> BBox3D:
         ...
 
     @t.overload
     def __matmul__(self, other: ArrayLike) -> NDArray[numpy.floating]:
         ...
 
-    def __matmul__(self, other: t.Union[TransformT, ArrayLike, BBox]) -> t.Union[TransformT, NDArray[numpy.floating], BBox]:
-        if isinstance(other, Transform):
+    def __matmul__(self, other: t.Union[Transform3DT, ArrayLike, BBox3D]) -> t.Union[Transform3DT, NDArray[numpy.floating], BBox3D]:
+        if isinstance(other, Transform3D):
             return other.compose(self)
         return self.transform(other)
 
 
 __ALL__ = [
-    'Transform', 'FuncTransform', 'AffineTransform', 'LinearTransform',
+    'Transform3D', 'FuncTransform3D', 'AffineTransform3D', 'LinearTransform3D',
 ]

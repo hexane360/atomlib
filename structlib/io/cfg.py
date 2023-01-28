@@ -11,7 +11,7 @@ import typing as t
 import numpy
 import polars
 
-from ..transform import LinearTransform
+from ..transform import LinearTransform3D
 from ..util import FileOrPath, open_file, map_some
 from ..elem import get_elem
 
@@ -19,9 +19,9 @@ from ..elem import get_elem
 class CFG:
     atoms: polars.DataFrame
 
-    cell: LinearTransform
-    transform: t.Optional[LinearTransform] = None
-    eta: t.Optional[LinearTransform] = None
+    cell: LinearTransform3D
+    transform: t.Optional[LinearTransform3D] = None
+    eta: t.Optional[LinearTransform3D] = None
 
     length_scale: t.Optional[float] = None
     length_unit: t.Optional[str] = None
@@ -70,9 +70,9 @@ class CFGParser:
 
         return CFG(
             atoms=atoms,
-            cell=LinearTransform(cell),
-            transform=map_some(LinearTransform, array_tags.get('transform')),
-            eta=map_some(LinearTransform, array_tags.get('eta')),
+            cell=LinearTransform3D(cell),
+            transform=map_some(LinearTransform3D, array_tags.get('transform')),
+            eta=map_some(LinearTransform3D, array_tags.get('eta')),
             length_scale=length_scale,
             length_unit=length_unit,
             rate_scale=rate_scale,
@@ -135,9 +135,9 @@ class CFGParser:
                         array_tags[tag] = [[None] * 3, [None] * 3, [None] * 3]
                     try:
                         val = self.parse_value_with_unit(value)[0]
-                        array_tags[tag][i-1][j-1] = val
+                        array_tags[tag][j-1][i-1] = val
                         if tag == 'eta':
-                            array_tags[tag][j-1][i-1] = val
+                            array_tags[tag][i-1][j-1] = val
                     except ValueError:
                         raise ValueError(f"Invalid value '{value}' at line {self.buf.line}") from None
                 except ValueError:
@@ -159,7 +159,7 @@ class CFGParser:
         for (tag, value) in array_tags.items():
             for i in range(3):
                 for j in range(3):
-                    if value[i][j] is None:
+                    if value[j][i] is None:
                         raise ValueError(f"Tag '{tag}' missing value for index ({i+1},{j+1})")
             ndarray_tags[tag] = numpy.array(value)
 
@@ -213,7 +213,7 @@ class CFGParser:
         if n != len(rows):
             raise ValueError(f"# of atom rows doesn't match declared number ({len(rows)} vs. {n})")
 
-        return polars.DataFrame(rows, columns=columns, orient='row')  # type: ignore
+        return polars.DataFrame(rows, schema=columns, orient='row')  # type: ignore
 
 
 class LineBuffer:

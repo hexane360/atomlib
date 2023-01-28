@@ -10,7 +10,7 @@ import click
 
 from . import CoordinateFrame, AtomCollection, AtomSelection
 from .types import ParamSpec, Concatenate
-from .transform import LinearTransform, AffineTransform
+from .transform import LinearTransform3D, AffineTransform3D
 
 
 frame_type = click.Choice(('global', 'local', 'frac'), case_sensitive=False)
@@ -235,9 +235,9 @@ def rotate(state: State,
            theta: t.Optional[float] = None,
            frame: CoordinateFrame = 'global'):
     if theta is None:
-        transform = LinearTransform().rotate_euler(x, y, z)
+        transform = LinearTransform3D().rotate_euler(x, y, z)
     else:
-        transform = LinearTransform().rotate([x, y, z], theta)
+        transform = LinearTransform3D().rotate([x, y, z], theta)
     state.structure = state.structure.transform_atoms(transform, frame=frame)
     yield state
 
@@ -251,7 +251,7 @@ def rotate(state: State,
 @lazy_map
 def translate(state: State, x: float = 0., y: float = 0., z: float = 0.,
               frame: CoordinateFrame = 'global'):
-    state.structure = state.structure.transform(AffineTransform().translate(x, y, z))
+    state.structure = state.structure.transform(AffineTransform3D().translate(x, y, z))
     yield state
 
 

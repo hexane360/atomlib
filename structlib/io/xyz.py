@@ -18,7 +18,7 @@ import polars
 from polars.exceptions import PanicException
 
 from ..util import open_file, open_file_binary, BinaryFileOrPath, FileOrPath
-from ..elem import get_sym, get_elem
+from ..elem import get_sym
 
 _COMMENT_RE = re.compile(r"(=|\s+|\")")
 
@@ -76,7 +76,7 @@ class XYZ:
                 #TODO .fill_null(Series) seems to be broken on polars 0.14.11
                 sym = df.select(polars.col('symbol')
                                       .cast(polars.UInt8, False).map(get_sym)).to_series()
-                df = df.with_column(
+                df = df.with_columns(
                     polars.when(sym.is_null())  # type: ignore
                     .then(polars.col('symbol'))
                     .otherwise(sym)  # type: ignore

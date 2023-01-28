@@ -47,6 +47,67 @@ def test_atom_frame_creation():
     assert empty.select('elem').dtypes[0] == polars.Int8
 
 
+def test_repr():
+    from polars import Series, Float64, Int8, Int64, Utf8  # type: ignore
+
+    atoms = Atoms({
+        'x': [0., 1., 2.],
+        'y': [1., 1., 1.],
+        'z': [0., 2., 5.],
+        'elem': [1, 5, 22],
+        'type': [1, 2, 3],
+    })
+
+    new_atoms = eval(atoms.__repr__())
+
+    assert atoms.schema == new_atoms.schema
+    atoms.assert_equal(new_atoms)
+
+    assert str(atoms) == """\
+Atoms, shape: (3, 6)
+┌─────┬─────┬─────┬──────┬──────┬────────┐
+│ x   ┆ y   ┆ z   ┆ elem ┆ type ┆ symbol │
+│ --- ┆ --- ┆ --- ┆ ---  ┆ ---  ┆ ---    │
+│ f64 ┆ f64 ┆ f64 ┆ i8   ┆ i64  ┆ str    │
+╞═════╪═════╪═════╪══════╪══════╪════════╡
+│ 0.0 ┆ 1.0 ┆ 0.0 ┆ 1    ┆ 1    ┆ H      │
+│ 1.0 ┆ 1.0 ┆ 2.0 ┆ 5    ┆ 2    ┆ B      │
+│ 2.0 ┆ 1.0 ┆ 5.0 ┆ 22   ┆ 3    ┆ Ti     │
+└─────┴─────┴─────┴──────┴──────┴────────┘\
+"""
+
+
+def test_concat():
+    frame1 = Atoms({
+        'x': [0., 1., 2.],
+        'y': [1., 1., 1.],
+        'z': [0., 2., 5.],
+        'elem': [1, 5, 22],
+        #'type': [1, 2, 3],
+    })
+
+    frame2 = Atoms({
+        'x': [3., 4., 5.],
+        'y': [1., 1., 1.],
+        'z': [0., 2., 5.],
+        'elem': [1, 5, 22],
+    })
+
+    frame1.concat(frame2).assert_equal(Atoms({
+        'x': [0., 1., 2., 3., 4., 5.],
+        'y': [1., 1., 1., 1., 1., 1.],
+        'z': [0., 2., 5., 0., 2., 5.],
+        'elem': [1, 5, 22, 1, 5, 22],
+    }))
+
+    Atoms.concat((frame2, frame1)).assert_equal(Atoms({
+        'x': [3., 4., 5., 0., 1., 2.],
+        'y': [1., 1., 1., 1., 1., 1.],
+        'z': [0., 2., 5., 0., 2., 5.],
+        'elem': [1, 5, 22, 1, 5, 22],
+    }))
+
+
 def test_coords():
     frame = Atoms({
         'x': [0., 1., -1., -3.],

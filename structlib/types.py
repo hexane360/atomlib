@@ -5,7 +5,7 @@ import numpy
 from numpy.typing import ArrayLike, NDArray
 
 if t.TYPE_CHECKING:
-    from .bbox import BBox
+    from .bbox import BBox3D
 
 
 if sys.version_info < (3, 10):
@@ -23,7 +23,7 @@ Vec3 = NDArray[numpy.floating[t.Any]]
 VecLike = ArrayLike
 """3d vector-like"""
 
-PtsLike = t.Union['BBox', ArrayLike]
+Pts3DLike = t.Union['BBox3D', ArrayLike]
 """Sequence of 3d points-like"""
 
 Num = t.Union[float, int]

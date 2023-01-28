@@ -9,7 +9,7 @@ import numpy
 from ..core import AtomCell
 from ..atoms import Atoms
 from ..elem import get_elem
-from ..transform import LinearTransform
+from ..transform import LinearTransform3D
 
 
 def get_api_key(key: t.Optional[str] = None) -> str:
@@ -50,7 +50,7 @@ def load_materials_project(id: t.Union[str, int], *, api_key: t.Optional[str] = 
     data = response.json()['data'][0]
     structure = data['structure']
 
-    ortho = LinearTransform(numpy.array(structure['lattice']['matrix']).T)
+    ortho = LinearTransform3D(numpy.array(structure['lattice']['matrix']).T)
     sites = structure['sites']
 
     rows = []

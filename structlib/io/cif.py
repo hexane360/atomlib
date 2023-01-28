@@ -16,7 +16,7 @@ import numpy
 import polars
 from numpy.typing import NDArray
 
-from ..transform import AffineTransform
+from ..transform import AffineTransform3D
 from ..expr import Parser, BinaryOp, BinaryOrUnaryOp, sub
 from ..util import open_file, FileOrPath
 
@@ -87,7 +87,7 @@ class CIF:
         except (ValueError, TypeError, KeyError):
             return None
 
-    def get_symmetry(self) -> t.Iterator[AffineTransform]:
+    def get_symmetry(self) -> t.Iterator[AffineTransform3D]:
         syms = self.data.get('symmetry_equiv_pos_as_xyz', None)
         if syms is None:
             syms = ()
@@ -153,14 +153,14 @@ SYMMETRY_PARSER: Parser[SymmetryVec, SymmetryVec] = Parser([
 ], SymmetryVec.parse)
 
 
-def parse_symmetry(s: str) -> AffineTransform:
+def parse_symmetry(s: str) -> AffineTransform3D:
     axes = s.split(',')
     if not len(axes) == 3:
         raise ValueError(f"Error parsing symmetry expression '{s}': Expected 3 values, got {len(axes)}")
 
     axes = [SYMMETRY_PARSER.parse(StringIO(ax)).eval(lambda v: v).to_vec() for ax in axes]
     axes.append(numpy.array([0., 0., 0., 1.]))
-    return AffineTransform(numpy.stack(axes, axis=0))
+    return AffineTransform3D(numpy.stack(axes, axis=0))
 
 
 class CifReader:
