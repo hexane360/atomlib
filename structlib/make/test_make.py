@@ -4,7 +4,7 @@ import numpy
 from . import fcc, wurtzite, graphite
 from .. import AtomCell, Atoms
 from ..transform import LinearTransform3D
-from ..tests.util import check_structure_equal
+from tests.util import check_equals_structure
 
 
 def test_fcc():
@@ -66,7 +66,7 @@ def test_wurtzite():
     expected.assert_equal(cell)
 
 
-@check_structure_equal('AlN_ortho.xsf')
+@check_equals_structure('AlN_ortho.xsf')
 def test_wurtzite_ortho():
     cell = wurtzite('AlN', 3.13, 5.02, 0.38, cell='ortho')
     return cell

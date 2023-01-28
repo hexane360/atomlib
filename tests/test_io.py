@@ -8,8 +8,7 @@ from structlib import AtomCollection, AtomCell, Atoms
 from structlib.transform import LinearTransform3D
 from structlib.io import *
 
-
-PATH = Path(__file__).absolute().parent
+from .util import check_parse_structure, INPUT_PATH
 
 
 def xyz_expected(s: AtomCollection):
@@ -26,7 +25,7 @@ def xyz_expected(s: AtomCollection):
 
 
 def test_xyz():
-    path = PATH / 'test.xyz'
+    path = INPUT_PATH / 'basic.xyz'
 
     with open(path) as f:
         s = read_xyz(f)
@@ -49,26 +48,6 @@ def test_xyz():
     xyz_expected(s)
 
 
-def test_xyz_hex():
-    path = PATH / 'AlN.xyz'
-    s = read_xyz(path)
-
-    a = 3.13; c = 5.02
-    ortho = LinearTransform3D([
-        [a, -a*numpy.cos(numpy.pi/3), 0.],
-        [0., a*numpy.sin(numpy.pi/3), 0.],
-        [0., 0., c],
-    ])
-    print(s)
-    expected = AtomCell.from_ortho(Atoms({
-        'symbol': ['Al', 'Al', 'N', 'N'],
-        'x': [   1.565,      0.0,    1.565,      0.0],
-        'y': [0.903146, 1.806291, 0.903146, 1.806291],
-        'z': [2.504900, 5.013377, 4.418497, 1.910020],
-    }), ortho, frame='local')
-
-    expected.assert_equal(s)
-
 def cfg_expected(s: AtomCollection):
     assert isinstance(s, AtomCell)
 
@@ -86,7 +65,7 @@ def cfg_expected(s: AtomCollection):
 
 
 def test_cfg():
-    path = PATH / 'test.cfg'
+    path = INPUT_PATH / 'basic.cfg'
 
     with open(path) as f:
         s = read_cfg(f)
@@ -105,25 +84,6 @@ def test_cfg():
     cfg_expected(s)
 
 
-def test_cfg_hex():
-    path = PATH / 'test_hex.cfg'
-    s = read_cfg(path)
-
-    assert s.cell.cell_angle == pytest.approx(numpy.pi/180. * numpy.array([90., 90., 120.]))
-    assert s.cell.cell_size == pytest.approx([3.13, 3.13, 5.02])
-    s.get_atoms('local').assert_equal(Atoms({
-        'elem': [13, 7, 13, 7],
-        'symbol': ['Al', 'N', 'Al', 'N'],
-        'x': [0.0, 0.0, 1.565, 1.565],
-        'y': [1.8071, 1.8071, 0.903553, 0.903553],
-        'z': [5.01642, 1.91118, 2.50642, 4.42118],
-        'v_x': [0.0, 0.0, 0.0, 0.0],
-        'v_y': [0.0, 0.0, 0.0, 0.0],
-        'v_z': [0.0, 0.0, 0.0, 0.0],
-        'mass': [26.9815, 14.0067, 26.9815, 14.0067],
-    }))
-
-
 def cif_expected(s: AtomCollection):
     assert isinstance(s, AtomCell)
 
@@ -137,7 +97,7 @@ def cif_expected(s: AtomCollection):
 
 
 def test_cif(caplog: pytest.LogCaptureFixture):
-    path = PATH / 'test.cif'
+    path = INPUT_PATH / 'basic.cif'
 
     #caplog.set_level(logging.DEBUG)
 
@@ -157,3 +117,38 @@ def test_cif(caplog: pytest.LogCaptureFixture):
 
     s = AtomCollection.read_cif(path)
     cif_expected(s)
+
+
+@pytest.fixture
+def aln_ortho() -> LinearTransform3D:
+    a = 3.13; c = 5.02
+    return LinearTransform3D([
+        [a, -a*numpy.cos(numpy.pi/3), 0.],
+        [0., a*numpy.sin(numpy.pi/3), 0.],
+        [0., 0., c],
+    ])
+
+
+@check_parse_structure('AlN.xyz')
+def test_xyz_aln(aln_ortho):
+    return AtomCell.from_ortho(Atoms({
+        'symbol': ['Al', 'Al', 'N', 'N'],
+        'x': [   1.565,      0.0,    1.565,      0.0],
+        'y': [0.903146, 1.806291, 0.903146, 1.806291],
+        'z': [2.504900, 5.013377, 4.418497, 1.910020],
+    }), aln_ortho, frame='local')
+
+
+@check_parse_structure('AlN.cfg')
+def test_cfg_hex(aln_ortho):
+    return AtomCell.from_ortho(Atoms({
+        'elem': [13, 7, 13, 7],
+        'symbol': ['Al', 'N', 'Al', 'N'],
+        'x': [0.0, 0.0, 1.565, 1.565],
+        'y': [1.8071, 1.8071, 0.903553, 0.903553],
+        'z': [5.01642, 1.91118, 2.50642, 4.42118],
+        'v_x': [0.0, 0.0, 0.0, 0.0],
+        'v_y': [0.0, 0.0, 0.0, 0.0],
+        'v_z': [0.0, 0.0, 0.0, 0.0],
+        'mass': [26.9815, 14.0067, 26.9815, 14.0067],
+    }), aln_ortho, frame='local')

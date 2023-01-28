@@ -3,11 +3,11 @@
 from io import StringIO
 
 from .mslice import write_mslice
-from ..tests.util import check_file_equal
+from tests.util import check_equals_file
 from ..make import fcc
 
 
-@check_file_equal('Al_from_template.mslice')
+@check_equals_file('Al_from_template.mslice')
 def test_mslice_default_template() -> str:
     cell = fcc('Al', 4.05, cell='conv')
     #cell = cell.repeat((2, 3, 4), explode=False)

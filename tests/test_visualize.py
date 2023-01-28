@@ -1,10 +1,11 @@
 import pytest
-import numpy
-from matplotlib.testing.decorators import image_comparison, check_figures_equal
+from matplotlib.testing.decorators import check_figures_equal, image_comparison
 from matplotlib import pyplot
 
-from ..visualize import show_atoms_2d, show_atoms_mpl_2d, get_elem_color
-from .. import make, AtomCell
+from structlib.visualize import show_atoms_2d, show_atoms_mpl_2d, get_elem_color
+from structlib import make, AtomCell
+
+from .util import check_figure_draw
 
 
 @pytest.fixture
@@ -14,7 +15,13 @@ def aln_cell():
     return cell
 
 
-@check_figures_equal(extensions=('pdf',))
+@check_figure_draw('mpl_aln_2d.png')
+def test_show_atoms_mpl_2d(aln_cell: AtomCell):
+    fig = pyplot.figure()
+    assert show_atoms_mpl_2d(aln_cell, fig=fig, zone=[0, 0, 1], horz=[1, 0, 0], s=20.) is fig
+
+"""
+@check_figures_equal()
 def test_show_atoms_mpl_2d(fig_test, fig_ref, aln_cell: AtomCell):
     cell = aln_cell
 
@@ -30,3 +37,4 @@ def test_show_atoms_mpl_2d(fig_test, fig_ref, aln_cell: AtomCell):
 
     colors = numpy.array(list(map(get_elem_color, cell.atoms['elem']))) / 255.
     ax.scatter(coords[:, 0], coords[:, 1], c=colors, alpha=1, s=20.)
+"""
