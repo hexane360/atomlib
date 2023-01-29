@@ -22,11 +22,14 @@ from ..util import open_file, FileOrPath
 
 
 Value = t.Union[int, float, str, None]
+_INT_RE = re.compile(r'[-+]?\d+')
+# float regex with uncertainty
+_FLOAT_RE = re.compile(r'([-+]?\d*(\.\d*)?(e[-+]?\d+)?)(\(\d+\))?', re.I)
 
 
 @dataclass
 class CIF:
-    name: str
+    name: t.Optional[str]
     data: t.Dict[str, t.Union[t.List[Value], Value]]
 
     @staticmethod
@@ -34,7 +37,8 @@ class CIF:
         with open_file(file) as f:
             yield from CifReader(f).parse()
 
-    def stack_tags(self, *tags: str, dtype: t.Union[str, numpy.dtype, t.Iterable[t.Union[str, numpy.dtype]], None] = None, rename: t.Optional[t.Sequence[str]] = None) -> polars.DataFrame:
+    def stack_tags(self, *tags: str, dtype: t.Union[str, numpy.dtype, t.Iterable[t.Union[str, numpy.dtype]], None] = None,
+                   rename: t.Optional[t.Iterable[t.Optional[str]]] = None, required: t.Union[bool, t.Iterable[bool]] = True) -> polars.DataFrame:
         dtypes: t.Iterable[t.Optional[numpy.dtype]]
         if dtype is None:
             dtypes = repeat(None)
@@ -45,27 +49,32 @@ class CIF:
             if len(dtypes) != len(tags):
                 raise ValueError(f"dtype list of invalid length")
 
-        if len(tags) == 0:
-            return polars.DataFrame({})
+        if isinstance(required, bool):
+            required = repeat(required)
 
-        arrs = []
-        for (tag, ty) in zip(tags, dtypes):
+        if rename is None:
+            rename = repeat(None)
+
+        d = {}
+        for (tag, ty, req, name) in zip(tags, dtypes, required, rename):
             if tag not in self.data:
-                raise ValueError(f"Tag '{tag}' missing from CIF file")
+                if req:
+                    raise ValueError(f"Tag '{tag}' missing from CIF file")
+                continue
             try:
-                arrs.append(numpy.array(self.data[tag], dtype=ty))
+                arr = numpy.array(self.data[tag], dtype=ty)
+                d[name or tag] = arr
             except TypeError:
                 raise TypeError(f"Tag '{tag}' of invalid or heterogeneous type.")
 
-        l = len(arrs[0])
-        for arr in arrs:
-            if not len(arr) == l:
-                raise ValueError(f"Tags of mismatching lengths: {tuple(map(len, arrs))}")
+        if len(d) == 0:
+            return polars.DataFrame({})
 
-        df = polars.DataFrame(dict(zip(tags, arrs)))
-        if rename is not None:
-            df.columns = rename
-        return df
+        l = len(next(iter(d.values())))
+        if any(len(arr) != l for arr in d.values()):
+            raise ValueError(f"Tags of mismatching lengths: {tuple(map(len, d.values()))}")
+
+        return polars.DataFrame(d)
 
     def cell_size(self) -> t.Optional[t.Tuple[float, float, float]]:
         """Return cell size (in angstroms)."""
@@ -174,14 +183,18 @@ class CifReader:
     def parse(self) -> t.Iterator[CIF]:
         while True:
             line = self.line
-            word = self.next_word()
+            word = self.peek_word()
             if word is None:
                 return
             if word.lower().startswith('data_'):
+                self.next_word()
                 name = word[len('data_'):]
-                yield self.parse_datablock(name)
+            elif word.startswith('_'):
+                name = None
             else:
                 raise ValueError(f"While parsing line {line}: Unexpected token {word}")
+
+            yield self.parse_datablock(name)
 
     def after_eol(self) -> bool:
         """
@@ -263,17 +276,14 @@ class CifReader:
         w = self.next_word()
         if w is None:
             raise ValueError("Unexpected EOF while parsing value.")
-        try:
-            return int(w)
-        except ValueError:
-            pass
-        try:
-            return float(w)
-        except ValueError:
-            pass
+        if _INT_RE.fullmatch(w):
+            return int(w)  # may raise
+        if (m := _FLOAT_RE.fullmatch(w)):
+            if m[1] != '.':
+                return float(m[1])  # may raise
         return w
 
-    def parse_datablock(self, name: str) -> CIF:
+    def parse_datablock(self, name: t.Optional[str] = None) -> CIF:
         logging.debug(f"parse datablock '{name}'")
         data: t.Dict[str, t.Union[t.List[Value], Value]] = {}
 
@@ -329,7 +339,7 @@ class CifReader:
             n_vals = sum(map(len, vals))
             raise ValueError(f"While parsing loop at line {line}: "
                             f"Got {n_vals} vals, expected a multiple of {len(tags)}")
-        
+
         return dict(zip(tags, vals))
 
     def parse_value(self) -> Value:

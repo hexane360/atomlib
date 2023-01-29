@@ -207,7 +207,7 @@ class XSFParser:
             except (ValueError, TypeError):
                 raise ValueError(f"Invalid lattice vector: {line}") from None
 
-        matrix = numpy.stack(rows, axis=0)
+        matrix = numpy.stack(rows, axis=-1)
         return LinearTransform3D(matrix)
 
     def eat_sandwich(self, keyword: str):

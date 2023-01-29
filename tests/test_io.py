@@ -129,14 +129,29 @@ def aln_ortho() -> LinearTransform3D:
     ])
 
 
-@check_parse_structure('AlN.xyz')
-def test_xyz_aln(aln_ortho):
+@pytest.fixture
+def aln(aln_ortho) -> AtomCell:
     return AtomCell.from_ortho(Atoms({
         'symbol': ['Al', 'Al', 'N', 'N'],
         'x': [   1.565,      0.0,    1.565,      0.0],
         'y': [0.903146, 1.806291, 0.903146, 1.806291],
         'z': [2.504900, 5.013377, 4.418497, 1.910020],
     }), aln_ortho, frame='local')
+
+
+@check_parse_structure('AlN.xyz')
+def test_xyz_aln(aln):
+    return aln
+
+
+@check_parse_structure('AlN.xsf')
+def test_xsf_aln(aln):
+    return aln
+
+
+@check_parse_structure('AlN.cif')
+def test_cif_aln(aln):
+    return aln
 
 
 @check_parse_structure('AlN.cfg')

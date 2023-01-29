@@ -38,8 +38,9 @@ def read_cif(f: t.Union[FileOrPath, CIF]) -> AtomCollection:
     logging.debug("cif data: %r", cif.data)
 
     df = cif.stack_tags('atom_site_fract_x', 'atom_site_fract_y', 'atom_site_fract_z',
-                        'atom_site_type_symbol', 'atom_site_occupancy',
-                        rename=('x', 'y', 'z', 'symbol', 'frac_occupancy'))
+                        'atom_site_type_symbol', 'atom_site_occupancy', 'atom_site_U_iso_or_equiv',
+                        rename=('x', 'y', 'z', 'symbol', 'frac_occupancy', 'wobble'),
+                        required=(True, True, True, True, False))
     atoms = Atoms(df)
 
     # parse and apply symmetry

@@ -35,6 +35,7 @@ def test_integration():
     _int 2048
     _float 0.
     _float2 3.5e+5
+    _float3 .5(3)
     data_data2
     _tag1
     ; foo
@@ -57,6 +58,7 @@ def test_integration():
     assert d1['int'] == 2048
     assert d1['float'] == 0.
     assert d1['float2'] == 3.5e+5
+    assert d1['float3'] == .5
 
     assert c2.name == 'data2'
     assert d2['tag1'] == ' foo\nbar\n'

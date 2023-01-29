@@ -1,0 +1,30 @@
+_audit_creation_date      'Jan. 28, 2023'
+_audit_creation_method    'Draft CIF file generated with Atomsk'
+ 
+_chemical_formula_iupac           'Al2 N2'
+_chemical_formula_moiety          'Al2 N2'
+_chemical_formula_sum             'Al2 N2'
+_chemical_formula_weight          81.977
+ 
+loop_
+_space_group_symop_operation_xyz
+'+x,+y,+z'
+ 
+_cell_length_a                    3.1300
+_cell_length_b                    3.1300
+_cell_length_c                    5.0200
+_cell_angle_alpha                 90.0000
+_cell_angle_beta                  90.0000
+_cell_angle_gamma                 120.0000
+_cell_volume                      36.8853
+ 
+loop_
+ _atom_site_label
+ _atom_site_type_symbol
+ _atom_site_fract_x
+ _atom_site_fract_y
+ _atom_site_fract_z
+Al1  Al  0.666592  0.333183  0.498984
+Al2  Al  0.333183  0.666366  0.998681
+N1  N  0.666592  0.333183  0.880179
+N2  N  0.333183  0.666366  0.380482

@@ -1,7 +1,7 @@
 from io import StringIO
 import logging
 
-from pytest import approx
+from numpy.testing import assert_array_equal
 
 from .xsf import XSF
 from .. import SimpleAtoms, Atoms
@@ -22,10 +22,12 @@ def test_xsf_molecule():
     xsf = XSF.from_file(StringIO(s))
 
     assert xsf.periodicity == 'molecule'
-    assert list(xsf.atoms['elem']) == [6, 12, 80]  # type: ignore
-    assert list(xsf.atoms['x']) == approx([0.0, 1.0, 1.0])  # type: ignore
-    assert list(xsf.atoms['y']) == approx([1.0, 1.0, 1.0])  # type: ignore
-    assert list(xsf.atoms['z']) == approx([0.5, 0.5, 0.5])  # type: ignore
+    atoms = xsf.atoms
+    assert atoms is not None
+    assert_array_equal(atoms['elem'], [6, 12, 80])
+    assert_array_equal(atoms['x'], [0.0, 1.0, 1.0])
+    assert_array_equal(atoms['y'], [1.0, 1.0, 1.0])
+    assert_array_equal(atoms['z'], [0.5, 0.5, 0.5])
 
 
 def test_xsf_simple_write():
