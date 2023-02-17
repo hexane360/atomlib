@@ -1,7 +1,7 @@
 
 import numpy
 
-from . import fcc, wurtzite, graphite
+from . import fcc, wurtzite, graphite, zincblende, fluorite
 from .. import AtomCell, Atoms
 from ..transform import LinearTransform3D
 from tests.util import check_equals_structure
@@ -68,8 +68,37 @@ def test_wurtzite():
 
 @check_equals_structure('AlN_ortho.xsf')
 def test_wurtzite_ortho():
-    cell = wurtzite('AlN', 3.13, 5.02, 0.38, cell='ortho')
-    return cell
+    return wurtzite('AlN', 3.13, 5.02, 0.38, cell='ortho')
+
+
+@check_equals_structure('CeO2_ortho.xsf')
+def test_ceo2_ortho():
+    return fluorite('CeO2', 5.47, cell='ortho')
+
+
+@check_equals_structure('CeO2_conv.xsf')
+def test_ceo2_conv():
+    return fluorite('CeO2', 5.47)
+
+
+@check_equals_structure('CeO2_prim.xsf')
+def test_ceo2_prim():
+    return fluorite('CeO2', 5.47, cell='prim')
+
+
+@check_equals_structure('ZnSe_conv.xsf')
+def test_znse_conv():
+    return zincblende('ZnSe', 5.66)
+
+
+@check_equals_structure('ZnSe_ortho.xsf')
+def test_znse_ortho():
+    return zincblende('ZnSe', 5.66, cell='ortho')
+
+
+@check_equals_structure('ZnSe_prim.xsf')
+def test_znse_prim():
+    return zincblende('ZnSe', 5.66, cell='prim')
 
 
 def test_graphite():

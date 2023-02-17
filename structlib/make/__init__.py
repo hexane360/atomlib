@@ -22,7 +22,7 @@ def fcc(elem: ElemLike, a: Num, *, cell: CellType = 'conv', additional: t.Option
     Make a FCC lattice of the specified element, with the given cell.
     If 'conv' (the default), return the conventional cell, four atoms with cubic cell symmetry.
     If 'prim', return the primitive cell, a single atom with rhombohedral cell symmetry.
-    If 'ortho', return an orthorhombic cell, two atoms in a cell of size [a/sqrt(2), a/sqrt(2), a].
+    If 'ortho', return an orthogonal cell, two atoms in a cell of size [a/sqrt(2), a/sqrt(2), a].
 
     If 'additional' is specified, those atoms will be added to the lattice (in fractional coordinates).
     """
@@ -134,6 +134,86 @@ def graphite(elem: t.Union[str, ElemLike, None] = None, a: t.Optional[Num] = Non
     if cell == 'ortho':
         return _ortho_hexagonal(atoms)
     return atoms
+
+
+def zincblende(elems: t.Union[str, t.Sequence[ElemLike]], a: Num, *,
+               cell: CellType = 'conv') -> AtomCell:
+    """
+    Create a zinc-blende FCC structure AB. Returns the same cell types as `fcc`.
+    """
+    if isinstance(elems, str):
+        elems = get_elems(elems)
+    else:
+        elems = list(map(get_elem, elems))
+
+    if len(elems) != 2:
+        raise ValueError("Expected two elements.")
+
+    if cell == 'prim':
+        d = [0.25]
+        additional: t.Dict[str, t.Any] = {
+            'x': d,
+            'y': d,
+            'z': d,
+            'elem': [elems[1]],
+        }
+    elif cell == 'ortho':
+        additional: t.Dict[str, t.Any] = {
+            'x': [0.5, 0.0],
+            'y': [0.0, 0.5],
+            'z': [0.25, 0.25],
+            'elem': [elems[1]] * 2,
+        }
+    elif cell == 'conv':
+        additional: t.Dict[str, t.Any] = {
+            'x': [0.25, 0.25, 0.75, 0.75],
+            'y': [0.25, 0.75, 0.25, 0.75],
+            'z': [0.25, 0.75, 0.75, 0.25],
+            'elem': [elems[1]] * 4,
+        }
+
+    return fcc(elems[0], a, cell=cell, additional=additional)
+
+
+
+def fluorite(elems: t.Union[str, t.Sequence[ElemLike]], a: Num, *,
+             cell: CellType = 'conv') -> AtomCell:
+    """
+    Create a fluorite FCC structure AB_2. Returns the same cell types as `fcc`.
+    """
+
+    if isinstance(elems, str):
+        elems = get_elems(elems)
+    else:
+        elems = list(map(get_elem, elems))
+
+    if len(elems) != 2:
+        raise ValueError("Expected two elements.")
+
+    if cell == 'prim':
+        d = [0.25, 0.75]
+        additional: t.Dict[str, t.Any] = {
+            'x': d, 'y': d, 'z': d,
+            'elem': [elems[1]] * 2,
+        }
+    elif cell == 'ortho':
+        additional: t.Dict[str, t.Any] = {
+            'x': [0.5, 0.5, 0.0, 0.0],
+            'y': [0.0, 0.0, 0.5, 0.5],
+            'z': [0.25, 0.75, 0.25, 0.75],
+            'elem': [elems[1]] * 4,
+        }
+    elif cell == 'conv':
+        additional: t.Dict[str, t.Any] = {
+            'x': [0.25] * 4 + [0.75] * 4,
+            'y': [0.25, 0.25, 0.75, 0.75, 0.25, 0.25, 0.75, 0.75],
+            'z': [0.25, 0.75, 0.25, 0.75, 0.25, 0.75, 0.25, 0.75],
+            'elem': [elems[1]] * 8,
+        }
+
+    return fcc(elems[0], a, cell=cell, additional=additional)
+
+
 
 
 def _ortho_hexagonal(cell: AtomCell) -> AtomCell:
