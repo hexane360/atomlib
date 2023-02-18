@@ -3,6 +3,9 @@ API Reference
 
 .. currentmodule:: structlib
 
+Modules
+-------
+
 .. autosummary::
    :toctree: structlib
 
@@ -11,3 +14,11 @@ API Reference
    make
    visualize
    disloc
+   atoms
+   cell
+   elem
+   transform
+   vec
+   bbox
+   types
+   util

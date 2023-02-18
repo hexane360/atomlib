@@ -1,34 +1,23 @@
 ﻿structlib.disloc
 ================
 
-.. automodule:: structlib.disloc
+.. currentmodule:: structlib.disloc
 
-   
-   
-   .. rubric:: Function Summary
+.. rubric:: Function Summary
+.. autosummary::
 
-   .. autosummary::
-   
-      disloc_edge
-      disloc_loop_z
-      disloc_poly_z
-      disloc_screw
-      disloc_square_z
-      ellip_pi
-   
-   
-
-
-
-
-
+   disloc_edge
+   disloc_loop_z
+   disloc_poly_z
+   disloc_screw
+   disloc_square_z
+   ellip_pi
 
 
 
 
 
 .. rubric:: Functions
-
 
 .. autofunction:: disloc_edge
 .. autofunction:: disloc_loop_z

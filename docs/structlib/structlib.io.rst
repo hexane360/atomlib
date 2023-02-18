@@ -1,35 +1,24 @@
 ﻿structlib.io
 ============
 
-.. automodule:: structlib.io
+.. currentmodule:: structlib.io
 
-   
-   
-   .. rubric:: Function Summary
+.. rubric:: Function Summary
+.. autosummary::
 
-   .. autosummary::
-   
-      read
-      read_cfg
-      read_cif
-      read_xsf
-      read_xyz
-      write
-      write_xsf
-   
-   
-
-
-
-
-
+   read
+   read_cfg
+   read_cif
+   read_xsf
+   read_xyz
+   write
+   write_xsf
 
 
 
 
 
 .. rubric:: Functions
-
 
 .. autofunction:: read
 .. autofunction:: read_cfg

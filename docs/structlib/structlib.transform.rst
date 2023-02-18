@@ -1,26 +1,26 @@
-﻿structlib.core
-==============
+﻿structlib.transform
+===================
 
-.. currentmodule:: structlib.core
+.. currentmodule:: structlib.transform
 
 
 
 
 .. rubric:: Classes
 
-.. autoclass:: AtomCell
+.. autoclass:: AffineTransform3D
    :members:
    :undoc-members:
    :private-members:
-.. autoclass:: AtomCollection
+.. autoclass:: FuncTransform3D
    :members:
    :undoc-members:
    :private-members:
-.. autoclass:: OrthoCell
+.. autoclass:: LinearTransform3D
    :members:
    :undoc-members:
    :private-members:
-.. autoclass:: SimpleAtoms
+.. autoclass:: Transform3D
    :members:
    :undoc-members:
    :private-members:

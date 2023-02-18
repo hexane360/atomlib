@@ -1,33 +1,22 @@
 ﻿structlib.make
 ==============
 
-.. automodule:: structlib.make
+.. currentmodule:: structlib.make
 
-   
-   
-   .. rubric:: Function Summary
+.. rubric:: Function Summary
+.. autosummary::
 
-   .. autosummary::
-   
-      fcc
-      fluorite
-      graphite
-      wurtzite
-      zincblende
-   
-   
-
-
-
-
-
+   fcc
+   fluorite
+   graphite
+   wurtzite
+   zincblende
 
 
 
 
 
 .. rubric:: Functions
-
 
 .. autofunction:: fcc
 .. autofunction:: fluorite
