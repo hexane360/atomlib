@@ -60,3 +60,39 @@ def test_mono_cell(mono_cell: Cell, frame_in, frame_out, pts_in, pts_out):
     pts_in = numpy.eye(3) if pts_in is None else pts_in
     assert_array_almost_equal(mono_cell.get_transform(frame_in, frame_out).transform(pts_out), pts_in)
     assert_array_almost_equal(mono_cell.get_transform(frame_out, frame_in).transform(pts_in), pts_out)
+
+
+def test_transform_affine_cell():
+    cell = Cell.from_unit_cell([2., 3., 5.]) \
+        .repeat((9, 6, 3)) \
+        .transform_cell(AffineTransform3D.translate([-3, -2, -1]), frame='cell_frac')
+
+    print(f"cell affine: {cell.affine}")
+    print(f"cell_box transform: {cell.get_transform('local', 'cell_box')}")
+
+    assert_array_almost_equal(
+        cell.corners('local'), [
+            [-6., -6., -5.],
+            [-6., -6., 10.],
+            [-6., 12., -5.],
+            [-6., 12., 10.],
+            [12., -6., -5.],
+            [12., -6., 10.],
+            [12., 12., -5.],
+            [12., 12., 10.],
+        ]
+    )
+
+    new_cell = cell.transform_cell(AffineTransform3D.rotate_euler(z=numpy.pi/2.), frame='local')
+    assert_array_almost_equal(
+        new_cell.corners('local'), [
+            [  6., -6., -5.],
+            [  6., -6., 10.],
+            [-12., -6., -5.],
+            [-12., -6., 10.],
+            [  6., 12., -5.],
+            [  6., 12., 10.],
+            [-12., 12., -5.],
+            [-12., 12., 10.],
+        ]
+    )

@@ -148,6 +148,7 @@ class Cell:
             ortho=self.ortho,
             cell_size=self.cell_size,
             cell_angle=self.cell_angle,
+            n_cells=self.n_cells,
         )
 
     def repeat(self, n: t.Union[int, VecLike]) -> Cell:
