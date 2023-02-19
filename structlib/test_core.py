@@ -2,7 +2,7 @@
 import pytest
 import numpy
 
-from .core import AtomCell, Atoms, SimpleAtoms, OrthoCell
+from .core import AtomCell, Atoms, OrthoCell
 from .transform import LinearTransform3D
 
 

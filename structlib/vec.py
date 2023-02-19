@@ -129,7 +129,8 @@ def polygon_winding(poly: ArrayLike, pt: t.Optional[ArrayLike] = None) -> NDArra
     (x, y) = split_arr(poly, axis=-1)
     (xn, yn) = split_arr(poly_next, axis=-1)
 
-    x_pos = x*(yn - y) - y*(xn - x)  # |p1 cross (p2 - p1)| -> (p2 - p1) to right or left of origin
+    # |p1 cross (p2 - p1)| -> (p2 - p1) to right or left of origin
+    x_pos = x*(yn - y) - y*(xn - x)  # type: ignore
     # count up crossings and down crossings
     up_crossing = (y <= 0) & (yn > 0) & (x_pos > 0)
     down_crossing = (y > 0) & (yn <= 0) & (x_pos < 0)

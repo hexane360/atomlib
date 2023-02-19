@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from io import StringIO, TextIOBase
+from io import TextIOBase
 from itertools import zip_longest
 import logging
 import operator

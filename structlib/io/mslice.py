@@ -117,9 +117,6 @@ def write_mslice(cell: AtomCell, path: FileOrPath, template: t.Optional[MSliceTe
 
     et.indent(db, space="    ", level=0)
 
-    if (first := db.find("./object[@type='STRUCTUREATOM']")):
-        pass
-
     with open_file(path, 'w') as f:
         # hack to specify doctype of output
         f.write("""\

@@ -36,7 +36,19 @@ _COLUMN_DTYPES: t.Mapping[str, t.Type[polars.DataType]] = {
 }
 
 SchemaDict = t.Mapping[str, t.Union[t.Type[polars.DataType], polars.DataType]]
-UniqueKeepStrategy = t.Literal['first', 'last', 'none']
+UniqueKeepStrategy = t.Literal['first', 'last']
+
+
+if t.TYPE_CHECKING:
+    class ColumnNotFoundError(Exception):
+        ...
+else:
+    try:
+        # polars 0.16
+        ColumnNotFoundError = polars.exceptions.ColumnNotFoundError
+    except AttributeError:
+        # polars 0.15
+        ColumnNotFoundError = polars.NotFoundError
 
 
 def _values_to_series(df: polars.DataFrame, selection: AtomSelection, ty: t.Type[polars.DataType]) -> polars.Series:
@@ -109,9 +121,7 @@ class Atoms:
             self.inner = data.inner
             _unchecked = True
         else:
-            self.inner = polars.DataFrame(
-                data, schema=columns, orient=orient
-            )
+            self.inner = polars.DataFrame(data, schema=columns, orient=orient)  # type: ignore
 
         if not _unchecked:
             missing: t.Tuple[str] = tuple(set(['symbol', 'elem']) - set(self.columns))
@@ -179,7 +189,7 @@ class Atoms:
     __getitem__ = get_column
 
     def filter(self, selection: t.Optional[AtomSelection] = None) -> Atoms:
-        """Filter `self`, removing rows which evaluate to `False`."""
+        """Filter ``self``, removing rows which evaluate to ``False``."""
         if selection is None:
             return self
         return Atoms(self.inner.filter(_selection_to_expr(selection)), _unchecked=True)
@@ -187,10 +197,24 @@ class Atoms:
     def select(self, exprs: t.Union[str, polars.Expr, polars.Series, t.Sequence[t.Union[str, polars.Expr, polars.Series]]]
     ) -> polars.DataFrame:
         """
-        Select `exprs` from `self`, and return as a DataFrame.
+        Select ``exprs`` from ``self``, and return as a ``DataFrame``.
+
         Expressions may either be columns or expressions of columns.
         """
         return self.inner.select(exprs)
+
+    def try_select(self, exprs: t.Union[str, polars.Expr, polars.Series, t.Sequence[t.Union[str, polars.Expr, polars.Series]]]
+    ) -> t.Optional[polars.DataFrame]:
+        """
+        Try to select ``exprs`` from ``self``, and return as a ``DataFrame``.
+
+        Expressions may either be columns or expressions of columns.
+        Return ``None`` if any columns are missing.
+        """
+        try:
+            return self.inner.select(exprs)
+        except ColumnNotFoundError:
+            return None
 
     def sort(self, by: t.Union[str, polars.Expr, t.List[str], t.List[polars.Expr]], reverse: t.Union[bool, t.List[bool]] = False) -> Atoms:
         return Atoms(self.inner.sort(by, reverse), _unchecked=True)
@@ -209,7 +233,7 @@ class Atoms:
         """Try to get a column from `self`, returning `None` if it doesn't exist."""
         try:
             return self.get_column(name)
-        except polars.NotFoundError:
+        except ColumnNotFoundError:
             return None
 
     def bbox(self) -> BBox3D:
@@ -317,10 +341,8 @@ class Atoms:
         """Returns a (N, 3) ndarray of atom velocities (dtype `numpy.float64`)."""
         if selection is not None:
             self = self.filter(selection)
-        try:
-            return self.select(('v_x', 'v_y', 'v_z')).to_numpy().astype(numpy.float64)
-        except polars.NotFoundError:
-            return None
+        return map_some(lambda df: df.to_numpy().astype(numpy.float64),
+                        self.try_select(('v_x', 'v_y', 'v_z')))
 
     def types(self) -> t.Optional[polars.Series]:
         """Returns a `Series` of atom types (dtype polars.Int32)."""
