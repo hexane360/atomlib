@@ -14,12 +14,32 @@ release = '0.1'
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
+nitpicky = True
+nitpick_ignore = [
+    ('py:class', 'type'),
+    ('py:class', 'T'),
+    ('py:class', 'U'),
+    ('py:class', 'P'),
+    ('py:class', 'U_co'),
+]
+
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
     'sphinx.ext.intersphinx',
     'sphinx.ext.mathjax',
 ]
+
+intersphinx_mapping = {
+    'python': ('https://docs.python.org/3/', None),
+    'numpy': ('https://numpy.org/doc/stable/', None),
+    'matplotlib': ('https://matplotlib.org/stable/', None),
+    'h5py': ('https://docs.h5py.org/en/latest/', None),
+    'scipy': ('https://docs.scipy.org/doc/scipy/', None),
+    'pyarrow': ('https://arrow.apache.org/docs/', None),
+    'polars': ('https://pola-rs.github.io/polars/py-polars/html/', None),
+    'h5py': ('https://docs.h5py.org/en/latest/', None),
+}
 
 autodoc_default_options = {
     'member-order': 'bysource',
@@ -44,18 +64,8 @@ autodoc_type_aliases = {
 
     'CellType': 'structlib.make.CellType',
 }
-autodoc_typehints_format = 'fully-qualified'
 
-intersphinx_mapping = {
-    'python': ('https://docs.python.org/3/', None),
-    'numpy': ('https://numpy.org/doc/stable/', None),
-    'matplotlib': ('https://matplotlib.org/stable/', None),
-    'h5py': ('https://docs.h5py.org/en/latest/', None),
-    'scipy': ('https://docs.scipy.org/doc/scipy/', None),
-    'pyarrow': ('https://arrow.apache.org/docs/', None),
-    'polars': ('https://pola-rs.github.io/polars/py-polars/html/', None),
-    'h5py': ('https://docs.h5py.org/en/latest/', None),
-}
+autodoc_typehints_format = 'short'
 
 templates_path = ['templates']
 exclude_patterns = []
@@ -66,7 +76,7 @@ exclude_patterns = []
 html_theme = 'sphinx_rtd_theme'
 #html_static_path = ['static']
 
-nitpicky = True
-nitpick_ignore = [
-    ('py:class', 'type'),
-]
+
+def setup(app):
+    ...
+

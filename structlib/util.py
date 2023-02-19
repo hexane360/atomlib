@@ -16,13 +16,16 @@ U_co = t.TypeVar('U_co', covariant=True)
 
 
 def map_some(f: t.Callable[[T], U], val: t.Optional[T]) -> t.Optional[U]:
-    if val is None:
-        return None
-    return f(val)
+    """
+    Map ``f`` over ``val`` if not ``None``.
+    """
+    return None if val is None else f(val)
 
 
 FileOrPath = t.Union[str, Path, TextIOBase, t.TextIO]
+"""Open text file or path to a file. Use with :func:`open_file`."""
 BinaryFileOrPath = t.Union[str, Path, t.TextIO, t.BinaryIO, IOBase]
+"""Open binary file or path to a file. Use with :func:`open_file_binary`."""
 
 
 def _validate_file(f: t.Union[t.IO, IOBase], mode: t.Union[t.Literal['r'], t.Literal['w']]):
@@ -42,9 +45,11 @@ def open_file(f: FileOrPath,
               newline: t.Optional[str] = None,
               encoding: t.Optional[str] = 'utf-8') -> AbstractContextManager[TextIOBase]:
     """
-    Open the given file for text I/O. If given a path-like, opens it with
-    the specified settings. Otherwise, make an effort to reconfigure
-    the encoding, and check that it is readable/writable as specified.
+    Open the given file for text I/O.
+
+    If given a path-like, opens it with the specified settings.
+    Otherwise, make an effort to reconfigure the encoding, and
+    check that it is readable/writable as specified.
     """
     if not isinstance(f, (IOBase, t.BinaryIO, t.TextIO)):
         return open(f, mode, newline=newline, encoding=encoding)
@@ -63,9 +68,10 @@ def open_file(f: FileOrPath,
 def open_file_binary(f: BinaryFileOrPath,
                      mode: t.Union[t.Literal['r'], t.Literal['w']] = 'r') -> AbstractContextManager[IOBase]:
     """
-    Open the given file for binary I/O. If given a path-like, opens it with
-    the specified settings. If given text I/O, reconfigure to binary.
-    Make sure stream is readable/writable, as specified.
+    Open the given file for binary I/O.
+
+    If given a path-like, opens it with the specified settings. If given text I/O,
+    reconfigure to binary. Make sure stream is readable/writable, as specified.
     """
     if not isinstance(f, (IOBase, t.BinaryIO, t.TextIO)):
         return t.cast(IOBase, open(f, mode + 'b'))
@@ -87,6 +93,7 @@ def open_file_binary(f: BinaryFileOrPath,
 
 
 def localtime() -> datetime.datetime:
+    """Return the current time in a timezone-aware datetime object."""
     ltime = time.localtime()
     tz = datetime.timezone(datetime.timedelta(seconds=ltime.tm_gmtoff), ltime.tm_zone)
     return datetime.datetime.now(tz)
@@ -94,8 +101,9 @@ def localtime() -> datetime.datetime:
 
 class opt_classmethod(classmethod, t.Generic[T, P, U_co]):
     """
-    Method that may be called either on an instance or on the class.
-    If called on the class, a default instance will be constructed.
+    Decorates a method that may be called either on an instance or the class.
+    If called on the class, a default instance will be constructed before
+    calling the wrapped function.
     """
 
     __func__: t.Callable[Concatenate[T, P], U_co]  # type: ignore
@@ -111,3 +119,8 @@ class opt_classmethod(classmethod, t.Generic[T, P, U_co]):
             t.Callable[P, U_co],
             super().__get__(obj, obj)  # type: ignore
         )
+
+__all__ = [
+    'open_file', 'open_file_binary', 'FileOrPath', 'BinaryFileOrPath',
+    'opt_classmethod', 'localtime', 'map_some',
+]

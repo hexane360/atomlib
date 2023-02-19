@@ -1,3 +1,6 @@
+"""
+Core atomic structure types.
+"""
 from __future__ import annotations
 
 import abc

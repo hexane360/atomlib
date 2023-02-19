@@ -12,6 +12,10 @@
    open_file_binary
 
 
+.. rubric:: Attributes
+
+.. autodata:: FileOrPath
+.. autodata:: BinaryFileOrPath
 
 .. rubric:: Classes
 

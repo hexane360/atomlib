@@ -1,3 +1,11 @@
+"""
+Raw atoms collection
+
+This module defines :class:`Atoms`, which holds a collection of atoms
+with no cell or periodicity. :class:`Atoms` is essentially a wrapper
+around :class:`polars.DataFrame`.
+"""
+
 from __future__ import annotations
 
 import logging
