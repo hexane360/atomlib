@@ -1,6 +1,6 @@
 {{ fullname | escape | underline}}
-
 .. currentmodule:: {{ fullname }}
+.. automodule:: {{ fullname }}
 {% block functions %}{% if functions %}
 .. rubric:: {{ _('Function Summary') }}
 .. autosummary::

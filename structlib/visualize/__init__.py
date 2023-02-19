@@ -1,4 +1,5 @@
 """Visualization of atomic structures. Useful for debugging."""
+from __future__ import annotations
 
 from abc import abstractmethod, ABC
 import typing as t

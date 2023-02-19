@@ -1,10 +1,10 @@
 API Reference
 =============
 
-.. currentmodule:: structlib
-
 Modules
 -------
+
+.. currentmodule:: structlib
 
 .. autosummary::
    :toctree: structlib

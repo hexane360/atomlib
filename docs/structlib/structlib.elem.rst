@@ -1,7 +1,7 @@
 ﻿structlib.elem
 ==============
-
 .. currentmodule:: structlib.elem
+.. automodule:: structlib.elem
 
 .. rubric:: Function Summary
 .. autosummary::

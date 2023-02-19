@@ -23,7 +23,7 @@ def norm(v: ArrayLike) -> numpy.floating:
 
 
 def perp(v1: ArrayLike, v2: ArrayLike) -> NDArray[numpy.floating]:
-    """Return the component of `v1` perpendicular to `v2`."""
+    """Return the component of ``v1`` perpendicular to ``v2``."""
     v1 = numpy.atleast_1d(v1)
     v2 = numpy.atleast_1d(v2)
     v2 /= norm(v2)
@@ -31,7 +31,7 @@ def perp(v1: ArrayLike, v2: ArrayLike) -> NDArray[numpy.floating]:
 
 
 def para(v1: ArrayLike, v2: ArrayLike) -> NDArray[numpy.floating]:
-    """Return the component of `v1` parallel to `v2`."""
+    """Return the component of ``v1`` parallel to ``v2``."""
     v1 = numpy.atleast_1d(v1)
     v2 = numpy.atleast_1d(v2)
     v2 /= norm(v2)
@@ -53,12 +53,12 @@ def split_arr(a: NDArray[ScalarType], axis: int = 0) -> t.Iterator[NDArray[Scala
 def polygon_solid_angle(poly: ArrayLike, pts: t.Optional[ArrayLike] = None,
                         winding: t.Optional[ArrayLike] = None) -> NDArray[numpy.float_]:
     """
-    Return the signed solid angle of the polygon `poly` in the xy plane, as viewed from `pts`.
+    Return the signed solid angle of the polygon ``poly`` in the xy plane, as viewed from ``pts``.
 
-    `poly`: ndarray of shape (..., N, 2)
-    `pts`: ndarray of shape (..., 3)
+    ``poly``: ndarray of shape (..., N, 2)
+    ``pts``: ndarray of shape (..., 3)
 
-    Returns a ndarray of shape `broadcast(poly.shape[:-2], pts.shape[:-1])`
+    Returns a ndarray of shape ``broadcast(poly.shape[:-2], pts.shape[:-1])``
     """
     poly = numpy.atleast_2d(poly).astype(numpy.float_)
     pts = (numpy.array([0., 0., 0.]) if pts is None else numpy.atleast_1d(pts)).astype(numpy.float_)
@@ -98,8 +98,8 @@ def polygon_solid_angle(poly: ArrayLike, pts: t.Optional[ArrayLike] = None,
 
 def polygon_winding(poly: ArrayLike, pt: t.Optional[ArrayLike] = None) -> NDArray[numpy.int_]:
     """
-    Return the winding number of the given 2d polygon `poly` around the point `pt`.
-    If `pt` is not specified, return the polygon's total winding number (turning number).
+    Return the winding number of the given 2d polygon ``poly`` around the point ``pt``.
+    If ``pt`` is not specified, return the polygon's total winding number (turning number).
 
     Vectorized. CCW winding is defined as positive.
     """
@@ -244,5 +244,6 @@ __all__ = [
     'dot', 'norm', 'perp', 'para', 'reduce_vec', 'split_arr', 'to_vec3',
     'polygon_winding', 'polygon_solid_angle', 'in_polygon',
     'miller_4_to_3_vec', 'miller_3_to_4_vec',
-    'miller_4_to_3_plane', 'miller_3_to_4_plane'
+    'miller_4_to_3_plane', 'miller_3_to_4_plane',
+    'ScalarType',
 ]

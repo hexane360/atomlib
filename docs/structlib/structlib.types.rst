@@ -1,7 +1,7 @@
 ﻿structlib.types
 ===============
-
 .. currentmodule:: structlib.types
+.. automodule:: structlib.types
 
 .. rubric:: Function Summary
 .. autosummary::

@@ -41,11 +41,11 @@ class Cell:
     Internal class for representing the coordinate systems of a crystal.
 
     The overall transformation from crystal coordinates to real-space coordinates is
-    is split into four transformations, applied from bottom to top. First is `n_cells`,
+    is split into four transformations, applied from bottom to top. First is ``n_cells``,
     which scales from fractions of a unit cell to fractions of a supercell. Next is
-    `cell_size`, which scales to real-space units. `ortho` is an orthogonalization
+    ``cell_size``, which scales to real-space units. ``ortho`` is an orthogonalization
     matrix, a det = 1 upper-triangular matrix which transforms crystal axes to
-    an orthogonal coordinate system. Finally, `affine` contains any remaining
+    an orthogonal coordinate system. Finally, ``affine`` contains any remaining
     transformations to the local coordinate system, which atoms are stored in.
     """
 

@@ -1,7 +1,7 @@
 ﻿structlib.io
 ============
-
 .. currentmodule:: structlib.io
+.. automodule:: structlib.io
 
 .. rubric:: Function Summary
 .. autosummary::

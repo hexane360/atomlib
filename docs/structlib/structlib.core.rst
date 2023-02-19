@@ -1,7 +1,7 @@
 ﻿structlib.core
 ==============
-
 .. currentmodule:: structlib.core
+.. automodule:: structlib.core
 
 
 

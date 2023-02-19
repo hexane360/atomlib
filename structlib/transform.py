@@ -588,4 +588,5 @@ class LinearTransform3D(AffineTransform3D):
 
 __ALL__ = [
     'Transform3D', 'FuncTransform3D', 'AffineTransform3D', 'LinearTransform3D',
+    'IntoTransform3D',
 ]

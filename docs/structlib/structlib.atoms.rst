@@ -1,7 +1,7 @@
 ﻿structlib.atoms
 ===============
-
 .. currentmodule:: structlib.atoms
+.. automodule:: structlib.atoms
 
 
 

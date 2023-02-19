@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 """
 Functions to create cells.
 """
@@ -14,7 +16,7 @@ from ..types import ElemLike, Num
 from ..cell import cell_to_ortho
 
 
-CellType = t.Union[t.Literal['conv'], t.Literal['prim'], t.Literal['ortho']]
+CellType = t.Literal['conv', 'prim', 'ortho']
 
 
 def fcc(elem: ElemLike, a: Num, *, cell: CellType = 'conv', additional: t.Optional[IntoAtoms] = None) -> AtomCell:
@@ -229,3 +231,10 @@ def _ortho_hexagonal(cell: AtomCell) -> AtomCell:
     ortho = cell_to_ortho([a, a * numpy.sqrt(3), c])
 
     return AtomCell.from_ortho(frame, ortho, frame='local')
+
+
+__all__ = [
+    'fcc', 'zincblende', 'fluorite',
+    'graphite', 'wurtzite',
+    'CellType',
+]

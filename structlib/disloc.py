@@ -1,3 +1,7 @@
+"""
+A collection of functions for inserting dislocations into structures.
+"""
+
 import logging
 import warnings
 import typing as t
@@ -15,7 +19,13 @@ from .vec import norm, dot, perp, split_arr, polygon_solid_angle, polygon_windin
 
 
 def ellip_pi(n: NDArray[numpy.float_], m: NDArray[numpy.float_]) -> NDArray[numpy.float_]:
-    """Complete elliptic integral of the third kind"""
+    """
+    Complete elliptic integral of the third kind, :math:`\\Pi(n | m)`.
+
+    Follows the definition of `Wolfram Mathworld`_.
+    
+    .. _Wolfram Mathworld: https://mathworld.wolfram.com/EllipticIntegraloftheThirdKind.html
+    """
     y = 1 - m
     assert numpy.all(y > 0)
 
@@ -24,24 +34,37 @@ def ellip_pi(n: NDArray[numpy.float_], m: NDArray[numpy.float_]) -> NDArray[nump
     return rf + rj * n / 3
 
 
-CutType = t.Union[t.Literal['shift'], t.Literal['add'], t.Literal['rm']]
+CutType = t.Literal['shift', 'add', 'rm']
 
 
 def disloc_edge(atoms: AtomCollectionT, center: VecLike, b: VecLike, t: VecLike, cut: t.Union[CutType, VecLike] = 'shift',
                 *, poisson: float = 0.25) -> AtomCollectionT:
-    """
-    Displace the structure, adding an edge dislocation which passes through `center`, with
-    line vector `t` and burger's vector `b`. `t` will be modified so it is perpendicular to `b`.
+    r"""
+    Add a Volterra edge dislocation to the structure.
 
-    The `cut` parameter defines the cut (discontinuity) plane used to displace the atoms.
-    By default, `cut` is `'shift'`, which defines the cut plane to contain `b`, ensuring no atoms
+    The dislocation will pass through ``center``, with line vector ``t`` and Burgers vector ``b``.
+    ``t`` will be modified such that it is perpendicular to ``b``.
+
+    The ``cut`` parameter defines the cut (discontinuity) plane used to displace the atoms.
+    By default, ``cut`` is ``'shift'``, which defines the cut plane to contain ``b``, ensuring no atoms
     need to be added or removed.
-    Instead, `add` or `rm` may be specified, which defines the cut plane as containing `b x t`.
-    this mode, atoms will be added or removed to create the dislocation.
-    Alternatively, a vector `cut` may be supplied. The cut plane will contain this vector.
+    Instead, ``'add'`` or ``'rm'`` may be specified, which defines the cut plane as containing
+    :math:`\mathbf{b} \times \mathbf{t}`. In this mode, atoms will be added or removed
+    in the plane of `b` to create the dislocation. Alternatively, a vector ``cut``
+    may be supplied. The cut plane will contain this vector.
+
+    In the coordinate system where ``t`` is along ``z``, and ``b`` is along ``+x``, the displacement
+    due to the edge dislocation can be calculated as follows:
+
+    .. math::
+       u_x &= \frac{b}{2\pi} \left( \arctan(x, y) + \frac{x y}{2(x^2 + y^2)(1-\nu)} \right) \\
+       u_y &= -\frac{b}{4(1-\nu)} \left( (1-2\nu) \ln(x^2 + y^2) + \frac{x^2 - y^2}{x^2 + y^2} \right)
+
+    Where ``x`` and ``y`` are distances from the dislocation center. This creates a discontinuity along
+    the ``-x`` axis. This coordinate system is rotated to support branches along an arbitrary axis.
 
     The dislocation is defined by the FS/RH convention: Performing one loop of positive sense
-    relative to the tangent vector displaces the real crystal one `b` relative to a reference
+    relative to the tangent vector displaces the real crystal one ``b`` relative to a reference
     crystal.
     """
 
@@ -124,16 +147,26 @@ def disloc_edge(atoms: AtomCollectionT, center: VecLike, b: VecLike, t: VecLike,
 
 def disloc_screw(atoms: AtomCollectionT, center: VecLike, b: VecLike, cut: t.Optional[VecLike] = None,
                  sign: bool = True) -> AtomCollectionT:
-    """
-    Displace the structure, adding a screw dislocation which passes through `center` with
-    burger's vector `b`.
+    r"""
+    Add a Volterra screw dislocation to the structure.
 
-    The `cut` parameter defines the cut (discontinuity) plane used to displace the atoms.
-    By default, `cut` is chosen automtically, but it may also be specified as a vector
+    The dislocation will pass through ``center``, with Burgers vector ``b``.
+
+    The ``cut`` parameter defines the cut (discontinuity) plane used to displace the atoms.
+    By default, ``cut`` is chosen automtically, but it may also be specified as a vector
     which points from the dislocation core towards the cut plane (not normal to the cut plane!)
 
+    The screw dislocation in an isotropic medium has a particularily simple form, given by:
+
+    .. math::
+       \mathbf{u} = \frac{\mathbf{b}}{2\pi} \arctan(x, y)
+
+    for a dislocation along ``+z`` with cut plane along ``-x``. To support arbitrary cut planes,
+    ``x`` and ``y`` are replaced by the components of ``r`` parallel and perpendicular to the cut plane,
+    evaluated in the plane of ``b``.
+
     The dislocation is defined by the FS/RH convention: Performing one loop of positive sense
-    relative to the tangent vector displaces the real crystal one `b` relative to a reference
+    relative to the tangent vector displaces the real crystal one ``b`` relative to a reference
     crystal.
     """
 
@@ -173,15 +206,18 @@ def disloc_screw(atoms: AtomCollectionT, center: VecLike, b: VecLike, cut: t.Opt
 
 def disloc_loop_z(atoms: AtomCollectionT, center: VecLike, b: VecLike,
                   loop_r: float, *, poisson: float = 0.25) -> AtomCollectionT:
-    """
-    Displace the structure, adding a circular dislocation loop of radius `loop_r` centered at `center`.
+    r"""
+    Add a square dislocation loop to the structure, assuming an elastically isotropic material.
 
-    The dislocation's sign is defined such that traveling upwards through the loop results in a displacement of `b`.
-    `poisson` is the material's poisson ratio, which affects the shape of dislocations with an edge component.
+    The loop will have radius ``loop_r``, be centered at ``center``, and oriented along the z-axis.
 
-    Adding the loop creates (or removes) a volume of `b dot nA`, where `nA` is the loop's normal times its area.
-    Conequently, this function will add or remove atoms to compensate for this volume change.
+    The dislocation's sign is defined such that traveling upwards through the loop results in a displacement of ``b``.
+    ``poisson`` is the material's poisson ratio, which affects the shape of dislocations with an edge component.
+
+    Adding the loop creates (or removes) a volume of :math:`\mathbf{b} \cdot \mathbf{n}A`, where :math:`\mathbf{n}A` is the loop's
+    normal times its area. Consequently, this function adds or remove atoms to effect this volume change.
     """
+
     center = to_vec3(center)
     b_vec = to_vec3(b)
 
@@ -214,32 +250,19 @@ def disloc_loop_z(atoms: AtomCollectionT, center: VecLike, b: VecLike,
     pts = frame.coords()
     disps = _loop_disp_z(pts, b_vec, loop_r, poisson=poisson, branch=branch)
 
-    """
-    # debugging
-    from matplotlib import pyplot
-    fig, axs = pyplot.subplots(ncols=3)
-    axs[0].hist(disps[:, 0])
-    axs[1].hist(disps[:, 1])
-    axs[2].hist(disps[:, 2])
-    pyplot.show()
-
-    i_max_x = numpy.argmax(disps[:, 0])
-    print(f"maximum x displacement: {disps[i_max_x]} @ {pts[i_max_x]}")
-    """
-
     return atoms._replace_atoms(frame.with_coords(pts + disps + center), 'local')
 
 
 def disloc_square_z(atoms: AtomCollectionT, center: VecLike, b: VecLike,
                     loop_r: float, *, poisson: float = 0.25) -> AtomCollectionT:
-    """
-    Displace the structure, adding a square dislocation loop of radius `loop_r` centered at `center`.
+    r"""
+    Add a square dislocation loop to the structure, assuming an elastically isotropic material.
 
-    The dislocation's sign is defined such that traveling upwards through the loop results in a displacement of `b`.
-    `poisson` is the material's poisson ratio, which affects the shape of dislocations with an edge component.
+    The dislocation's sign is defined such that traveling upwards through the loop results in a displacement of ``b``.
+    ``poisson`` is the material's poisson ratio, which affects the shape of dislocations with an edge component.
 
-    Adding the loop creates (or removes) a volume of `b dot nA`, where `nA` is the loop's normal times its area.
-    Consequently, this function will add or remove atoms to compensate for this volume change.
+    Adding the loop creates (or removes) a volume of :math:`\mathbf{b} \cdot \mathbf{n}A`, where :math:`\mathbf{n}A` is the loop's
+    normal times its area. Consequently, this function adds or remove atoms to effect this volume change.
     """
     poly = loop_r * numpy.array([(1, 1), (-1, 1), (-1, -1), (1, -1)])
     return disloc_poly_z(atoms, b, poly, center, poisson=poisson)
@@ -247,15 +270,18 @@ def disloc_square_z(atoms: AtomCollectionT, center: VecLike, b: VecLike,
 
 def disloc_poly_z(atoms: AtomCollectionT, b: VecLike, poly: ArrayLike, center: t.Optional[VecLike] = None,
                   *, poisson: float = 0.25) -> AtomCollectionT:
-    """
-    Displace the structure, adding a dislocation loop defined by the polygon `poly`.
+    r"""
+    Add a dislocation loop defined by the polygon ``poly``, assuming an elastically isotropic material.
 
-    `poly` should be a 2d polygon (shape (N, 2)). It will be placed at `center`, in the plane `z=center[2]`.
-    For CCW winding order, traveling upwards through the plane of the loop results in a displacement of `b`.
-    `poisson` is the material's poisson ratio, which affects the shape of dislocations with an edge component.
+    ``poly`` should be a 2d polygon (shape ``(N, 2)``). It will be placed at ``center``, in the plane ``z=center[2]``.
+    For CCW winding order, traveling upwards through the plane of the loop results in a displacement of ``b``.
+    ``poisson`` is the material's poisson ratio, which affects the shape of dislocations with an edge component.
 
-    Adding the loop creates (or removes) a volume of `b dot nA`, where `nA` is the loop's normal times its area.
-    this function will add or remove atoms to compensate for this volume change.
+    Adding the loop creates (or removes) a volume of :math:`\mathbf{b} \cdot \mathbf{n}A`, where :math:`\mathbf{n}A` is the loop's
+    normal times its area. Consequently, this function adds or remove atoms to effect this volume change.
+
+    Follows the solution in `Hirth, J. P. & Lothe, J. (1982). Theory of Dislocations. ISBN 0-89464-617-6
+    <https://www.google.com/books/edition/Theory_of_Dislocations/TAjwAAAAMAAJ>`_
     """
     center = to_vec3(center or [0., 0., 0.])
     b_vec = to_vec3(b)
@@ -294,17 +320,6 @@ def disloc_poly_z(atoms: AtomCollectionT, b: VecLike, poly: ArrayLike, center: t
         coords = coords - center
 
     disp = _poly_disp_z(coords, b_vec, poly, poisson=poisson, branch=branch)
-
-    """
-    # Debugging
-    frame = frame.with_columns((
-        polars.lit(disp[..., 0]).alias('disp_x'),
-        polars.lit(disp[..., 1]).alias('disp_y'),
-        polars.lit(disp[..., 2]).alias('disp_z'),
-        polars.lit(numpy.linalg.norm(disp, axis=-1)).alias('disp'),
-    ))
-    print(frame.filter(polars.col('disp') > 3.*numpy.linalg.norm(b_vec)))
-    """
 
     return atoms._replace_atoms(frame.with_coords(coords + disp + center), 'local')
 
@@ -385,3 +400,9 @@ def _loop_disp_z(pts: NDArray[numpy.float_], b_vec: numpy.ndarray, loop_r: float
         b2/rho**2 * (f1*y**2 + f2*x**2) + b1*x*y/rho**2 * (f1 - f2) + b3*y/rho * g1,
         b1*x/rho * f3 + b2*y/rho * f3 + b3 * g3
     ], axis=-1)
+
+
+__all__ = [
+    'disloc_edge', 'disloc_screw', 'disloc_loop_z', 'disloc_poly_z', 'disloc_square_z',
+    'ellip_pi', 'CutType',
+]

@@ -1,7 +1,7 @@
 ﻿structlib.make
 ==============
-
 .. currentmodule:: structlib.make
+.. automodule:: structlib.make
 
 .. rubric:: Function Summary
 .. autosummary::

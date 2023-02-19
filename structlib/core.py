@@ -291,7 +291,11 @@ class AtomCell(AtomCollection):
         new_atoms = self.get_atoms(frame).crop(x_min, x_max, y_min, y_max, z_min, z_max)
         return self._replace_atoms(new_atoms, frame)
 
-    def wrap(self, eps: float = 1e-5):
+    def crop_to_box(self, eps: float = 1e-5) -> AtomCell:
+        new_atoms = self.get_atoms('cell_box').crop(*([-eps, 1-eps]*3))
+        return self._replace_atoms(new_atoms, 'cell_box')
+
+    def wrap(self, eps: float = 1e-5) -> AtomCell:
         atoms = self.get_atoms('cell_box')
         coords = atoms.coords()
         coords = (coords + eps) % 1. - eps
@@ -320,6 +324,28 @@ class AtomCell(AtomCollection):
         if self.is_orthogonal():
             return OrthoCell(self.atoms, self.cell, frame=self.frame)
         raise NotImplementedError()
+
+    def _repeat_to_contain(self, pts: numpy.ndarray, frame: CoordinateFrame = 'cell_frac') -> AtomCell:
+        pts = self.cell.get_transform('cell_frac', frame) @ pts
+
+        bbox = BBox3D.unit() | BBox3D.from_pts(pts)
+        min_bounds = numpy.ceil(bbox.min).astype(int)
+        max_bounds = numpy.floor(bbox.max).astype(int)
+
+        cells = numpy.stack(numpy.meshgrid(
+            *(numpy.arange(min, max) for (min, max) in zip(min_bounds, max_bounds))
+        )).reshape(3, -1).T.astype(float)
+
+        atoms = self.get_atoms('cell_frac')
+        atoms = Atoms.concat([
+            atoms.transform(AffineTransform3D.translate(cell))
+            for cell in cells
+        ])
+        print(f"bounds: {min_bounds}, {max_bounds}")
+        cell = self.cell \
+            .repeat(max_bounds - min_bounds)
+            #.transform_cell(AffineTransform3D.translate(min_bounds), 'cell_frac') \
+        return AtomCell(atoms, cell, frame='cell_frac')
 
     def repeat(self, n: t.Union[int, VecLike]) -> AtomCell:
         """Tile the cell"""
