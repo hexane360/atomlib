@@ -1,7 +1,7 @@
 
 import numpy
 
-from . import fcc, wurtzite, graphite, zincblende, fluorite
+from . import fcc, wurtzite, graphite, zincblende, fluorite, slab
 from .. import AtomCell, Atoms
 from ..transform import LinearTransform3D
 from tests.util import check_equals_structure
@@ -99,6 +99,18 @@ def test_znse_ortho():
 @check_equals_structure('ZnSe_prim.xsf')
 def test_znse_prim():
     return zincblende('ZnSe', 5.66, cell='prim')
+
+
+@check_equals_structure('CeO2_112_slab.xsf')
+def test_slab_ceo2_112():
+    cell = fluorite('CeO2', 5.47, cell='prim')
+    return slab(cell, [1, 1, 2], [0, 0, 1])
+
+
+@check_equals_structure('CeO2_100_slab.xsf')
+def test_slab_ceo2_100():
+    cell = fluorite('CeO2', 5.47, cell='conv')
+    return slab(cell, [1, 0, 0], [0, 0, 1])
 
 
 def test_graphite():

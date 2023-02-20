@@ -4,6 +4,7 @@ from __future__ import annotations
 Functions to create cells.
 """
 
+import logging
 import typing as t
 
 import numpy
@@ -13,7 +14,9 @@ from ..core import Atoms, AtomCell, IntoAtoms
 from ..transform import LinearTransform3D
 from ..elem import get_elem, get_elems
 from ..types import ElemLike, Num
-from ..cell import cell_to_ortho
+from ..cell import cell_to_ortho, Cell
+from ..vec import reduce_vec, split_arr
+from ..bbox import BBox3D
 
 
 CellType = t.Literal['conv', 'prim', 'ortho']
@@ -216,6 +219,70 @@ def fluorite(elems: t.Union[str, t.Sequence[ElemLike]], a: Num, *,
     return fcc(elems[0], a, cell=cell, additional=additional)
 
 
+def slab(atoms: AtomCell, zone, horz, *, max_n=50, tol=0.01):
+    """
+    Create an periodic orthogonal slab of the periodic cell ``atoms``.
+
+    ``zone`` in the original crystal will point along the +z-axis,
+    and ``horz`` (minus the ``zone`` component) wil point along the +x-axis.
+
+    Finds a periodic orthogonal slab with less than ``tol`` amount of strain,
+    and no more than ``max_n`` cells on one side.
+    """
+
+    # align `zone` with the z-axis, and `horz` with the x-axis
+    zone = reduce_vec(zone)  # ensure `zone` is a lattice vector
+    # TODO should this go from 'local' or 'ortho'?
+    cell_transform = atoms.cell.get_transform('local', 'cell_frac').to_linear()
+    align_transform = LinearTransform3D.align(cell_transform @ zone, cell_transform @ horz)
+    transform = (align_transform @ cell_transform)
+    z = transform @ zone
+    numpy.testing.assert_allclose(z / numpy.linalg.norm(z), [0., 0., 1.], atol=1e-6)
+
+    # generate lattice points
+    lattice_coords = numpy.stack(numpy.meshgrid(*[numpy.arange(-max_n, max_n)]*3), axis=-1).reshape(-1, 3)
+    realspace_coords = transform @ lattice_coords
+    realspace_norm = numpy.linalg.norm(realspace_coords, axis=-1)
+
+    # sort coordinates from smallest to largest (TODO this method is slow)
+    sorting = realspace_norm.argsort()[1:]
+    realspace_norm = realspace_norm[sorting]
+    lattice_coords = lattice_coords[sorting]
+    realspace_coords = realspace_coords[sorting]
+    tols = realspace_norm * tol
+
+    # find lattice points which are acceptablly close to orthogonal
+    (x_close, y_close, z_close) = split_arr(numpy.abs(realspace_coords) < tols[:, None], axis=-1)
+
+    try:
+        x_i = numpy.argwhere(z_close & ~x_close & y_close)[0, 0],
+        y_i = numpy.argwhere(z_close & ~y_close & x_close)[0, 0],
+
+        logging.info(f"x: {lattice_coords[x_i]} transforms to {realspace_coords[x_i]}")
+        logging.info(f"y: {lattice_coords[y_i]} transforms to {realspace_coords[y_i]}")
+        logging.info(f"z: {zone} transforms to {z}")
+    except IndexError:
+        raise ValueError("Couldn't find a viable surface along zone {zone}") from None
+
+    # orient vectors correctly
+    x = realspace_coords[x_i] * numpy.sign(realspace_coords[x_i][0])
+    y = realspace_coords[y_i] * numpy.sign(realspace_coords[y_i][1])
+
+    # repeat original lattice to cover orthogonal lattice
+    pts = transform.inverse() @ BBox3D.from_pts([numpy.zeros(3), x, y, z]).corners()
+    raw_atoms = atoms._repeat_to_contain(pts).get_atoms('local').transform(align_transform)
+    cell = Cell.from_ortho(LinearTransform3D(numpy.stack([x, y, z], axis=0)))
+    raw_atoms = raw_atoms.transform(cell.get_transform('cell', 'local'))
+
+    # strain cell to orthogonal
+    cell = Cell(
+        affine=cell.affine,
+        ortho=LinearTransform3D(),
+        cell_size=cell.cell_size,
+        n_cells=cell.n_cells
+    )
+
+    return AtomCell(raw_atoms, cell, frame='cell').crop_to_box()
 
 
 def _ortho_hexagonal(cell: AtomCell) -> AtomCell:

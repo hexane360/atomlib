@@ -328,26 +328,24 @@ class AtomCell(AtomCollection):
             return OrthoCell(self.atoms, self.cell, frame=self.frame)
         raise NotImplementedError()
 
-    def _repeat_to_contain(self, pts: numpy.ndarray, frame: CoordinateFrame = 'cell_frac') -> AtomCell:
+    def _repeat_to_contain(self, pts: numpy.ndarray, pad: int = 0, frame: CoordinateFrame = 'cell_frac') -> AtomCell:
+        #print(f"pts: {pts} in frame {frame}")
         pts = self.cell.get_transform('cell_frac', frame) @ pts
 
         bbox = BBox3D.unit() | BBox3D.from_pts(pts)
-        min_bounds = numpy.ceil(bbox.min).astype(int)
-        max_bounds = numpy.floor(bbox.max).astype(int)
-
-        cells = numpy.stack(numpy.meshgrid(
-            *(numpy.arange(min, max) for (min, max) in zip(min_bounds, max_bounds))
-        )).reshape(3, -1).T.astype(float)
+        min_bounds = numpy.floor(bbox.min).astype(int) - pad
+        max_bounds = numpy.ceil(bbox.max).astype(int) + pad
+        #print(f"tiling to {min_bounds}, {max_bounds}")
+        repeat = max_bounds - min_bounds
+        cells = numpy.stack(numpy.meshgrid(*map(numpy.arange, repeat))).reshape(3, -1).T.astype(float)
 
         atoms = self.get_atoms('cell_frac')
         atoms = Atoms.concat([
             atoms.transform(AffineTransform3D.translate(cell))
             for cell in cells
         ])
-        print(f"bounds: {min_bounds}, {max_bounds}")
-        cell = self.cell \
-            .repeat(max_bounds - min_bounds)
-            #.transform_cell(AffineTransform3D.translate(min_bounds), 'cell_frac') \
+        cell = self.cell.repeat(repeat) \
+            .transform_cell(AffineTransform3D.translate(min_bounds), 'cell_frac')
         return AtomCell(atoms, cell, frame='cell_frac')
 
     def repeat(self, n: t.Union[int, VecLike]) -> AtomCell:
