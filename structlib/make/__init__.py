@@ -272,16 +272,10 @@ def slab(atoms: AtomCell, zone, horz, *, max_n=50, tol=0.01):
     pts = transform.inverse() @ BBox3D.from_pts([numpy.zeros(3), x, y, z]).corners()
     raw_atoms = atoms._repeat_to_contain(pts).get_atoms('local').transform(align_transform)
     cell = Cell.from_ortho(LinearTransform3D(numpy.stack([x, y, z], axis=0)))
+
+    # strain cell to orthogonal (with atoms in the ``cell`` frame)
     raw_atoms = raw_atoms.transform(cell.get_transform('cell', 'local'))
-
-    # strain cell to orthogonal
-    cell = Cell(
-        affine=cell.affine,
-        ortho=LinearTransform3D(),
-        cell_size=cell.cell_size,
-        n_cells=cell.n_cells
-    )
-
+    cell = cell.strain_orthogonal()
     return AtomCell(raw_atoms, cell, frame='cell').crop_to_box()
 
 

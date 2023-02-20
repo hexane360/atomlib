@@ -32,7 +32,7 @@ Num = t.Union[float, int]
 ElemLike = t.Union[str, int]
 """Element-like"""
 
-NumDTypeT = t.TypeVar('NumDTypeT', bound=numpy.number[t.Any])
+NumDTypeT = t.TypeVar('NumDTypeT', bound=numpy.generic)
 DTypeT = t.TypeVar('DTypeT', bound=numpy.dtype[t.Any])
 
 
@@ -44,7 +44,7 @@ def to_vec3(v: VecLike, dtype: None = None) -> NDArray[numpy.float_]:
 def to_vec3(v: VecLike, dtype: t.Type[NumDTypeT]) -> NDArray[NumDTypeT]:
     ...
 
-def to_vec3(v: VecLike, dtype: t.Optional[t.Type[numpy.number[t.Any]]] = None) -> NDArray[numpy.number[t.Any]]:
+def to_vec3(v: VecLike, dtype: t.Optional[t.Type[numpy.generic]] = None) -> NDArray[numpy.generic]:
     try:
         v = numpy.broadcast_to(v, (3,)).astype(dtype or numpy.float_)
     except (ValueError, TypeError):

@@ -69,10 +69,20 @@ class Cell:
     @property
     def ortho_size(self) -> NDArray[numpy.float_]:
         """
-        Return size of orthogonal unit cell. Equivalent
-        to the diagonal of the orthogonalization matrix.
+        Return size of orthogonal unit cell.
+
+        Equivalent to the diagonal of the orthogonalization matrix.
         """
         return self.cell_size * numpy.diag(self.ortho.inner)
+
+    @property
+    def box_size(self) -> NDArray[numpy.float_]:
+        """
+        Return size of the cell box.
+
+        Equivalent to ``self.n_cells * self.cell_size``.
+        """
+        return self.n_cells * self.cell_size
 
     def corners(self, frame: CoordinateFrame = 'local') -> numpy.ndarray:
         corners = numpy.array(list(itertools.product((0., 1.), repeat=3)))
@@ -148,6 +158,20 @@ class Cell:
             ortho=self.ortho,
             cell_size=self.cell_size,
             cell_angle=self.cell_angle,
+            n_cells=self.n_cells,
+        )
+
+    def strain_orthogonal(self) -> Cell:
+        """
+        Orthogonalize the cell using strain.
+
+        Strain is applied such that the x-axis remains fixed, and the y-axis remains in the xy plane.
+        For small displacements, no hydrostatic strain is applied (volume is conserved).
+        """
+        return Cell(
+            affine=self.affine,
+            ortho=LinearTransform3D(),
+            cell_size=self.cell_size,
             n_cells=self.n_cells,
         )
 

@@ -364,20 +364,69 @@ class AtomCell(AtomCollection):
         ]) #.transform(self.cell.get_transform('local', 'cell_frac'))
         return AtomCell(atoms, self.cell.repeat(ns), frame='cell_frac')
 
+    def repeat_to(self, size: VecLike, crop: t.Union[bool, t.Sequence[bool]] = False) -> AtomCell:
+        """
+        Repeat the cell so it is at least ``size`` along the crystal's axes.
+
+        If ``crop``, then crop the cell to exactly ``size``. This may break periodicity.
+        ``crop`` may be a vector, in which case you can specify cropping only along some axes.
+        """
+        size = to_vec3(size)
+        cell_size = self.cell.cell_size * self.cell.n_cells
+        repeat = numpy.maximum(numpy.ceil(size / cell_size).astype(int), 1)
+        crop_x, crop_y, crop_z = to_vec3(crop, dtype=numpy.bool_)
+        return self.repeat(repeat).crop(
+            x_max = size[0] if crop_x else numpy.inf,
+            y_max = size[1] if crop_y else numpy.inf,
+            z_max = size[2] if crop_z else numpy.inf,
+            frame='cell_frac'
+        )
+
+    def repeat_x(self, n: int) -> AtomCell:
+        """Tile the cell in the x axis."""
+        return self.repeat((n, 1, 1))
+
+    def repeat_y(self, n: int) -> AtomCell:
+        """Tile the cell in the y axis."""
+        return self.repeat((1, n, 1))
+
+    def repeat_z(self, n: int) -> AtomCell:
+        """Tile the cell in the z axis."""
+        return self.repeat((1, 1, n))
+
+    def repeat_to_x(self, size: float, crop: bool = False) -> AtomCell:
+        """Repeat the cell so it is at least size ``size`` along the x axis."""
+        return self.repeat_to([size, 0., 0.], [crop, False, False])
+
+    def repeat_to_y(self, size: float, crop: bool = False) -> AtomCell:
+        """Repeat the cell so it is at least size ``size`` along the y axis."""
+        return self.repeat_to([0., size, 0.], [False, crop, False])
+
+    def repeat_to_z(self, size: float, crop: bool = False) -> AtomCell:
+        """Repeat the cell so it is at least size ``size`` along the z axis."""
+        return self.repeat_to([0., 0., size], [False, False, crop])
+
     def explode(self) -> AtomCell:
+        """
+        Forget any cell repetitions.
+
+        Afterwards, ``cell.cell.cell_size * cell.cell.n_cells == cell.explode().cell.cell_size``.
+        """
         self.get_atoms('local')
         return AtomCell(self.atoms, self.cell.explode(), frame='local')
 
     def clone(self: AtomCellT) -> AtomCellT:
+        """Make a deep copy of ``self``."""
         return self.__class__(**{field.name: copy.deepcopy(getattr(self, field.name)) for field in fields(self)})
 
     def write_mslice(self, f: FileOrPath, template: t.Optional[MSliceTemplate] = None):
-        """Read this structure to an mslice file."""
+        """Write this structure to an mslice file."""
         return io.write_mslice(self, f, template)
 
     __mul__ = repeat
 
     def assert_equal(self, other: t.Any):
+        """Assert this structure is equal to """
         assert isinstance(other, AtomCell)
         self.cell.assert_equal(other.cell)
         self.get_atoms('local').assert_equal(other.get_atoms('local'))
