@@ -8,10 +8,7 @@ import numpy
 from numpy.typing import ArrayLike, NDArray
 
 # re-export to_vec3
-from .types import to_vec3
-
-
-ScalarType = t.TypeVar("ScalarType", bound=numpy.generic, covariant=True)
+from .types import to_vec3, ScalarT
 
 
 def dot(v1: ArrayLike, v2: ArrayLike, axis: int = -1, keepdims: bool = True) -> NDArray[numpy.floating]:
@@ -46,7 +43,7 @@ def is_diagonal(matrix: numpy.ndarray, tol: float = 1e-10) -> bool:
     return bool((numpy.abs(offdiag) < tol).all())
 
 
-def split_arr(a: NDArray[ScalarType], axis: int = 0) -> t.Iterator[NDArray[ScalarType]]:
+def split_arr(a: NDArray[ScalarT], axis: int = 0) -> t.Iterator[NDArray[ScalarT]]:
     return (numpy.squeeze(sub_a, axis) for sub_a in numpy.split(a, a.shape[axis], axis))
 
 
@@ -175,7 +172,7 @@ def in_polygon(poly: numpy.ndarray, pt: t.Optional[numpy.ndarray] = None, *,
                      "'nonzero', 'evenodd', 'positive', or 'negative'.")
 
 
-def reduce_vec(a: numpy.ndarray, max_denom: int = 10000) -> numpy.ndarray:
+def reduce_vec(a: NDArray[numpy.number], max_denom: int = 10000) -> NDArray[numpy.int_]:
     """
     Reduce a crystallographic vector (int or float) to lowest common terms.
     Example: reduce_vec([3, 3, 3]) = [1, 1, 1]
@@ -185,7 +182,7 @@ def reduce_vec(a: numpy.ndarray, max_denom: int = 10000) -> numpy.ndarray:
     if not numpy.issubdtype(a.dtype, numpy.floating):
         return a // numpy.gcd.reduce(a, axis=-1, keepdims=True)
 
-    a /= numpy.max(numpy.abs(a))
+    a = a / numpy.max(numpy.abs(a))
 
     n = numpy.empty(shape=a.shape, dtype=numpy.int64)
     d = numpy.empty(shape=a.shape, dtype=numpy.int64)
@@ -200,7 +197,7 @@ def reduce_vec(a: numpy.ndarray, max_denom: int = 10000) -> numpy.ndarray:
     return n // numpy.gcd.reduce(n, axis=-1, keepdims=True)
 
 
-def miller_4_to_3_vec(a: numpy.ndarray, reduce: bool = True, max_denom: int = 10000) -> numpy.ndarray:
+def miller_4_to_3_vec(a: NDArray[numpy.number], reduce: bool = True, max_denom: int = 10000) -> NDArray[numpy.number]:
     """Convert a vector in 4-axis Miller-Bravais notation to 3-axis Miller notation."""
     a = numpy.atleast_1d(a)
     assert a.shape[-1] == 4
@@ -210,7 +207,7 @@ def miller_4_to_3_vec(a: numpy.ndarray, reduce: bool = True, max_denom: int = 10
     return reduce_vec(out, max_denom) if reduce else out
 
 
-def miller_3_to_4_vec(a: numpy.ndarray, reduce: bool = True, max_denom: int = 10000) -> numpy.ndarray:
+def miller_3_to_4_vec(a: NDArray[numpy.number], reduce: bool = True, max_denom: int = 10000) -> NDArray[numpy.number]:
     """Convert a vector in 3-axis Miller notation to 4-axis Miller-Bravais notation."""
     a = numpy.atleast_1d(a)
     assert a.shape[-1] == 3
@@ -222,7 +219,7 @@ def miller_3_to_4_vec(a: numpy.ndarray, reduce: bool = True, max_denom: int = 10
     return reduce_vec(out, max_denom) if reduce else out
 
 
-def miller_4_to_3_plane(a: numpy.ndarray, reduce: bool = True, max_denom: int = 10000) -> numpy.ndarray:
+def miller_4_to_3_plane(a: NDArray[numpy.number], reduce: bool = True, max_denom: int = 10000) -> NDArray[numpy.number]:
     """Convert a plane in 4-axis Miller-Bravais notation to 3-axis Miller notation."""
     a = numpy.atleast_1d(a)
     assert a.shape[-1] == 4
@@ -232,7 +229,7 @@ def miller_4_to_3_plane(a: numpy.ndarray, reduce: bool = True, max_denom: int = 
     return reduce_vec(out, max_denom) if reduce else out
 
 
-def miller_3_to_4_plane(a: numpy.ndarray, reduce: bool = True, max_denom: int = 10000) -> numpy.ndarray:
+def miller_3_to_4_plane(a: NDArray[numpy.number], reduce: bool = True, max_denom: int = 10000) -> NDArray[numpy.number]:
     """Convert a plane in 3-axis Miller notation to 4-axis Miller-Bravais notation."""
     a = numpy.atleast_1d(a)
     assert a.shape[-1] == 3
@@ -246,5 +243,4 @@ __all__ = [
     'polygon_winding', 'polygon_solid_angle', 'in_polygon',
     'miller_4_to_3_vec', 'miller_3_to_4_vec',
     'miller_4_to_3_plane', 'miller_3_to_4_plane',
-    'ScalarType',
 ]

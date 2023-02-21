@@ -32,8 +32,8 @@ Num = t.Union[float, int]
 ElemLike = t.Union[str, int]
 """Element-like"""
 
-NumDTypeT = t.TypeVar('NumDTypeT', bound=numpy.generic)
-DTypeT = t.TypeVar('DTypeT', bound=numpy.dtype[t.Any])
+NumT = t.TypeVar('NumT', bound=numpy.number)
+ScalarT = t.TypeVar('ScalarT', bound=numpy.generic)
 
 
 @t.overload
@@ -41,7 +41,7 @@ def to_vec3(v: VecLike, dtype: None = None) -> NDArray[numpy.float_]:
     ...
 
 @t.overload
-def to_vec3(v: VecLike, dtype: t.Type[NumDTypeT]) -> NDArray[NumDTypeT]:
+def to_vec3(v: VecLike, dtype: t.Type[ScalarT]) -> NDArray[ScalarT]:
     ...
 
 def to_vec3(v: VecLike, dtype: t.Optional[t.Type[numpy.generic]] = None) -> NDArray[numpy.generic]:
@@ -52,7 +52,8 @@ def to_vec3(v: VecLike, dtype: t.Optional[t.Type[numpy.generic]] = None) -> NDAr
     return v
 
 __all__ = [
-    'Vec3', 'VecLike', 'Pts3DLike', 'Num', 'ElemLike',
+    'Vec3', 'VecLike', 'Pts3DLike', 'ElemLike',
+    'ScalarT', 'NumT', 'Num',
     'ParamSpec', 'Concatenate',
-    'to_vec3'
+    'to_vec3',
 ]

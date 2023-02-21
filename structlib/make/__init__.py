@@ -13,7 +13,7 @@ import polars
 from ..core import Atoms, AtomCell, IntoAtoms
 from ..transform import LinearTransform3D
 from ..elem import get_elem, get_elems
-from ..types import ElemLike, Num
+from ..types import ElemLike, Num, VecLike
 from ..cell import cell_to_ortho, Cell
 from ..vec import reduce_vec, split_arr
 from ..bbox import BBox3D
@@ -176,6 +176,8 @@ def zincblende(elems: t.Union[str, t.Sequence[ElemLike]], a: Num, *,
             'z': [0.25, 0.75, 0.75, 0.25],
             'elem': [elems[1]] * 4,
         }
+    else:
+        raise ValueError(f"Unknown cell type '{cell}'. Expected 'conv', 'prim', or 'ortho'.")
 
     return fcc(elems[0], a, cell=cell, additional=additional)
 
@@ -215,8 +217,51 @@ def fluorite(elems: t.Union[str, t.Sequence[ElemLike]], a: Num, *,
             'z': [0.25, 0.75, 0.25, 0.75, 0.25, 0.75, 0.25, 0.75],
             'elem': [elems[1]] * 8,
         }
+    else:
+        raise ValueError(f"Unknown cell type '{cell}'. Expected 'conv', 'prim', or 'ortho'.")
 
     return fcc(elems[0], a, cell=cell, additional=additional)
+
+
+def perovskite(elems: t.Union[str, t.Sequence[ElemLike]], cell_size: VecLike, *,
+               cell: CellType = 'conv') -> AtomCell:
+    """
+    Create a perovskite structure :math:`ABX_3`.
+
+    ``A`` is placed at the origin and ``B`` is placed at the cell center.
+    ``cell_size`` determines whether a cubic, tetragonal, or orthorhombic
+    structure is created. For instance, ``cell_size=3.`` returns a cubic
+    structure, while ``cell_size=[3., 5.]`` returns a tetragonal structure
+    ``a=3.``, ``c=5.``.
+
+    All cell types are the same for perovskite, so the ``cell`` parameter
+    has no effect.
+    """
+    if isinstance(elems, str):
+        elems = get_elems(elems)
+    else:
+        elems = list(map(get_elem, elems))
+
+    if len(elems) != 3:
+        raise ValueError("Expected two elements.")
+
+    cell_size = numpy.atleast_1d(cell_size)
+    if cell_size.squeeze().ndim > 1:
+        raise ValueError("Expected a 1D vector")
+    if len(cell_size) == 2:
+        # tetragonal shortcut
+        cell_size = numpy.array([cell_size[0], cell_size[0], cell_size[1]])
+
+    if cell not in ('prim', 'ortho', 'conv'):
+        raise ValueError(f"Unknown cell type '{cell}'. Expected 'conv', 'prim', or 'ortho'.")
+
+    xs = [0., 0.5, 0., 0.5, 0.5]
+    ys = [0., 0.5, 0.5, 0., 0.5]
+    zs = [0., 0.5, 0.5, 0.5, 0.]
+    elems = [elems[0], elems[1], *([elems[2]] * 3)]
+
+    atoms = Atoms(dict(x=xs, y=ys, z=zs, elem=elems))
+    return AtomCell(atoms, Cell.from_unit_cell(cell_size), frame='cell_frac')
 
 
 def slab(atoms: AtomCell, zone, horz, *, max_n=50, tol=0.01):

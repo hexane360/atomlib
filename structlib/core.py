@@ -410,7 +410,7 @@ class AtomCell(AtomCollection):
         """
         Forget any cell repetitions.
 
-        Afterwards, ``cell.cell.cell_size * cell.cell.n_cells == cell.explode().cell.cell_size``.
+        Afterwards, ``self.explode().cell.cell_size == self.cell.box_size``.
         """
         self.get_atoms('local')
         return AtomCell(self.atoms, self.cell.explode(), frame='local')
