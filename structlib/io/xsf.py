@@ -10,15 +10,46 @@ import logging
 import typing as t
 
 import numpy
+from numpy.typing import NDArray
 import polars
 
 from ..transform import LinearTransform3D
 from ..util import open_file, FileOrPath
 
-Periodicity = t.Union[t.Literal['crystal'], t.Literal['slab'], t.Literal['polymer'], t.Literal['molecule']]
+Periodicity = t.Literal['crystal', 'slab', 'polymer', 'molecule']
 
 if t.TYPE_CHECKING:
     from ..core import AtomCell, AtomCollection
+
+
+_PBCS: t.Dict[Periodicity, NDArray[numpy.bool_]] = {
+    'molecule': numpy.array([0, 0, 0], dtype=numpy.bool_),
+    'polymer': numpy.array([1, 0, 0], dtype=numpy.bool_),
+    'slab': numpy.array([1, 1, 0], dtype=numpy.bool_),
+    'crystal': numpy.array([1, 1, 1], dtype=numpy.bool_),
+}
+
+
+def _periodicity_to_pbc(periodicity: Periodicity) -> NDArray[numpy.bool_]:
+    try:
+        return _PBCS[periodicity]
+    except KeyError:
+        raise ValueError(f"Unknown XSF periodicity '{periodicity}'") from None
+
+
+def _pbc_to_periodicity(pbc: NDArray[numpy.bool_]) -> Periodicity:
+    n = numpy.count_nonzero(pbc)
+    if n == 0:
+        return 'molecule'
+    if n == 3:
+        return 'crystal'
+    # only return 'polymer' for [1, 0, 0]
+    # and 'slab' for [1, 1, 0]
+    if n == 1 and pbc[0]:
+        return 'polymer'
+    if n == 2 and ~pbc[2]:
+        return 'slab'
+    return 'molecule'
 
 
 @dataclass
@@ -40,13 +71,17 @@ class XSF:
             raise NotImplementedError()  # TODO untransform conv_coords by conventional_cell?
         raise ValueError("No coordinates specified in XSF file.")
 
+    def get_pbc(self) -> NDArray[numpy.bool_]:
+        return _periodicity_to_pbc(self.periodicity)
+
     @staticmethod
     def from_cell(cell: AtomCell) -> XSF:
         ortho = cell.cell.to_ortho().to_linear()
         return XSF(
             primitive_cell=ortho,
             conventional_cell=ortho,
-            prim_coords=cell.get_atoms('local').inner
+            prim_coords=cell.get_atoms('local').inner,
+            periodicity=_pbc_to_periodicity(cell.cell.pbc)
         )
 
     @staticmethod
@@ -165,7 +200,7 @@ class XSFParser:
             raise ValueError(f"Expected atom list after keyword 'ATOMS'. Got '{line or 'EOF'}' instead.")
 
         if len(zs) == 0:
-            return polars.DataFrame({}, schema=['elem', 'x', 'y', 'z'])
+            return polars.DataFrame({}, schema=['elem', 'x', 'y', 'z'])  # type: ignore
 
         coord_lens = list(map(len, coords))
         if not all(l == coord_lens[0] for l in coord_lens[1:]):
@@ -253,8 +288,6 @@ class XSFParser:
 
         if len(data) == 0:
             raise ValueError("Unexpected EOF while parsing XSF file.")
-
-        
 
         # most validation is performed in XSF
         return XSF(

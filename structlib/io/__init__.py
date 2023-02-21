@@ -14,7 +14,7 @@ from .cfg import CFG
 from .mslice import write_mslice
 from .lmp import write_lmp
 
-from ..core import AtomCollection, Atoms, SimpleAtoms, AtomCell
+from ..core import AtomCollection, Atoms, SimpleAtoms, AtomCell, Cell
 from ..types import to_vec3
 from ..transform import LinearTransform3D
 from ..elem import get_sym
@@ -85,8 +85,8 @@ def read_xsf(f: t.Union[FileOrPath, XSF]) -> AtomCollection:
     atoms = atoms.with_columns(get_sym(atoms['elem']))
 
     if (primitive_cell := xsf.primitive_cell) is not None:
-        return AtomCell.from_ortho(atoms, primitive_cell)
-        #return cell.transform_atoms(cell.ortho, 'local')  # transform to real-space coordinates
+        cell = Cell.from_ortho(primitive_cell, pbc=xsf.get_pbc())
+        return AtomCell(atoms, cell, frame='local')
     return SimpleAtoms(atoms)
 
 

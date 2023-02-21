@@ -54,17 +54,19 @@ class Cell:
     cell_size: NDArray[numpy.float_]
     cell_angle: NDArray[numpy.float_] = field(default_factory=lambda: numpy.full(3, numpy.pi/2.))
     n_cells: NDArray[numpy.int_] = field(default_factory=lambda: numpy.ones(3, numpy.int_))
+    pbc: NDArray[numpy.bool_] = field(default_factory=lambda: numpy.ones(3, numpy.bool_))
 
     def __init__(self, *,
         affine: t.Optional[AffineTransform3D] = None, ortho: t.Optional[LinearTransform3D] = None,
         cell_size: VecLike, cell_angle: t.Optional[VecLike] = None,
-        n_cells: t.Optional[VecLike] = None):
+        n_cells: t.Optional[VecLike] = None, pbc: t.Optional[VecLike]):
 
         object.__setattr__(self, 'affine', AffineTransform3D() if affine is None else affine)
         object.__setattr__(self, 'ortho', LinearTransform3D() if ortho is None else ortho)
         object.__setattr__(self, 'cell_size', to_vec3(cell_size))
         object.__setattr__(self, 'cell_angle', numpy.full(3, numpy.pi/2.) if cell_angle is None else to_vec3(cell_angle))
         object.__setattr__(self, 'n_cells', numpy.ones(3, numpy.int_) if n_cells is None else to_vec3(n_cells, numpy.int_))
+        object.__setattr__(self, 'pbc', numpy.ones(3, numpy.bool_) if pbc is None else to_vec3(pbc, numpy.bool_))
 
     @property
     def ortho_size(self) -> NDArray[numpy.float_]:
@@ -109,16 +111,18 @@ class Cell:
         )
 
     @staticmethod
-    def from_unit_cell(cell_size: VecLike, cell_angle: t.Optional[VecLike] = None, n_cells: t.Optional[VecLike] = None):
+    def from_unit_cell(cell_size: VecLike, cell_angle: t.Optional[VecLike] = None, n_cells: t.Optional[VecLike] = None,
+                       pbc: t.Optional[VecLike] = None):
         return Cell(
             ortho=cell_to_ortho([1.]*3, cell_angle),
             n_cells=to_vec3([1]*3 if n_cells is None else n_cells, numpy.int_),
             cell_size=to_vec3(cell_size),
             cell_angle=to_vec3([numpy.pi/2.]*3 if cell_angle is None else cell_angle),
+            pbc=pbc
         )
 
     @staticmethod
-    def from_ortho(ortho: AffineTransform3D, n_cells: t.Optional[VecLike] = None):
+    def from_ortho(ortho: AffineTransform3D, n_cells: t.Optional[VecLike] = None, pbc: t.Optional[VecLike] = None):
         lin = ortho.to_linear()
         # decompose into orthogonal and upper triangular
         q, r = numpy.linalg.qr(lin.inner)
@@ -138,6 +142,7 @@ class Cell:
             ortho=LinearTransform3D(r / cell_size).round_near_zero(),
             cell_size=cell_size, cell_angle=cell_angle,
             n_cells=to_vec3([1]*3 if n_cells is None else n_cells, numpy.int_),
+            pbc=pbc,
         )
 
     def to_ortho(self) -> AffineTransform3D:
@@ -159,6 +164,7 @@ class Cell:
             cell_size=self.cell_size,
             cell_angle=self.cell_angle,
             n_cells=self.n_cells,
+            pbc=self.pbc,
         )
 
     def strain_orthogonal(self) -> Cell:
@@ -173,6 +179,7 @@ class Cell:
             ortho=LinearTransform3D(),
             cell_size=self.cell_size,
             n_cells=self.n_cells,
+            pbc=self.pbc,
         )
 
     def repeat(self, n: t.Union[int, VecLike]) -> Cell:
@@ -186,6 +193,7 @@ class Cell:
             cell_size=self.cell_size,
             cell_angle=self.cell_angle,
             n_cells=self.n_cells * numpy.broadcast_to(n, 3),
+            pbc = self.pbc | (ns > 1)  # assume periodic along repeated directions
         )
 
     def explode(self) -> Cell:
@@ -194,6 +202,7 @@ class Cell:
             ortho=self.ortho,
             cell_size=self.cell_size*self.n_cells,
             cell_angle=self.cell_angle,
+            pbc=self.pbc,
         )
 
     def crop(self, x_min: float = -numpy.inf, x_max: float = numpy.inf,
@@ -214,12 +223,14 @@ class Cell:
         max = to_vec3([x_max, y_max, z_max])
         (min, max) = self.get_transform('cell_box').transform([min, max])
         new_box = BBox3D(min, max) & BBox3D.unit()
+        cropped = (new_box.min > 0.) | (new_box.max < 1.)
 
         return Cell(
             affine=self.affine @ AffineTransform3D.translate(-new_box.min),
             ortho=self.ortho,
             cell_size=new_box.size * self.cell_size * self.n_cells,
             cell_angle=self.cell_angle,
+            pbc=self.pbc & ~cropped  # remove periodicity along cropped directions
         )
 
     def _get_transform_to_local(self, frame: CoordinateFrame) -> AffineTransform3D:
@@ -271,7 +282,9 @@ class Cell:
         assert isinstance(other, Cell)
         numpy.testing.assert_array_almost_equal(self.affine.inner, other.affine.inner, 6)
         numpy.testing.assert_array_almost_equal(self.ortho.inner, other.ortho.inner, 6)
+        numpy.testing.assert_array_almost_equal(self.cell_size, other.cell_size, 6)
         numpy.testing.assert_array_equal(self.n_cells, other.n_cells)
+        numpy.testing.assert_array_equal(self.pbc, other.pbc)
 
 
 @t.overload
