@@ -9,6 +9,8 @@
    fcc
    fluorite
    graphite
+   perovskite
+   slab
    wurtzite
    zincblende
 
@@ -21,5 +23,7 @@
 .. autofunction:: fcc
 .. autofunction:: fluorite
 .. autofunction:: graphite
+.. autofunction:: perovskite
+.. autofunction:: slab
 .. autofunction:: wurtzite
 .. autofunction:: zincblende

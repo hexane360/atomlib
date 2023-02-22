@@ -53,12 +53,14 @@ autodoc_type_aliases = {
     'VecLike': 'structlib.types.VecLike',
     'Pts3DLike': 'structlib.types.Pts3DLike',
     'Num': 'structlib.types.Num',
-    'ElemLike': 'ElemLike',
+    'ElemLike': 'structlib.types.ElemLike',
 
     'SchemaDict': 'structlib.atoms.SchemaDict',
     'IntoAtoms': 'structlib.atoms.IntoAtoms',
     'AtomSelection': 'structlib.atoms.AtomSelection',
     'AtomValues': 'structlib.atoms.AtomValues',
+
+    'CoordinateFrame': 'structlib.cell.CoordinateFrame',
 
     'IntoTransform3D': 'structlib.transform.IntoTransform3D',
 

@@ -255,7 +255,7 @@ class AffineTransform3D(Transform3D):
         return self.compose(LinearTransform3D.mirror(a, b, c))
 
     @opt_classmethod
-    def strain(self, strain: float, v: VecLike = (0, 0, 1), poisson: float = 0.):
+    def strain(self: Transform3DT, strain: float, v: VecLike = (0, 0, 1), poisson: float = 0.) -> Transform3DT:
         """
         Apply a strain of ``strain`` in direction ``v``, assuming an elastically isotropic material.
 
@@ -267,9 +267,9 @@ class AffineTransform3D(Transform3D):
         perpendicular to the direction strain is applied.
         """
 
-        align = LinearTransform3D.align(v)
-        shrink = (1 + strain)**-poisson
-        return self.compose(align.inverse() @ LinearTransform3D.scale([shrink, shrink, 1. + strain]) @ align)
+        shrink = (1 + strain) ** -poisson
+        return self.compose(LinearTransform3D.align(v).conjugate(
+                            LinearTransform3D.scale([shrink, shrink, 1. + strain])))
 
     @t.overload
     def transform(self, points: BBox3D) -> BBox3D:
@@ -303,7 +303,7 @@ class AffineTransform3D(Transform3D):
         ...
 
     @t.overload
-    def compose(self, other: Transform3D) -> Transform3D:
+    def compose(self, other: Transform3DT) -> Transform3DT:
         ...
 
     def compose(self, other: Transform3D) -> Transform3D:
@@ -317,6 +317,22 @@ class AffineTransform3D(Transform3D):
             return other._rcompose(self)  # type: ignore
         else:
             raise NotImplementedError()
+
+    @t.overload
+    def conjugate(self, transform: AffineTransform3D) -> AffineTransform3D:
+        ...
+
+    @t.overload
+    def conjugate(self, transform: Transform3DT) -> Transform3DT:
+        ...
+
+    def conjugate(self, transform: Transform3D) -> Transform3D:
+        """
+        Apply ``transform`` in the coordinate frame of ``self``.
+
+        Equivalent to an (inverse) conjugation in group theory, or :math:`T^-1 A T`
+        """
+        return self.inverse() @ transform @ self
 
     @t.overload
     def __matmul__(self, other: AffineTransform3D) -> AffineTransform3D:
@@ -561,6 +577,14 @@ class LinearTransform3D(AffineTransform3D):
         a = numpy.zeros((3, 3), dtype=self.inner.dtype)
         a[numpy.diag_indices(3)] = all * v
         return LinearTransform3D(a @ self.inner)
+
+    def conjugate(self, transform: Transform3DT) -> Transform3DT:
+        """
+        Apply ``transform`` in the coordinate frame of ``self``.
+
+        Equivalent to an (inverse) conjugation in group theory, or :math:`T^-1 A T`
+        """
+        return self.inverse() @ self.compose(transform)
 
     def compose(self, other: Transform3DT) -> Transform3DT:
         if isinstance(other, LinearTransform3D):
