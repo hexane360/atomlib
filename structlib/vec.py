@@ -88,9 +88,11 @@ def polygon_solid_angle(poly: ArrayLike, pts: t.Optional[ArrayLike] = None,
 
     # spherical angle is 2*pi - sum(atan2(-|v1v2v3|, v1 dot v2 * v2 dot v3 - v1 dot v3))
     angles = numpy.arctan2(_dot(poly_p, numpy.cross(poly, poly_n)), _dot(poly_p, poly) * _dot(poly, poly_n) - _dot(poly_p, poly_n))
-    raw = numpy.sum(angles, axis=-1)
+    angle = numpy.sum(angles, axis=-1)
+
     # when winding is nonzero, we have to offset the calculated angle by the angle created by winding.
-    return numpy.where(winding == 0, raw, numpy.mod(raw, 4*numpy.pi*winding)) - 2*numpy.pi*winding
+    numpy.mod(angle, 4*numpy.pi*winding, out=angle, where=(winding != 0))
+    return angle - 2*numpy.pi*winding
 
 
 def polygon_winding(poly: ArrayLike, pt: t.Optional[ArrayLike] = None) -> NDArray[numpy.int_]:
