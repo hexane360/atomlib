@@ -119,19 +119,29 @@ def test_transform_ops(transform: t.Union[AffineTransform3D, t.Type[AffineTransf
 
 
 def test_transform_apply():
-    pts = numpy.array([[0., 0., 0.], [1., 0., 0.], [0., 1., 0.], [1., 1., 0.]])
+    pts = numpy.array([
+        [0., 0., 0.], [1., 0., 0.], [0., 1., 0.], [1., 1., 0.],
+        # infs should pass through, nans should pollute the whole vector
+        [numpy.inf, -numpy.inf, 0.], [numpy.nan, 0., 0.]
+    ])
 
     t = LinearTransform3D().scale(2., 2., 1.)
     t2 = LinearTransform3D().scale(all=2.)
 
-    expected = numpy.array([[0., 0., 0.], [2., 0., 0.], [0., 2., 0.], [2., 2., 0.]])
+    expected = numpy.array([
+        [0., 0., 0.], [2., 0., 0.], [0., 2., 0.], [2., 2., 0.],
+        [numpy.inf, -numpy.inf, 0.], [numpy.nan, numpy.nan, numpy.nan]
+    ])
     assert_allclose(t.transform(pts), expected)
     assert_allclose(t2.transform(pts), expected)
     assert_allclose(t @ pts, expected)
     assert_allclose(t2 @ pts, expected)
 
     t = AffineTransform3D().translate(1., 0., 0.)
-    expected = numpy.array([[1., 0., 0.], [2., 0., 0.], [1., 1., 0.], [2., 1., 0.]])
+    expected = numpy.array([
+        [1., 0., 0.], [2., 0., 0.], [1., 1., 0.], [2., 1., 0.],
+        [numpy.inf, -numpy.inf, 0.], [numpy.nan, numpy.nan, numpy.nan]
+    ])
     assert_allclose(t @ pts, expected)
 
     with pytest.raises(ValueError, match="Transform must be applied to points"):

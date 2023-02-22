@@ -221,7 +221,7 @@ class Cell:
 
         min = to_vec3([x_min, y_min, z_min])
         max = to_vec3([x_max, y_max, z_max])
-        (min, max) = self.get_transform('cell_box').transform([min, max])
+        (min, max) = self.get_transform('cell_box', frame).transform([min, max])
         new_box = BBox3D(min, max) & BBox3D.unit()
         cropped = (new_box.min > 0.) | (new_box.max < 1.)
 

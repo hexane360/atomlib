@@ -379,7 +379,7 @@ class AtomCell(AtomCollection):
             x_max = size[0] if crop_x else numpy.inf,
             y_max = size[1] if crop_y else numpy.inf,
             z_max = size[2] if crop_z else numpy.inf,
-            frame='cell_frac'
+            frame='cell'
         )
 
     def repeat_x(self, n: int) -> AtomCell:
@@ -405,6 +405,37 @@ class AtomCell(AtomCollection):
     def repeat_to_z(self, size: float, crop: bool = False) -> AtomCell:
         """Repeat the cell so it is at least size ``size`` along the z axis."""
         return self.repeat_to([0., 0., size], [False, False, crop])
+
+    def repeat_to_aspect(self, plane: t.Literal['xy', 'xz', 'yz'] = 'xy', *,
+                         aspect: float = 1., max_size: t.Optional[VecLike] = None):
+        """
+        Repeat to optimize the aspect ratio in ``plane``,
+        while staying under ``max_size``.
+        """
+        if max_size is None:
+            max_n = numpy.array([3, 3, 3], numpy.int_)
+        else:
+            max_n = numpy.maximum(numpy.floor(to_vec3(max_size) / self.cell.box_size), 1).astype(numpy.int_)
+
+        if plane == 'xy':
+            indices = [0, 1]
+        elif plane == 'xz':
+            indices = [0, 2]
+        elif plane == 'yz':
+            indices = [1, 2]
+        else:
+            raise ValueError(f"Invalid plane '{plane}'. Exepcted 'xy', 'xz', 'or 'yz'.")
+
+        na = numpy.arange(1, max_n[indices[0]])
+        nb = numpy.arange(1, max_n[indices[1]])
+        (na, nb) = numpy.meshgrid(na, nb)
+
+        aspects = na * self.cell.box_size[indices[0]] / (nb * self.cell.box_size[indices[1]])
+        # cost function: log(aspect)^2  (so cost(0.5) == cost(2))
+        min_i = numpy.argmin(numpy.log(aspects / aspect)**2)
+        repeat = numpy.array([1, 1, 1], numpy.int_)
+        repeat[indices] = na.flatten()[min_i], nb.flatten()[min_i]
+        return self.repeat(repeat)
 
     def explode(self) -> AtomCell:
         """

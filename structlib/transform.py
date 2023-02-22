@@ -268,7 +268,13 @@ class AffineTransform3D(Transform3D):
 
         points = numpy.atleast_1d(points)
         pts = numpy.concatenate((points, numpy.broadcast_to(1., (*points.shape[:-1], 1))), axis=-1)
-        return (self.inner.astype(numpy.float_) @ pts.T)[:3].T
+        # carefully handle inf and nan. this is probably slow
+        isnan = numpy.bitwise_or.reduce(numpy.isnan(pts), axis=-1)
+        with numpy.errstate(invalid='ignore'):
+            prod = self.inner * pts[..., None, :]
+        prod[numpy.isnan(prod)] = 0.
+        prod[isnan, :] = numpy.nan
+        return prod.sum(axis=-1)[..., :3]
 
     __call__ = transform
 
@@ -424,7 +430,7 @@ class LinearTransform3D(AffineTransform3D):
             [c[1]*c[2], s[0]*s[1]*c[2] - c[0]*s[2], c[0]*s[1]*c[2] + s[0]*s[2]],
             [c[1]*s[2], s[0]*s[1]*s[2] + c[0]*c[2], c[0]*s[1]*s[2] - s[0]*c[2]],
             [-s[1],     s[0]*c[1],                  c[0]*c[1]],
-        ])
+        ], dtype=numpy.float_)
         return LinearTransform3D(a @ self.inner)
 
     @opt_classmethod
@@ -566,7 +572,13 @@ class LinearTransform3D(AffineTransform3D):
         if points.shape[-1] != 3:
             raise ValueError(f"{self.__class__} works on 3d points only.")
 
-        return (self.inner.astype(numpy.float_) @ points.T).T
+        # carefully handle inf and nan. this is probably slow
+        isnan = numpy.bitwise_or.reduce(numpy.isnan(points), axis=-1)
+        with numpy.errstate(invalid='ignore'):
+            prod = self.inner * points[..., None, :]
+        prod[numpy.isnan(prod)] = 0.
+        prod[isnan, :] = numpy.nan
+        return prod.sum(axis=-1)
 
     @t.overload
     def __matmul__(self, other: Transform3DT) -> Transform3DT:
