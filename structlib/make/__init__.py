@@ -15,7 +15,7 @@ from ..transform import LinearTransform3D
 from ..elem import get_elem, get_elems
 from ..types import ElemLike, Num, VecLike
 from ..cell import cell_to_ortho, Cell
-from ..vec import reduce_vec, split_arr
+from ..vec import reduce_vec, split_arr, to_vec3
 from ..bbox import BBox3D
 
 
@@ -264,7 +264,8 @@ def perovskite(elems: t.Union[str, t.Sequence[ElemLike]], cell_size: VecLike, *,
     return AtomCell(atoms, Cell.from_unit_cell(cell_size), frame='cell_frac')
 
 
-def slab(atoms: AtomCell, zone, horz, *, max_n=50, tol=0.01):
+def slab(atoms: AtomCell, zone: VecLike = (0., 0., 1.), horz: VecLike = (1., 0., 0.), *,
+         max_n=50, tol=0.001):
     """
     Create an periodic orthogonal slab of the periodic cell ``atoms``.
 
@@ -276,7 +277,7 @@ def slab(atoms: AtomCell, zone, horz, *, max_n=50, tol=0.01):
     """
 
     # align `zone` with the z-axis, and `horz` with the x-axis
-    zone = reduce_vec(zone)  # ensure `zone` is a lattice vector
+    zone = reduce_vec(to_vec3(zone))  # ensure `zone` is a lattice vector
     # TODO should this go from 'local' or 'ortho'?
     cell_transform = atoms.cell.get_transform('local', 'cell_frac').to_linear()
     align_transform = LinearTransform3D.align(cell_transform @ zone, cell_transform @ horz)

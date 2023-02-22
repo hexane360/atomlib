@@ -254,6 +254,23 @@ class AffineTransform3D(Transform3D):
         """
         return self.compose(LinearTransform3D.mirror(a, b, c))
 
+    @opt_classmethod
+    def strain(self, strain: float, v: VecLike = (0, 0, 1), poisson: float = 0.):
+        """
+        Apply a strain of ``strain`` in direction ``v``, assuming an elastically isotropic material.
+
+        Strain is applied relative to the origin.
+
+        With ``poisson=0`` (default), a uniaxial strain is applied.
+        With ``poisson=-1``, hydrostatic strain is applied.
+        Otherwise, a uniaxial stress is applied, which results in shrinkage
+        perpendicular to the direction strain is applied.
+        """
+
+        align = LinearTransform3D.align(v)
+        shrink = (1 + strain)**-poisson
+        return self.compose(align.inverse() @ LinearTransform3D.scale([shrink, shrink, 1. + strain]) @ align)
+
     @t.overload
     def transform(self, points: BBox3D) -> BBox3D:
         ...
@@ -559,7 +576,7 @@ class LinearTransform3D(AffineTransform3D):
     @t.overload
     def transform(self, points: BBox3D) -> BBox3D:
         ...
-    
+
     @t.overload
     def transform(self, points: ArrayLike) -> NDArray[numpy.floating]:
         ...

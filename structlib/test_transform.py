@@ -117,6 +117,14 @@ def test_transform_ops(transform: t.Union[AffineTransform3D, t.Type[AffineTransf
         [0.0, 0.0, 1.0],
     ]), atol=1e-12)
 
+    # strain
+    assert_allclose(transform.strain(0.1, [0, 1, 0], poisson=0.).to_linear().inner,
+                    numpy.diag([1.0, 1.1, 1.0]), atol=1e-12)
+    assert_allclose(transform.strain(0.1, poisson=-1.).to_linear().inner,
+                    numpy.diag([1.1, 1.1, 1.1]), atol=1e-12)
+    assert_allclose(transform.strain(0.1, poisson=0.5).to_linear().inner,
+                    numpy.diag([0.95346259, 0.95346259, 1.1]), atol=1e-12)
+
 
 def test_transform_apply():
     pts = numpy.array([
