@@ -356,13 +356,14 @@ class AtomCell(AtomCollection):
 
         cells = numpy.stack(numpy.meshgrid(*map(numpy.arange, ns))) \
             .reshape(3, -1).T.astype(float)
+        cells = cells * self.cell.box_size
 
-        atoms = self.get_atoms('cell_frac')
+        atoms = self.get_atoms('cell')
         atoms = Atoms.concat([
             atoms.transform(AffineTransform3D.translate(cell))
             for cell in cells
         ]) #.transform(self.cell.get_transform('local', 'cell_frac'))
-        return AtomCell(atoms, self.cell.repeat(ns), frame='cell_frac')
+        return AtomCell(atoms, self.cell.repeat(ns), frame='cell')
 
     def repeat_to(self, size: VecLike, crop: t.Union[bool, t.Sequence[bool]] = False) -> AtomCell:
         """
@@ -374,13 +375,19 @@ class AtomCell(AtomCollection):
         size = to_vec3(size)
         cell_size = self.cell.cell_size * self.cell.n_cells
         repeat = numpy.maximum(numpy.ceil(size / cell_size).astype(int), 1)
-        crop_x, crop_y, crop_z = to_vec3(crop, dtype=numpy.bool_)
-        return self.repeat(repeat).crop(
-            x_max = size[0] if crop_x else numpy.inf,
-            y_max = size[1] if crop_y else numpy.inf,
-            z_max = size[2] if crop_z else numpy.inf,
-            frame='cell'
-        )
+        atom_cell = self.repeat(repeat)
+
+        crop_v = to_vec3(crop, dtype=numpy.bool_)
+        if numpy.any(crop_v):
+            crop_x, crop_y, crop_z = crop_v
+            return atom_cell.crop(
+                x_max = size[0] if crop_x else numpy.inf,
+                y_max = size[1] if crop_y else numpy.inf,
+                z_max = size[2] if crop_z else numpy.inf,
+                frame='cell'
+            )
+
+        return atom_cell
 
     def repeat_x(self, n: int) -> AtomCell:
         """Tile the cell in the x axis."""

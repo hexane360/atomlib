@@ -146,7 +146,7 @@ class Cell:
         )
 
     def to_ortho(self) -> AffineTransform3D:
-        return self.get_transform('local', 'cell_frac')
+        return self.get_transform('local', 'cell_box')
 
     def transform_cell(self, transform: AffineTransform3D, frame: CoordinateFrame = 'local') -> Cell:
         """
@@ -228,7 +228,8 @@ class Cell:
         return Cell(
             affine=self.affine @ AffineTransform3D.translate(-new_box.min),
             ortho=self.ortho,
-            cell_size=new_box.size * self.cell_size * self.n_cells,
+            cell_size=new_box.size * self.cell_size * numpy.where(cropped, self.n_cells, 1),
+            n_cells=numpy.where(cropped, 1, self.n_cells),
             cell_angle=self.cell_angle,
             pbc=self.pbc & ~cropped  # remove periodicity along cropped directions
         )
