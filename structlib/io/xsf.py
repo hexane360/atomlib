@@ -134,7 +134,7 @@ class XSF:
                 self._write_coords(f, self.atoms)
 
     def _write_cell(self, f: TextIOBase, cell: LinearTransform3D):
-        for row in cell.inner:
+        for row in cell.inner.T:
             for val in row:
                 f.write(f"{val:12.7f}")
             f.write('\n')

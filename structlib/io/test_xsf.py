@@ -1,10 +1,12 @@
 from io import StringIO
 import logging
 
+import numpy
 from numpy.testing import assert_array_equal
 
 from .xsf import XSF
 from .. import SimpleAtoms, Atoms
+from ..cell import cell_to_ortho
 
 
 def test_xsf_molecule():
@@ -28,6 +30,34 @@ def test_xsf_molecule():
     assert_array_equal(atoms['x'], [0.0, 1.0, 1.0])
     assert_array_equal(atoms['y'], [1.0, 1.0, 1.0])
     assert_array_equal(atoms['z'], [0.5, 0.5, 0.5])
+
+
+def test_xsf_write_lattice():
+    atoms = SimpleAtoms(Atoms({
+        'x': [],
+        'y': [],
+        'z': [],
+        'elem': [],
+    }))
+
+    buf = StringIO()
+    xsf = XSF.from_atoms(atoms)
+    xsf.periodicity = 'slab'
+    xsf.primitive_cell = cell_to_ortho(
+        [3.13, 3.13, 5.02], numpy.array([90., 90., 120.]) * numpy.pi/180.
+    )
+    xsf.write(buf)
+
+    assert buf.getvalue() == """\
+SLAB
+PRIMVEC
+   3.1300000   0.0000000   0.0000000
+  -1.5650000   2.7106595   0.0000000
+   0.0000000   0.0000000   5.0200000
+
+ATOMS
+
+"""
 
 
 def test_xsf_simple_write():
