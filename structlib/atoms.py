@@ -66,6 +66,8 @@ def _values_to_expr(values: AtomValues, ty: t.Type[polars.DataType]) -> polars.E
         return values.cast(ty)
     if isinstance(values, polars.Series):
         return polars.lit(values, dtype=ty)
+    if isinstance(values, t.Mapping):
+        return polars.col('symbol').apply(lambda s: values[s], ty)  # type: ignore
     arr = numpy.asarray(values)
     return polars.lit(polars.Series(arr, dtype=ty) if arr.size > 1 else values)
 
@@ -461,6 +463,20 @@ class Atoms:
         assert (new.get_column('mass').abs() < 1e-10).sum() == 0
         return new
 
+    def with_symbol(self, symbols: ArrayLike, selection: t.Optional[AtomSelection] = None) -> Atoms:
+        """
+        Return `self` with the given atomic symbols.
+        """
+        if selection is not None:
+            selection = _selection_to_series(self, selection).to_numpy()
+            new_symbols = self.get_column('symbol')
+            new_symbols[selection] = polars.Series(list(numpy.broadcast_to(symbols, len(selection))), dtype=polars.Utf8)
+            symbols = new_symbols
+
+        # TODO better cast here
+        symbols = polars.Series('symbol', list(numpy.broadcast_to(symbols, len(self))), dtype=polars.Utf8)
+        return self.with_columns((symbols, get_elem(symbols)))
+
     def with_coords(self, pts: ArrayLike, selection: t.Optional[AtomSelection] = None) -> Atoms:
         """
         Return `self` replaced with the given atomic positions.
@@ -541,7 +557,7 @@ Polars expression selecting a subset of atoms from an Atoms.
 Can be used with many Atoms methods.
 """
 
-AtomValues = t.Union[polars.Series, polars.Expr, ArrayLike]
+AtomValues = t.Union[polars.Series, polars.Expr, ArrayLike, t.Mapping[str, t.Any]]
 """
 Array, value, or polars expression mapping atoms to values.
 Can be used with `with_*` methods on Atoms
