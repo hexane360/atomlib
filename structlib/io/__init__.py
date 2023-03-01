@@ -13,6 +13,7 @@ from .xsf import XSF
 from .cfg import CFG
 from .mslice import write_mslice
 from .lmp import write_lmp
+from .qe import write_qe
 
 from ..core import AtomCollection, Atoms, SimpleAtoms, AtomCell, Cell
 from ..types import to_vec3
@@ -20,7 +21,7 @@ from ..transform import LinearTransform3D
 from ..elem import get_sym
 from ..util import FileOrPath
 
-FileType = t.Union[t.Literal['cif'], t.Literal['xyz'], t.Literal['xsf'], t.Literal['cfg'], t.Literal['lmp'], t.Literal['mslice']]
+FileType = t.Literal['cif', 'xyz', 'xsf', 'cfg', 'lmp', 'mslice', 'qe']
 
 
 def read_cif(f: t.Union[FileOrPath, CIF]) -> AtomCollection:
@@ -135,6 +136,7 @@ _READ_TABLE: t.Mapping[FileType, t.Optional[ReadFunc]] = {
     'cfg': read_cfg,
     'mslice': None,
     'lmp': None,
+    'qe': None
 }
 
 WriteFunc = t.Callable[[AtomCollection, FileOrPath], None]
@@ -145,6 +147,7 @@ _WRITE_TABLE: t.Mapping[FileType, t.Optional[WriteFunc]] = {
     'cfg': None,
     'mslice': t.cast(WriteFunc, write_mslice),
     'lmp': write_lmp,
+    'qe': write_qe,
 }
 
 
@@ -239,5 +242,5 @@ def write(atoms: AtomCollection, path: FileOrPath, ty: t.Optional[FileType] = No
 __all__ = [
     'CIF', 'XYZ', 'XSF', 'CFG',
     'read', 'read_cif', 'read_xyz', 'read_xsf', 'read_cfg',
-    'write', 'write_xsf', 'write_lmp', 'write_mslice',
+    'write', 'write_xsf', 'write_lmp', 'write_mslice', 'write_qe',
 ]
