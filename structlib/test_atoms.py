@@ -2,6 +2,7 @@ import re
 
 import pytest
 import numpy
+from numpy.testing import assert_array_equal
 import polars
 
 from .atoms import Atoms
@@ -108,6 +109,34 @@ def test_concat():
     }))
 
 
+def test_add_atom():
+    atoms = Atoms({
+        'x': [0., 1.],
+        'y': [1., 2.],
+        'z': [0., 3.],
+        'elem': [1, 5],
+        'type': [1, 2],
+    })
+
+    atoms = atoms.add_atom('Fe2+', [4., 5., 6.], type=3)
+    atoms = atoms.add_atom(8, 7., 8., 9., type=4)
+
+    atoms.assert_equal(Atoms({
+        'x': [0., 1., 4., 7.],
+        'y': [1., 2., 5., 8.],
+        'z': [0., 3., 6., 9.],
+        'elem': [1, 5, 26, 8],
+        'symbol': ['H', 'B', 'Fe2+', 'O'],
+        'type': [1, 2, 3, 4],
+    }))
+
+    with pytest.raises(ValueError, match="Must specify vector of positions or x, y, & z."):
+        atoms.add_atom(1, 4., 5.)  # type: ignore
+
+    with pytest.raises(TypeError, match="Failed to cast 'Atoms' with schema '.*' to schema '.*'"):
+        atoms.add_atom(1, [4., 5., 6.])
+
+
 def test_coords():
     frame = Atoms({
         'x': [0., 1., -1., -3.],
@@ -123,12 +152,14 @@ def test_coords():
         [-3., 2., 8.]
     ])
 
-    assert frame.coords() == pytest.approx(expected)
+    assert_array_equal(frame.coords(), expected)
+    assert_array_equal(frame.coords(polars.col('x') < 0.), expected[expected[:, 0] < 0.])
+    assert_array_equal(frame.coords(polars.col('elem') == 22), expected[2:])
+    assert_array_equal(frame.coords([False, True, False, True]), expected[[1, 3]])
 
-    assert frame.coords(polars.col('x') < 0.) == pytest.approx(expected[expected[:, 0] < 0.])
-    assert frame.coords(polars.col('elem') == 22) == pytest.approx(expected[2:])
-    assert frame.coords([False, True, False, True]) == pytest.approx(expected[[1, 3]])
-
+    assert_array_equal(frame.coords(frame.pos([1., 1., 2.])), [[1., 1., 2.]])
+    assert_array_equal(frame.filter(frame.pos([1., 1., 2.])).get_column('elem').to_numpy(), [5])
+    assert_array_equal(frame.coords(frame.pos(y=1.)), [[0., 1., 0.], [1., 1., 2.], [-1., 1., 5.]])
 
 
 def test_mass():

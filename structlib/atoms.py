@@ -9,6 +9,8 @@ around :class:`polars.DataFrame`.
 from __future__ import annotations
 
 import logging
+from functools import reduce
+import operator
 import typing as t
 
 import numpy
@@ -37,6 +39,7 @@ _COLUMN_DTYPES: t.Mapping[str, t.Type[polars.DataType]] = {
 
 SchemaDict = t.Mapping[str, t.Union[t.Type[polars.DataType], polars.DataType]]
 UniqueKeepStrategy = t.Literal['first', 'last']
+ConcatMethod = t.Literal['horizontal', 'vertical', 'diagonal', 'inner']
 
 
 if t.TYPE_CHECKING:
@@ -80,6 +83,19 @@ def _selection_to_series(df: t.Union[polars.DataFrame, Atoms], selection: AtomSe
 
 def _selection_to_expr(selection: AtomSelection) -> polars.Expr:
     return _values_to_expr(selection, ty=polars.Boolean)
+
+
+def _select_schema(df: t.Union[polars.DataFrame, Atoms], schema: SchemaDict) -> polars.DataFrame:
+    """
+    Select columns from ``self`` and cast to the given schema.
+    """
+    try:
+        return df.select(tuple(
+            polars.col(col).cast(ty, strict=True)
+            for (col, ty) in schema.items()
+        ))
+    except (polars.ComputeError, ColumnNotFoundError):
+        raise TypeError(f"Failed to cast '{df.__class__.__name__}' with schema '{df.schema}' to schema '{schema}'.")
 
 
 class Atoms:
@@ -218,16 +234,32 @@ class Atoms:
         except ColumnNotFoundError:
             return None
 
+    def select_schema(self, schema: SchemaDict) -> polars.DataFrame:
+        """
+        Select columns from ``self`` and cast to the given schema.
+        """
+        return _select_schema(self, schema)
+
     def sort(self, by: t.Union[str, polars.Expr, t.List[str], t.List[polars.Expr]], reverse: t.Union[bool, t.List[bool]] = False) -> Atoms:
         return Atoms(self.inner.sort(by, reverse), _unchecked=True)
 
     @opt_classmethod
-    def concat(self, atoms: t.Union[Atoms, t.Iterable[Atoms]], rechunk: bool = True) -> Atoms:
-        dfs = []
+    def concat(self, atoms: t.Union[Atoms, t.Iterable[Atoms]], rechunk: bool = True, how: ConcatMethod = 'vertical') -> Atoms:
+        dfs: t.List[polars.DataFrame] = []
         if len(self) > 0:
             dfs.append(self.inner)
         dfs.append(atoms.inner) if isinstance(atoms, Atoms) else dfs.extend(a.inner for a in atoms)
-        return Atoms(polars.concat(dfs, rechunk=rechunk))
+
+        if how == 'inner':
+            schemas = [df.schema for df in dfs]
+            schema: SchemaDict = reduce(operator.and_, schemas)
+            if len(schema) == 0:
+                raise ValueError(f"Atoms have no columns in common")
+
+            dfs = [_select_schema(df, schema) for df in dfs]
+            how = 'vertical'
+
+        return Atoms(polars.concat(dfs, rechunk=rechunk, how=how))
 
     # methods unique to Atoms
 
@@ -258,12 +290,12 @@ class Atoms:
             return transformed.with_velocity(transform.transform_vec(velocities), selection)
         return transformed
 
-    def round_near_zero(self, tolerance: float = 1e-14) -> Atoms:
+    def round_near_zero(self, tol: float = 1e-14) -> Atoms:
         """
         Round atom position values near zero to zero.
         """
         return self.with_columns(tuple(
-            polars.when(col.abs() >= tolerance).then(col).otherwise(polars.lit(0.))
+            polars.when(col.abs() >= tol).then(col).otherwise(polars.lit(0.))
             for col in map(polars.col, ('x', 'y', 'z'))
         ))
 
@@ -283,7 +315,7 @@ class Atoms:
             (polars.col('z') >= min[2]) & (polars.col('z') <= max[2])
         ))
 
-    def deduplicate(self, tolerance: float = 1e-3, subset: t.Iterable[str] = ('x', 'y', 'z', 'symbol'),
+    def deduplicate(self, tol: float = 1e-3, subset: t.Iterable[str] = ('x', 'y', 'z', 'symbol'),
                     keep: UniqueKeepStrategy = 'first') -> Atoms:
         """
         De-duplicate atoms in `self`. Atoms of the same `symbol` that are closer than `tolerance`
@@ -308,7 +340,7 @@ class Atoms:
             # TODO This is a bad algorithm
             while True:
                 changed = False
-                for (i, j) in tree.query_pairs(tolerance, 2.):
+                for (i, j) in tree.query_pairs(tol, 2.):
                     # whenever we encounter a pair, ensure their index matches
                     i_i, i_j = indices[[i, j]]
                     if i_i != i_j:
@@ -353,6 +385,87 @@ class Atoms:
     def masses(self) -> t.Optional[polars.Series]:
         """Returns a `Series` of atom masses (dtype polars.Float32)."""
         return self.try_get_column('mass')
+
+    @t.overload
+    def add_atom(self, elem: t.Union[int, str], x: ArrayLike, /, *,
+                 y: None = None, z: None = None,
+                 **kwargs: t.Any) -> Atoms:
+        ...
+
+    @t.overload
+    def add_atom(self, elem: t.Union[int, str], /,
+                 x: float, y: float, z: float,
+                 **kwargs: t.Any) -> Atoms:
+        ...
+
+    def add_atom(self, elem: t.Union[int, str], /,
+                 x: t.Union[ArrayLike, float],
+                 y: t.Optional[float] = None,
+                 z: t.Optional[float] = None,
+                 **kwargs: t.Any) -> Atoms:
+        """
+        Return a copy of ``self`` with an extra atom.
+
+        By default, all extra columns present in ``self`` must be specified as ``**kwargs``.
+
+        Try to avoid calling this in a loop (Use :function:`Atoms.concat` instead).
+        """
+        if isinstance(elem, int):
+            kwargs.update(elem=elem)
+        else:
+            kwargs.update(symbol=elem)
+        if hasattr(x, '__len__') and len(x) > 1:  # type: ignore
+            (x, y, z) = to_vec3(x)
+        elif y is None or z is None:
+            raise ValueError(f"Must specify vector of positions or x, y, & z.")
+
+        sym = get_sym(elem) if isinstance(elem, int) else elem
+        d: t.Dict[str, t.Any] = {'x': x, 'y': y, 'z': z, 'symbol': sym, **kwargs}
+        return self.concat(
+            Atoms(Atoms(d).select_schema(self.schema)),
+            how='vertical'
+        )
+
+    @t.overload
+    def pos(self, x: t.Sequence[t.Optional[float]], /, *,
+            y: None = None, z: None = None,
+            tol: float = 1e-6, **kwargs: t.Any) -> polars.Expr:
+        ...
+
+    @t.overload
+    def pos(self, x: t.Optional[float] = None, y: t.Optional[float] = None, z: t.Optional[float] = None, *,
+            tol: float = 1e-6, **kwargs: t.Any) -> polars.Expr:
+        ...
+
+    def pos(self,
+            x: t.Union[t.Sequence[t.Optional[float]], float, None] = None,
+            y: t.Optional[float] = None, z: t.Optional[float] = None, *,
+            tol: float = 1e-6, **kwargs: t.Any) -> polars.Expr:
+        """
+        Select all atoms at a given position.
+
+        Formally, returns all atoms within a cube of radius ``tol``
+        centered at ``(x,y,z)``, exclusive of the cube's surface.
+
+        Additional parameters given as ``kwargs`` will be checked
+        as additional parameters (with strict equality).
+        """
+
+        if isinstance(x, t.Sequence):
+            (x, y, z) = x
+
+        tol = abs(float(tol))
+        selection = polars.lit(True)
+        if x is not None:
+            selection &= (x - tol < polars.col('x')) & (polars.col('x') < x + tol)
+        if y is not None:
+            selection &= (y - tol < polars.col('y')) & (polars.col('y') < y + tol)
+        if z is not None:
+            selection &= (z - tol < polars.col('z')) & (polars.col('z') < z + tol)
+        for (col, val) in kwargs.items():
+            selection &= (polars.col(col) == val)
+
+        return selection
 
     def with_index(self, index: t.Optional[AtomValues] = None) -> Atoms:
         """
@@ -525,10 +638,10 @@ class Atoms:
     # dunder methods
 
     def __add__(self, other: IntoAtoms) -> Atoms:
-        return Atoms.concat((self, Atoms(other)))
+        return Atoms.concat((self, Atoms(other)), how='inner')
 
     def __radd__(self, other: IntoAtoms) -> Atoms:
-        return Atoms.concat((Atoms(other), self))
+        return Atoms.concat((Atoms(other), self), how='inner')
 
     def __str__(self) -> str:
         return f"Atoms, {self.inner!s}"
