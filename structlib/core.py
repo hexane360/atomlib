@@ -11,6 +11,7 @@ import copy
 import typing as t
 
 import numpy
+from numpy.typing import ArrayLike
 
 from .bbox import BBox3D
 from .types import VecLike, to_vec3
@@ -457,9 +458,13 @@ class AtomCell(AtomCollection):
         """Make a deep copy of ``self``."""
         return self.__class__(**{field.name: copy.deepcopy(getattr(self, field.name)) for field in fields(self)})
 
-    def write_mslice(self, f: FileOrPath, template: t.Optional[MSliceTemplate] = None):
+    def write_mslice(self, f: FileOrPath, template: t.Optional[MSliceTemplate] = None, *,
+                 slice_thickness: t.Optional[float] = None,
+                 scan_points: t.Optional[ArrayLike] = None,
+                 scan_extent: t.Optional[ArrayLike] = None):
         """Write this structure to an mslice file."""
-        return io.write_mslice(self, f, template)
+        return io.write_mslice(self, f, template, slice_thickness=slice_thickness,
+                               scan_points=scan_points, scan_extent=scan_extent)
 
     __mul__ = repeat
 

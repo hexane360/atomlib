@@ -11,6 +11,8 @@ from copy import deepcopy
 from pathlib import Path
 import typing as t
 
+import numpy
+from numpy.typing import ArrayLike
 import polars
 
 from ..util import FileOrPath, open_file
@@ -39,8 +41,10 @@ def load_mslice(path: FileOrPath) -> OrthoCell:
     raise NotImplementedError()
 
 
-def write_mslice(cell: AtomCell, path: FileOrPath, template: t.Optional[MSliceTemplate] = None, *,
-                 slice_thickness: t.Optional[float] = None, scan_points: t.Optional[t.Tuple[int, int]] = None):
+def write_mslice(cell: AtomCell, f: FileOrPath, template: t.Optional[MSliceTemplate] = None, *,
+                 slice_thickness: t.Optional[float] = None,
+                 scan_points: t.Optional[ArrayLike] = None,
+                 scan_extent: t.Optional[ArrayLike] = None):
     if not isinstance(cell, AtomCell):
         raise TypeError("mslice format requires an AtomCell.")
 
@@ -58,8 +62,8 @@ def write_mslice(cell: AtomCell, path: FileOrPath, template: t.Optional[MSliceTe
     if template is None:
         out = default_template()
     elif not isinstance(template, et.ElementTree):
-        with open_file(template, 'r') as f:
-            out = et.parse(f)
+        with open_file(template, 'r') as t:
+            out = et.parse(t)
     else:
         out = deepcopy(template)
 
@@ -100,9 +104,17 @@ def write_mslice(cell: AtomCell, path: FileOrPath, template: t.Optional[MSliceTe
         set_attr(params, 'slicethickness', 'float', f"{float(slice_thickness):.8f}")
 
     if scan_points is not None:
-        (nx, ny) = map(int, scan_points)
+        (nx, ny) = numpy.broadcast_to(scan_points, 2,).astype(int)
         set_attr(params, 'numscanx', 'int16', str(nx))
         set_attr(params, 'numscany', 'int16', str(ny))
+
+    if scan_extent is not None:
+        (finx, finy) = numpy.broadcast_to(scan_extent, 2,).astype(float)
+        # flipped
+        set_attr(params, 'intx', 'float', f"{1.0-float(finx):.8f}")
+        set_attr(params, 'inty', 'float', f"{1.0-float(finy):.8f}")
+        set_attr(params, 'finx', 'float', "1.0")
+        set_attr(params, 'finy', 'float', "1.0")
 
     # remove existing atoms
     for elem in db.findall("./object[@type='STRUCTUREATOM']"):
@@ -117,7 +129,7 @@ def write_mslice(cell: AtomCell, path: FileOrPath, template: t.Optional[MSliceTe
 
     et.indent(db, space="    ", level=0)
 
-    with open_file(path, 'w') as f:
+    with open_file(f, 'w') as f:
         # hack to specify doctype of output
         f.write("""\
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
