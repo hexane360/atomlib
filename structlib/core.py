@@ -21,6 +21,7 @@ from .atoms import Atoms, IntoAtoms
 
 
 if t.TYPE_CHECKING:
+    # pyright: reportImportCycles=false
     from .io import CIF, XYZ, XSF, CFG, FileOrPath, FileType  # pragma: no cover
     from .io.mslice import MSliceTemplate                     # pragma: no cover
 

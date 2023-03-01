@@ -262,14 +262,14 @@ class Parser(t.Generic[T_co, V]):
 
     @t.overload
     def __init__(self: Parser[T_co, V], ops: t.Sequence[Op[V]],
-                 parse_scalar: t.Optional[t.Callable[[str], T_co]],
+                 parse_scalar: t.Callable[[str], T_co],
                  groups: t.Optional[t.Sequence[t.Tuple[str, str]]] = None):
         ...
 
     def __init__(self, ops: t.Sequence[Op[V]],
-                 parse_scalar: t.Optional[t.Callable[[str], T_co]] = None,
+                 parse_scalar: t.Optional[t.Callable[[str], t.Union[str, T_co]]] = None,
                  groups: t.Optional[t.Sequence[t.Tuple[str, str]]] = None):
-        self.parse_scalar = parse_scalar or t.cast(t.Callable[[str], T_co], lambda s: s)
+        self.parse_scalar = t.cast(t.Callable[[str], T_co], parse_scalar or (lambda s: s))
 
         if groups is None:
             groups = [('(', ')'), ('[', ']')]

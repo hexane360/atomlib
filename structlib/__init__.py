@@ -4,6 +4,8 @@ from .atoms import Atoms, AtomSelection
 from .cell import Cell, CoordinateFrame
 from .core import AtomCollection, AtomCell, SimpleAtoms
 
+# pyright: reportImportCycles=false
+
 from . import io, visualize, make, disloc, transform
 
 __all__ = [

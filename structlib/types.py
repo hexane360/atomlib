@@ -5,6 +5,7 @@ import numpy
 from numpy.typing import NDArray, ArrayLike
 
 if t.TYPE_CHECKING:
+    # pyright: reportImportCycles=false
     from .bbox import BBox3D
 
 
