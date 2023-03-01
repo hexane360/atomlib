@@ -226,13 +226,12 @@ class AffineTransform3D(Transform3D):
         return self.compose(LinearTransform3D.rotate(v, theta))
 
     @opt_classmethod
-    def rotate_euler(cls, x: Num = 0., y: Num = 0., z: Num = 0.) -> AffineTransform3D:
+    def rotate_euler(self, x: Num = 0., y: Num = 0., z: Num = 0.) -> AffineTransform3D:
         """
         Create or append a Euler rotation transformation.
         Rotation is performed on the x axis first, then y axis and z axis.
         Values are specified in radians.
         """
-        self = cls() if isinstance(cls, type) else cls
         return self.compose(LinearTransform3D.rotate_euler(x, y, z))
 
     @t.overload
@@ -255,7 +254,7 @@ class AffineTransform3D(Transform3D):
         return self.compose(LinearTransform3D.mirror(a, b, c))
 
     @opt_classmethod
-    def strain(self: Transform3DT, strain: float, v: VecLike = (0, 0, 1), poisson: float = 0.) -> Transform3DT:
+    def strain(self, strain: float, v: VecLike = (0, 0, 1), poisson: float = 0.) -> AffineTransform3D:
         """
         Apply a strain of ``strain`` in direction ``v``, assuming an elastically isotropic material.
 
@@ -266,10 +265,7 @@ class AffineTransform3D(Transform3D):
         Otherwise, a uniaxial stress is applied, which results in shrinkage
         perpendicular to the direction strain is applied.
         """
-
-        shrink = (1 + strain) ** -poisson
-        return self.compose(LinearTransform3D.align(v).conjugate(
-                            LinearTransform3D.scale([shrink, shrink, 1. + strain])))
+        return self.compose(LinearTransform3D.strain(strain, v, poisson))
 
     @t.overload
     def transform(self, points: BBox3D) -> BBox3D:
@@ -434,6 +430,22 @@ class LinearTransform3D(AffineTransform3D):
         v /= numpy.linalg.norm(v)
         mirror = numpy.eye(3) - 2 * numpy.outer(v, v)
         return LinearTransform3D(mirror @ self.inner)
+
+    @opt_classmethod
+    def strain(self, strain: float, v: VecLike = (0, 0, 1), poisson: float = 0.) -> LinearTransform3D:
+        """
+        Apply a strain of ``strain`` in direction ``v``, assuming an elastically isotropic material.
+
+        Strain is applied relative to the origin.
+
+        With ``poisson=0`` (default), a uniaxial strain is applied.
+        With ``poisson=-1``, hydrostatic strain is applied.
+        Otherwise, a uniaxial stress is applied, which results in shrinkage
+        perpendicular to the direction strain is applied.
+        """
+        shrink = (1 + strain) ** -poisson
+        return self.compose(LinearTransform3D.align(v).conjugate(
+                            LinearTransform3D.scale([shrink, shrink, 1. + strain])))
 
     @opt_classmethod
     def rotate(self, v: VecLike, theta: Num) -> LinearTransform3D:
