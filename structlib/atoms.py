@@ -24,7 +24,7 @@ from .types import to_vec3
 from .bbox import BBox3D
 from .elem import get_elem, get_sym, get_mass
 from .transform import Transform3D, IntoTransform3D
-from .util import map_some, opt_classmethod
+from .util import map_some
 
 
 _COLUMN_DTYPES: t.Mapping[str, t.Type[polars.DataType]] = {
@@ -105,6 +105,8 @@ HasAtomsT = t.TypeVar('HasAtomsT', bound='HasAtoms')
 class HasAtoms(abc.ABC):
     """Abstract class representing any (possibly compound) collection of atoms."""
 
+    # abstract methods
+
     @abc.abstractmethod
     def get_atoms(self) -> Atoms:
         """Get atoms contained in `self`. This should be a low cost method."""
@@ -114,37 +116,50 @@ class HasAtoms(abc.ABC):
     def with_atoms(self: HasAtomsT, atoms: Atoms) -> HasAtomsT:
         ...
 
+    @classmethod
+    @abc.abstractmethod
+    def _combine_metadata(cls: t.Type[HasAtomsT], *atoms: HasAtoms) -> HasAtomsT:
+        """
+        When combining multiple ``HasAtoms``, check that they are compatible with each other,
+        and return a 'representative' which best represents the combined metadata.
+        Implementors should treat `Atoms` as acceptable, but having no metadata.
+        """
+        ...
+
+    def _get_frame(self) -> polars.DataFrame:
+        return self.get_atoms().inner
+
     # dataframe methods
 
     @property
     def columns(self) -> t.Sequence[str]:
         """Return the columns in `self`."""
-        return self.get_atoms().inner.columns
+        return self._get_frame().columns
 
     @property
     def schema(self) -> SchemaDict:
         """Return the schema of `self`."""
-        return t.cast(SchemaDict, self.get_atoms().inner.schema)
+        return t.cast(SchemaDict, self._get_frame().schema)
 
     def with_column(self: HasAtomsT, column: t.Union[polars.Series, polars.Expr]) -> HasAtomsT:
         """Return a copy of ``self`` with the given column added."""
-        return self.with_atoms(Atoms(self.get_atoms().inner.with_columns((column,)), _unchecked=True))
+        return self.with_atoms(Atoms(self._get_frame().with_columns((column,)), _unchecked=True))
 
     def with_columns(self: HasAtomsT,
                      exprs: t.Union[t.Literal[None], polars.Series, polars.Expr, t.Sequence[t.Union[polars.Series, polars.Expr]]],
                      **named_exprs: t.Union[polars.Expr, polars.Series]) -> HasAtomsT:
         """Return a copy of ``self`` with the given columns added."""
-        return self.with_atoms(Atoms(self.get_atoms().inner.with_columns(exprs, **named_exprs), _unchecked=True))
+        return self.with_atoms(Atoms(self._get_frame().with_columns(exprs, **named_exprs), _unchecked=True))
 
     def get_column(self, name: str) -> polars.Series:
         """Get the specified column from ``self``, raising :py:`polars.NotFoundError` if it's not present."""
-        return self.get_atoms().inner.get_column(name)
+        return self._get_frame().get_column(name)
 
     def filter(self: HasAtomsT, selection: t.Optional[AtomSelection] = None) -> HasAtomsT:
         """Filter ``self``, removing rows which evaluate to ``False``."""
         if selection is None:
             return self
-        return self.with_atoms(Atoms(self.get_atoms().inner.filter(_selection_to_expr(selection)), _unchecked=True))
+        return self.with_atoms(Atoms(self._get_frame().filter(_selection_to_expr(selection)), _unchecked=True))
 
     def select(self, exprs: t.Union[str, polars.Expr, polars.Series, t.Sequence[t.Union[str, polars.Expr, polars.Series]]]
     ) -> polars.DataFrame:
@@ -153,7 +168,45 @@ class HasAtoms(abc.ABC):
 
         Expressions may either be columns or expressions of columns.
         """
-        return self.get_atoms().inner.select(exprs)
+        return self._get_frame().select(exprs)
+
+    def sort(self, by: t.Union[str, polars.Expr, t.List[str], t.List[polars.Expr]], reverse: t.Union[bool, t.List[bool]] = False) -> Atoms:
+        return Atoms(self._get_frame().sort(by, reverse), _unchecked=True)
+
+    @classmethod
+    def concat(cls: t.Type[HasAtomsT],
+               atoms: t.Union[HasAtomsT, IntoAtoms, t.Iterable[t.Union[HasAtomsT, IntoAtoms]]], *,
+               rechunk: bool = True, how: ConcatMethod = 'vertical') -> HasAtomsT:
+        # this method is tricky. It needs to accept raw Atoms, as well as HasAtoms of the
+        # same type as ``cls``.
+
+        if isinstance(atoms, HasAtoms):
+            atoms = (atoms,)
+        dfs = [a._get_frame() if isinstance(a, HasAtoms) else Atoms(a).inner for a in atoms]
+        representative = cls._combine_metadata(*(a for a in atoms if isinstance(a, HasAtoms)))
+
+        if len(dfs) == 0:
+            return representative.with_atoms(Atoms.empty())
+
+        if how == 'inner':
+            cols = reduce(operator.and_, (df.schema.keys() for df in dfs))
+            schema = {col: dfs[0].schema[col] for col in cols}
+            if len(schema) == 0:
+                raise ValueError(f"Atoms have no columns in common")
+
+            dfs = [_select_schema(df, schema) for df in dfs]
+            how = 'vertical'
+
+        return representative.with_atoms(Atoms(polars.concat(dfs, rechunk=rechunk, how=how)))
+
+    # some helpers we add
+
+    def select_schema(self, schema: SchemaDict) -> polars.DataFrame:
+        """
+        Select columns from ``self`` and cast to the given schema.
+        Raises :py:`TypeError` if a column is not found or if it can't be cast.
+        """
+        return _select_schema(self, schema)
 
     def try_select(self, exprs: t.Union[str, polars.Expr, polars.Series, t.Sequence[t.Union[str, polars.Expr, polars.Series]]]
     ) -> t.Optional[polars.DataFrame]:
@@ -164,36 +217,9 @@ class HasAtoms(abc.ABC):
         Return ``None`` if any columns are missing.
         """
         try:
-            return self.get_atoms().inner.select(exprs)
+            return self._get_frame().select(exprs)
         except ColumnNotFoundError:
             return None
-
-    def select_schema(self, schema: SchemaDict) -> polars.DataFrame:
-        """
-        Select columns from ``self`` and cast to the given schema.
-        """
-        return _select_schema(self, schema)
-
-    def sort(self, by: t.Union[str, polars.Expr, t.List[str], t.List[polars.Expr]], reverse: t.Union[bool, t.List[bool]] = False) -> Atoms:
-        return Atoms(self.get_atoms().inner.sort(by, reverse), _unchecked=True)
-
-    @opt_classmethod
-    def concat(self, atoms: t.Union[Atoms, t.Iterable[Atoms]], rechunk: bool = True, how: ConcatMethod = 'vertical') -> Atoms:
-        dfs: t.List[polars.DataFrame] = []
-        if len(self) > 0:
-            dfs.append(self.get_atoms().inner)
-        dfs.append(atoms.inner) if isinstance(atoms, Atoms) else dfs.extend(a.inner for a in atoms)
-
-        if how == 'inner':
-            schemas = [df.schema for df in dfs]
-            schema: SchemaDict = reduce(operator.and_, schemas)
-            if len(schema) == 0:
-                raise ValueError(f"Atoms have no columns in common")
-
-            dfs = [_select_schema(df, schema) for df in dfs]
-            how = 'vertical'
-
-        return Atoms(polars.concat(dfs, rechunk=rechunk, how=how))
 
     def try_get_column(self, name: str) -> t.Optional[polars.Series]:
         """Try to get a column from `self`, returning `None` if it doesn't exist."""
@@ -202,25 +228,121 @@ class HasAtoms(abc.ABC):
         except ColumnNotFoundError:
             return None
 
+    def assert_equal(self, other: t.Any):
+        assert isinstance(other, HasAtoms)
+        assert self.schema == other.schema
+        for (col, dtype) in self.schema.items():
+            if dtype in (polars.Float32, polars.Float64):
+                numpy.testing.assert_array_almost_equal(self[col].view(True), other[col].view(True), 5)
+            else:
+                assert (self[col] == other[col]).all()
+
+    # dunders
+
     def __len__(self) -> int:
         """Return the number of atoms in `self`."""
-        return self.get_atoms().inner.__len__()
+        return self._get_frame().__len__()
 
     def __contains__(self, col: str) -> bool:
         """Return whether `self` contains the given column."""
         return col in self.columns
 
     def __add__(self: HasAtomsT, other: IntoAtoms) -> HasAtomsT:
-        return self.with_atoms(self.get_atoms().concat(Atoms(other), how='inner'))
+        return self.__class__.concat((self, other), how='inner')
 
     def __radd__(self: HasAtomsT, other: IntoAtoms) -> HasAtomsT:
-        return self.with_atoms(Atoms(other).concat(self.get_atoms(), how='inner'))
+        return self.__class__.concat((other, self), how='inner')
 
     __getitem__ = get_column
+
+    # atoms-specific methods
 
     def bbox(self) -> BBox3D:
         """Return the bounding box of all the points in `self`."""
         return BBox3D.from_pts(self.coords())
+
+    def transform_atoms(self: HasAtomsT, transform: IntoTransform3D, selection: t.Optional[AtomSelection] = None, *, transform_velocities: bool = False) -> HasAtomsT:
+        """
+        Transform the atoms in `self` by `transform`.
+        If `selection` is given, only transform the atoms in `selection`.
+        """
+        transform = Transform3D.make(transform)
+        selection = map_some(lambda s: _selection_to_series(self, s), selection)
+        transformed = self.with_coords(Transform3D.make(transform) @ self.coords(selection), selection)
+        # try to transform velocities as well
+        if transform_velocities and (velocities := self.velocities(selection)) is not None:
+            return transformed.with_velocity(transform.transform_vec(velocities), selection)
+        return transformed
+
+    transform = transform_atoms
+
+    def round_near_zero(self: HasAtomsT, tol: float = 1e-14) -> HasAtomsT:
+        """
+        Round atom position values near zero to zero.
+        """
+        return self.with_columns(tuple(
+            polars.when(col.abs() >= tol).then(col).otherwise(polars.lit(0.))
+            for col in map(polars.col, ('x', 'y', 'z'))
+        ))
+
+    def crop(self: HasAtomsT, x_min: float = -numpy.inf, x_max: float = numpy.inf,
+             y_min: float = -numpy.inf, y_max: float = numpy.inf,
+             z_min: float = -numpy.inf, z_max: float = numpy.inf) -> HasAtomsT:
+        """
+        Crop, removing all atoms outside of the specified region, inclusive.
+        """
+
+        min = to_vec3([x_min, y_min, z_min])
+        max = to_vec3([x_max, y_max, z_max])
+
+        return self.filter(
+            (polars.col('x') >= min[0]) & (polars.col('x') <= max[0]) &
+            (polars.col('y') >= min[1]) & (polars.col('y') <= max[1]) &
+            (polars.col('z') >= min[2]) & (polars.col('z') <= max[2])
+        )
+
+    crop_atoms = crop
+
+    def deduplicate(self: HasAtomsT, tol: float = 1e-3, subset: t.Iterable[str] = ('x', 'y', 'z', 'symbol'),
+                    keep: UniqueKeepStrategy = 'first') -> HasAtomsT:
+        """
+        De-duplicate atoms in `self`. Atoms of the same `symbol` that are closer than `tolerance`
+        to each other (by Euclidian distance) will be removed, leaving only the atom specified by
+        `keep` (defaults to the first atom).
+
+        If `subset` is specified, only those columns will be included while assessing duplicates.
+        Floating point columns other than 'x', 'y', and 'z' will not by toleranced.
+        """
+
+        cols = set((subset,) if isinstance(subset, str) else subset)
+
+        indices = numpy.arange(len(self))
+
+        spatial_cols = cols.intersection(('x', 'y', 'z'))
+        cols -= spatial_cols
+        if len(spatial_cols) > 0:
+            coords = self.select(list(spatial_cols)).to_numpy()
+            print(coords.shape)
+            tree = scipy.spatial.KDTree(coords)
+
+            # TODO This is a bad algorithm
+            while True:
+                changed = False
+                for (i, j) in tree.query_pairs(tol, 2.):
+                    # whenever we encounter a pair, ensure their index matches
+                    i_i, i_j = indices[[i, j]]
+                    if i_i != i_j:
+                        indices[i] = indices[j] = min(i_i, i_j)
+                        changed = True
+                if not changed:
+                    break
+
+        self = self.with_column(polars.Series('_unique_pts', indices))
+        cols.add('_unique_pts')
+        new = Atoms(self._get_frame().unique(subset=list(cols), keep=keep).drop('_unique_pts'), _unchecked=True)
+        return self.with_atoms(new)
+
+    unique = deduplicate
 
     # property getters and setters
 
@@ -245,22 +367,22 @@ class HasAtoms(abc.ABC):
         return self.try_get_column('mass')
 
     @t.overload
-    def add_atom(self, elem: t.Union[int, str], x: ArrayLike, /, *,
+    def add_atom(self: HasAtomsT, elem: t.Union[int, str], x: ArrayLike, /, *,
                  y: None = None, z: None = None,
-                 **kwargs: t.Any) -> Atoms:
+                 **kwargs: t.Any) -> HasAtomsT:
         ...
 
     @t.overload
-    def add_atom(self, elem: t.Union[int, str], /,
+    def add_atom(self: HasAtomsT, elem: t.Union[int, str], /,
                  x: float, y: float, z: float,
-                 **kwargs: t.Any) -> Atoms:
+                 **kwargs: t.Any) -> HasAtomsT:
         ...
 
-    def add_atom(self, elem: t.Union[int, str], /,
+    def add_atom(self: HasAtomsT, elem: t.Union[int, str], /,
                  x: t.Union[ArrayLike, float],
                  y: t.Optional[float] = None,
                  z: t.Optional[float] = None,
-                 **kwargs: t.Any) -> Atoms:
+                 **kwargs: t.Any) -> HasAtomsT:
         """
         Return a copy of ``self`` with an extra atom.
 
@@ -280,7 +402,7 @@ class HasAtoms(abc.ABC):
         sym = get_sym(elem) if isinstance(elem, int) else elem
         d: t.Dict[str, t.Any] = {'x': x, 'y': y, 'z': z, 'symbol': sym, **kwargs}
         return self.concat(
-            Atoms(Atoms(d).select_schema(self.schema)),
+            (self, Atoms(d).select_schema(self.schema)),
             how='vertical'
         )
 
@@ -397,7 +519,7 @@ class HasAtoms(abc.ABC):
         if 'type' in self.columns:
             return self
 
-        unique = Atoms(self.get_atoms().inner.unique(maintain_order=False, subset=['elem', 'symbol']).sort(['elem', 'symbol']), _unchecked=True)
+        unique = Atoms(self._get_frame().unique(maintain_order=False, subset=['elem', 'symbol']).sort(['elem', 'symbol']), _unchecked=True)
         new = self.with_column(polars.Series('type', values=numpy.zeros(len(self)), dtype=polars.Int32))
 
         logging.warning("Auto-assigning element types")
@@ -493,97 +615,7 @@ class HasAtoms(abc.ABC):
             self['v_z'].set_at_idx(selection, pts[:, 2]),  # type: ignore
         )))
 
-    def transform_atoms(self: HasAtomsT, transform: IntoTransform3D, selection: t.Optional[AtomSelection] = None, *, transform_velocities: bool = False) -> HasAtomsT:
-        """
-        Transform the atoms in `self` by `transform`.
-        If `selection` is given, only transform the atoms in `selection`.
-        """
-        transform = Transform3D.make(transform)
-        selection = map_some(lambda s: _selection_to_series(self, s), selection)
-        transformed = self.with_coords(Transform3D.make(transform) @ self.coords(selection), selection)
-        # try to transform velocities as well
-        if transform_velocities and (velocities := self.velocities(selection)) is not None:
-            return transformed.with_velocity(transform.transform_vec(velocities), selection)
-        return transformed
-
-    transform = transform_atoms
-
-    def round_near_zero(self: HasAtomsT, tol: float = 1e-14) -> HasAtomsT:
-        """
-        Round atom position values near zero to zero.
-        """
-        return self.with_columns(tuple(
-            polars.when(col.abs() >= tol).then(col).otherwise(polars.lit(0.))
-            for col in map(polars.col, ('x', 'y', 'z'))
-        ))
-
-    def crop(self: HasAtomsT, x_min: float = -numpy.inf, x_max: float = numpy.inf,
-             y_min: float = -numpy.inf, y_max: float = numpy.inf,
-             z_min: float = -numpy.inf, z_max: float = numpy.inf) -> HasAtomsT:
-        """
-        Crop, removing all atoms outside of the specified region, inclusive.
-        """
-
-        min = to_vec3([x_min, y_min, z_min])
-        max = to_vec3([x_max, y_max, z_max])
-
-        return self.filter(
-            (polars.col('x') >= min[0]) & (polars.col('x') <= max[0]) &
-            (polars.col('y') >= min[1]) & (polars.col('y') <= max[1]) &
-            (polars.col('z') >= min[2]) & (polars.col('z') <= max[2])
-        )
-
-    crop_atoms = crop
-
-    def deduplicate(self: HasAtomsT, tol: float = 1e-3, subset: t.Iterable[str] = ('x', 'y', 'z', 'symbol'),
-                    keep: UniqueKeepStrategy = 'first') -> HasAtomsT:
-        """
-        De-duplicate atoms in `self`. Atoms of the same `symbol` that are closer than `tolerance`
-        to each other (by Euclidian distance) will be removed, leaving only the atom specified by
-        `keep` (defaults to the first atom).
-
-        If `subset` is specified, only those columns will be included while assessing duplicates.
-        Floating point columns other than 'x', 'y', and 'z' will not by toleranced.
-        """
-
-        cols = set((subset,) if isinstance(subset, str) else subset)
-
-        indices = numpy.arange(len(self))
-
-        spatial_cols = cols.intersection(('x', 'y', 'z'))
-        cols -= spatial_cols
-        if len(spatial_cols) > 0:
-            coords = self.select(list(spatial_cols)).to_numpy()
-            print(coords.shape)
-            tree = scipy.spatial.KDTree(coords)
-
-            # TODO This is a bad algorithm
-            while True:
-                changed = False
-                for (i, j) in tree.query_pairs(tol, 2.):
-                    # whenever we encounter a pair, ensure their index matches
-                    i_i, i_j = indices[[i, j]]
-                    if i_i != i_j:
-                        indices[i] = indices[j] = min(i_i, i_j)
-                        changed = True
-                if not changed:
-                    break
-
-        self = self.with_column(polars.Series('_unique_pts', indices))
-        cols.add('_unique_pts')
-        new = Atoms(self.get_atoms().inner.unique(subset=list(cols), keep=keep).drop('_unique_pts'), _unchecked=True)
-        return self.with_atoms(new)
-
-    unique = deduplicate
-
-    def assert_equal(self, other: t.Any):
-        assert isinstance(other, Atoms)
-        assert self.schema == other.schema
-        for (col, dtype) in self.schema.items():
-            if dtype in (polars.Float32, polars.Float64):
-                numpy.testing.assert_array_almost_equal(self[col].view(True), other[col].view(True), 5)
-            else:
-                assert (self[col] == other[col]).all()
+    
 
 
 class Atoms(HasAtoms):
@@ -666,6 +698,10 @@ class Atoms(HasAtoms):
 
     def with_atoms(self, atoms: Atoms) -> Atoms:
         return atoms
+
+    @classmethod
+    def _combine_metadata(cls: t.Type[Atoms], *atoms: HasAtoms) -> Atoms:
+        return cls.empty()
 
     def bbox(self) -> BBox3D:
         """Return the bounding box of all the points in `self`."""

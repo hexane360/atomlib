@@ -113,7 +113,7 @@ class opt_classmethod(classmethod, t.Generic[T, P, U_co]):
     def __get__(self, obj: t.Optional[T], ty: t.Optional[t.Type[T]] = None) -> t.Callable[P, U_co]:  # type: ignore
         if obj is None:
             if ty is None:
-                raise RuntimeError()
+                raise RuntimeError()  # pragma: no cover
             obj = ty()
         return t.cast(
             t.Callable[P, U_co],

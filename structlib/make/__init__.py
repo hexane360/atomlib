@@ -58,7 +58,7 @@ def fcc(elem: ElemLike, a: Num, *, cell: CellType = 'conv', additional: t.Option
 
     frame = Atoms(dict(x=xs, y=ys, z=zs, elem=elems))
     if additional is not None:
-        frame = frame.concat(Atoms(additional))
+        frame = Atoms.concat((frame, additional), how='vertical')
 
     return AtomCell.from_ortho(frame, ortho, frame='cell_frac')
 
