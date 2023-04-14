@@ -1,5 +1,3 @@
-from pathlib import Path
-
 import numpy
 import polars
 import pytest
@@ -167,3 +165,13 @@ def test_cfg_hex(aln_ortho):
         'v_z': [0.0, 0.0, 0.0, 0.0],
         'mass': [26.9815, 14.0067, 26.9815, 14.0067],
     }), aln_ortho, frame='local')
+
+
+@check_parse_structure('label_only.cif')
+def test_cif_aln_labelonly(aln):
+    return AtomCell(
+        aln.get_atoms('local')
+            .with_column(polars.Series('label', ['Al(0)', 'Al(1)', 'N(0)', 'N(1)']))
+            .select(['x', 'y', 'z', 'symbol', 'label', 'elem']),
+        aln.cell, frame='local'
+    )

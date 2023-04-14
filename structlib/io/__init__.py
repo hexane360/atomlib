@@ -18,7 +18,7 @@ from .qe import write_qe
 from ..core import AtomCollection, Atoms, SimpleAtoms, AtomCell, Cell
 from ..types import to_vec3
 from ..transform import LinearTransform3D
-from ..elem import get_sym
+from ..elem import get_sym, get_elem
 from ..util import FileOrPath
 
 FileType = t.Literal['cif', 'xyz', 'xsf', 'cfg', 'lmp', 'mslice', 'qe']
@@ -39,9 +39,16 @@ def read_cif(f: t.Union[FileOrPath, CIF]) -> AtomCollection:
     logging.debug("cif data: %r", cif.data)
 
     df = cif.stack_tags('atom_site_fract_x', 'atom_site_fract_y', 'atom_site_fract_z',
-                        'atom_site_type_symbol', 'atom_site_occupancy', 'atom_site_U_iso_or_equiv',
-                        rename=('x', 'y', 'z', 'symbol', 'frac_occupancy', 'wobble'),
-                        required=(True, True, True, True, False))
+                        'atom_site_type_symbol', 'atom_site_label', 'atom_site_occupancy', 'atom_site_U_iso_or_equiv',
+                        rename=('x', 'y', 'z', 'symbol', 'label', 'frac_occupancy', 'wobble'),
+                        required=(True, True, True, False, False, False, False))
+    if 'symbol' not in df.columns:
+        if 'label' not in df.columns:
+            raise ValueError("Tag 'atom_site_type_symbol' or 'atom_site_label' missing from CIF file")
+        # infer symbol from label
+        df = df.with_columns(get_sym(get_elem(df['label'])))
+        # reorder symbol column
+        df = df.select([*df.columns[:3], df.columns[-1], *df.columns[3:-1]])
     atoms = Atoms(df)
 
     # parse and apply symmetry
