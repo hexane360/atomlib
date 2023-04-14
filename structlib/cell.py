@@ -6,6 +6,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 import itertools
 from warnings import warn
+import abc
 import typing as t
 
 import numpy
@@ -35,38 +36,58 @@ A coordinate frame to use.
 """
 
 
-@dataclass(frozen=True, init=False)
-class Cell:
-    """
-    Internal class for representing the coordinate systems of a crystal.
+HasCellT = t.TypeVar('HasCellT', bound='HasCell')
 
-    The overall transformation from crystal coordinates to real-space coordinates is
-    is split into four transformations, applied from bottom to top. First is ``n_cells``,
-    which scales from fractions of a unit cell to fractions of a supercell. Next is
-    ``cell_size``, which scales to real-space units. ``ortho`` is an orthogonalization
-    matrix, a det = 1 upper-triangular matrix which transforms crystal axes to
-    an orthogonal coordinate system. Finally, ``affine`` contains any remaining
-    transformations to the local coordinate system, which atoms are stored in.
-    """
 
-    affine: AffineTransform3D = AffineTransform3D()
-    ortho: LinearTransform3D = LinearTransform3D()
-    cell_size: NDArray[numpy.float_]
-    cell_angle: NDArray[numpy.float_] = field(default_factory=lambda: numpy.full(3, numpy.pi/2.))
-    n_cells: NDArray[numpy.int_] = field(default_factory=lambda: numpy.ones(3, numpy.int_))
-    pbc: NDArray[numpy.bool_] = field(default_factory=lambda: numpy.ones(3, numpy.bool_))
+class HasCell:
+    # abstract methods
 
-    def __init__(self, *,
-        affine: t.Optional[AffineTransform3D] = None, ortho: t.Optional[LinearTransform3D] = None,
-        cell_size: VecLike, cell_angle: t.Optional[VecLike] = None,
-        n_cells: t.Optional[VecLike] = None, pbc: t.Optional[VecLike]):
+    @abc.abstractmethod
+    def get_cell(self) -> Cell:
+        """Get the cell contained in ``self``. This should be a low cost method."""
+        ...
 
-        object.__setattr__(self, 'affine', AffineTransform3D() if affine is None else affine)
-        object.__setattr__(self, 'ortho', LinearTransform3D() if ortho is None else ortho)
-        object.__setattr__(self, 'cell_size', to_vec3(cell_size))
-        object.__setattr__(self, 'cell_angle', numpy.full(3, numpy.pi/2.) if cell_angle is None else to_vec3(cell_angle))
-        object.__setattr__(self, 'n_cells', numpy.ones(3, numpy.int_) if n_cells is None else to_vec3(n_cells, numpy.int_))
-        object.__setattr__(self, 'pbc', numpy.ones(3, numpy.bool_) if pbc is None else to_vec3(pbc, numpy.bool_))
+    @abc.abstractmethod
+    def with_cell(self: HasCellT, cell: Cell) -> HasCellT:
+        """Replace the cell in ``self`` with ``cell``."""
+        ...
+
+    # getters
+
+    @property
+    def affine(self) -> AffineTransform3D:
+        """
+        Affine transformation. Holds transformation from 'ortho' to 'local' coordinates,
+        including rotation away from the standard crystal orientation.
+        """
+        return self.get_cell()._affine
+
+    @property
+    def ortho(self) -> LinearTransform3D:
+        """
+        Orthogonalization transformation. Skews but does not scale the crystal axes to cartesian axes.
+        """
+        return self.get_cell()._ortho
+
+    @property
+    def cell_size(self) -> NDArray[numpy.float_]:
+        """Unit cell size."""
+        return self.get_cell()._cell_size
+
+    @property
+    def cell_angle(self) -> NDArray[numpy.float_]:
+        """Unit cell angles, in radians."""
+        return self.get_cell()._cell_angle
+
+    @property
+    def n_cells(self) -> NDArray[numpy.int_]:
+        """Number of unit cells."""
+        return self.get_cell()._n_cells
+
+    @property
+    def pbc(self) -> NDArray[numpy.bool_]:
+        """Flags indicating the presence of periodic boundary conditions along each axis."""
+        return self.get_cell()._pbc
 
     @property
     def ortho_size(self) -> NDArray[numpy.float_]:
@@ -86,153 +107,7 @@ class Cell:
         """
         return self.n_cells * self.cell_size
 
-    def corners(self, frame: CoordinateFrame = 'local') -> numpy.ndarray:
-        corners = numpy.array(list(itertools.product((0., 1.), repeat=3)))
-        return self.get_transform(frame, 'cell_box') @ corners
-
-    def bbox(self, frame: CoordinateFrame = 'local') -> BBox3D:
-        """Return the bounding box of the cell box in the given coordinate system."""
-        return BBox3D.from_pts(self.corners(frame))
-
-    def is_orthogonal(self, tol: float = 1e-8) -> bool:
-        """Returns whether this cell is orthogonal (axes are at right angles.)"""
-        return self.ortho.is_diagonal(tol=tol)
-
-    def is_orthogonal_in_local(self, tol: float = 1e-8) -> bool:
-        """Returns whether this cell is orthogonal and aligned with the local coordinate system."""
-        transform = (self.affine @ self.ortho).to_linear()
-        if not transform.is_scaled_orthogonal(tol):
-            return False
-        normed = transform.inner / numpy.linalg.norm(transform.inner, axis=-2, keepdims=True)
-        # every row of transform must be a +/- 1 times a basis vector (i, j, or k)
-        return all(
-            any(numpy.isclose(numpy.abs(numpy.dot(row, v)), 1., atol=tol) for v in numpy.eye(3))
-            for row in normed
-        )
-
-    @staticmethod
-    def from_unit_cell(cell_size: VecLike, cell_angle: t.Optional[VecLike] = None, n_cells: t.Optional[VecLike] = None,
-                       pbc: t.Optional[VecLike] = None):
-        return Cell(
-            ortho=cell_to_ortho([1.]*3, cell_angle),
-            n_cells=to_vec3([1]*3 if n_cells is None else n_cells, numpy.int_),
-            cell_size=to_vec3(cell_size),
-            cell_angle=to_vec3([numpy.pi/2.]*3 if cell_angle is None else cell_angle),
-            pbc=pbc
-        )
-
-    @staticmethod
-    def from_ortho(ortho: AffineTransform3D, n_cells: t.Optional[VecLike] = None, pbc: t.Optional[VecLike] = None):
-        lin = ortho.to_linear()
-        # decompose into orthogonal and upper triangular
-        q, r = numpy.linalg.qr(lin.inner)
-
-        # flip QR decomposition so R has positive diagonals
-        signs = numpy.sign(numpy.diagonal(r))
-        # multiply flips to columns of Q, rows of R
-        q = q * signs; r = r * signs[:, None]
-        #numpy.testing.assert_allclose(q @ r, lin.inner)
-        if numpy.linalg.det(q) < 0:
-            warn("Crystal is left-handed. This is currently unsupported, and may cause errors.")
-            # currently, behavior is to leave `ortho` proper, and move the inversion into the affine transform
-
-        cell_size, cell_angle = ortho_to_cell(lin)
-        return Cell(
-            affine=LinearTransform3D(q).translate(ortho.translation()),
-            ortho=LinearTransform3D(r / cell_size).round_near_zero(),
-            cell_size=cell_size, cell_angle=cell_angle,
-            n_cells=to_vec3([1]*3 if n_cells is None else n_cells, numpy.int_),
-            pbc=pbc,
-        )
-
-    def to_ortho(self) -> AffineTransform3D:
-        return self.get_transform('local', 'cell_box')
-
-    def transform_cell(self, transform: AffineTransform3D, frame: CoordinateFrame = 'local') -> Cell:
-        """
-        Apply the given transform to the unit cell, and return a new `Cell`.
-        The transform is applied in coordinate frame 'frame'.
-        Orthogonal and affine transformations are applied to the affine matrix component,
-        while skew and scaling is applied to the orthogonalization matrix/cell_size.
-        """
-        transform = t.cast(AffineTransform3D, self.change_transform(transform, 'local', frame))
-        if not transform.to_linear().is_orthogonal():
-            raise NotImplementedError()
-        return Cell(
-            affine=transform @ self.affine,
-            ortho=self.ortho,
-            cell_size=self.cell_size,
-            cell_angle=self.cell_angle,
-            n_cells=self.n_cells,
-            pbc=self.pbc,
-        )
-
-    def strain_orthogonal(self) -> Cell:
-        """
-        Orthogonalize the cell using strain.
-
-        Strain is applied such that the x-axis remains fixed, and the y-axis remains in the xy plane.
-        For small displacements, no hydrostatic strain is applied (volume is conserved).
-        """
-        return Cell(
-            affine=self.affine,
-            ortho=LinearTransform3D(),
-            cell_size=self.cell_size,
-            n_cells=self.n_cells,
-            pbc=self.pbc,
-        )
-
-    def repeat(self, n: t.Union[int, VecLike]) -> Cell:
-        """Tile the cell by `n` in each dimension."""
-        ns = numpy.broadcast_to(n, 3)
-        if not numpy.issubdtype(ns.dtype, numpy.integer):
-            raise ValueError(f"repeat() argument must be an integer or integer array.")
-        return Cell(
-            affine=self.affine,
-            ortho=self.ortho,
-            cell_size=self.cell_size,
-            cell_angle=self.cell_angle,
-            n_cells=self.n_cells * numpy.broadcast_to(n, 3),
-            pbc = self.pbc | (ns > 1)  # assume periodic along repeated directions
-        )
-
-    def explode(self) -> Cell:
-        return Cell(
-            affine=self.affine,
-            ortho=self.ortho,
-            cell_size=self.cell_size*self.n_cells,
-            cell_angle=self.cell_angle,
-            pbc=self.pbc,
-        )
-
-    def crop(self, x_min: float = -numpy.inf, x_max: float = numpy.inf,
-             y_min: float = -numpy.inf, y_max: float = numpy.inf,
-             z_min: float = -numpy.inf, z_max: float = numpy.inf, *,
-             frame: CoordinateFrame = 'local') -> Cell:
-        """
-        Crop 'cell' to the given extents. For a non-orthogonal
-        cell, this must be specified in cell coordinates. This
-        function implicity `explode`s the cell as well.
-        """
-
-        if not frame.lower().startswith('cell'):
-            if not self.is_orthogonal():
-                raise ValueError("Cannot crop a non-orthogonal cell in orthogonal coordinates. Use crop_atoms instead.")
-
-        min = to_vec3([x_min, y_min, z_min])
-        max = to_vec3([x_max, y_max, z_max])
-        (min, max) = self.get_transform('cell_box', frame).transform([min, max])
-        new_box = BBox3D(min, max) & BBox3D.unit()
-        cropped = (new_box.min > 0.) | (new_box.max < 1.)
-
-        return Cell(
-            affine=self.affine @ AffineTransform3D.translate(-new_box.min),
-            ortho=self.ortho,
-            cell_size=new_box.size * self.cell_size * numpy.where(cropped, self.n_cells, 1),
-            n_cells=numpy.where(cropped, 1, self.n_cells),
-            cell_angle=self.cell_angle,
-            pbc=self.pbc & ~cropped  # remove periodicity along cropped directions
-        )
+    # get transforms
 
     def _get_transform_to_local(self, frame: CoordinateFrame) -> AffineTransform3D:
         """Get the transform from 'frame' to local coordinates."""
@@ -270,6 +145,119 @@ class Cell:
             return AffineTransform3D()
         return transform_to.inverse() @ transform_from
 
+    def corners(self, frame: CoordinateFrame = 'local') -> numpy.ndarray:
+        corners = numpy.array(list(itertools.product((0., 1.), repeat=3)))
+        return self.get_transform(frame, 'cell_box') @ corners
+
+    def bbox(self, frame: CoordinateFrame = 'local') -> BBox3D:
+        """Return the bounding box of the cell box in the given coordinate system."""
+        return BBox3D.from_pts(self.corners(frame))
+
+    def is_orthogonal(self, tol: float = 1e-8) -> bool:
+        """Returns whether this cell is orthogonal (axes are at right angles.)"""
+        return self.ortho.is_diagonal(tol=tol)
+
+    def is_orthogonal_in_local(self, tol: float = 1e-8) -> bool:
+        """Returns whether this cell is orthogonal and aligned with the local coordinate system."""
+        transform = (self.affine @ self.ortho).to_linear()
+        if not transform.is_scaled_orthogonal(tol):
+            return False
+        normed = transform.inner / numpy.linalg.norm(transform.inner, axis=-2, keepdims=True)
+        # every row of transform must be a +/- 1 times a basis vector (i, j, or k)
+        return all(
+            any(numpy.isclose(numpy.abs(numpy.dot(row, v)), 1., atol=tol) for v in numpy.eye(3))
+            for row in normed
+        )
+
+    def to_ortho(self) -> AffineTransform3D:
+        return self.get_transform('local', 'cell_box')
+
+    def transform_cell(self: HasCellT, transform: AffineTransform3D, frame: CoordinateFrame = 'local') -> HasCellT:
+        """
+        Apply the given transform to the unit cell, and return a new `Cell`.
+        The transform is applied in coordinate frame 'frame'.
+        Orthogonal and affine transformations are applied to the affine matrix component,
+        while skew and scaling is applied to the orthogonalization matrix/cell_size.
+        """
+        transform = t.cast(AffineTransform3D, self.change_transform(transform, 'local', frame))
+        if not transform.to_linear().is_orthogonal():
+            raise NotImplementedError()
+        return self.with_cell(Cell(
+            affine=transform @ self.affine,
+            ortho=self.ortho,
+            cell_size=self.cell_size,
+            cell_angle=self.cell_angle,
+            n_cells=self.n_cells,
+            pbc=self.pbc,
+        ))
+
+    def strain_orthogonal(self: HasCellT) -> HasCellT:
+        """
+        Orthogonalize using strain.
+
+        Strain is applied such that the x-axis remains fixed, and the y-axis remains in the xy plane.
+        For small displacements, no hydrostatic strain is applied (volume is conserved).
+        """
+        return self.with_cell(Cell(
+            affine=self.affine,
+            ortho=LinearTransform3D(),
+            cell_size=self.cell_size,
+            n_cells=self.n_cells,
+            pbc=self.pbc,
+        ))
+
+    def repeat(self: HasCellT, n: t.Union[int, VecLike]) -> HasCellT:
+        """Tile the cell by `n` in each dimension."""
+        ns = numpy.broadcast_to(n, 3)
+        if not numpy.issubdtype(ns.dtype, numpy.integer):
+            raise ValueError(f"repeat() argument must be an integer or integer array.")
+        return self.with_cell(Cell(
+            affine=self.affine,
+            ortho=self.ortho,
+            cell_size=self.cell_size,
+            cell_angle=self.cell_angle,
+            n_cells=self.n_cells * numpy.broadcast_to(n, 3),
+            pbc = self.pbc | (ns > 1)  # assume periodic along repeated directions
+        ))
+
+    def explode(self: HasCellT) -> HasCellT:
+        return self.with_cell(Cell(
+            affine=self.affine,
+            ortho=self.ortho,
+            cell_size=self.cell_size*self.n_cells,
+            cell_angle=self.cell_angle,
+            pbc=self.pbc,
+        ))
+
+    def crop(self: HasCellT, x_min: float = -numpy.inf, x_max: float = numpy.inf,
+             y_min: float = -numpy.inf, y_max: float = numpy.inf,
+             z_min: float = -numpy.inf, z_max: float = numpy.inf, *,
+             frame: CoordinateFrame = 'local') -> HasCellT:
+        """
+        Crop 'cell' to the given extents. For a non-orthogonal
+        cell, this must be specified in cell coordinates. This
+        function implicity `explode`s the cell as well.
+        """
+
+        if not frame.lower().startswith('cell'):
+            if not self.is_orthogonal():
+                raise ValueError("Cannot crop a non-orthogonal cell in orthogonal coordinates. Use crop_atoms instead.")
+
+        min = to_vec3([x_min, y_min, z_min])
+        max = to_vec3([x_max, y_max, z_max])
+        (min, max) = self.get_transform('cell_box', frame).transform([min, max])
+        new_box = BBox3D(min, max) & BBox3D.unit()
+        cropped = (new_box.min > 0.) | (new_box.max < 1.)
+
+        return self.with_cell(Cell(
+            affine=self.affine @ AffineTransform3D.translate(-new_box.min),
+            ortho=self.ortho,
+            cell_size=new_box.size * self.cell_size * numpy.where(cropped, self.n_cells, 1),
+            n_cells=numpy.where(cropped, 1, self.n_cells),
+            cell_angle=self.cell_angle,
+            pbc=self.pbc & ~cropped  # remove periodicity along cropped directions
+        ))
+
     def change_transform(self, transform: Transform3D,
                          frame_to: t.Optional[CoordinateFrame] = None,
                          frame_from: t.Optional[CoordinateFrame] = None) -> Transform3D:
@@ -280,12 +268,100 @@ class Cell:
         return coord_change @ transform @ coord_change.inverse()
 
     def assert_equal(self, other: t.Any):
-        assert isinstance(other, Cell)
+        assert isinstance(other, HasCell) and type(self) == type(other)
         numpy.testing.assert_array_almost_equal(self.affine.inner, other.affine.inner, 6)
         numpy.testing.assert_array_almost_equal(self.ortho.inner, other.ortho.inner, 6)
         numpy.testing.assert_array_almost_equal(self.cell_size, other.cell_size, 6)
         numpy.testing.assert_array_equal(self.n_cells, other.n_cells)
         numpy.testing.assert_array_equal(self.pbc, other.pbc)
+
+
+@dataclass(frozen=True, init=False)
+class Cell(HasCell):
+    """
+    Internal class for representing the coordinate systems of a crystal.
+
+    The overall transformation from crystal coordinates to real-space coordinates is
+    is split into four transformations, applied from bottom to top. First is ``n_cells``,
+    which scales from fractions of a unit cell to fractions of a supercell. Next is
+    ``cell_size``, which scales to real-space units. ``ortho`` is an orthogonalization
+    matrix, a det = 1 upper-triangular matrix which transforms crystal axes to
+    an orthogonal coordinate system. Finally, ``affine`` contains any remaining
+    transformations to the local coordinate system, which atoms are stored in.
+    """
+
+    def get_cell(self) -> Cell:
+        return self
+
+    def with_cell(self: Cell, cell: Cell) -> Cell:
+        return cell
+
+    _affine: AffineTransform3D = AffineTransform3D()
+    """
+    Affine transformation. Holds transformation from 'ortho' to 'local' coordinates,
+    including rotation away from the standard crystal orientation.
+    """
+
+    _ortho: LinearTransform3D = LinearTransform3D()
+    """
+    Orthogonalization transformation. Skews but does not scale the crystal axes to cartesian axes.
+    """
+
+    _cell_size: NDArray[numpy.float_]
+    """Unit cell size."""
+    _cell_angle: NDArray[numpy.float_] = field(default_factory=lambda: numpy.full(3, numpy.pi/2.))
+    """Unit cell angles, in radians."""
+    _n_cells: NDArray[numpy.int_] = field(default_factory=lambda: numpy.ones(3, numpy.int_))
+    """Number of unit cells."""
+    _pbc: NDArray[numpy.bool_] = field(default_factory=lambda: numpy.ones(3, numpy.bool_))
+    """Flags indicating the presence of periodic boundary conditions along each axis."""
+
+    def __init__(self, *,
+        affine: t.Optional[AffineTransform3D] = None, ortho: t.Optional[LinearTransform3D] = None,
+        cell_size: VecLike, cell_angle: t.Optional[VecLike] = None,
+        n_cells: t.Optional[VecLike] = None, pbc: t.Optional[VecLike]):
+
+        object.__setattr__(self, '_affine', AffineTransform3D() if affine is None else affine)
+        object.__setattr__(self, '_ortho', LinearTransform3D() if ortho is None else ortho)
+        object.__setattr__(self, '_cell_size', to_vec3(cell_size))
+        object.__setattr__(self, '_cell_angle', numpy.full(3, numpy.pi/2.) if cell_angle is None else to_vec3(cell_angle))
+        object.__setattr__(self, '_n_cells', numpy.ones(3, numpy.int_) if n_cells is None else to_vec3(n_cells, numpy.int_))
+        object.__setattr__(self, '_pbc', numpy.ones(3, numpy.bool_) if pbc is None else to_vec3(pbc, numpy.bool_))
+
+    @staticmethod
+    def from_unit_cell(cell_size: VecLike, cell_angle: t.Optional[VecLike] = None, n_cells: t.Optional[VecLike] = None,
+                       pbc: t.Optional[VecLike] = None):
+        return Cell(
+            ortho=cell_to_ortho([1.]*3, cell_angle),
+            n_cells=to_vec3([1]*3 if n_cells is None else n_cells, numpy.int_),
+            cell_size=to_vec3(cell_size),
+            cell_angle=to_vec3([numpy.pi/2.]*3 if cell_angle is None else cell_angle),
+            pbc=pbc
+        )
+
+    @staticmethod
+    def from_ortho(ortho: AffineTransform3D, n_cells: t.Optional[VecLike] = None, pbc: t.Optional[VecLike] = None):
+        lin = ortho.to_linear()
+        # decompose into orthogonal and upper triangular
+        q, r = numpy.linalg.qr(lin.inner)
+
+        # flip QR decomposition so R has positive diagonals
+        signs = numpy.sign(numpy.diagonal(r))
+        # multiply flips to columns of Q, rows of R
+        q = q * signs; r = r * signs[:, None]
+        #numpy.testing.assert_allclose(q @ r, lin.inner)
+        if numpy.linalg.det(q) < 0:
+            warn("Crystal is left-handed. This is currently unsupported, and may cause errors.")
+            # currently, behavior is to leave `ortho` proper, and move the inversion into the affine transform
+
+        cell_size, cell_angle = ortho_to_cell(lin)
+        return Cell(
+            affine=LinearTransform3D(q).translate(ortho.translation()),
+            ortho=LinearTransform3D(r / cell_size).round_near_zero(),
+            cell_size=cell_size, cell_angle=cell_angle,
+            n_cells=to_vec3([1]*3 if n_cells is None else n_cells, numpy.int_),
+            pbc=pbc,
+        )
 
 
 @t.overload
@@ -397,3 +473,9 @@ def zone_to_plane(metric: LinearTransform3D, zone: VecLike, reduce: bool = True)
         return to_vec3(reduce_vec(plane))
     # otherwise reduce to unit vector
     return plane / float(numpy.linalg.norm(plane))
+
+__all__ = [
+    'HasCell', 'Cell', 'CoordinateFrame',
+    'zone_to_plane', 'plane_to_zone',
+    'ortho_to_cell', 'cell_to_ortho',
+]

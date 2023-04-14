@@ -43,7 +43,7 @@ UniqueKeepStrategy = t.Literal['first', 'last']
 ConcatMethod = t.Literal['horizontal', 'vertical', 'diagonal', 'inner']
 
 
-if t.TYPE_CHECKING:
+if t.TYPE_CHECKING:  # pragma: no cover
     class ColumnNotFoundError(Exception):
         ...
 else:
