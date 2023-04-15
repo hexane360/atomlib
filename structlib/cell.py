@@ -221,6 +221,7 @@ class HasCell:
         ))
 
     def explode(self: HasCellT) -> HasCellT:
+        """Materialize repeated cells as one supercell."""
         return self.with_cell(Cell(
             affine=self.affine,
             ortho=self.ortho,

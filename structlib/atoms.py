@@ -91,10 +91,10 @@ def _select_schema(df: t.Union[polars.DataFrame, HasAtoms], schema: SchemaDict) 
     Select columns from ``self`` and cast to the given schema.
     """
     try:
-        return df.select(tuple(
+        return df.select([
             polars.col(col).cast(ty, strict=True)
             for (col, ty) in schema.items()
-        ))
+        ])
     except (polars.ComputeError, ColumnNotFoundError):
         raise TypeError(f"Failed to cast '{df.__class__.__name__}' with schema '{df.schema}' to schema '{schema}'.")
 
@@ -190,7 +190,7 @@ class HasAtoms(abc.ABC):
 
         if how == 'inner':
             cols = reduce(operator.and_, (df.schema.keys() for df in dfs))
-            schema = {col: dfs[0].schema[col] for col in cols}
+            schema = t.cast(SchemaDict, {col: dfs[0].schema[col] for col in cols})
             if len(schema) == 0:
                 raise ValueError(f"Atoms have no columns in common")
 
