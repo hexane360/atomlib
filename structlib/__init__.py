@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from .atoms import Atoms, AtomSelection
-from .cell import Cell, CoordinateFrame
-from .core import AtomCollection, AtomCell, SimpleAtoms
+from .atoms import Atoms, HasAtoms, AtomSelection
+from .cell import Cell, HasCell, CoordinateFrame
+from .atomcell import AtomCell, HasAtomCell
 
 # pyright: reportImportCycles=false
 
@@ -10,7 +10,7 @@ from . import io, visualize, make, disloc, transform
 
 __all__ = [
     'io', 'visualize', 'make', 'disloc', 'transform',
-    'Atoms', 'AtomSelection',
-    'Cell', 'CoordinateFrame',
-    'AtomCollection', 'AtomCell', 'SimpleAtoms',
+    'Atoms', 'HasAtoms', 'AtomSelection',
+    'Cell', 'HasCell', 'CoordinateFrame',
+    'AtomCell', 'HasAtomCell',
 ]

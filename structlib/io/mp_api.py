@@ -6,7 +6,7 @@ import typing as t
 
 import numpy
 
-from ..core import AtomCell
+from ..atomcell import AtomCell
 from ..atoms import Atoms
 from ..elem import get_elem
 from ..transform import LinearTransform3D

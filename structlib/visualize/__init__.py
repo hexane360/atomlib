@@ -12,7 +12,9 @@ from matplotlib.figure import Figure
 from mpl_toolkits.mplot3d import Axes3D
 #from mpl_toolkits.mplot3d.art3d import PathPatch3D
 
-from ..core import AtomCollection, AtomCell
+from ..atoms import HasAtoms
+from ..cell import HasCell
+from ..atomcell import AtomCell
 from ..transform import LinearTransform3D
 from ..util import FileOrPath
 from ..types import VecLike, to_vec3
@@ -28,7 +30,7 @@ class AtomImage(ABC):
         ...
 
 
-def show_atoms_3d(atoms: AtomCollection, *,
+def show_atoms_3d(atoms: HasAtoms, *,
                   zone: t.Optional[VecLike] = None,
                   plane: t.Optional[VecLike] = None,
                   backend: BackendName = 'mpl') -> AtomImage:
@@ -41,7 +43,7 @@ def show_atoms_3d(atoms: AtomCollection, *,
     raise ValueError(f"Unknown backend '{backend}'")
 
 
-def show_atoms_2d(atoms: AtomCollection, *,
+def show_atoms_2d(atoms: HasAtoms, *,
                   zone: t.Optional[VecLike] = None,
                   plane: t.Optional[VecLike] = None,
                   horz: t.Optional[VecLike] = None,
@@ -95,7 +97,7 @@ class AtomPatch3D(PathPatch3D):
 """
 
 
-def get_zone(atoms: AtomCollection, zone: t.Optional[VecLike] = None,
+def get_zone(atoms: HasAtoms, zone: t.Optional[VecLike] = None,
              plane: t.Optional[VecLike] = None,
              default: t.Optional[VecLike] = None) -> numpy.ndarray:
     if zone is not None and plane is not None:
@@ -118,7 +120,7 @@ def get_azim_elev(zone: VecLike) -> t.Tuple[float, float]:
     return (numpy.angle(a + b*1.j, deg=True), numpy.angle(l + c*1.j, deg=True))  # type: ignore
 
 
-def show_atoms_mpl_3d(atoms: AtomCollection, *, fig: t.Optional[Figure] = None,
+def show_atoms_mpl_3d(atoms: HasAtoms, *, fig: t.Optional[Figure] = None,
                       zone: t.Optional[VecLike] = None, plane: t.Optional[VecLike] = None) -> AtomImageMpl:
     fig = AtomImageMpl(fig or pyplot.figure())
 
@@ -126,7 +128,7 @@ def show_atoms_mpl_3d(atoms: AtomCollection, *, fig: t.Optional[Figure] = None,
     (azim, elev) = get_azim_elev(zone)
 
     rect = [0., 0., 1., 1.]
-    ax: Axes3D = fig.add_axes(rect, axes_class=Axes3D, proj_type='ortho', azim=azim, elev=elev)
+    ax: Axes3D = fig.add_axes(rect, axes_class=Axes3D, proj_type='ortho', azim=azim, elev=elev)  # type: ignore
     ax.grid(False)
 
     bbox = atoms.bbox().pad(0.2)
@@ -139,14 +141,14 @@ def show_atoms_mpl_3d(atoms: AtomCollection, *, fig: t.Optional[Figure] = None,
     ax.set_ylabel('Y')
     ax.set_zlabel('Z')
 
-    frame = atoms.get_atoms('global')
+    frame = atoms.get_atoms('local')
     coords = frame.coords()
     elem_colors = numpy.array(list(map(get_elem_color, frame['elem']))) / 255.
     s = 100
 
-    if isinstance(atoms, AtomCell):  # TODO raise this API to AtomCollection
+    if isinstance(atoms, HasCell):
         # plot cell corners
-        corners = atoms.cell.corners('global')
+        corners = atoms.corners('global')
         faces = [
             numpy.array([
                 corners[(val*2**axis + v1*2**((axis+1) % 3) + v2*2**((axis+2) % 3))]
@@ -163,7 +165,7 @@ def show_atoms_mpl_3d(atoms: AtomCollection, *, fig: t.Optional[Figure] = None,
     return fig
 
 
-def show_atoms_mpl_2d(atoms: AtomCollection, *, fig: t.Optional[Figure] = None,
+def show_atoms_mpl_2d(atoms: HasAtoms, *, fig: t.Optional[Figure] = None,
                       zone: t.Optional[VecLike] = None,
                       plane: t.Optional[VecLike] = None,
                       horz: t.Optional[VecLike] = None,
@@ -175,7 +177,7 @@ def show_atoms_mpl_2d(atoms: AtomCollection, *, fig: t.Optional[Figure] = None,
     ax: Axes = fig.add_axes(rect)
     ax.set_aspect('equal')
 
-    frame = atoms.get_atoms('global')
+    frame = atoms.get_atoms('local')
     coords = frame.coords()
     elem_colors = numpy.array(list(map(get_elem_color, frame['elem']))) / 255.
 

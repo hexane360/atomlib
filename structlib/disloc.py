@@ -13,9 +13,9 @@ from numpy.typing import NDArray, ArrayLike
 import polars
 from scipy.special import ellipe, ellipk, elliprf, elliprj
 
-from .core import AtomCollectionT, VecLike, to_vec3
+from .atomcell import VecLike, to_vec3
 from .transform import AffineTransform3D, LinearTransform3D
-from .atoms import Atoms, _selection_to_expr
+from .atoms import Atoms, HasAtomsT, _selection_to_expr
 from .vec import norm, dot, perp, split_arr, polygon_solid_angle, polygon_winding
 
 
@@ -38,8 +38,8 @@ def ellip_pi(n: NDArray[numpy.float_], m: NDArray[numpy.float_]) -> NDArray[nump
 CutType = t.Literal['shift', 'add', 'rm']
 
 
-def disloc_edge(atoms: AtomCollectionT, center: VecLike, b: VecLike, t: VecLike, cut: t.Union[CutType, VecLike] = 'shift',
-                *, poisson: float = 0.25) -> AtomCollectionT:
+def disloc_edge(atoms: HasAtomsT, center: VecLike, b: VecLike, t: VecLike, cut: t.Union[CutType, VecLike] = 'shift',
+                *, poisson: float = 0.25) -> HasAtomsT:
     r"""
     Add a Volterra edge dislocation to the structure.
 
@@ -143,11 +143,11 @@ def disloc_edge(atoms: AtomCollectionT, center: VecLike, b: VecLike, t: VecLike,
         numpy.zeros_like(x)
     ], axis=-1) / (2*numpy.pi)
 
-    return atoms._replace_atoms(frame.with_coords(pts + disps).transform(transform.inverse()), 'local')
+    return atoms.with_atoms(frame.with_coords(pts + disps).transform(transform.inverse()), 'local')
 
 
-def disloc_screw(atoms: AtomCollectionT, center: VecLike, b: VecLike, cut: t.Optional[VecLike] = None,
-                 sign: bool = True) -> AtomCollectionT:
+def disloc_screw(atoms: HasAtomsT, center: VecLike, b: VecLike, cut: t.Optional[VecLike] = None,
+                 sign: bool = True) -> HasAtomsT:
     r"""
     Add a Volterra screw dislocation to the structure.
 
@@ -202,11 +202,11 @@ def disloc_screw(atoms: AtomCollectionT, center: VecLike, b: VecLike, cut: t.Opt
     # FS/RH convention
     disp = b_vec * (theta / (2*numpy.pi))
 
-    return atoms._replace_atoms(frame.with_coords(pts + center + disp), 'local')
+    return atoms.with_atoms(frame.with_coords(pts + center + disp), 'local')
 
 
-def disloc_loop_z(atoms: AtomCollectionT, center: VecLike, b: VecLike,
-                  loop_r: float, *, poisson: float = 0.25) -> AtomCollectionT:
+def disloc_loop_z(atoms: HasAtomsT, center: VecLike, b: VecLike,
+                  loop_r: float, *, poisson: float = 0.25) -> HasAtomsT:
     r"""
     Add a square dislocation loop to the structure, assuming an elastically isotropic material.
 
@@ -251,11 +251,11 @@ def disloc_loop_z(atoms: AtomCollectionT, center: VecLike, b: VecLike,
     pts = frame.coords()
     disps = _loop_disp_z(pts, b_vec, loop_r, poisson=poisson, branch=branch)
 
-    return atoms._replace_atoms(frame.with_coords(pts + disps + center), 'local')
+    return atoms.with_atoms(frame.with_coords(pts + disps + center), 'local')
 
 
-def disloc_square_z(atoms: AtomCollectionT, center: VecLike, b: VecLike,
-                    loop_r: float, *, poisson: float = 0.25) -> AtomCollectionT:
+def disloc_square_z(atoms: HasAtomsT, center: VecLike, b: VecLike,
+                    loop_r: float, *, poisson: float = 0.25) -> HasAtomsT:
     r"""
     Add a square dislocation loop to the structure, assuming an elastically isotropic material.
 
@@ -269,8 +269,8 @@ def disloc_square_z(atoms: AtomCollectionT, center: VecLike, b: VecLike,
     return disloc_poly_z(atoms, b, poly, center, poisson=poisson)
 
 
-def disloc_poly_z(atoms: AtomCollectionT, b: VecLike, poly: ArrayLike, center: t.Optional[VecLike] = None,
-                  *, poisson: float = 0.25) -> AtomCollectionT:
+def disloc_poly_z(atoms: HasAtomsT, b: VecLike, poly: ArrayLike, center: t.Optional[VecLike] = None,
+                  *, poisson: float = 0.25) -> HasAtomsT:
     r"""
     Add a dislocation loop defined by the polygon ``poly``, assuming an elastically isotropic material.
 
@@ -322,7 +322,7 @@ def disloc_poly_z(atoms: AtomCollectionT, b: VecLike, poly: ArrayLike, center: t
 
     disp = _poly_disp_z(coords, b_vec, poly, poisson=poisson, branch=branch)
 
-    return atoms._replace_atoms(frame.with_coords(coords + disp + center), 'local')
+    return atoms.with_atoms(frame.with_coords(coords + disp + center), 'local')
 
 
 def _poly_disp_z(pts: NDArray[numpy.float_], b_vec: NDArray[numpy.float_], poly: NDArray[numpy.float_], *,

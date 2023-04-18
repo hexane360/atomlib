@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import logging
 from functools import reduce
+import warnings
 import operator
 import abc
 import typing as t
@@ -20,11 +21,12 @@ from numpy.typing import ArrayLike, NDArray
 import polars
 import polars.datatypes
 
-from .types import to_vec3
+from .types import to_vec3, VecLike
 from .bbox import BBox3D
 from .elem import get_elem, get_sym, get_mass
-from .transform import Transform3D, IntoTransform3D
+from .transform import Transform3D, IntoTransform3D, AffineTransform3D
 from .util import map_some
+from .cell import Cell
 
 
 _COLUMN_DTYPES: t.Mapping[str, t.Type[polars.DataType]] = {
@@ -44,6 +46,9 @@ ConcatMethod = t.Literal['horizontal', 'vertical', 'diagonal', 'inner']
 
 
 if t.TYPE_CHECKING:  # pragma: no cover
+    # pyright: reportImportCycles=false
+    from .atomcell import AtomCell
+
     class ColumnNotFoundError(Exception):
         ...
 else:
@@ -108,12 +113,12 @@ class HasAtoms(abc.ABC):
     # abstract methods
 
     @abc.abstractmethod
-    def get_atoms(self) -> Atoms:
+    def get_atoms(self, frame: t.Literal['local'] = 'local') -> Atoms:
         """Get atoms contained in `self`. This should be a low cost method."""
         ...
 
     @abc.abstractmethod
-    def with_atoms(self: HasAtomsT, atoms: Atoms) -> HasAtomsT:
+    def with_atoms(self: HasAtomsT, atoms: Atoms, frame: t.Literal['local'] = 'local') -> HasAtomsT:
         ...
 
     @classmethod
@@ -257,9 +262,11 @@ class HasAtoms(abc.ABC):
 
     # atoms-specific methods
 
-    def bbox(self) -> BBox3D:
+    def bbox_atoms(self) -> BBox3D:
         """Return the bounding box of all the points in `self`."""
         return BBox3D.from_pts(self.coords())
+
+    bbox = bbox_atoms
 
     def transform_atoms(self: HasAtomsT, transform: IntoTransform3D, selection: t.Optional[AtomSelection] = None, *, transform_velocities: bool = False) -> HasAtomsT:
         """
@@ -343,6 +350,27 @@ class HasAtoms(abc.ABC):
         return self.with_atoms(new)
 
     unique = deduplicate
+
+    def with_bounds(self, cell_size: t.Optional[VecLike] = None, cell_origin: t.Optional[VecLike] = None) -> 'AtomCell':
+        """
+        Return a periodic cell with the given orthogonal cell dimensions.
+
+        If cell_size is not specified, it will be assumed (and may be incorrect).
+        """
+        # TODO: test this
+        from .atomcell import AtomCell
+
+        if cell_size is None:
+            warnings.warn("Cell boundary unknown. Defaulting to cell BBox")
+            cell_size = self.bbox().size
+            cell_origin = self.bbox().min
+
+        # TODO test this origin code
+        cell = Cell.from_unit_cell(cell_size)
+        if cell_origin is not None:
+            cell = cell.transform_cell(AffineTransform3D.translate(to_vec3(cell_origin)))
+
+        return AtomCell(self.get_atoms(), cell, frame='local')
 
     # property getters and setters
 
@@ -693,10 +721,14 @@ class Atoms(HasAtoms):
         if len(missing):
             raise ValueError(f"'Atoms' missing column(s) {', '.join(map(repr, missing))}")
 
-    def get_atoms(self) -> Atoms:
+    def get_atoms(self, frame: t.Literal['local'] = 'local') -> Atoms:
+        if frame != 'local':
+            raise ValueError(f"Atoms without a cell only support the 'local' coordinate frame, not '{frame}'.")
         return self
 
-    def with_atoms(self, atoms: Atoms) -> Atoms:
+    def with_atoms(self, atoms: Atoms, frame: t.Literal['local'] = 'local') -> Atoms:
+        if frame != 'local':
+            raise ValueError(f"Atoms without a cell only support the 'local' coordinate frame, not '{frame}'.")
         return atoms
 
     @classmethod

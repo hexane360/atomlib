@@ -355,7 +355,7 @@ class ParseState(t.Generic[T_co, V]):
             self.char = 1
         except StopIteration:
             return None
-        if buf is None or len(buf) == 0:
+        if buf is None or len(buf) == 0:  # type: ignore
             return None
 
         split = self.parser.token_re.split(buf)

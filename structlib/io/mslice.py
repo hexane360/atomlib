@@ -16,7 +16,7 @@ from numpy.typing import ArrayLike
 import polars
 
 from ..util import FileOrPath, open_file
-from ..core import AtomCell, OrthoCell
+from ..atomcell import HasAtomCell, AtomCell
 from ..transform import AffineTransform3D
 
 
@@ -37,23 +37,23 @@ def default_template() -> et.ElementTree:
     return deepcopy(DEFAULT_TEMPLATE)
 
 
-def load_mslice(path: FileOrPath) -> OrthoCell:
+def load_mslice(path: FileOrPath) -> AtomCell:
     raise NotImplementedError()
 
 
-def write_mslice(cell: AtomCell, f: FileOrPath, template: t.Optional[MSliceTemplate] = None, *,
+def write_mslice(cell: HasAtomCell, f: FileOrPath, template: t.Optional[MSliceTemplate] = None, *,
                  slice_thickness: t.Optional[float] = None,
                  scan_points: t.Optional[ArrayLike] = None,
                  scan_extent: t.Optional[ArrayLike] = None):
-    if not isinstance(cell, AtomCell):
+    if not isinstance(cell, HasAtomCell):
         raise TypeError("mslice format requires an AtomCell.")
 
-    if not cell.cell.is_orthogonal_in_local():
+    if not cell.is_orthogonal_in_local():
         raise ValueError("mslice requires an orthogonal AtomCell.")
 
     # get atoms in local frame (which we verified aligns with the cell's axes)
     # then scale into fractional coordinates
-    bbox = cell.cell.bbox()
+    bbox = cell.bbox()
     cell_size = bbox.size
     atoms = cell.get_atoms('local') \
         .transform(AffineTransform3D.translate(bbox.min).scale(cell_size).inverse()) \

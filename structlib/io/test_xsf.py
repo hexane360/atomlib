@@ -5,7 +5,7 @@ import numpy
 from numpy.testing import assert_array_equal
 
 from .xsf import XSF
-from .. import SimpleAtoms, Atoms
+from .. import Atoms
 from ..cell import cell_to_ortho
 
 
@@ -33,12 +33,12 @@ def test_xsf_molecule():
 
 
 def test_xsf_write_lattice():
-    atoms = SimpleAtoms(Atoms({
+    atoms = Atoms({
         'x': [],
         'y': [],
         'z': [],
         'elem': [],
-    }))
+    })
 
     buf = StringIO()
     xsf = XSF.from_atoms(atoms)
@@ -61,12 +61,12 @@ ATOMS
 
 
 def test_xsf_simple_write():
-    atoms = SimpleAtoms(Atoms({
+    atoms = Atoms({
         'x': [1., 2., 3.],
         'y': [4., 5., 6.],
         'z': [7., 8., 9.],
         'elem': [12, 6, 34],
-    }))
+    })
     buf = StringIO()
     XSF.from_atoms(atoms).write(buf)
 

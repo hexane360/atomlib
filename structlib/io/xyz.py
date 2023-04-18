@@ -32,8 +32,8 @@ class XYZToCSVReader(io.IOBase):
         buf = re.sub(rb'[ \t]+', rb'\t', buf)
         return buf
 
-    def seek(self, offset: int, whence: int = 0, /):  # type: ignore
-        self.inner.seek(offset, whence)
+    def seek(self, offset: int, whence: int = 0, /) -> int:  # pragma: nocover
+        return self.inner.seek(offset, whence)
 
     def __getattr__(self, name: str):
         if name in ('name', 'getvalue'):
@@ -121,7 +121,7 @@ class XYZ:
             #                     header=False, index=False, justify='left', float_format='{:.8f}'.format)
 
     def cell_matrix(self) -> t.Optional[numpy.ndarray]:
-        if self.params is None or 'Lattice' not in self.params:
+        if 'Lattice' not in self.params:
             return None
         s = self.params['Lattice']
         try:

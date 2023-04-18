@@ -149,9 +149,11 @@ class HasCell:
         corners = numpy.array(list(itertools.product((0., 1.), repeat=3)))
         return self.get_transform(frame, 'cell_box') @ corners
 
-    def bbox(self, frame: CoordinateFrame = 'local') -> BBox3D:
+    def bbox_cell(self, frame: CoordinateFrame = 'local') -> BBox3D:
         """Return the bounding box of the cell box in the given coordinate system."""
         return BBox3D.from_pts(self.corners(frame))
+
+    bbox = bbox_cell
 
     def is_orthogonal(self, tol: float = 1e-8) -> bool:
         """Returns whether this cell is orthogonal (axes are at right angles.)"""
@@ -258,6 +260,18 @@ class HasCell:
             cell_angle=self.cell_angle,
             pbc=self.pbc & ~cropped  # remove periodicity along cropped directions
         ))
+
+    @t.overload
+    def change_transform(self, transform: AffineTransform3D,
+                         frame_to: t.Optional[CoordinateFrame] = None,
+                         frame_from: t.Optional[CoordinateFrame] = None) -> AffineTransform3D:
+        ...
+
+    @t.overload
+    def change_transform(self, transform: Transform3D,
+                         frame_to: t.Optional[CoordinateFrame] = None,
+                         frame_from: t.Optional[CoordinateFrame] = None) -> Transform3D:
+        ...
 
     def change_transform(self, transform: Transform3D,
                          frame_to: t.Optional[CoordinateFrame] = None,
@@ -395,9 +409,8 @@ def cell_to_ortho(cell_size: VecLike, cell_angle: t.Optional[VecLike] = None) ->
     """
     Get orthogonalization transform from unit cell parameters (which turns fractional cell coordinates into real-space coordinates).
     ."""
-    cell_size = _validate_cell_size(cell_size)
+    (a, b, c) = _validate_cell_size(cell_size)
     cell_angle = _validate_cell_angle(cell_angle)
-    (a, b, c) = cell_size if cell_size is not None else (1., 1., 1.)
 
     if numpy.allclose(cell_angle.view(numpy.ndarray), numpy.pi/2.):
         return LinearTransform3D.scale(a, b, c)

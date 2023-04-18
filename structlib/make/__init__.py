@@ -10,7 +10,7 @@ import typing as t
 import numpy
 import polars
 
-from ..core import Atoms, AtomCell, IntoAtoms
+from ..atomcell import Atoms, AtomCell, IntoAtoms
 from ..transform import LinearTransform3D
 from ..elem import get_elem, get_elems
 from ..types import ElemLike, Num, VecLike

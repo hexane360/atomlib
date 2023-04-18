@@ -4,15 +4,15 @@ import typing as t
 
 import polars
 
-from ..core import AtomCell, AtomCollection
+from ..atomcell import HasAtomCell
 from ..util import FileOrPath, open_file
 
 
-def write_qe(cell: AtomCollection, f: FileOrPath, pseudo: t.Optional[t.Mapping[str, str]] = None):
-    if not isinstance(cell, AtomCell):
+def write_qe(atomcell: HasAtomCell, f: FileOrPath, pseudo: t.Optional[t.Mapping[str, str]] = None):
+    if not isinstance(atomcell, HasAtomCell):
         raise TypeError("'qe' format requires an AtomCell.")
 
-    atoms = cell.wrap().get_atoms('cell_frac').with_mass()
+    atoms = atomcell.wrap().get_atoms('cell_frac').with_mass()
 
     types = atoms.select(('symbol', 'mass')).unique(subset='symbol')
     if pseudo is not None:
@@ -23,7 +23,7 @@ def write_qe(cell: AtomCollection, f: FileOrPath, pseudo: t.Optional[t.Mapping[s
     with open_file(f, 'w') as f:
         print(f"&SYSTEM ibrav=0 nat={len(atoms)} ntyp={len(types)}", file=f)
 
-        ortho = cell.cell.get_transform('local', 'cell_box').to_linear().inner
+        ortho = atomcell.get_transform('local', 'cell_box').to_linear().inner
         print(f"\nCELL_PARAMETERS angstrom", file=f)
         for row in ortho.T:
             print(f"  {row[0]:12.8f} {row[1]:12.8f} {row[2]:12.8f}", file=f)

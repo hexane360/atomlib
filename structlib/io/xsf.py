@@ -19,7 +19,8 @@ from ..util import open_file, FileOrPath
 Periodicity = t.Literal['crystal', 'slab', 'polymer', 'molecule']
 
 if t.TYPE_CHECKING:
-    from ..core import AtomCell, AtomCollection
+    from ..atoms import HasAtoms
+    from ..atomcell import HasAtomCell
 
 
 _PBCS: t.Dict[Periodicity, NDArray[numpy.bool_]] = {
@@ -75,17 +76,17 @@ class XSF:
         return _periodicity_to_pbc(self.periodicity)
 
     @staticmethod
-    def from_cell(cell: AtomCell) -> XSF:
-        ortho = cell.cell.to_ortho().to_linear()
+    def from_cell(cell: HasAtomCell) -> XSF:
+        ortho = cell.to_ortho().to_linear()
         return XSF(
             primitive_cell=ortho,
             conventional_cell=ortho,
             prim_coords=cell.get_atoms('local').inner,
-            periodicity=_pbc_to_periodicity(cell.cell.pbc)
+            periodicity=_pbc_to_periodicity(cell.pbc)
         )
 
     @staticmethod
-    def from_atoms(atoms: AtomCollection) -> XSF:
+    def from_atoms(atoms: HasAtoms) -> XSF:
         return XSF(
             periodicity='molecule',
             atoms=atoms.get_atoms('local').inner

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+import abc
 from io import IOBase
 import logging
 import typing as t
@@ -15,7 +16,8 @@ from .mslice import write_mslice
 from .lmp import write_lmp
 from .qe import write_qe
 
-from ..core import AtomCollection, Atoms, SimpleAtoms, AtomCell, Cell
+from ..atoms import HasAtoms, HasAtomsT
+from ..atomcell import HasAtomCell, Atoms, AtomCell, Cell
 from ..types import to_vec3
 from ..transform import LinearTransform3D
 from ..elem import get_sym, get_elem
@@ -24,7 +26,7 @@ from ..util import FileOrPath
 FileType = t.Literal['cif', 'xyz', 'xsf', 'cfg', 'lmp', 'mslice', 'qe']
 
 
-def read_cif(f: t.Union[FileOrPath, CIF]) -> AtomCollection:
+def read_cif(f: t.Union[FileOrPath, CIF]) -> HasAtoms:
     """Read a structure from a CIF file."""
 
     if isinstance(f, CIF):
@@ -58,17 +60,17 @@ def read_cif(f: t.Union[FileOrPath, CIF]) -> AtomCollection:
 
     if len(sym_atoms) > 0:
         atoms = AtomCell.from_ortho(Atoms.concat(sym_atoms), LinearTransform3D()) \
-            .wrap().atoms.deduplicate()
+            .wrap().get_atoms().deduplicate()
 
     if (cell_size := cif.cell_size()) is not None:
         cell_size = to_vec3(cell_size)
         if (cell_angle := cif.cell_angle()) is not None:
             cell_angle = to_vec3(cell_angle) * numpy.pi/180.
         return AtomCell.from_unit_cell(atoms, cell_size, cell_angle, frame='cell_frac')
-    return SimpleAtoms(atoms)
+    return Atoms(atoms)
 
 
-def read_xyz(f: t.Union[FileOrPath, XYZ]) -> AtomCollection:
+def read_xyz(f: t.Union[FileOrPath, XYZ]) -> HasAtoms:
     """Read a structure from an XYZ file."""
     if isinstance(f, XYZ):
         xyz = f
@@ -79,10 +81,10 @@ def read_xyz(f: t.Union[FileOrPath, XYZ]) -> AtomCollection:
 
     if (cell_matrix := xyz.cell_matrix()) is not None:
         return AtomCell.from_ortho(atoms, LinearTransform3D(cell_matrix))
-    return SimpleAtoms(atoms)
+    return Atoms(atoms)
 
 
-def read_xsf(f: t.Union[FileOrPath, XSF]) -> AtomCollection:
+def read_xsf(f: t.Union[FileOrPath, XSF]) -> HasAtoms:
     """Read a structure from a XSF file."""
     if isinstance(f, XSF):
         xsf = f
@@ -95,7 +97,7 @@ def read_xsf(f: t.Union[FileOrPath, XSF]) -> AtomCollection:
     if (primitive_cell := xsf.primitive_cell) is not None:
         cell = Cell.from_ortho(primitive_cell, pbc=xsf.get_pbc())
         return AtomCell(atoms, cell, frame='local')
-    return SimpleAtoms(atoms)
+    return Atoms(atoms)
 
 
 def read_cfg(f: t.Union[FileOrPath, CFG]) -> AtomCell:
@@ -123,7 +125,7 @@ def read_cfg(f: t.Union[FileOrPath, CFG]) -> AtomCell:
     return AtomCell.from_ortho(frame, ortho)
 
 
-def write_xsf(atoms: t.Union[AtomCollection, XSF], f: FileOrPath):
+def write_xsf(atoms: t.Union[HasAtoms, XSF], f: FileOrPath):
     """Write a structure to an XSF file."""
     if isinstance(atoms, XSF):
         xsf = atoms
@@ -135,7 +137,7 @@ def write_xsf(atoms: t.Union[AtomCollection, XSF], f: FileOrPath):
     xsf.write(f)
 
 
-ReadFunc = t.Callable[[FileOrPath], AtomCollection]
+ReadFunc = t.Callable[[FileOrPath], HasAtoms]
 _READ_TABLE: t.Mapping[FileType, t.Optional[ReadFunc]] = {
     'cif': read_cif,
     'xyz': read_xyz,
@@ -146,27 +148,28 @@ _READ_TABLE: t.Mapping[FileType, t.Optional[ReadFunc]] = {
     'qe': None
 }
 
-WriteFunc = t.Callable[[AtomCollection, FileOrPath], None]
+WriteFunc = t.Callable[[HasAtoms, FileOrPath], None]
 _WRITE_TABLE: t.Mapping[FileType, t.Optional[WriteFunc]] = {
     'cif': None,
     'xyz': None,
     'xsf': write_xsf,
     'cfg': None,
-    'mslice': t.cast(WriteFunc, write_mslice),
     'lmp': write_lmp,
-    'qe': write_qe,
+    # some methods only take HasAtomCell. These must be checked at runtime
+    'mslice': t.cast(WriteFunc, write_mslice),
+    'qe': t.cast(WriteFunc, write_qe),
 }
 
 
 @t.overload
-def read(path: FileOrPath, ty: FileType) -> AtomCollection:
+def read(path: FileOrPath, ty: FileType) -> HasAtoms:
     ...
 
 @t.overload
-def read(path: t.Union[str, Path, t.TextIO], ty: t.Literal[None] = None) -> AtomCollection:
+def read(path: t.Union[str, Path, t.TextIO], ty: t.Literal[None] = None) -> HasAtoms:
     ...
 
-def read(path: FileOrPath, ty: t.Optional[FileType] = None) -> AtomCollection:
+def read(path: FileOrPath, ty: t.Optional[FileType] = None) -> HasAtoms:
     """
     Read a structure from a file.
 
@@ -202,14 +205,14 @@ def read(path: FileOrPath, ty: t.Optional[FileType] = None) -> AtomCollection:
 
 
 @t.overload
-def write(atoms: AtomCollection, path: FileOrPath, ty: FileType):
+def write(atoms: HasAtoms, path: FileOrPath, ty: FileType):
     ...
 
 @t.overload
-def write(atoms: AtomCollection, path: t.Union[str, Path, t.TextIO], ty: t.Literal[None] = None):
+def write(atoms: HasAtoms, path: t.Union[str, Path, t.TextIO], ty: t.Literal[None] = None):
     ...
 
-def write(atoms: AtomCollection, path: FileOrPath, ty: t.Optional[FileType] = None):
+def write(atoms: HasAtoms, path: FileOrPath, ty: t.Optional[FileType] = None):
     """
     Write this structure to a file.
 
@@ -244,6 +247,22 @@ def write(atoms: AtomCollection, path: FileOrPath, ty: t.Optional[FileType] = No
         raise ValueError(f"Writing is not supported for file type '{ty_strip}'")
 
     return write_fn(atoms, path)
+
+
+def _cast_atoms(atoms: HasAtoms, ty: t.Type[HasAtomsT]) -> HasAtomsT:
+    """
+    Ensure `atoms` is constructed as the correct type.
+    """
+    if isinstance(atoms, ty):
+        return atoms
+    if issubclass(ty, HasAtomCell) and not isinstance(atoms, HasAtomCell):
+        raise TypeError(f"File contains no cell information.")
+
+    if ty is AtomCell and isinstance(atoms, HasAtomCell):
+        return atoms.get_atomcell()  # type: ignore
+    if ty is Atoms and isinstance(atoms, HasAtoms):
+        return atoms.get_atoms()  # type: ignore
+    raise TypeError(f"Can't convert read atoms type '{type(atoms)}' to requested type '{ty}'")
 
 
 __all__ = [

@@ -2,14 +2,14 @@ import numpy
 import polars
 import pytest
 
-from structlib import AtomCollection, AtomCell, Atoms
+from structlib import HasAtoms, AtomCell, Atoms
 from structlib.transform import LinearTransform3D
 from structlib.io import *
 
 from .util import check_parse_structure, INPUT_PATH
 
 
-def xyz_expected(s: AtomCollection):
+def xyz_expected(s: HasAtoms):
     assert isinstance(s, AtomCell)
 
     assert s.cell.cell_angle == pytest.approx([numpy.pi/2] * 3)
@@ -39,14 +39,14 @@ def test_xyz():
     s = read(path)
     xyz_expected(s)
 
-    s = AtomCollection.read(path)
+    s = Atoms.read(path)
     xyz_expected(s)
 
-    s = AtomCollection.read_xyz(path)
+    s = Atoms.read_xyz(path)
     xyz_expected(s)
 
 
-def cfg_expected(s: AtomCollection):
+def cfg_expected(s: HasAtoms):
     assert isinstance(s, AtomCell)
 
     assert s.cell.cell_angle == pytest.approx([numpy.pi/2] * 3)
@@ -75,14 +75,14 @@ def test_cfg():
     s = read(path)
     cfg_expected(s)
 
-    s = AtomCollection.read(path)
+    s = Atoms.read(path)
     cfg_expected(s)
 
-    s = AtomCollection.read_cfg(path)
+    s = Atoms.read_cfg(path)
     cfg_expected(s)
 
 
-def cif_expected(s: AtomCollection):
+def cif_expected(s: HasAtoms):
     assert isinstance(s, AtomCell)
 
     assert s.cell.cell_size == pytest.approx([22.75298600, 9.79283000, 5.65716000])
@@ -110,10 +110,10 @@ def test_cif(caplog: pytest.LogCaptureFixture):
     s = read(path)
     cif_expected(s)
 
-    s = AtomCollection.read(path)
+    s = Atoms.read(path)
     cif_expected(s)
 
-    s = AtomCollection.read_cif(path)
+    s = Atoms.read_cif(path)
     cif_expected(s)
 
 

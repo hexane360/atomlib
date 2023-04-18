@@ -8,7 +8,7 @@ import logging
 
 import click
 
-from . import CoordinateFrame, AtomCollection, AtomSelection
+from . import CoordinateFrame, HasAtoms, AtomSelection
 from .types import ParamSpec, Concatenate
 from .transform import LinearTransform3D, AffineTransform3D
 
@@ -19,7 +19,7 @@ P = ParamSpec('P')
 
 @dataclass
 class State:
-    structure: AtomCollection
+    structure: HasAtoms
     """Current structure"""
     indices: t.List[int] = field(default_factory=list)
     """Loop indices"""
@@ -35,7 +35,7 @@ class State:
     def pop_index(self):
         self.indices.pop()
 
-    def map_struct(self, f: t.Callable[[AtomCollection], AtomCollection]) -> State:
+    def map_struct(self, f: t.Callable[[HasAtoms], HasAtoms]) -> State:
         self.structure = f(self.structure)
         return self
 
@@ -89,7 +89,7 @@ def lazy(f: t.Callable[Concatenate[t.Iterable[State], P], t.Iterable[State]]) ->
     return update_wrapper(wrapped, f)
 
 
-def lazy_append(f: t.Callable[P, t.Iterable[AtomCollection]]) -> t.Callable[P, CmdType]:
+def lazy_append(f: t.Callable[P, t.Iterable[HasAtoms]]) -> t.Callable[P, CmdType]:
     def wrapped(*args: P.args, **kwargs: P.kwargs):
         def inner(states: t.Iterable[State]) -> t.Iterable[State]:
             state = None
@@ -135,7 +135,7 @@ out_file_type_no_stdout = click.Path(allow_dash=False, path_type=Path)
 @lazy_append
 def input(file: Path):
     """Input a crystal structure from `file`. Type will be detected via file extension."""
-    yield AtomCollection.read(file)
+    yield HasAtoms.read(file)
 
 
 @cli.command('in_cif')
@@ -143,7 +143,7 @@ def input(file: Path):
 @lazy_append
 def input_cif(file: t.Optional[Path] = None):
     """Input a CIF structure. If `file` is not specified, use stdin."""
-    yield AtomCollection.read_cif(file or sys.stdin)
+    yield HasAtoms.read_cif(file or sys.stdin)
 
 
 @cli.command('in_xyz')
@@ -151,7 +151,7 @@ def input_cif(file: t.Optional[Path] = None):
 @lazy_append
 def input_xyz(file: t.Optional[Path] = None):
     """Input an XYZ structure. If `file` is not specified, use stdin."""
-    yield AtomCollection.read_xyz(file or sys.stdin)
+    yield HasAtoms.read_xyz(file or sys.stdin)
 
 
 @cli.command('in_xsf')
@@ -159,7 +159,7 @@ def input_xyz(file: t.Optional[Path] = None):
 @lazy_append
 def input_xsf(file: t.Optional[Path] = None):
     """Input an XSF structure. If `file` is not specified, use stdin."""
-    yield AtomCollection.read_xsf(file or sys.stdin)
+    yield HasAtoms.read_xsf(file or sys.stdin)
 
 
 @cli.command('loop')
@@ -182,19 +182,19 @@ def loop(state: State, n: int) -> t.Iterable[State]:
 def union(states: t.Iterable[State]) -> t.Iterable[State]:
     """Combine structures. Symmetry is discarded, but """
     last_index = None
-    collect: t.List[AtomCollection] = []
+    collect: t.List[HasAtoms] = []
     state = None
     for state in states:
         if last_index is None:
             last_index = state.indices[-1]
         elif last_index != state.indices[-1]:
-            state.structure = AtomCollection.union(collect)
+            state.structure = HasAtoms.union(collect)
             state.indices.pop()
             yield state
             last_index = state.indices[-1]
         collect.append(state.structure)
     if state is not None:
-        state.structure = AtomCollection.union(collect)
+        state.structure = HasAtoms.union(collect)
         state.indices.pop()
         yield state
 
