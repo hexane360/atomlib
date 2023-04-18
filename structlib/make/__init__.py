@@ -10,7 +10,7 @@ import typing as t
 import numpy
 import polars
 
-from ..atomcell import Atoms, AtomCell, IntoAtoms
+from ..atomcell import Atoms, AtomCell, HasAtomCellT, IntoAtoms
 from ..transform import LinearTransform3D
 from ..elem import get_elem, get_elems
 from ..types import ElemLike, Num, VecLike
@@ -264,8 +264,8 @@ def perovskite(elems: t.Union[str, t.Sequence[ElemLike]], cell_size: VecLike, *,
     return AtomCell(atoms, Cell.from_unit_cell(cell_size), frame='cell_frac')
 
 
-def slab(atoms: AtomCell, zone: VecLike = (0., 0., 1.), horz: VecLike = (1., 0., 0.), *,
-         max_n=50, tol=0.001):
+def slab(atoms: HasAtomCellT, zone: VecLike = (0., 0., 1.), horz: VecLike = (1., 0., 0.), *,
+         max_n=50, tol=0.001) -> HasAtomCellT:
     """
     Create an periodic orthogonal slab of the periodic cell ``atoms``.
 
@@ -279,7 +279,7 @@ def slab(atoms: AtomCell, zone: VecLike = (0., 0., 1.), horz: VecLike = (1., 0.,
     # align `zone` with the z-axis, and `horz` with the x-axis
     zone = reduce_vec(to_vec3(zone))  # ensure `zone` is a lattice vector
     # TODO should this go from 'local' or 'ortho'?
-    cell_transform = atoms.cell.get_transform('local', 'cell_frac').to_linear()
+    cell_transform = atoms.get_transform('local', 'cell_frac').to_linear()
     align_transform = LinearTransform3D.align(cell_transform @ zone, cell_transform @ horz)
     transform = (align_transform @ cell_transform)
     z = transform @ zone
@@ -322,7 +322,7 @@ def slab(atoms: AtomCell, zone: VecLike = (0., 0., 1.), horz: VecLike = (1., 0.,
     # strain cell to orthogonal (with atoms in the ``cell`` frame)
     raw_atoms = raw_atoms.transform(cell.get_transform('cell', 'local'))
     cell = cell.strain_orthogonal()
-    return AtomCell(raw_atoms, cell, frame='cell').crop_to_box()
+    return atoms.with_cell(cell).with_atoms(raw_atoms, 'cell').crop_to_box()
 
 
 def _ortho_hexagonal(cell: AtomCell) -> AtomCell:

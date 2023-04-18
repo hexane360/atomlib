@@ -39,10 +39,10 @@ def test_xyz():
     s = read(path)
     xyz_expected(s)
 
-    s = Atoms.read(path)
+    s = AtomCell.read(path)
     xyz_expected(s)
 
-    s = Atoms.read_xyz(path)
+    s = AtomCell.read_xyz(path)
     xyz_expected(s)
 
 
@@ -75,10 +75,10 @@ def test_cfg():
     s = read(path)
     cfg_expected(s)
 
-    s = Atoms.read(path)
+    s = AtomCell.read(path)
     cfg_expected(s)
 
-    s = Atoms.read_cfg(path)
+    s = AtomCell.read_cfg(path)
     cfg_expected(s)
 
 
@@ -110,10 +110,10 @@ def test_cif(caplog: pytest.LogCaptureFixture):
     s = read(path)
     cif_expected(s)
 
-    s = Atoms.read(path)
+    s = AtomCell.read(path)
     cif_expected(s)
 
-    s = Atoms.read_cif(path)
+    s = AtomCell.read_cif(path)
     cif_expected(s)
 
 

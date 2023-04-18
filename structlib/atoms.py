@@ -27,6 +27,7 @@ from .elem import get_elem, get_sym, get_mass
 from .transform import Transform3D, IntoTransform3D, AffineTransform3D
 from .util import map_some
 from .cell import Cell
+from .mixins import AtomsIOMixin
 
 
 _COLUMN_DTYPES: t.Mapping[str, t.Type[polars.DataType]] = {
@@ -299,13 +300,10 @@ class HasAtoms(abc.ABC):
         Crop, removing all atoms outside of the specified region, inclusive.
         """
 
-        min = to_vec3([x_min, y_min, z_min])
-        max = to_vec3([x_max, y_max, z_max])
-
         return self.filter(
-            (polars.col('x') >= min[0]) & (polars.col('x') <= max[0]) &
-            (polars.col('y') >= min[1]) & (polars.col('y') <= max[1]) &
-            (polars.col('z') >= min[2]) & (polars.col('z') <= max[2])
+            (polars.col('x') >= x_min) & (polars.col('x') <= x_max) &
+            (polars.col('y') >= y_min) & (polars.col('y') <= y_max) &
+            (polars.col('z') >= z_min) & (polars.col('z') <= z_max)
         )
 
     crop_atoms = crop
@@ -643,10 +641,8 @@ class HasAtoms(abc.ABC):
             self['v_z'].set_at_idx(selection, pts[:, 2]),  # type: ignore
         )))
 
-    
 
-
-class Atoms(HasAtoms):
+class Atoms(AtomsIOMixin, HasAtoms):
     """
     A collection of atoms, absent any implied coordinate system.
     Implemented as a wrapper around a Polars DataFrame.
@@ -666,8 +662,6 @@ class Atoms(HasAtoms):
     - v_[xyz]: Atom velocities, dimensions of length/time
     - atom_type: Numeric atom type, as used by programs like LAMMPS
     """
-
-    
 
     def __init__(self, data: t.Optional[IntoAtoms] = None, columns: t.Optional[t.Sequence[str]] = None,
                  orient: t.Union[t.Literal['row'], t.Literal['col'], None] = None,

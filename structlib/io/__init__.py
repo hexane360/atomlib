@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from pathlib import Path
-import abc
 from io import IOBase
 import logging
 import typing as t
@@ -16,8 +15,8 @@ from .mslice import write_mslice
 from .lmp import write_lmp
 from .qe import write_qe
 
-from ..atoms import HasAtoms, HasAtomsT
-from ..atomcell import HasAtomCell, Atoms, AtomCell, Cell
+from ..atoms import Atoms, HasAtoms
+from ..atomcell import AtomCell, Cell
 from ..types import to_vec3
 from ..transform import LinearTransform3D
 from ..elem import get_sym, get_elem
@@ -249,20 +248,7 @@ def write(atoms: HasAtoms, path: FileOrPath, ty: t.Optional[FileType] = None):
     return write_fn(atoms, path)
 
 
-def _cast_atoms(atoms: HasAtoms, ty: t.Type[HasAtomsT]) -> HasAtomsT:
-    """
-    Ensure `atoms` is constructed as the correct type.
-    """
-    if isinstance(atoms, ty):
-        return atoms
-    if issubclass(ty, HasAtomCell) and not isinstance(atoms, HasAtomCell):
-        raise TypeError(f"File contains no cell information.")
 
-    if ty is AtomCell and isinstance(atoms, HasAtomCell):
-        return atoms.get_atomcell()  # type: ignore
-    if ty is Atoms and isinstance(atoms, HasAtoms):
-        return atoms.get_atoms()  # type: ignore
-    raise TypeError(f"Can't convert read atoms type '{type(atoms)}' to requested type '{ty}'")
 
 
 __all__ = [

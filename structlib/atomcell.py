@@ -4,7 +4,7 @@ Core atomic structure types.
 from __future__ import annotations
 
 import abc
-from dataclasses import dataclass, fields, replace
+from dataclasses import dataclass, fields
 import copy
 import typing as t
 
@@ -15,6 +15,9 @@ from .types import VecLike, to_vec3
 from .transform import LinearTransform3D, AffineTransform3D, Transform3D, IntoTransform3D
 from .cell import CoordinateFrame, HasCell, Cell
 from .atoms import HasAtoms, Atoms, IntoAtoms, AtomSelection
+
+# pyright: reportImportCycles=false
+from .mixins import AtomCellIOMixin
 
 
 AtomCellT = t.TypeVar('AtomCellT', bound='AtomCell')
@@ -34,16 +37,21 @@ class HasAtomCell(HasAtoms, HasCell, abc.ABC):
         """
         ...
 
+    def with_cell(self: HasAtomCellT, cell: Cell) -> HasAtomCellT:
+        """
+        Replace the cell in ``self``, without touching the atomic coordinates.
+        """
+        return self.to_frame('local').with_cell(cell)
+
     def get_atomcell(self) -> AtomCell:
         frame = self.get_frame()
         return AtomCell(self.get_atoms(frame), self.get_cell(), frame=frame, keep_frame=True)
 
-    def get_atoms(self, frame: CoordinateFrame = 'local') -> Atoms:
-        """Get atoms contained in ``self``. This should be a low cost method."""
-        atoms = HasAtoms.get_atoms(self)
-        if frame == self.get_frame():
-            return atoms
-        return atoms.transform(self.get_transform(frame, self.get_frame()))
+    @abc.abstractmethod
+    def get_atoms(self, frame: t.Optional[CoordinateFrame] = None) -> Atoms:
+        """Get atoms contained in ``self``, in the given coordinate frame."""
+        ...
+        
 
     def bbox(self, frame: CoordinateFrame = 'local') -> BBox3D:
         """
@@ -58,8 +66,7 @@ class HasAtomCell(HasAtoms, HasCell, abc.ABC):
         # ugly code
         if frame == self.get_frame():
             return f(self.get_atoms())
-        transform = self.get_transform(self.get_frame(), frame)
-        return f(self.get_atoms().transform(transform)).transform(transform.inverse())
+        return f(self.get_atoms(frame)).transform(self.get_transform(self.get_frame(), frame))
 
     def to_frame(self: HasAtomCellT, frame: CoordinateFrame) -> HasAtomCellT:
         """Convert the stored Atoms to the given coordinate frame."""
@@ -79,7 +86,7 @@ class HasAtomCell(HasAtoms, HasCell, abc.ABC):
         Apply the given transform to the unit cell, without changing atom positions.
         The transform is applied in coordinate frame 'frame'.
         """
-        return self.to_frame('local').with_cell(self.get_cell().transform_cell(transform, frame=frame))
+        return self.with_cell(self.get_cell().transform_cell(transform, frame=frame))
 
     def transform(self: HasAtomCellT, transform: AffineTransform3D, frame: CoordinateFrame = 'local') -> HasAtomCellT:
         if isinstance(transform, Transform3D) and not isinstance(transform, AffineTransform3D):
@@ -105,18 +112,18 @@ class HasAtomCell(HasAtoms, HasCell, abc.ABC):
         """
 
         cell = self.get_cell().crop(x_min, x_max, y_min, y_max, z_min, z_max, frame=frame)
-        atoms = self._transform_atoms_in_frame(frame, lambda atoms: atoms.crop(x_min, x_max, y_min, y_max, z_min, z_max))
+        atoms = self._transform_atoms_in_frame(frame, lambda atoms: atoms.crop_atoms(x_min, x_max, y_min, y_max, z_min, z_max))
         return self.with_cell(cell).with_atoms(atoms)
 
     def crop_atoms(self: HasAtomCellT, x_min: float = -numpy.inf, x_max: float = numpy.inf,
                    y_min: float = -numpy.inf, y_max: float = numpy.inf,
                    z_min: float = -numpy.inf, z_max: float = numpy.inf, *,
                    frame: CoordinateFrame = 'local') -> HasAtomCellT:
-        atoms = self._transform_atoms_in_frame(frame, lambda atoms: atoms.crop(x_min, x_max, y_min, y_max, z_min, z_max))
+        atoms = self._transform_atoms_in_frame(frame, lambda atoms: atoms.crop_atoms(x_min, x_max, y_min, y_max, z_min, z_max))
         return self.with_atoms(atoms)
 
     def crop_to_box(self: HasAtomCellT, eps: float = 1e-5) -> HasAtomCellT:
-        atoms = self._transform_atoms_in_frame('cell_box', lambda atoms: atoms.crop(*([-eps, 1-eps]*3)))
+        atoms = self._transform_atoms_in_frame('cell_box', lambda atoms: atoms.crop_atoms(*([-eps, 1-eps]*3)))
         return self.with_atoms(atoms)
 
     def wrap(self: HasAtomCellT, eps: float = 1e-5) -> HasAtomCellT:
@@ -128,14 +135,16 @@ class HasAtomCell(HasAtoms, HasCell, abc.ABC):
 
         return self.with_atoms(self._transform_atoms_in_frame('cell_box', transform))
 
+    """
     def explode(self: HasAtomCellT) -> HasAtomCellT:
-        """
+        \"""
         Forget any cell repetitions.
 
         Afterwards, ``self.explode().cell.cell_size == self.cell.box_size``.
-        """
+        \"""
         # when we explode, we need to make sure atoms aren't stored in cell coordinates
         return self.to_frame('local').with_cell(self.get_cell().explode())
+    """
 
     def _repeat_to_contain(self: HasAtomCellT, pts: numpy.ndarray, pad: int = 0, frame: CoordinateFrame = 'cell_frac') -> HasAtomCellT:
         #print(f"pts: {pts} in frame {frame}")
@@ -144,7 +153,7 @@ class HasAtomCell(HasAtoms, HasCell, abc.ABC):
         bbox = BBox3D.unit() | BBox3D.from_pts(pts)
         min_bounds = numpy.floor(bbox.min).astype(int) - pad
         max_bounds = numpy.ceil(bbox.max).astype(int) + pad
-        #print(f"tiling to {min_bounds}, {max_bounds}")
+        print(f"tiling to {min_bounds}, {max_bounds}")
         repeat = max_bounds - min_bounds
         cells = numpy.stack(numpy.meshgrid(*map(numpy.arange, repeat))).reshape(3, -1).T.astype(float)
 
@@ -153,9 +162,10 @@ class HasAtomCell(HasAtoms, HasCell, abc.ABC):
             atoms.transform(AffineTransform3D.translate(cell))
             for cell in cells
         ])
+        print(f"atoms:\n{atoms}")
         cell = self.get_cell().repeat(repeat) \
             .transform_cell(AffineTransform3D.translate(min_bounds), 'cell_frac')
-        return self.with_atoms(atoms, 'cell_frac').with_cell(cell)
+        return self.with_cell(cell).with_atoms(atoms, 'cell_frac')
 
     def repeat(self: HasAtomCellT, n: t.Union[int, VecLike]) -> HasAtomCellT:
         """Tile the cell"""
@@ -255,7 +265,7 @@ class HasAtomCell(HasAtoms, HasCell, abc.ABC):
 
 
 @dataclass(init=False, repr=False, frozen=True)
-class AtomCell(HasAtomCell):
+class AtomCell(AtomCellIOMixin, HasAtomCell):
     """
     Cell of atoms with known size and periodic boundary conditions.
     """
@@ -272,14 +282,23 @@ class AtomCell(HasAtomCell):
     def get_cell(self) -> Cell:
         return self.cell
 
-    def get_frame(self) -> CoordinateFrame:
-        return self.frame
-
     def with_cell(self: AtomCellT, cell: Cell) -> AtomCellT:
-        return replace(self, cell=cell)
+        return self.__class__(self.atoms, cell, frame=self.frame, keep_frame=True)
+
+    def get_atoms(self, frame: t.Optional[CoordinateFrame] = None) -> Atoms:
+        """Get atoms contained in ``self``, in the given coordinate frame."""
+
+        if frame is None or frame == self.get_frame():
+            return self.atoms
+        return self.atoms.transform(self.get_transform(frame, self.get_frame()))
 
     def with_atoms(self: AtomCellT, atoms: Atoms, frame: t.Optional[CoordinateFrame] = None) -> AtomCellT:
-        return replace(self, atoms=atoms, frame=frame or self.frame)
+        frame = frame if frame is not None else self.frame
+        return self.__class__(atoms, cell=self.cell, frame=frame, keep_frame=True)
+        #return replace(self, atoms=atoms, frame = frame if frame is not None else self.frame, keep_frame=True)
+
+    def get_frame(self) -> CoordinateFrame:
+        return self.frame
 
     @classmethod
     def _combine_metadata(cls: t.Type[AtomCellT], *atoms: HasAtoms) -> AtomCellT:
@@ -340,159 +359,38 @@ class AtomCell(HasAtomCell):
     def __post_init__(self):
         pass
 
-    def _str_parts(self) -> t.Iterable[t.Any]:
-        return (
-            f"Cell size:  {self.cell.cell_size!s}",
-            f"Cell angle: {self.cell.cell_angle!s}",
-            f"# Cells: {self.cell.n_cells!s}",
-            self.atoms,
-        )
-
-    def get_atoms(self, frame: CoordinateFrame = 'local') -> Atoms:
-        if frame == self.frame:
-            return self.atoms
-        return self.atoms.transform(self.cell.get_transform(frame, self.frame))
-
-    def _replace_atoms(self, atoms: Atoms, frame: CoordinateFrame = 'local') -> AtomCell:
-        if frame != self.frame:
-            atoms = atoms.transform(self.cell.get_transform(self.frame, frame))
-        return AtomCell(atoms, self.cell, frame=self.frame, keep_frame=True)
-
-    def _replace_cell(self, cell: Cell) -> AtomCell:
-        return AtomCell(self.atoms, cell, frame=self.frame, keep_frame=True)
-
     def orthogonalize(self) -> OrthoCell:
         if self.is_orthogonal():
             return OrthoCell(self.atoms, self.cell, frame=self.frame)
         raise NotImplementedError()
 
-    def _repeat_to_contain(self, pts: numpy.ndarray, pad: int = 0, frame: CoordinateFrame = 'cell_frac') -> AtomCell:
-        #print(f"pts: {pts} in frame {frame}")
-        pts = self.cell.get_transform('cell_frac', frame) @ pts
-
-        bbox = BBox3D.unit() | BBox3D.from_pts(pts)
-        min_bounds = numpy.floor(bbox.min).astype(int) - pad
-        max_bounds = numpy.ceil(bbox.max).astype(int) + pad
-        #print(f"tiling to {min_bounds}, {max_bounds}")
-        repeat = max_bounds - min_bounds
-        cells = numpy.stack(numpy.meshgrid(*map(numpy.arange, repeat))).reshape(3, -1).T.astype(float)
-
-        atoms = self.get_atoms('cell_frac')
-        atoms = Atoms.concat([
-            atoms.transform(AffineTransform3D.translate(cell))
-            for cell in cells
-        ])
-        cell = self.cell.repeat(repeat) \
-            .transform_cell(AffineTransform3D.translate(min_bounds), 'cell_frac')
-        return AtomCell(atoms, cell, frame='cell_frac')
-
-    def repeat(self, n: t.Union[int, VecLike]) -> AtomCell:
-        """Tile the cell"""
-        ns = numpy.broadcast_to(n, 3)
-        if not numpy.issubdtype(ns.dtype, numpy.integer):
-            raise ValueError(f"repeat() argument must be an integer or integer array.")
-
-        cells = numpy.stack(numpy.meshgrid(*map(numpy.arange, ns))) \
-            .reshape(3, -1).T.astype(float)
-        cells = cells * self.cell.box_size
-
-        atoms = self.get_atoms('cell')
-        atoms = Atoms.concat([
-            atoms.transform(AffineTransform3D.translate(cell))
-            for cell in cells
-        ]) #.transform(self.cell.get_transform('local', 'cell_frac'))
-        return AtomCell(atoms, self.cell.repeat(ns), frame='cell')
-
-    def repeat_to(self, size: VecLike, crop: t.Union[bool, t.Sequence[bool]] = False) -> AtomCell:
-        """
-        Repeat the cell so it is at least ``size`` along the crystal's axes.
-
-        If ``crop``, then crop the cell to exactly ``size``. This may break periodicity.
-        ``crop`` may be a vector, in which case you can specify cropping only along some axes.
-        """
-        size = to_vec3(size)
-        cell_size = self.cell.cell_size * self.cell.n_cells
-        repeat = numpy.maximum(numpy.ceil(size / cell_size).astype(int), 1)
-        atom_cell = self.repeat(repeat)
-
-        crop_v = to_vec3(crop, dtype=numpy.bool_)
-        if numpy.any(crop_v):
-            crop_x, crop_y, crop_z = crop_v
-            return atom_cell.crop(
-                x_max = size[0] if crop_x else numpy.inf,
-                y_max = size[1] if crop_y else numpy.inf,
-                z_max = size[2] if crop_z else numpy.inf,
-                frame='cell'
-            )
-
-        return atom_cell
-
-    def repeat_x(self, n: int) -> AtomCell:
-        """Tile the cell in the x axis."""
-        return self.repeat((n, 1, 1))
-
-    def repeat_y(self, n: int) -> AtomCell:
-        """Tile the cell in the y axis."""
-        return self.repeat((1, n, 1))
-
-    def repeat_z(self, n: int) -> AtomCell:
-        """Tile the cell in the z axis."""
-        return self.repeat((1, 1, n))
-
-    def repeat_to_x(self, size: float, crop: bool = False) -> AtomCell:
-        """Repeat the cell so it is at least size ``size`` along the x axis."""
-        return self.repeat_to([size, 0., 0.], [crop, False, False])
-
-    def repeat_to_y(self, size: float, crop: bool = False) -> AtomCell:
-        """Repeat the cell so it is at least size ``size`` along the y axis."""
-        return self.repeat_to([0., size, 0.], [False, crop, False])
-
-    def repeat_to_z(self, size: float, crop: bool = False) -> AtomCell:
-        """Repeat the cell so it is at least size ``size`` along the z axis."""
-        return self.repeat_to([0., 0., size], [False, False, crop])
-
-    def repeat_to_aspect(self, plane: t.Literal['xy', 'xz', 'yz'] = 'xy', *,
-                         aspect: float = 1., max_size: t.Optional[VecLike] = None):
-        """
-        Repeat to optimize the aspect ratio in ``plane``,
-        while staying under ``max_size``.
-        """
-        if max_size is None:
-            max_n = numpy.array([3, 3, 3], numpy.int_)
-        else:
-            max_n = numpy.maximum(numpy.floor(to_vec3(max_size) / self.cell.box_size), 1).astype(numpy.int_)
-
-        if plane == 'xy':
-            indices = [0, 1]
-        elif plane == 'xz':
-            indices = [0, 2]
-        elif plane == 'yz':
-            indices = [1, 2]
-        else:
-            raise ValueError(f"Invalid plane '{plane}'. Exepcted 'xy', 'xz', 'or 'yz'.")
-
-        na = numpy.arange(1, max_n[indices[0]])
-        nb = numpy.arange(1, max_n[indices[1]])
-        (na, nb) = numpy.meshgrid(na, nb)
-
-        aspects = na * self.cell.box_size[indices[0]] / (nb * self.cell.box_size[indices[1]])
-        # cost function: log(aspect)^2  (so cost(0.5) == cost(2))
-        min_i = numpy.argmin(numpy.log(aspects / aspect)**2)
-        repeat = numpy.array([1, 1, 1], numpy.int_)
-        repeat[indices] = na.flatten()[min_i], nb.flatten()[min_i]
-        return self.repeat(repeat)
-
     def clone(self: AtomCellT) -> AtomCellT:
         """Make a deep copy of ``self``."""
         return self.__class__(**{field.name: copy.deepcopy(getattr(self, field.name)) for field in fields(self)})
-
-    __mul__ = repeat
 
     def assert_equal(self, other: t.Any):
         """Assert this structure is equal to """
         assert isinstance(other, AtomCell)
         self.cell.assert_equal(other.cell)
         self.get_atoms('local').assert_equal(other.get_atoms('local'))
+
+    def _str_parts(self) -> t.Iterable[t.Any]:
+        return (
+            f"Cell size:  {self.cell.cell_size!s}",
+            f"Cell angle: {self.cell.cell_angle!s}",
+            f"# Cells: {self.cell.n_cells!s}",
+            f"Frame: {self.frame}",
+            self.atoms,
+        )
+
+    def __str__(self) -> str:
+        return "\n".join(map(str, self._str_parts()))
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}({self.atoms!r}, cell={self.cell!r}, frame={self.frame})"
+
+    def _repr_pretty_(self, p, cycle: bool) -> None:
+        p.text(f'{self.__class__.__name__}(...)') if cycle else p.text(str(self))
 
 
 class OrthoCell(AtomCell):

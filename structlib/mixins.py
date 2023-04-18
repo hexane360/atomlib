@@ -1,3 +1,4 @@
+from __future__ import annotations
 
 import abc
 from pathlib import Path
@@ -5,17 +6,43 @@ import typing as t
 
 from numpy.typing import ArrayLike
 
-from .atoms import HasAtoms, HasAtomsT
-from .atomcell import HasAtomCell
-from .util import FileOrPath
+if t.TYPE_CHECKING:  # pragma: no cover
+    from .atoms import HasAtoms as _HasAtoms
+    from .atoms import HasAtomsT
+    from .atomcell import HasAtomCell as _HasAtomCell
 
-if t.TYPE_CHECKING:
-    # pyright: reportImportCycles=false
-    from .io import CIF, XYZ, XSF, CFG, FileOrPath, FileType  # pragma: no cover
-    from .io.mslice import MSliceTemplate                     # pragma: no cover
+    from .io import CIF, XYZ, XSF, CFG, FileType, FileOrPath
+    from .io.mslice import MSliceTemplate
+
+else:
+    class _HasAtoms: ...
+    class _HasAtomCell: ...
 
 
-class AtomsIOMixin(HasAtoms, abc.ABC):
+def _cast_atoms(atoms: _HasAtoms, ty: t.Type[HasAtomsT]) -> HasAtomsT:
+    """
+    Ensure `atoms` is constructed as the correct type.
+
+    If `ty` is `HasAtoms` or `HasAtomCell`, any subclass will be returned.
+    But if `ty` is concrete, `atoms` will be converted to exactly that type
+    (even if it throws away information).
+    """
+    from .atoms import HasAtoms, Atoms
+    from .atomcell import HasAtomCell, AtomCell
+
+    if isinstance(atoms, ty):
+        return atoms
+    if issubclass(ty, HasAtomCell) and not isinstance(atoms, HasAtomCell):
+        raise TypeError(f"File contains no cell information.")
+
+    if ty is AtomCell and isinstance(atoms, HasAtomCell):
+        return atoms.get_atomcell()  # type: ignore
+    if ty is Atoms and isinstance(atoms, HasAtoms):
+        return atoms.get_atoms()  # type: ignore
+    raise TypeError(f"Can't convert read atoms type '{type(atoms)}' to requested type '{ty}'")
+
+
+class AtomsIOMixin(_HasAtoms, abc.ABC):
     @t.overload
     @classmethod
     def read(cls: t.Type[HasAtomsT], path: FileOrPath, ty: FileType) -> HasAtomsT:
@@ -34,31 +61,31 @@ class AtomsIOMixin(HasAtoms, abc.ABC):
         Currently, supported file types are 'cif', 'xyz', and 'xsf'.
         If no `ty` is specified, it is inferred from the file's extension.
         """
-        from .io import _cast_atoms, read
+        from .io import read
         return _cast_atoms(read(path, ty), cls)  # type: ignore
 
     @classmethod
     def read_cif(cls: t.Type[HasAtomsT], f: t.Union[FileOrPath, CIF]) -> HasAtomsT:
         """Read a structure from a CIF file."""
-        from .io import _cast_atoms, read_cif
+        from .io import read_cif
         return _cast_atoms(read_cif(f), cls)
 
     @classmethod
     def read_xyz(cls: t.Type[HasAtomsT], f: t.Union[FileOrPath, XYZ]) -> HasAtomsT:
         """Read a structure from an XYZ file."""
-        from .io import _cast_atoms, read_xyz
+        from .io import read_xyz
         return _cast_atoms(read_xyz(f), cls)
 
     @classmethod
     def read_xsf(cls: t.Type[HasAtomsT], f: t.Union[FileOrPath, XSF]) -> HasAtomsT:
         """Read a structure from an XSF file."""
-        from .io import _cast_atoms, read_xsf
+        from .io import read_xsf
         return _cast_atoms(read_xsf(f), cls)
 
     @classmethod
     def read_cfg(cls: t.Type[HasAtomsT], f: t.Union[FileOrPath, CFG]) -> HasAtomsT:
         """Read a structure from a CFG file."""
-        from .io import _cast_atoms, read_cfg
+        from .io import read_cfg
         return _cast_atoms(read_cfg(f), cls)
 
     @t.overload
@@ -80,7 +107,7 @@ class AtomsIOMixin(HasAtoms, abc.ABC):
         write(self, path, ty)  # type: ignore
 
 
-class AtomCellIOMixin(HasAtomCell, AtomsIOMixin):
+class AtomCellIOMixin(_HasAtomCell, AtomsIOMixin):
     def write_mslice(self, f: FileOrPath, template: t.Optional[MSliceTemplate] = None, *,
                  slice_thickness: t.Optional[float] = None,
                  scan_points: t.Optional[ArrayLike] = None,
