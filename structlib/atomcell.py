@@ -9,12 +9,14 @@ import copy
 import typing as t
 
 import numpy
+from numpy.typing import NDArray, ArrayLike
+import polars
 
 from .bbox import BBox3D
-from .types import VecLike, to_vec3
+from .types import VecLike, to_vec3, ParamSpec
 from .transform import LinearTransform3D, AffineTransform3D, Transform3D, IntoTransform3D
 from .cell import CoordinateFrame, HasCell, Cell
-from .atoms import HasAtoms, Atoms, IntoAtoms, AtomSelection
+from .atoms import HasAtoms, Atoms, IntoAtoms, AtomSelection, AtomValues
 
 # pyright: reportImportCycles=false
 from .mixins import AtomCellIOMixin
@@ -22,6 +24,24 @@ from .mixins import AtomCellIOMixin
 
 AtomCellT = t.TypeVar('AtomCellT', bound='AtomCell')
 HasAtomCellT = t.TypeVar('HasAtomCellT', bound='HasAtomCell')
+P = ParamSpec('P')
+T = t.TypeVar('T')
+
+
+def _fwd_atoms_get(f: t.Callable[P, T]) -> t.Callable[P, T]:
+    """Forward getter method on HasAtomCell to method on HasAtoms"""
+    def inner(self, *args, frame: t.Optional[CoordinateFrame] = None, **kwargs):
+        return getattr(self.get_atoms(frame), f.__name__)(*args, **kwargs)
+
+    return t.cast(t.Callable[P, T], inner)
+
+
+def _fwd_atoms_transform(f: t.Callable[P, T]) -> t.Callable[P, T]:
+    """Forward transformation method on HasAtomCell to method on HasAtoms"""
+    def inner(self, *args, frame: t.Optional[CoordinateFrame] = None, **kwargs):
+        return self.with_atoms(self._transform_atoms_in_frame(frame, lambda atoms: getattr(atoms, f.__name__)(*args, **kwargs)))
+
+    return t.cast(t.Callable[P, T], inner)
 
 
 class HasAtomCell(HasAtoms, HasCell, abc.ABC):
@@ -51,20 +71,23 @@ class HasAtomCell(HasAtoms, HasCell, abc.ABC):
     def get_atoms(self, frame: t.Optional[CoordinateFrame] = None) -> Atoms:
         """Get atoms contained in ``self``, in the given coordinate frame."""
         ...
-        
+
+    def bbox_atoms(self, frame: t.Optional[CoordinateFrame] = None) -> BBox3D:
+        """Return the bounding box of all the atoms in ``self``, in the given coordinate frame."""
+        return self.get_atoms(frame).bbox()
 
     def bbox(self, frame: CoordinateFrame = 'local') -> BBox3D:
         """
         Return the combined bounding box of the cell and atoms in the given coordinate system.
         To get the cell or atoms bounding box only, use :py:`bbox_cell` or :py:`bbox_atoms`.
         """
-        return self.bbox_atoms() | self.bbox_cell()
+        return self.bbox_atoms(frame) | self.bbox_cell(frame)
 
     # transformation
 
-    def _transform_atoms_in_frame(self, frame: CoordinateFrame, f: t.Callable[[Atoms], Atoms]) -> Atoms:
+    def _transform_atoms_in_frame(self, frame: t.Optional[CoordinateFrame], f: t.Callable[[Atoms], Atoms]) -> Atoms:
         # ugly code
-        if frame == self.get_frame():
+        if frame is None or frame == self.get_frame():
             return f(self.get_atoms())
         return f(self.get_atoms(frame)).transform(self.get_transform(self.get_frame(), frame))
 
@@ -153,7 +176,7 @@ class HasAtomCell(HasAtoms, HasCell, abc.ABC):
         bbox = BBox3D.unit() | BBox3D.from_pts(pts)
         min_bounds = numpy.floor(bbox.min).astype(int) - pad
         max_bounds = numpy.ceil(bbox.max).astype(int) + pad
-        print(f"tiling to {min_bounds}, {max_bounds}")
+        #print(f"tiling to {min_bounds}, {max_bounds}")
         repeat = max_bounds - min_bounds
         cells = numpy.stack(numpy.meshgrid(*map(numpy.arange, repeat))).reshape(3, -1).T.astype(float)
 
@@ -162,7 +185,7 @@ class HasAtomCell(HasAtoms, HasCell, abc.ABC):
             atoms.transform(AffineTransform3D.translate(cell))
             for cell in cells
         ])
-        print(f"atoms:\n{atoms}")
+        #print(f"atoms:\n{atoms}")
         cell = self.get_cell().repeat(repeat) \
             .transform_cell(AffineTransform3D.translate(min_bounds), 'cell_frac')
         return self.with_cell(cell).with_atoms(atoms, 'cell_frac')
@@ -262,6 +285,186 @@ class HasAtomCell(HasAtoms, HasCell, abc.ABC):
         repeat = numpy.array([1, 1, 1], numpy.int_)
         repeat[indices] = na.flatten()[min_i], nb.flatten()[min_i]
         return self.repeat(repeat)
+
+    # add frame to some HasAtoms methods
+
+    @_fwd_atoms_transform
+    def filter(self: HasAtomCellT, selection: t.Optional[AtomSelection] = None, *,
+               frame: t.Optional[CoordinateFrame] = None) -> HasAtomCellT:
+        """Filter ``self``, removing rows which evaluate to ``False``."""
+        ...
+
+    @_fwd_atoms_get
+    def select(self, exprs: t.Union[str, polars.Expr, polars.Series, t.Sequence[t.Union[str, polars.Expr, polars.Series]]], *,
+               frame: t.Optional[CoordinateFrame] = None) -> polars.DataFrame:
+        """
+        Select ``exprs`` from ``self``, and return as a ``DataFrame``.
+
+        Expressions may either be columns or expressions of columns.
+        """
+        ...
+
+    @_fwd_atoms_get
+    def try_select(self, exprs: t.Union[str, polars.Expr, polars.Series, t.Sequence[t.Union[str, polars.Expr, polars.Series]]], *,
+                   frame: t.Optional[CoordinateFrame] = None) -> t.Optional[polars.DataFrame]:
+        """
+        Try to select ``exprs`` from ``self``, and return as a ``DataFrame``.
+
+        Expressions may either be columns or expressions of columns.
+        Return ``None`` if any columns are missing.
+        """
+        ...
+
+    @_fwd_atoms_transform
+    def sort(self: HasAtomCellT, by: t.Union[str, polars.Expr, t.List[str], t.List[polars.Expr]],
+             reverse: t.Union[bool, t.List[bool]] = False, *,
+             frame: t.Optional[CoordinateFrame] = None) -> HasAtomCellT:
+        ...
+
+    @_fwd_atoms_transform
+    def with_column(self: HasAtomCellT, column: t.Union[polars.Series, polars.Expr], *,
+                    frame: t.Optional[CoordinateFrame] = None) -> HasAtomCellT:
+        """Return a copy of ``self`` with the given column added."""
+        ...
+
+    def with_columns(self: HasAtomCellT,
+                     exprs: t.Union[t.Literal[None], polars.Series, polars.Expr, t.Sequence[t.Union[polars.Series, polars.Expr]]], *,
+                     frame: t.Optional[CoordinateFrame] = None,
+                     **named_exprs: t.Union[polars.Expr, polars.Series]) -> HasAtomCellT:
+        """Return a copy of ``self`` with the given columns added."""
+        ...
+
+    @_fwd_atoms_transform
+    def round_near_zero(self: HasAtomCellT, tol: float = 1e-14, *,
+                        frame: t.Optional[CoordinateFrame] = None) -> HasAtomCellT:
+        """
+        Round atom position values near zero to zero.
+        """
+        ...
+
+    @_fwd_atoms_get
+    def coords(self, selection: t.Optional[AtomSelection] = None, *, frame: t.Optional[CoordinateFrame] = None) -> NDArray[numpy.float64]:
+        """Returns a (N, 3) ndarray of atom coordinates (dtype `numpy.float64`)."""
+        ...
+
+    @_fwd_atoms_get
+    def velocities(self, selection: t.Optional[AtomSelection] = None, *, frame: t.Optional[CoordinateFrame] = None) -> t.Optional[NDArray[numpy.float64]]:
+        """Returns a (N, 3) ndarray of atom velocities (dtype `numpy.float64`)."""
+        ...
+
+    @t.overload
+    def add_atom(self: HasAtomCellT, elem: t.Union[int, str], x: ArrayLike, /, *,
+                 y: None = None, z: None = None, frame: t.Optional[CoordinateFrame] = None,
+                 **kwargs: t.Any) -> HasAtomCellT:
+        ...
+
+    @t.overload
+    def add_atom(self: HasAtomCellT, elem: t.Union[int, str], /,
+                 x: float, y: float, z: float, *,
+                 frame: t.Optional[CoordinateFrame] = None,
+                 **kwargs: t.Any) -> HasAtomCellT:
+        ...
+
+    @_fwd_atoms_transform
+    def add_atom(self: HasAtomCellT, elem: t.Union[int, str], /,
+                 x: t.Union[ArrayLike, float],
+                 y: t.Optional[float] = None,
+                 z: t.Optional[float] = None, *,
+                 frame: t.Optional[CoordinateFrame] = None,
+                 **kwargs: t.Any) -> HasAtomCellT:
+        """
+        Return a copy of ``self`` with an extra atom.
+
+        By default, all extra columns present in ``self`` must be specified as ``**kwargs``.
+
+        Try to avoid calling this in a loop (Use :function:`HasAtoms.concat` instead).
+        """
+        ...
+
+    @_fwd_atoms_transform
+    def with_index(self: HasAtomCellT, index: t.Optional[AtomValues] = None, *,
+                   frame: t.Optional[CoordinateFrame] = None) -> HasAtomCellT:
+        """
+        Returns `self` with a row index added in column 'i' (dtype polars.Int64).
+        If `index` is not specified, defaults to an existing index or a new index.
+        """
+        ...
+
+    @_fwd_atoms_transform
+    def with_wobble(self: HasAtomCellT, wobble: t.Optional[AtomValues] = None, *,
+                    frame: t.Optional[CoordinateFrame] = None) -> HasAtomCellT:
+        """
+        Return `self` with the given displacements in column 'wobble' (dtype polars.Float64).
+        If `wobble` is not specified, defaults to the already-existing wobbles or 0.
+        """
+        ...
+
+    @_fwd_atoms_transform
+    def with_occupancy(self: HasAtomCellT, frac_occupancy: t.Optional[AtomValues] = None, *,
+                       frame: t.Optional[CoordinateFrame] = None) -> HasAtomCellT:
+        """
+        Return self with the given fractional occupancies. If `frac_occupancy` is not specified,
+        defaults to the already-existing occupancies or 1.
+        """
+        ...
+
+    @_fwd_atoms_transform
+    def apply_wobble(self: HasAtomCellT, rng: t.Union[numpy.random.Generator, int, None] = None,
+                     frame: t.Optional[CoordinateFrame] = None) -> HasAtomCellT:
+        """
+        Displace the atoms in `self` by the amount in the `wobble` column.
+        `wobble` is interpretated as a mean-squared displacement, which is distributed
+        equally over each axis.
+        """
+        ...
+
+    @_fwd_atoms_transform
+    def with_type(self: HasAtomCellT, types: t.Optional[AtomValues] = None, *,
+                  frame: t.Optional[CoordinateFrame] = None) -> HasAtomCellT:
+        """
+        Return `self` with the given atom types in column 'type'.
+        If `types` is not specified, use the already existing types or auto-assign them.
+
+        When auto-assigning, each symbol is given a unique value, case-sensitive.
+        Values are assigned from lowest atomic number to highest.
+        For instance: ["Ag+", "Na", "H", "Ag"] => [3, 11, 1, 2]
+        """
+        ...
+
+    @_fwd_atoms_transform
+    def with_mass(self: HasAtomCellT, mass: t.Optional[ArrayLike] = None, *,
+                  frame: t.Optional[CoordinateFrame] = None) -> HasAtomCellT:
+        """
+        Return `self` with the given atom masses in column 'mass'.
+        If `mass` is not specified, use the already existing masses or auto-assign them.
+        """
+        ...
+
+    @_fwd_atoms_transform
+    def with_symbol(self: HasAtomCellT, symbols: ArrayLike, selection: t.Optional[AtomSelection] = None, *,
+                    frame: t.Optional[CoordinateFrame] = None) -> HasAtomCellT:
+        """
+        Return `self` with the given atomic symbols.
+        """
+        ...
+
+    @_fwd_atoms_transform
+    def with_coords(self: HasAtomCellT, pts: ArrayLike, selection: t.Optional[AtomSelection] = None, *,
+                    frame: t.Optional[CoordinateFrame] = None) -> HasAtomCellT:
+        """
+        Return `self` replaced with the given atomic positions.
+        """
+        ...
+
+    @_fwd_atoms_transform
+    def with_velocity(self: HasAtomCellT, pts: t.Optional[ArrayLike] = None,
+                      selection: t.Optional[AtomSelection] = None, *,
+                      frame: t.Optional[CoordinateFrame] = None) -> HasAtomCellT:
+        """
+        Return `self` replaced with the given atomic velocities.
+        If `pts` is not specified, use the already existing velocities or zero.
+        """
+        ...
 
 
 @dataclass(init=False, repr=False, frozen=True)

@@ -378,6 +378,25 @@ class Cell(HasCell):
             pbc=pbc,
         )
 
+    def __str__(self) -> str:
+        return "\n".join((
+            self.__class__.__name__,
+            f"Cell size: {self.cell_size!r}",
+            f"Cell angle: {self.cell_angle!r}",
+            f"# cells: {self.cell_angle!r}",
+            f"pbc: {self.pbc!r}",
+        ))
+
+    def __repr__(self) -> str:
+        return (
+            f"{self.__class__.__name__}("
+            f"ortho={self.ortho}, affine={self.affine}, cell_size={self.cell_size}, "
+            f"cell_angle={self.cell_angle}, n_cells={self.n_cells}, pbc={self.pbc})"
+        )
+
+    def _repr_pretty_(self, p, cycle: bool) -> None:
+        p.text(f"{self.__class__.__name__}(...)") if cycle else p.text(str(self))
+
 
 @t.overload
 def _validate_cell_size(cell_size: VecLike) -> Vec3:

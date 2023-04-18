@@ -176,8 +176,8 @@ class HasAtoms(abc.ABC):
         """
         return self._get_frame().select(exprs)
 
-    def sort(self, by: t.Union[str, polars.Expr, t.List[str], t.List[polars.Expr]], reverse: t.Union[bool, t.List[bool]] = False) -> Atoms:
-        return Atoms(self._get_frame().sort(by, reverse), _unchecked=True)
+    def sort(self: HasAtomsT, by: t.Union[str, polars.Expr, t.List[str], t.List[polars.Expr]], reverse: t.Union[bool, t.List[bool]] = False) -> HasAtomsT:
+        return self.with_atoms(Atoms(self._get_frame().sort(by, reverse), _unchecked=True))
 
     @classmethod
     def concat(cls: t.Type[HasAtomsT],
@@ -188,11 +188,11 @@ class HasAtoms(abc.ABC):
 
         if isinstance(atoms, HasAtoms):
             atoms = (atoms,)
-        dfs = [a._get_frame() if isinstance(a, HasAtoms) else Atoms(a).inner for a in atoms]
+        dfs = [a.get_atoms('local').inner if isinstance(a, HasAtoms) else Atoms(a).inner for a in atoms]
         representative = cls._combine_metadata(*(a for a in atoms if isinstance(a, HasAtoms)))
 
         if len(dfs) == 0:
-            return representative.with_atoms(Atoms.empty())
+            return representative.with_atoms(Atoms.empty(), 'local')
 
         if how == 'inner':
             cols = reduce(operator.and_, (df.schema.keys() for df in dfs))
@@ -203,7 +203,7 @@ class HasAtoms(abc.ABC):
             dfs = [_select_schema(df, schema) for df in dfs]
             how = 'vertical'
 
-        return representative.with_atoms(Atoms(polars.concat(dfs, rechunk=rechunk, how=how)))
+        return representative.with_atoms(Atoms(polars.concat(dfs, rechunk=rechunk, how=how)), 'local')
 
     # some helpers we add
 
@@ -264,7 +264,7 @@ class HasAtoms(abc.ABC):
     # atoms-specific methods
 
     def bbox_atoms(self) -> BBox3D:
-        """Return the bounding box of all the points in `self`."""
+        """Return the bounding box of all the atoms in ``self``."""
         return BBox3D.from_pts(self.coords())
 
     bbox = bbox_atoms
@@ -615,7 +615,8 @@ class HasAtoms(abc.ABC):
             polars.Series(pts[:, 2], dtype=polars.Float64).alias('z'),
         ))
 
-    def with_velocity(self: HasAtoms, pts: t.Optional[ArrayLike] = None, selection: t.Optional[AtomSelection] = None) -> HasAtoms:
+    def with_velocity(self: HasAtomsT, pts: t.Optional[ArrayLike] = None,
+                      selection: t.Optional[AtomSelection] = None) -> HasAtomsT:
         """
         Return `self` replaced with the given atomic velocities.
         If `pts` is not specified, use the already existing velocities or zero.
