@@ -4,7 +4,7 @@ import numpy
 from . import fcc, wurtzite, graphite, zincblende, fluorite, perovskite, slab
 from .. import AtomCell, Atoms
 from ..transform import LinearTransform3D
-from tests.util import check_equals_structure
+from ..testing import check_equals_structure
 
 
 def test_fcc():

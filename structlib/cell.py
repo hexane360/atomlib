@@ -70,6 +70,17 @@ class HasCell:
         return self.get_cell()._ortho
 
     @property
+    def metric(self) -> LinearTransform3D:
+        r"""
+        Cell metric tensor
+
+        Returns the dot product between every combination of basis vectors.
+        :math:`\mathbf{a} \cdot \mathbf{b} = a_i M_ij b_j`
+        """
+        ortho = self.get_cell()._ortho.scale(self.cell_size)
+        return ortho.T @ ortho
+
+    @property
     def cell_size(self) -> NDArray[numpy.float_]:
         """Unit cell size."""
         return self.get_cell()._cell_size

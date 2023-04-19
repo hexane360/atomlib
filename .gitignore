@@ -30,4 +30,11 @@ coverage.xml
 notebooks/*.xsf
 notebooks/*.lmp
 notebooks/*.cif
+notebooks/*.qe
 notebooks/*.xyz
+
+examples/*.xsf
+examples/*.lmp
+examples/*.cif
+examples/*.qe
+examples/*.xyz

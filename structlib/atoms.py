@@ -61,6 +61,10 @@ else:
         ColumnNotFoundError = polars.NotFoundError
 
 
+def _is_abstract(cls: t.Type) -> bool:
+    return bool(getattr(cls, "__abstractmethods__", False))
+
+
 def _values_to_series(df: polars.DataFrame, selection: AtomSelection, ty: t.Type[polars.DataType]) -> polars.Series:
     if isinstance(selection, polars.Series):
         return selection.cast(ty)
@@ -119,7 +123,7 @@ class HasAtoms(abc.ABC):
         ...
 
     @abc.abstractmethod
-    def with_atoms(self: HasAtomsT, atoms: Atoms, frame: t.Literal['local'] = 'local') -> HasAtomsT:
+    def with_atoms(self: HasAtomsT, atoms: HasAtoms, frame: t.Literal['local'] = 'local') -> HasAtomsT:
         ...
 
     @classmethod
@@ -185,6 +189,8 @@ class HasAtoms(abc.ABC):
                rechunk: bool = True, how: ConcatMethod = 'vertical') -> HasAtomsT:
         # this method is tricky. It needs to accept raw Atoms, as well as HasAtoms of the
         # same type as ``cls``.
+        if _is_abstract(cls):
+            raise TypeError(f"concat() must be called on a concrete class.")
 
         if isinstance(atoms, HasAtoms):
             atoms = (atoms,)
@@ -721,10 +727,10 @@ class Atoms(AtomsIOMixin, HasAtoms):
             raise ValueError(f"Atoms without a cell only support the 'local' coordinate frame, not '{frame}'.")
         return self
 
-    def with_atoms(self, atoms: Atoms, frame: t.Literal['local'] = 'local') -> Atoms:
+    def with_atoms(self, atoms: HasAtoms, frame: t.Literal['local'] = 'local') -> Atoms:
         if frame != 'local':
             raise ValueError(f"Atoms without a cell only support the 'local' coordinate frame, not '{frame}'.")
-        return atoms
+        return atoms.get_atoms()
 
     @classmethod
     def _combine_metadata(cls: t.Type[Atoms], *atoms: HasAtoms) -> Atoms:

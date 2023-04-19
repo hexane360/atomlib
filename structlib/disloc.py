@@ -284,7 +284,7 @@ def disloc_poly_z(atoms: HasAtomsT, b: VecLike, poly: ArrayLike, center: t.Optio
     Follows the solution in `Hirth, J. P. & Lothe, J. (1982). Theory of Dislocations. ISBN 0-89464-617-6
     <https://www.google.com/books/edition/Theory_of_Dislocations/TAjwAAAAMAAJ>`_
     """
-    center = to_vec3(center or [0., 0., 0.])
+    center = to_vec3(center if center is not None else [0., 0., 0.])
     b_vec = to_vec3(b)
 
     poly = numpy.atleast_2d(poly)
@@ -292,8 +292,7 @@ def disloc_poly_z(atoms: HasAtomsT, b: VecLike, poly: ArrayLike, center: t.Optio
         raise ValueError(f"Expected a 2d polygon. Instead got shape {poly.shape}")
 
     frame = atoms.get_atoms('local')
-    coords: NDArray[numpy.float_] = frame.coords()
-    coords = coords - center
+    coords: NDArray[numpy.float_] = frame.coords() - center
 
     branch = None
     d = numpy.dot(b_vec, [0, 0, 1])
@@ -303,22 +302,24 @@ def disloc_poly_z(atoms: HasAtomsT, b: VecLike, poly: ArrayLike, center: t.Optio
 
         z = coords[..., 2]
         remove = (z >= windings * d/2.) & (z <= -windings * d/2.)
+        duplicate = (z >= -windings * d/2.) & (z <= windings * d/2.)
+
         n_remove = numpy.sum(remove, dtype=int)
         if n_remove:
             logging.info(f"Removing {n_remove} atoms")
             frame = frame.filter(_selection_to_expr(~remove))
 
-        duplicate = (z >= -windings * d/2.) & (z <= windings * d/2.)
+            duplicate = duplicate[~remove]
+
         n_duplicate = numpy.sum(duplicate, dtype=int)
         if n_duplicate:
             logging.info(f"Duplicating {n_duplicate} atoms")
-            frame = Atoms.concat((frame, frame.filter(polars.lit(duplicate, dtype=polars.Boolean))))
+            frame = Atoms.concat((frame, frame.filter(duplicate)))
 
             branch = numpy.ones(len(frame))
             branch[-n_duplicate:] = -1  # flip branch of duplicated atoms
 
-        coords = frame.coords()
-        coords = coords - center
+        coords = frame.coords() - center
 
     disp = _poly_disp_z(coords, b_vec, poly, poisson=poisson, branch=branch)
 

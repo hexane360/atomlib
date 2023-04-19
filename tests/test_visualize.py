@@ -4,7 +4,7 @@ from matplotlib import pyplot
 from structlib.visualize import show_atoms_mpl_2d
 from structlib import make, AtomCell
 
-from .util import check_figure_draw
+from structlib.testing import check_figure_draw
 
 
 @pytest.fixture

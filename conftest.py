@@ -1,16 +1,16 @@
 import typing as t
 
 import pytest
-pytest.register_assert_rewrite("structlib.core", "structlib.atoms", "structlib.tests.util")
+pytest.register_assert_rewrite("structlib.core", "structlib.atoms", "tests.util")
 
-from tests.util import OUTPUT_PATH
+from structlib.testing import OUTPUT_PATH
 
 if t.TYPE_CHECKING:
-    from structlib import AtomCollection
+    from structlib import HasAtoms
 
 
 @pytest.fixture(scope='function')
-def expected_structure(request) -> 'AtomCollection':
+def expected_structure(request) -> 'HasAtoms':
     from structlib.io import read
 
     marker = request.node.get_closest_marker('expected_filename')

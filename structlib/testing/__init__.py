@@ -1,28 +1,33 @@
+from __future__ import annotations
 
 from pathlib import Path
 import inspect
+from io import StringIO
 import typing as t
 
 import pytest
 
 if t.TYPE_CHECKING:
-    from structlib import AtomCollection
+    from structlib import HasAtoms
+    from structlib.mixins import AtomsIOMixin
 
 CallableT = t.TypeVar('CallableT', bound=t.Callable)
 
-OUTPUT_PATH = Path(__file__).parent / 'baseline_files'
+OUTPUT_PATH = Path(__file__).parents[2] / 'tests/baseline_files'
 assert OUTPUT_PATH.exists()
 
-INPUT_PATH = Path(__file__).parent / 'input_files'
+INPUT_PATH = Path(__file__).parents[2] / 'tests/input_files'
 assert INPUT_PATH.exists()
 
 
 def _wrap_pytest(wrapper: CallableT, wrapped: t.Callable,
-                 prepend_params: t.Sequence[inspect.Parameter] = (),
-                 append_params: t.Sequence[inspect.Parameter] = ()) -> CallableT:
+                 mod_params: t.Optional[t.Callable[[t.Sequence[inspect.Parameter]], t.Sequence[inspect.Parameter]]] = None
+) -> CallableT:
     # hacks to allow pytest to find fixtures in wrapped functions
     old_sig = inspect.signature(wrapped)
-    params = [*prepend_params, *old_sig.parameters.values(), *append_params]
+    params = tuple(old_sig.parameters.values())
+    if mod_params is not None:
+        params = mod_params(params)
     new_sig = old_sig.replace(parameters=params)
 
     testmark = getattr(wrapped, "pytestmark", []) + getattr(wrapper, "pytestmark", [])
@@ -34,23 +39,53 @@ def _wrap_pytest(wrapper: CallableT, wrapped: t.Callable,
     return wrapper
 
 
-def check_equals_file(name: t.Union[str, Path]) -> t.Callable[[t.Callable[..., str]], t.Callable[..., None]]:
-    def decorator(f: t.Callable[..., str]):
+def assert_files_equal(expected_path: t.Union[str, Path], actual_path: t.Union[str, Path]):
+    with open(OUTPUT_PATH / expected_path, 'r') as f:
+        expected = f.read()
+    with open(actual_path, 'r') as f:
+        actual = f.read()
+
+    assert expected == actual
+
+
+def check_equals_file(name: t.Union[str, Path]) -> t.Callable[[t.Callable[[StringIO], t.Any]], t.Callable[..., None]]:
+    def decorator(f: t.Callable[[StringIO], str]):
         @pytest.mark.expected_filename(name)
         def wrapper(expected_contents: str, *args, **kwargs):  # type: ignore
-            result = f(*args, **kwargs)
-            assert result == expected_contents
+            buf = StringIO()
+            f(buf, *args, **kwargs)
+            assert buf.getvalue() == expected_contents
 
-        return _wrap_pytest(wrapper, f, [inspect.Parameter('expected_contents', inspect.Parameter.POSITIONAL_OR_KEYWORD)])
+        return _wrap_pytest(wrapper, f, lambda params: [inspect.Parameter('expected_contents', inspect.Parameter.POSITIONAL_OR_KEYWORD), *params[1:]])
 
     return decorator
 
 
-def check_equals_structure(name: t.Union[str, Path]) -> t.Callable[[t.Callable[..., 'AtomCollection']], t.Callable[..., None]]:
+def assert_equals_structure(expected_path: t.Union[str, Path], actual: AtomsIOMixin):
+    from structlib.io import read
+
+    expected = read(OUTPUT_PATH / expected_path)
+
+    try:
+        if hasattr(actual, 'assert_equal'):
+            actual.assert_equal(expected)  # type: ignore
+        else:
+            assert actual == expected
+    except AssertionError:
+        try:
+            actual_path = Path(expected_path).with_stem(Path(expected_path).stem + '_actual').name
+            print(f"Saving result structure to '{actual_path}'")
+            actual.write(OUTPUT_PATH / actual_path)
+        except Exception:
+            print("Failed to save result structure.")
+        raise
+
+
+def check_equals_structure(name: t.Union[str, Path]) -> t.Callable[[t.Callable[..., AtomsIOMixin]], t.Callable[..., None]]:
     """Test that the wrapped function returns the same structure as contained in `name`."""
-    def decorator(f: t.Callable[..., 'AtomCollection']):
+    def decorator(f: t.Callable[..., 'AtomsIOMixin']):
         @pytest.mark.expected_filename(name)
-        def wrapper(expected_structure: 'AtomCollection', *args, **kwargs):  # type: ignore
+        def wrapper(expected_structure: 'HasAtoms', *args, **kwargs):  # type: ignore
             result = f(*args, **kwargs)
             try:
                 if hasattr(result, 'assert_equal'):
@@ -66,14 +101,14 @@ def check_equals_structure(name: t.Union[str, Path]) -> t.Callable[[t.Callable[.
                     print("Failed to save result structure.")
                 raise
 
-        return _wrap_pytest(wrapper, f, [inspect.Parameter('expected_structure', inspect.Parameter.POSITIONAL_OR_KEYWORD)])
+        return _wrap_pytest(wrapper, f, lambda params: [inspect.Parameter('expected_structure', inspect.Parameter.POSITIONAL_OR_KEYWORD), *params])
 
     return decorator
 
 
-def check_parse_structure(name: t.Union[str, Path]) -> t.Callable[[t.Callable[..., 'AtomCollection']], t.Callable[..., None]]:
+def check_parse_structure(name: t.Union[str, Path]) -> t.Callable[[t.Callable[..., HasAtoms]], t.Callable[..., None]]:
     """Test that `name` parses to the same structure as given in the function body."""
-    def decorator(f: t.Callable[..., 'AtomCollection']):
+    def decorator(f: t.Callable[..., 'HasAtoms']):
         def wrapper(*args, **kwargs):  # type: ignore
             expected = f(*args, **kwargs)
 

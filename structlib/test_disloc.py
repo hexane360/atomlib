@@ -2,7 +2,7 @@
 import numpy
 import pytest
 
-from tests.util import check_equals_structure
+from .testing import check_equals_structure
 from . import make
 from .disloc import disloc_loop_z, disloc_edge, disloc_screw
 

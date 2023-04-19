@@ -6,7 +6,7 @@ from structlib import HasAtoms, AtomCell, Atoms
 from structlib.transform import LinearTransform3D
 from structlib.io import *
 
-from .util import check_parse_structure, INPUT_PATH
+from structlib.testing import check_parse_structure, INPUT_PATH
 
 
 def xyz_expected(s: HasAtoms):

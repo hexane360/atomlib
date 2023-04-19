@@ -51,7 +51,7 @@ class HasAtomCell(HasAtoms, HasCell, abc.ABC):
         ...
 
     @abc.abstractmethod
-    def with_atoms(self: HasAtomCellT, atoms: Atoms, frame: t.Optional[CoordinateFrame] = None) -> HasAtomCellT:
+    def with_atoms(self: HasAtomCellT, atoms: HasAtoms, frame: t.Optional[CoordinateFrame] = None) -> HasAtomCellT:
         """
         Replace the atoms in ``self``. If no coordinate frame is specified, keep the coordinate frame unchanged.
         """
@@ -495,9 +495,9 @@ class AtomCell(AtomCellIOMixin, HasAtomCell):
             return self.atoms
         return self.atoms.transform(self.get_transform(frame, self.get_frame()))
 
-    def with_atoms(self: AtomCellT, atoms: Atoms, frame: t.Optional[CoordinateFrame] = None) -> AtomCellT:
+    def with_atoms(self: AtomCellT, atoms: HasAtoms, frame: t.Optional[CoordinateFrame] = None) -> AtomCellT:
         frame = frame if frame is not None else self.frame
-        return self.__class__(atoms, cell=self.cell, frame=frame, keep_frame=True)
+        return self.__class__(atoms.get_atoms(), cell=self.cell, frame=frame, keep_frame=True)
         #return replace(self, atoms=atoms, frame = frame if frame is not None else self.frame, keep_frame=True)
 
     def get_frame(self) -> CoordinateFrame:
