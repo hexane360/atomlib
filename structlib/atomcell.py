@@ -1,6 +1,10 @@
 """
-Core atomic structure types.
+:py:class:`Atoms` with an associated :py:class:`Cell`.
+
+This module defines :py:class:`HasAtomCell` and the concrete :py:class:`AtomCell`,
+which combines the functionality of :py:class:`HasAtoms` and :py:class:`HasCell`.
 """
+
 from __future__ import annotations
 
 import abc
@@ -29,7 +33,7 @@ T = t.TypeVar('T')
 
 
 def _fwd_atoms_get(f: t.Callable[P, T]) -> t.Callable[P, T]:
-    """Forward getter method on HasAtomCell to method on HasAtoms"""
+    """Forward getter method on :py:`HasAtomCell` to method on :py:`HasAtoms`"""
     def inner(self, *args, frame: t.Optional[CoordinateFrame] = None, **kwargs):
         return getattr(self.get_atoms(frame), f.__name__)(*args, **kwargs)
 
@@ -37,7 +41,7 @@ def _fwd_atoms_get(f: t.Callable[P, T]) -> t.Callable[P, T]:
 
 
 def _fwd_atoms_transform(f: t.Callable[P, T]) -> t.Callable[P, T]:
-    """Forward transformation method on HasAtomCell to method on HasAtoms"""
+    """Forward transformation method on :py:`HasAtomCell` to method on :py:`HasAtoms`"""
     def inner(self, *args, frame: t.Optional[CoordinateFrame] = None, **kwargs):
         return self.with_atoms(self._transform_atoms_in_frame(frame, lambda atoms: getattr(atoms, f.__name__)(*args, **kwargs)))
 
@@ -79,7 +83,7 @@ class HasAtomCell(HasAtoms, HasCell, abc.ABC):
     def bbox(self, frame: CoordinateFrame = 'local') -> BBox3D:
         """
         Return the combined bounding box of the cell and atoms in the given coordinate system.
-        To get the cell or atoms bounding box only, use :py:`bbox_cell` or :py:`bbox_atoms`.
+        To get the cell or atoms bounding box only, use :py:meth:`bbox_cell` or :py:meth:`bbox_atoms`.
         """
         return self.bbox_atoms(frame) | self.bbox_cell(frame)
 
@@ -113,7 +117,7 @@ class HasAtomCell(HasAtoms, HasCell, abc.ABC):
 
     def transform(self: HasAtomCellT, transform: AffineTransform3D, frame: CoordinateFrame = 'local') -> HasAtomCellT:
         if isinstance(transform, Transform3D) and not isinstance(transform, AffineTransform3D):
-            raise ValueError("Non-affine transforms cannot change the box dimensions. Use `transform_atoms` instead.")
+            raise ValueError("Non-affine transforms cannot change the box dimensions. Use 'transform_atoms' instead.")
         # TODO: cleanup once tests pass
         # coordinate change the transform into atomic coordinates
         new_cell = self.get_cell().transform_cell(transform, frame)
@@ -131,7 +135,7 @@ class HasAtomCell(HasAtoms, HasCell, abc.ABC):
         cell, this must be specified in cell coordinates. This
         function implicity `explode`s the cell as well.
 
-        To crop atoms only, use :py:`crop_atoms` instead.
+        To crop atoms only, use :py:meth:`crop_atoms` instead.
         """
 
         cell = self.get_cell().crop(x_min, x_max, y_min, y_max, z_min, z_max, frame=frame)
@@ -298,7 +302,7 @@ class HasAtomCell(HasAtoms, HasCell, abc.ABC):
     def select(self, exprs: t.Union[str, polars.Expr, polars.Series, t.Sequence[t.Union[str, polars.Expr, polars.Series]]], *,
                frame: t.Optional[CoordinateFrame] = None) -> polars.DataFrame:
         """
-        Select ``exprs`` from ``self``, and return as a ``DataFrame``.
+        Select ``exprs`` from ``self``, and return as a :py:class:`polars.DataFrame`.
 
         Expressions may either be columns or expressions of columns.
         """
@@ -308,7 +312,7 @@ class HasAtomCell(HasAtoms, HasCell, abc.ABC):
     def try_select(self, exprs: t.Union[str, polars.Expr, polars.Series, t.Sequence[t.Union[str, polars.Expr, polars.Series]]], *,
                    frame: t.Optional[CoordinateFrame] = None) -> t.Optional[polars.DataFrame]:
         """
-        Try to select ``exprs`` from ``self``, and return as a ``DataFrame``.
+        Try to select ``exprs`` from ``self``, and return as a :py:class:`polars.DataFrame`.
 
         Expressions may either be columns or expressions of columns.
         Return ``None`` if any columns are missing.
@@ -344,12 +348,12 @@ class HasAtomCell(HasAtoms, HasCell, abc.ABC):
 
     @_fwd_atoms_get
     def coords(self, selection: t.Optional[AtomSelection] = None, *, frame: t.Optional[CoordinateFrame] = None) -> NDArray[numpy.float64]:
-        """Returns a (N, 3) ndarray of atom coordinates (dtype `numpy.float64`)."""
+        """Returns a ``(N, 3)`` ndarray of atom coordinates (dtype ``numpy.float64``)."""
         ...
 
     @_fwd_atoms_get
     def velocities(self, selection: t.Optional[AtomSelection] = None, *, frame: t.Optional[CoordinateFrame] = None) -> t.Optional[NDArray[numpy.float64]]:
-        """Returns a (N, 3) ndarray of atom velocities (dtype `numpy.float64`)."""
+        """Returns a ``(N, 3)`` ndarray of atom velocities (dtype ``numpy.float64``)."""
         ...
 
     @t.overload
@@ -377,7 +381,7 @@ class HasAtomCell(HasAtoms, HasCell, abc.ABC):
 
         By default, all extra columns present in ``self`` must be specified as ``**kwargs``.
 
-        Try to avoid calling this in a loop (Use :function:`HasAtoms.concat` instead).
+        Try to avoid calling this in a loop (Use :py:meth:`concat` instead).
         """
         ...
 
@@ -385,8 +389,8 @@ class HasAtomCell(HasAtoms, HasCell, abc.ABC):
     def with_index(self: HasAtomCellT, index: t.Optional[AtomValues] = None, *,
                    frame: t.Optional[CoordinateFrame] = None) -> HasAtomCellT:
         """
-        Returns `self` with a row index added in column 'i' (dtype polars.Int64).
-        If `index` is not specified, defaults to an existing index or a new index.
+        Returns ``self`` with a row index added in column 'i' (dtype polars.Int64).
+        If ``index`` is not specified, defaults to an existing index or a new index.
         """
         ...
 
@@ -394,8 +398,8 @@ class HasAtomCell(HasAtoms, HasCell, abc.ABC):
     def with_wobble(self: HasAtomCellT, wobble: t.Optional[AtomValues] = None, *,
                     frame: t.Optional[CoordinateFrame] = None) -> HasAtomCellT:
         """
-        Return `self` with the given displacements in column 'wobble' (dtype polars.Float64).
-        If `wobble` is not specified, defaults to the already-existing wobbles or 0.
+        Return ``self`` with the given displacements in column 'wobble' (dtype polars.Float64).
+        If ``wobble`` is not specified, defaults to the already-existing wobbles or 0.
         """
         ...
 
@@ -403,7 +407,7 @@ class HasAtomCell(HasAtoms, HasCell, abc.ABC):
     def with_occupancy(self: HasAtomCellT, frac_occupancy: t.Optional[AtomValues] = None, *,
                        frame: t.Optional[CoordinateFrame] = None) -> HasAtomCellT:
         """
-        Return self with the given fractional occupancies. If `frac_occupancy` is not specified,
+        Return self with the given fractional occupancies. If ``frac_occupancy`` is not specified,
         defaults to the already-existing occupancies or 1.
         """
         ...
@@ -412,8 +416,8 @@ class HasAtomCell(HasAtoms, HasCell, abc.ABC):
     def apply_wobble(self: HasAtomCellT, rng: t.Union[numpy.random.Generator, int, None] = None,
                      frame: t.Optional[CoordinateFrame] = None) -> HasAtomCellT:
         """
-        Displace the atoms in `self` by the amount in the `wobble` column.
-        `wobble` is interpretated as a mean-squared displacement, which is distributed
+        Displace the atoms in ``self`` by the amount in the `wobble` column.
+        ``wobble`` is interpretated as a mean-squared displacement, which is distributed
         equally over each axis.
         """
         ...
@@ -422,12 +426,12 @@ class HasAtomCell(HasAtoms, HasCell, abc.ABC):
     def with_type(self: HasAtomCellT, types: t.Optional[AtomValues] = None, *,
                   frame: t.Optional[CoordinateFrame] = None) -> HasAtomCellT:
         """
-        Return `self` with the given atom types in column 'type'.
-        If `types` is not specified, use the already existing types or auto-assign them.
+        Return ``self`` with the given atom types in column 'type'.
+        If ``types`` is not specified, use the already existing types or auto-assign them.
 
         When auto-assigning, each symbol is given a unique value, case-sensitive.
         Values are assigned from lowest atomic number to highest.
-        For instance: ["Ag+", "Na", "H", "Ag"] => [3, 11, 1, 2]
+        For instance: ``["Ag+", "Na", "H", "Ag"]`` => ``[3, 11, 1, 2]``
         """
         ...
 
@@ -435,8 +439,8 @@ class HasAtomCell(HasAtoms, HasCell, abc.ABC):
     def with_mass(self: HasAtomCellT, mass: t.Optional[ArrayLike] = None, *,
                   frame: t.Optional[CoordinateFrame] = None) -> HasAtomCellT:
         """
-        Return `self` with the given atom masses in column 'mass'.
-        If `mass` is not specified, use the already existing masses or auto-assign them.
+        Return ``self`` with the given atom masses in column 'mass'.
+        If ``mass`` is not specified, use the already existing masses or auto-assign them.
         """
         ...
 
@@ -444,7 +448,7 @@ class HasAtomCell(HasAtoms, HasCell, abc.ABC):
     def with_symbol(self: HasAtomCellT, symbols: ArrayLike, selection: t.Optional[AtomSelection] = None, *,
                     frame: t.Optional[CoordinateFrame] = None) -> HasAtomCellT:
         """
-        Return `self` with the given atomic symbols.
+        Return ``self`` with the given atomic symbols.
         """
         ...
 
@@ -452,7 +456,7 @@ class HasAtomCell(HasAtoms, HasCell, abc.ABC):
     def with_coords(self: HasAtomCellT, pts: ArrayLike, selection: t.Optional[AtomSelection] = None, *,
                     frame: t.Optional[CoordinateFrame] = None) -> HasAtomCellT:
         """
-        Return `self` replaced with the given atomic positions.
+        Return ``self`` replaced with the given atomic positions.
         """
         ...
 
@@ -461,8 +465,8 @@ class HasAtomCell(HasAtoms, HasCell, abc.ABC):
                       selection: t.Optional[AtomSelection] = None, *,
                       frame: t.Optional[CoordinateFrame] = None) -> HasAtomCellT:
         """
-        Return `self` replaced with the given atomic velocities.
-        If `pts` is not specified, use the already existing velocities or zero.
+        Return ``self`` replaced with the given atomic velocities.
+        If ``pts`` is not specified, use the already existing velocities or zero.
         """
         ...
 
@@ -501,14 +505,15 @@ class AtomCell(AtomCellIOMixin, HasAtomCell):
         #return replace(self, atoms=atoms, frame = frame if frame is not None else self.frame, keep_frame=True)
 
     def get_frame(self) -> CoordinateFrame:
+        """Get the coordinate frame atoms are stored in."""
         return self.frame
 
     @classmethod
     def _combine_metadata(cls: t.Type[AtomCellT], *atoms: HasAtoms) -> AtomCellT:
         """
-        When combining multiple ``HasAtoms``, check that they are compatible with each other,
+        When combining multiple :py:`HasAtoms`, check that they are compatible with each other,
         and return a 'representative' which best represents the combined metadata.
-        Implementors should treat `Atoms` as acceptable, but having no metadata.
+        Implementors should treat :py:`Atoms` as acceptable, but having no metadata.
         """
         atom_cells = [a for a in atoms if isinstance(a, AtomCell)]
         if len(atom_cells) == 0:
@@ -526,7 +531,7 @@ class AtomCell(AtomCellIOMixin, HasAtomCell):
                    keep_frame: bool = False):
         """
         Make an atom cell given a list of atoms and an orthogonalization matrix.
-        Atoms are assumed to be in the coordinate system `frame`.
+        Atoms are assumed to be in the coordinate system ``frame``.
         """
         cell = Cell.from_ortho(ortho, n_cells)
         return cls(atoms, cell, frame=frame, keep_frame=keep_frame)
@@ -539,7 +544,7 @@ class AtomCell(AtomCellIOMixin, HasAtomCell):
                        keep_frame: bool = False):
         """
         Make a cell given a list of atoms and unit cell parameters.
-        Atoms are assumed to be in the coordinate system `frame`.
+        Atoms are assumed to be in the coordinate system ``frame``.
         """
         cell = Cell.from_unit_cell(cell_size, cell_angle, n_cells=n_cells)
         return cls(atoms, cell, frame=frame, keep_frame=keep_frame)

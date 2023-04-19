@@ -1,7 +1,7 @@
-﻿structlib.core
-==============
-.. currentmodule:: structlib.core
-.. automodule:: structlib.core
+﻿structlib.atomcell
+==================
+.. currentmodule:: structlib.atomcell
+.. automodule:: structlib.atomcell
 
 
 
@@ -12,15 +12,11 @@
    :members:
    :undoc-members:
    :private-members:
-.. autoclass:: AtomCollection
+.. autoclass:: HasAtomCell
    :members:
    :undoc-members:
    :private-members:
 .. autoclass:: OrthoCell
-   :members:
-   :undoc-members:
-   :private-members:
-.. autoclass:: SimpleAtoms
    :members:
    :undoc-members:
    :private-members:

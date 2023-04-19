@@ -174,7 +174,7 @@ class HasAtoms(abc.ABC):
     def select(self, exprs: t.Union[str, polars.Expr, polars.Series, t.Sequence[t.Union[str, polars.Expr, polars.Series]]]
     ) -> polars.DataFrame:
         """
-        Select ``exprs`` from ``self``, and return as a ``DataFrame``.
+        Select ``exprs`` from ``self``, and return as a :py:class:`polars.DataFrame`.
 
         Expressions may either be columns or expressions of columns.
         """

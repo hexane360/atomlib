@@ -17,4 +17,8 @@
    :members:
    :undoc-members:
    :private-members:
+.. autoclass:: HasAtoms
+   :members:
+   :undoc-members:
+   :private-members:
 

@@ -1,6 +1,11 @@
 """
-Helper functions for working with crystallographic unit cells and coordinate frames.
+Crystallographic unit cell.
+
+This module defines :py:class:`structlib.HasCell` and the concrete :py:class:`structlib.Cell`,
+the core types for dealing with crystallographic unit cells and
+their associated coordinate frames.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
