@@ -9,13 +9,13 @@ Modules
 .. autosummary::
    :toctree: structlib
 
-   core
    io
    make
    visualize
    disloc
    atoms
    cell
+   atomcell
    elem
    transform
    vec

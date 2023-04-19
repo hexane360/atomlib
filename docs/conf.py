@@ -61,9 +61,7 @@ autodoc_type_aliases = {
     'AtomValues': 'structlib.atoms.AtomValues',
 
     'CoordinateFrame': 'structlib.cell.CoordinateFrame',
-
     'IntoTransform3D': 'structlib.transform.IntoTransform3D',
-
     'CellType': 'structlib.make.CellType',
 }
 

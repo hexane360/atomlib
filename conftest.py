@@ -1,7 +1,7 @@
 import typing as t
 
 import pytest
-pytest.register_assert_rewrite("structlib.core", "structlib.atoms", "tests.util")
+pytest.register_assert_rewrite("structlib.atoms", "structlib.atomcell", "structlib.testing")
 
 from structlib.testing import OUTPUT_PATH
 

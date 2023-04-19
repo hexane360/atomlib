@@ -37,7 +37,7 @@ jobs:
       - name: Test
         run: pytest
       - name: Test notebooks
-        run: pytest --nbmake examples/**/*.ipynb
+        run: pytest --nbmake examples/*.ipynb --nbmake-kernel=python3
   type-check:
     name: Type Check
     runs-on: ubuntu-latest

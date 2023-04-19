@@ -22,6 +22,10 @@
    :members:
    :undoc-members:
    :private-members:
+.. autoclass:: HasCell
+   :members:
+   :undoc-members:
+   :private-members:
 
 
 .. rubric:: Functions
