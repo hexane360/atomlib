@@ -15,7 +15,7 @@ import typing as t
 
 import numpy
 import polars
-from polars.exceptions import PanicException
+from polars.exceptions import PolarsPanicError
 
 from ..util import open_file, open_file_binary, BinaryFileOrPath, FileOrPath
 from ..elem import get_sym
@@ -65,7 +65,7 @@ class XYZ:
             # TODO handle if there's not a gap here
 
             f= XYZToCSVReader(f)
-            df = polars.read_csv(f, sep='\t',  # type: ignore
+            df = polars.read_csv(f, separator='\t',  # type: ignore
                                 new_columns=['symbol', 'x', 'y', 'z'],
                                 dtypes=[polars.Utf8, polars.Float64, polars.Float64, polars.Float64],
                                 has_header=False, use_pyarrow=False)
@@ -75,13 +75,14 @@ class XYZ:
             try:
                 #TODO .fill_null(Series) seems to be broken on polars 0.14.11
                 sym = df.select(polars.col('symbol')
-                                      .cast(polars.UInt8, False).map(get_sym)).to_series()
+                                      .cast(polars.UInt8, strict=False)
+                                      .map(get_sym, return_dtype=polars.Utf8)).to_series()
                 df = df.with_columns(
-                    polars.when(sym.is_null())  # type: ignore
+                    polars.when(sym.is_null())
                     .then(polars.col('symbol'))
-                    .otherwise(sym)  # type: ignore
+                    .otherwise(sym)
                     .alias('symbol'))
-            except PanicException:
+            except PolarsPanicError:
                 invalid = (polars.col('symbol').cast(polars.UInt8) > 118).first()
                 raise ValueError(f"Invalid atomic number {invalid}") from None
 

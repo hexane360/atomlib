@@ -69,7 +69,7 @@ def get_elem(sym: t.Union[int, str, polars.Series]):
     if isinstance(sym, polars.Series):
         return sym.str.extract(_SYM_RE, 0) \
             .str.to_lowercase() \
-            .apply(lambda e: ELEMENTS[e]) \
+            .apply(lambda e: ELEMENTS[e], return_dtype=polars.UInt8) \
             .alias('elem')
 
     sym_s = re.search(_SYM_RE, str(sym))
@@ -105,7 +105,8 @@ def get_sym(elem: polars.Series) -> polars.Series:
 
 def get_sym(elem: t.Union[int, polars.Series]):
     if isinstance(elem, polars.Series):
-        return elem.apply(_get_sym).alias('symbol')
+        return elem.apply(_get_sym, return_dtype=polars.Utf8) \
+                   .alias('symbol')
 
     return ELEMENT_SYMBOLS[elem-1]
 

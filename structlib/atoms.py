@@ -96,6 +96,16 @@ def _selection_to_expr(selection: AtomSelection) -> polars.Expr:
     return _values_to_expr(selection, ty=polars.Boolean)
 
 
+def _selection_to_numpy(df: t.Union[polars.DataFrame, HasAtoms], selection: AtomSelection) -> NDArray[numpy.bool_]:
+    series = _selection_to_series(df, selection)
+    try:
+        import pyarrow
+    except ImportError:
+        # workaround without pyarrow
+        return numpy.array(series.to_list(), dtype=numpy.bool_)
+    return series.to_numpy(zero_copy_only=False)
+
+
 def _select_schema(df: t.Union[polars.DataFrame, HasAtoms], schema: SchemaDict) -> polars.DataFrame:
     """
     Select columns from ``self`` and cast to the given schema.
@@ -180,8 +190,8 @@ class HasAtoms(abc.ABC):
         """
         return self._get_frame().select(exprs)
 
-    def sort(self: HasAtomsT, by: t.Union[str, polars.Expr, t.List[str], t.List[polars.Expr]], reverse: t.Union[bool, t.List[bool]] = False) -> HasAtomsT:
-        return self.with_atoms(Atoms(self._get_frame().sort(by, reverse), _unchecked=True))
+    def sort(self: HasAtomsT, by: t.Union[str, polars.Expr, t.List[str], t.List[polars.Expr]], descending: t.Union[bool, t.List[bool]] = False) -> HasAtomsT:
+        return self.with_atoms(Atoms(self._get_frame().sort(by, descending=descending), _unchecked=True))
 
     @classmethod
     def concat(cls: t.Type[HasAtomsT],
@@ -245,7 +255,7 @@ class HasAtoms(abc.ABC):
         assert self.schema == other.schema
         for (col, dtype) in self.schema.items():
             if dtype in (polars.Float32, polars.Float64):
-                numpy.testing.assert_array_almost_equal(self[col].view(True), other[col].view(True), 5)
+                numpy.testing.assert_array_almost_equal(self[col].view(ignore_nulls=True), other[col].view(ignore_nulls=True), 5)
             else:
                 assert (self[col] == other[col]).all()
 
@@ -593,7 +603,7 @@ class HasAtoms(abc.ABC):
         Return `self` with the given atomic symbols.
         """
         if selection is not None:
-            selection = _selection_to_series(self, selection).to_numpy()
+            selection = _selection_to_numpy(self, selection)
             new_symbols = self.get_column('symbol')
             new_symbols[selection] = polars.Series(list(numpy.broadcast_to(symbols, len(selection))), dtype=polars.Utf8)
             symbols = new_symbols
@@ -607,7 +617,7 @@ class HasAtoms(abc.ABC):
         Return `self` replaced with the given atomic positions.
         """
         if selection is not None:
-            selection = _selection_to_series(self, selection).to_numpy()
+            selection = _selection_to_numpy(self, selection)
             new_pts = self.coords()
             pts = numpy.atleast_2d(pts)
             assert pts.shape[-1] == 3
