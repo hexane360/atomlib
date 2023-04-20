@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 import inspect
 from io import StringIO
+import re
 import typing as t
 
 import pytest
@@ -41,9 +42,9 @@ def _wrap_pytest(wrapper: CallableT, wrapped: t.Callable,
 
 def assert_files_equal(expected_path: t.Union[str, Path], actual_path: t.Union[str, Path]):
     with open(OUTPUT_PATH / expected_path, 'r') as f:
-        expected = f.read()
+        expected = re.sub('\r\n', '\n', f.read())
     with open(actual_path, 'r') as f:
-        actual = f.read()
+        actual = re.sub('\r\n', '\n', f.read())
 
     assert expected == actual
 
@@ -61,12 +62,15 @@ def check_equals_file(name: t.Union[str, Path]) -> t.Callable[[t.Callable[[Strin
     return decorator
 
 
-def assert_equals_structure(expected_path: t.Union[str, Path], actual: AtomsIOMixin):
+def assert_structure_equal(expected_path: t.Union[str, Path], actual: t.Union[str, Path, AtomsIOMixin]):
     from structlib.io import read
 
     expected = read(OUTPUT_PATH / expected_path)
 
     try:
+        if isinstance(actual, (str, Path)):
+            actual = t.cast('AtomsIOMixin', read(actual))
+
         if hasattr(actual, 'assert_equal'):
             actual.assert_equal(expected)  # type: ignore
         else:

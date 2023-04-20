@@ -14,7 +14,7 @@ def write_qe(atomcell: HasAtomCell, f: FileOrPath, pseudo: t.Optional[t.Mapping[
 
     atoms = atomcell.wrap().get_atoms('cell_frac').with_mass()
 
-    types = atoms.select(('symbol', 'mass')).unique(subset='symbol')
+    types = atoms.select(('symbol', 'mass')).unique(subset='symbol').sort('mass')
     if pseudo is not None:
         types = types.with_columns(polars.col('symbol').apply(lambda sym: pseudo[str(sym)]).alias('pot'))
     else:
