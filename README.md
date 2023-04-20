@@ -24,8 +24,8 @@ This means you can write your own code to utilize advanced format features even 
 | [CIF][cif]             | .cif    | :white_check_mark: | :x:                | CIF1 & CIF2. Isotropic B-factor only |
 | [XCrysDen][xsf]        | .xsf    | :white_check_mark: | :white_check_mark: |       |
 | [AtomEye CFG][cfg]     | .cfg    | :white_check_mark: | :x:                |       |
-| [Basic XYZ][xyz]       | .xyz    | :white_check_mark: | :x:                |       |
-| [Ext. XYZ][xyz]        | .exyz   | :white_check_mark: | :x:                |       |
+| [Basic XYZ][xyz]       | .xyz    | :white_check_mark: | :white_check_mark: |       |
+| [Ext. XYZ][xyz]        | .exyz   | :white_check_mark: | :white_check_mark: | Arbitrary properties not implemented |
 | [Special XYZ][xyz]     | .sxyz   | :x:                | :x:                | To be implemented |
 | [LAMMPS Data][lmp]     | .lmp    | :x:                | :white_check_mark: |       |
 | [Quantum Espresso][qe] | .qe     | :x:                | :white_check_mark: | pw.x format  |

@@ -1,3 +1,5 @@
+from io import StringIO
+
 import numpy
 import polars
 import pytest
@@ -6,7 +8,7 @@ from structlib import HasAtoms, AtomCell, Atoms
 from structlib.transform import LinearTransform3D
 from structlib.io import *
 
-from structlib.testing import check_parse_structure, INPUT_PATH
+from structlib.testing import check_parse_structure, check_equals_file, INPUT_PATH
 
 
 def xyz_expected(s: HasAtoms):
@@ -44,6 +46,15 @@ def test_xyz():
 
     s = AtomCell.read_xyz(path)
     xyz_expected(s)
+
+
+@check_equals_file('AlN.exyz')
+def test_exyz_write(s: StringIO, aln: AtomCell):
+    aln.write_xyz(s)
+
+@check_equals_file('AlN.xyz')
+def test_xyz_write(s: StringIO, aln: AtomCell):
+    aln.write_xyz(s, fmt='xyz')
 
 
 def cfg_expected(s: HasAtoms):

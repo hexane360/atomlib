@@ -8,7 +8,7 @@ import typing as t
 import numpy
 
 from .cif import CIF
-from .xyz import XYZ
+from .xyz import XYZ, XYZFormat
 from .xsf import XSF
 from .cfg import CFG
 from .mslice import write_mslice
@@ -83,6 +83,12 @@ def read_xyz(f: t.Union[FileOrPath, XYZ]) -> HasAtoms:
     return Atoms(atoms)
 
 
+def write_xyz(atoms: t.Union[HasAtoms, XYZ], f: FileOrPath, fmt: XYZFormat = 'exyz'):
+    if not isinstance(atoms, XYZ):
+        atoms = XYZ.from_atoms(atoms)
+    atoms.write(f, fmt)
+
+
 def read_xsf(f: t.Union[FileOrPath, XSF]) -> HasAtoms:
     """Read a structure from a XSF file."""
     if isinstance(f, XSF):
@@ -150,7 +156,7 @@ _READ_TABLE: t.Mapping[FileType, t.Optional[ReadFunc]] = {
 WriteFunc = t.Callable[[HasAtoms, FileOrPath], None]
 _WRITE_TABLE: t.Mapping[FileType, t.Optional[WriteFunc]] = {
     'cif': None,
-    'xyz': None,
+    'xyz': write_xyz,
     'xsf': write_xsf,
     'cfg': None,
     'lmp': write_lmp,
@@ -248,11 +254,8 @@ def write(atoms: HasAtoms, path: FileOrPath, ty: t.Optional[FileType] = None):
     return write_fn(atoms, path)
 
 
-
-
-
 __all__ = [
     'CIF', 'XYZ', 'XSF', 'CFG',
     'read', 'read_cif', 'read_xyz', 'read_xsf', 'read_cfg',
-    'write', 'write_xsf', 'write_lmp', 'write_mslice', 'write_qe',
+    'write', 'write_xyz', 'write_xsf', 'write_lmp', 'write_mslice', 'write_qe',
 ]

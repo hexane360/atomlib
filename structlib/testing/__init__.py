@@ -49,8 +49,8 @@ def assert_files_equal(expected_path: t.Union[str, Path], actual_path: t.Union[s
     assert expected == actual
 
 
-def check_equals_file(name: t.Union[str, Path]) -> t.Callable[[t.Callable[[StringIO], t.Any]], t.Callable[..., None]]:
-    def decorator(f: t.Callable[[StringIO], str]):
+def check_equals_file(name: t.Union[str, Path]) -> t.Callable[[t.Callable[..., t.Any]], t.Callable[..., None]]:
+    def decorator(f: t.Callable[..., str]):
         @pytest.mark.expected_filename(name)
         def wrapper(expected_contents: str, *args, **kwargs):  # type: ignore
             buf = StringIO()

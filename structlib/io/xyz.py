@@ -19,8 +19,13 @@ from polars.exceptions import PolarsPanicError
 
 from ..util import open_file, open_file_binary, BinaryFileOrPath, FileOrPath
 from ..elem import get_sym
+from ..atoms import HasAtoms
+from ..atomcell import HasAtomCell
 
 _COMMENT_RE = re.compile(r"(=|\s+|\")")
+
+
+XYZFormat = t.Literal['xyz', 'exyz']
 
 
 class XYZToCSVReader(io.IOBase):
@@ -47,6 +52,19 @@ class XYZ:
     atoms: polars.DataFrame
     comment: t.Optional[str] = None
     params: t.Dict[str, str] = field(default_factory=dict)
+
+    @staticmethod
+    def from_atoms(atoms: HasAtoms) -> XYZ:
+        params = {}
+        if isinstance(atoms, HasAtomCell):
+            coords = atoms.get_cell().to_ortho().to_linear().inner.ravel()
+            lattice_str = " ".join((f"{c:.8f}" for c in coords))
+            params['Lattice'] = lattice_str
+
+        return XYZ(
+            atoms.get_atoms('local')._get_frame(),
+            params=params
+        )
 
     @staticmethod
     def from_file(file: BinaryFileOrPath) -> XYZ:
@@ -102,10 +120,11 @@ class XYZ:
 
             return XYZ(df, comment)
 
-    def write(self, file: FileOrPath):
+    def write(self, file: FileOrPath, fmt: XYZFormat = 'exyz'):
         with open_file(file, 'w', newline='\r\n') as f:
+
             f.write(f"{len(self.atoms)}\n")
-            if len(self.params) > 0:
+            if len(self.params) > 0 and fmt == 'exyz':
                 f.write(" ".join(param_strings(self.params)))
             else:
                 f.write(self.comment or "")
@@ -118,8 +137,6 @@ class XYZ:
                     f"{val:< {space}.8f}" if isinstance(val, float) else f"{val:<{space}}" for (val, space) in zip(row, col_space)
                     ) + '\n' for row in self.atoms.select(('symbol', 'x', 'y', 'z')).rows()
             )
-            #self.atoms.to_string(file, columns=['symbol', 'x', 'y', 'z'], col_space=[4, 12, 12, 12],
-            #                     header=False, index=False, justify='left', float_format='{:.8f}'.format)
 
     def cell_matrix(self) -> t.Optional[numpy.ndarray]:
         if 'Lattice' not in self.params:

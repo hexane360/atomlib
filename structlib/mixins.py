@@ -11,7 +11,7 @@ if t.TYPE_CHECKING:  # pragma: no cover
     from .atoms import HasAtomsT
     from .atomcell import HasAtomCell as _HasAtomCell
 
-    from .io import CIF, XYZ, XSF, CFG, FileType, FileOrPath
+    from .io import CIF, XYZ, XYZFormat, XSF, CFG, FileType, FileOrPath
     from .io.mslice import MSliceTemplate
 
 else:
@@ -87,6 +87,14 @@ class AtomsIOMixin(_HasAtoms, abc.ABC):
         """Read a structure from a CFG file."""
         from .io import read_cfg
         return _cast_atoms(read_cfg(f), cls)
+
+    def write_xyz(self, f: FileOrPath, fmt: XYZFormat = 'exyz'):
+        from .io import write_xyz
+        write_xyz(self, f, fmt)
+
+    def write_xsf(self, f: FileOrPath):
+        from .io import write_xsf
+        write_xsf(self, f)
 
     @t.overload
     def write(self, path: FileOrPath, ty: FileType):
