@@ -99,7 +99,7 @@ def _selection_to_expr(selection: AtomSelection) -> polars.Expr:
 def _selection_to_numpy(df: t.Union[polars.DataFrame, HasAtoms], selection: AtomSelection) -> NDArray[numpy.bool_]:
     series = _selection_to_series(df, selection)
     try:
-        import pyarrow
+        import pyarrow  # type: ignore
     except ImportError:
         # workaround without pyarrow
         return numpy.array(series.to_list(), dtype=numpy.bool_)

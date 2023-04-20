@@ -70,7 +70,11 @@ def assert_structure_equal(expected_path: t.Union[str, Path], actual: t.Union[st
     try:
         if isinstance(actual, (str, Path)):
             actual = t.cast('AtomsIOMixin', read(actual))
+    except Exception:
+        print("Failed to load structure under test.")
+        raise
 
+    try:
         if hasattr(actual, 'assert_equal'):
             actual.assert_equal(expected)  # type: ignore
         else:

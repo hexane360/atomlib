@@ -321,7 +321,7 @@ class HasAtomCell(HasAtoms, HasCell, abc.ABC):
 
     @_fwd_atoms_transform
     def sort(self: HasAtomCellT, by: t.Union[str, polars.Expr, t.List[str], t.List[polars.Expr]],
-             reverse: t.Union[bool, t.List[bool]] = False, *,
+             descending: t.Union[bool, t.List[bool]] = False, *,
              frame: t.Optional[CoordinateFrame] = None) -> HasAtomCellT:
         ...
 
