@@ -1,6 +1,6 @@
 # structlib: A modern, extensible library for creating atomic structures
 
-`structlib` is a package for creating, modifying, and controlling atomic structures. It draws heavy inspiration from previous tools like [Atomsk][atmosk] and [ASE][ase], but attempts to provide a cleaner, more consistent interface that can be used from Python or a command line.
+`structlib` is a package for creating, modifying, and controlling atomic structures. It draws heavy inspiration from previous tools like [Atomsk][atomsk] and [ASE][ase], but attempts to provide a cleaner, more consistent interface that can be used from Python or a command line.
 
 `structlib` has minimal dependencies: `numpy`, `scipy`, and `polars` are required for core atom structure manipulation, and `click` is required for command line functionality.
 
@@ -23,7 +23,7 @@ This means you can write your own code to utilize advanced format features even 
 | :--------------------- | :------ | :----------------: | :----------------: | :---- |
 | [CIF][cif]             | .cif    | :white_check_mark: | :x:                | CIF1 & CIF2. Isotropic B-factor only |
 | [XCrysDen][xsf]        | .xsf    | :white_check_mark: | :white_check_mark: |       |
-| [AtomEye CFG][cfg]     | .cfg    | :white_check_mark: | :x:                |       |
+| [AtomEye CFG][cfg]     | .cfg    | :white_check_mark: | :white_check_mark: | Currently basic format only |
 | [Basic XYZ][xyz]       | .xyz    | :white_check_mark: | :white_check_mark: |       |
 | [Ext. XYZ][xyz]        | .exyz   | :white_check_mark: | :white_check_mark: | Arbitrary properties not implemented |
 | [Special XYZ][xyz]     | .sxyz   | :x:                | :x:                | To be implemented |

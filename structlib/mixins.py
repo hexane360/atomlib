@@ -96,6 +96,10 @@ class AtomsIOMixin(_HasAtoms, abc.ABC):
         from .io import write_xsf
         write_xsf(self, f)
 
+    def write_cfg(self, f: FileOrPath):
+        from .io import write_cfg
+        write_cfg(self, f)
+
     @t.overload
     def write(self, path: FileOrPath, ty: FileType):
         ...

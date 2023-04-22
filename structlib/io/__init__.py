@@ -105,6 +105,18 @@ def read_xsf(f: t.Union[FileOrPath, XSF]) -> HasAtoms:
     return Atoms(atoms)
 
 
+def write_xsf(atoms: t.Union[HasAtoms, XSF], f: FileOrPath):
+    """Write a structure to an XSF file."""
+    if isinstance(atoms, XSF):
+        xsf = atoms
+    elif isinstance(atoms, AtomCell):
+        xsf = XSF.from_cell(atoms)
+    else:
+        xsf = XSF.from_atoms(atoms)
+
+    xsf.write(f)
+
+
 def read_cfg(f: t.Union[FileOrPath, CFG]) -> AtomCell:
     """Read a structure from an AtomEye CFG file."""
     if isinstance(f, CFG):
@@ -130,16 +142,10 @@ def read_cfg(f: t.Union[FileOrPath, CFG]) -> AtomCell:
     return AtomCell.from_ortho(frame, ortho)
 
 
-def write_xsf(atoms: t.Union[HasAtoms, XSF], f: FileOrPath):
-    """Write a structure to an XSF file."""
-    if isinstance(atoms, XSF):
-        xsf = atoms
-    elif isinstance(atoms, AtomCell):
-        xsf = XSF.from_cell(atoms)
-    else:
-        xsf = XSF.from_atoms(atoms)
-
-    xsf.write(f)
+def write_cfg(atoms: t.Union[HasAtoms, CFG], f: FileOrPath):
+    if not isinstance(atoms, CFG):
+        atoms = CFG.from_atoms(atoms)
+    atoms.write(f)
 
 
 ReadFunc = t.Callable[[FileOrPath], HasAtoms]
@@ -158,7 +164,7 @@ _WRITE_TABLE: t.Mapping[FileType, t.Optional[WriteFunc]] = {
     'cif': None,
     'xyz': write_xyz,
     'xsf': write_xsf,
-    'cfg': None,
+    'cfg': write_cfg,
     'lmp': write_lmp,
     # some methods only take HasAtomCell. These must be checked at runtime
     'mslice': t.cast(WriteFunc, write_mslice),
@@ -257,5 +263,5 @@ def write(atoms: HasAtoms, path: FileOrPath, ty: t.Optional[FileType] = None):
 __all__ = [
     'CIF', 'XYZ', 'XSF', 'CFG',
     'read', 'read_cif', 'read_xyz', 'read_xsf', 'read_cfg',
-    'write', 'write_xyz', 'write_xsf', 'write_lmp', 'write_mslice', 'write_qe',
+    'write', 'write_xyz', 'write_xsf', 'write_cfg', 'write_lmp', 'write_mslice', 'write_qe',
 ]

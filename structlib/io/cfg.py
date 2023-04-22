@@ -4,6 +4,7 @@ IO for AtomEye's CFG file format, described here: http://li.mit.edu/Archive/Grap
 from __future__ import annotations
 
 from dataclasses import dataclass
+from itertools import product
 from io import TextIOBase
 import re
 import typing as t
@@ -14,6 +15,8 @@ import polars
 from ..transform import LinearTransform3D
 from ..util import FileOrPath, open_file, map_some
 from ..elem import get_elem
+from ..atoms import HasAtoms
+from ..atomcell import HasAtomCell
 
 @dataclass
 class CFG:
@@ -32,6 +35,52 @@ class CFG:
     def from_file(file: FileOrPath) -> CFG:
         with open_file(file, 'r') as f:
             return CFGParser(f).parse()
+
+    @staticmethod
+    def from_atoms(atoms: HasAtoms) -> CFG:
+        if isinstance(atoms, HasAtomCell):
+            cell = atoms.get_transform('cell_box').inverse().to_linear()
+            atoms = atoms.get_atoms('cell_box')
+        else:
+            cell = LinearTransform3D.identity()
+
+        # ensure we have masses and velocities
+        atoms = atoms.with_mass().with_velocity()
+        return CFG(atoms._get_frame(), cell, length_scale=1.0, length_unit="Angstrom")
+
+    def write(self, file: FileOrPath):
+        with open_file(file, 'w', newline='\r\n') as f:
+            f.write(f"Number of particles = {len(self.atoms)}\n")
+
+            if self.length_scale is not None:
+                unit = f" [{self.length_unit}]" if self.length_unit is not None else ""
+                f.write(f"\nA = {self.length_scale:.8}{unit}\n\n")
+
+            cell = self.cell.inner
+            for (i, j) in product(range(3), repeat=2):
+                f.write(f"H0({i+1},{j+1}) = {cell[j,i]:.8} A\n")
+
+            if self.transform is not None:
+                f.write("\n")
+                transform = self.transform.inner
+                for (i, j) in product(range(3), repeat=2):
+                    f.write(f"Transform({i+1},{j+1}) = {transform[j,i]:.8}\n")
+
+            if self.eta is not None:
+                f.write("\n")
+                eta = self.eta.inner
+                for i in range(3):
+                    for j in range(i, 3):
+                        f.write(f"eta({i+1},{j+1}) = {eta[j,i]:.8}\n")
+
+            if self.rate_scale is not None:
+                unit = f" [{self.rate_unit}]" if self.rate_unit is not None else ""
+                f.write(f"\nR = {self.rate_scale:.8}{unit}\n")
+
+            f.write("\n")
+            for row in self.atoms.select(('mass', 'symbol', 'x', 'y', 'z', 'v_x', 'v_y', 'v_z')).rows():
+                (mass, sym, x, y, z, v_x, v_y, v_z) = row
+                f.write(f"{mass:.4f} {sym:>2} {x:.8} {y:.8} {z:.8} {v_x:.8} {v_y:.8} {v_z:.8}\n")
 
 
 TAGS: t.FrozenSet[str] = frozenset(map(lambda s: s.lower(), (

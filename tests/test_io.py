@@ -8,7 +8,7 @@ from structlib import HasAtoms, AtomCell, Atoms
 from structlib.transform import LinearTransform3D
 from structlib.io import *
 
-from structlib.testing import check_parse_structure, check_equals_file, INPUT_PATH
+from structlib.testing import check_parse_structure, check_equals_file, INPUT_PATH, OUTPUT_PATH
 
 
 def xyz_expected(s: HasAtoms):
@@ -163,6 +163,16 @@ def test_cif_aln(aln):
     return aln
 
 
+@check_parse_structure('label_only.cif')
+def test_cif_aln_labelonly(aln):
+    return AtomCell(
+        aln.get_atoms('local')
+            .with_column(polars.Series('label', ['Al(0)', 'Al(1)', 'N(0)', 'N(1)']))
+            .select(['x', 'y', 'z', 'symbol', 'label', 'elem']),
+        aln.cell, frame='local'
+    )
+
+
 @check_parse_structure('AlN.cfg')
 def test_cfg_hex(aln_ortho):
     return AtomCell.from_ortho(Atoms({
@@ -178,11 +188,20 @@ def test_cfg_hex(aln_ortho):
     }), aln_ortho, frame='local')
 
 
-@check_parse_structure('label_only.cif')
-def test_cif_aln_labelonly(aln):
-    return AtomCell(
-        aln.get_atoms('local')
-            .with_column(polars.Series('label', ['Al(0)', 'Al(1)', 'N(0)', 'N(1)']))
-            .select(['x', 'y', 'z', 'symbol', 'label', 'elem']),
-        aln.cell, frame='local'
-    )
+@check_equals_file('AlN_roundtrip.cfg')
+def test_cfg_write(s: StringIO, aln_ortho: LinearTransform3D):
+    path = INPUT_PATH / 'AlN.cfg'
+    cfg = CFG.from_file(path)
+    cfg.write(s)
+
+
+@check_equals_file('AlN_roundtrip.cfg')
+def test_cfg_roundtrip(s: StringIO, aln_ortho: LinearTransform3D):
+    path = OUTPUT_PATH / 'AlN_roundtrip.cfg'
+    cfg = CFG.from_file(path)
+    cfg.write(s)
+
+
+@check_equals_file('AlN_out.cfg')
+def test_cfg_write_cell(s: StringIO, aln: AtomCell):
+    aln.write_cfg(s)
