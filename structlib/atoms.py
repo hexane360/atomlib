@@ -674,7 +674,7 @@ class Atoms(AtomsIOMixin, HasAtoms):
     In addition, it commonly contains the following columns:
     - i: Initial atom number
     - wobble: Isotropic Debye-Waller mean-squared deviation (<u^2> = B*3/8pi^2, dimensions of [Length^2])
-    - frac: Fractional occupancy, [0., 1.]
+    - frac_occupancy: Fractional occupancy, [0., 1.]
     - mass: Atomic mass, in g/mol (approx. Da)
     - v_[xyz]: Atom velocities, dimensions of length/time
     - atom_type: Numeric atom type, as used by programs like LAMMPS

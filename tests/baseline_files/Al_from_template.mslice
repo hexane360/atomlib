@@ -138,33 +138,33 @@
         <attribute name="innerangle" type="float">20</attribute>
     </object>
     <object type="STRUCTUREATOM" id="atom0">
-        <attribute name="z" type="float">0.00000000</attribute>
-        <attribute name="y" type="float">0.00000000</attribute>
         <attribute name="x" type="float">0.00000000</attribute>
+        <attribute name="y" type="float">0.00000000</attribute>
+        <attribute name="z" type="float">0.00000000</attribute>
         <attribute name="wobble" type="float">0.1000</attribute>
         <attribute name="fracoccupancy" type="float">1.0000</attribute>
         <attribute name="atomicnumber" type="int16">13</attribute>
     </object>
     <object type="STRUCTUREATOM" id="atom1">
-        <attribute name="z" type="float">0.50000000</attribute>
-        <attribute name="y" type="float">0.50000000</attribute>
         <attribute name="x" type="float">0.00000000</attribute>
+        <attribute name="y" type="float">0.50000000</attribute>
+        <attribute name="z" type="float">0.50000000</attribute>
         <attribute name="wobble" type="float">0.1000</attribute>
         <attribute name="fracoccupancy" type="float">1.0000</attribute>
         <attribute name="atomicnumber" type="int16">13</attribute>
     </object>
     <object type="STRUCTUREATOM" id="atom2">
-        <attribute name="z" type="float">0.50000000</attribute>
-        <attribute name="y" type="float">0.00000000</attribute>
         <attribute name="x" type="float">0.50000000</attribute>
+        <attribute name="y" type="float">0.00000000</attribute>
+        <attribute name="z" type="float">0.50000000</attribute>
         <attribute name="wobble" type="float">0.1000</attribute>
         <attribute name="fracoccupancy" type="float">1.0000</attribute>
         <attribute name="atomicnumber" type="int16">13</attribute>
     </object>
     <object type="STRUCTUREATOM" id="atom3">
-        <attribute name="z" type="float">0.00000000</attribute>
-        <attribute name="y" type="float">0.50000000</attribute>
         <attribute name="x" type="float">0.50000000</attribute>
+        <attribute name="y" type="float">0.50000000</attribute>
+        <attribute name="z" type="float">0.00000000</attribute>
         <attribute name="wobble" type="float">0.1000</attribute>
         <attribute name="fracoccupancy" type="float">1.0000</attribute>
         <attribute name="atomicnumber" type="int16">13</attribute>

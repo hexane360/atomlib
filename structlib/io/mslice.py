@@ -7,6 +7,7 @@ Writes mslice files with the help of a user-supplied template.
 from __future__ import annotations
 
 from xml.etree import ElementTree as et
+import builtins
 from copy import deepcopy
 from pathlib import Path
 import typing as t
@@ -16,11 +17,13 @@ from numpy.typing import ArrayLike
 import polars
 
 from ..util import FileOrPath, open_file
+from ..atoms import Atoms
+from ..cell import Cell
 from ..atomcell import HasAtomCell, AtomCell
-from ..transform import AffineTransform3D
+from ..transform import AffineTransform3D, LinearTransform3D
 
 
-MSliceTemplate = t.Union[et.ElementTree, FileOrPath]
+MSliceFile = t.Union[et.ElementTree, FileOrPath]
 
 
 DEFAULT_TEMPLATE_PATH: Path = Path(__file__).parents[2] / 'data' / 'template.mslice'
@@ -37,11 +40,83 @@ def default_template() -> et.ElementTree:
     return deepcopy(DEFAULT_TEMPLATE)
 
 
-def load_mslice(path: FileOrPath) -> AtomCell:
-    raise NotImplementedError()
+def convert_xml_value(val, ty):
+    """Convert an XML value `val` to a Python type determined by the XML type name `ty`."""
+    if ty == 'string':
+        ty = 'str'
+    elif ty == 'int16' or ty == 'int32':
+        val = val.split('.')[0]
+        ty = 'int'
+    elif ty == 'bool':
+        val = int(val)
+
+    return getattr(builtins, ty)(val)
 
 
-def write_mslice(cell: HasAtomCell, f: FileOrPath, template: t.Optional[MSliceTemplate] = None, *,
+def parse_xml_object(obj) -> t.Dict[str, t.Any]:
+    """Parse the attributes of a passed XML object."""
+    params = {}
+    for attr in obj:
+        if attr.tag == 'attribute':
+            params[attr.attrib['name']] = convert_xml_value(attr.text, attr.attrib['type'])
+        elif attr.tag == 'relationship':
+            # todo give this a better API
+            if 'idrefs' in attr.attrib:
+                params[f"{attr.attrib['name']}ID"] = attr.attrib['idrefs']
+    return params
+
+
+def find_xml_object(xml, typename) -> t.Dict[str, t.Any]:
+    """Find and parse XML objects named `typename`, flattening them into a single Dict."""
+    params = {}
+    for obj in xml.findall(f".//*[@type='{typename}']"):
+        params.update(parse_xml_object(obj))
+    return params
+
+
+def find_xml_object_list(xml, typename) -> t.List[t.Any]:
+    """Find and parse a list of XML objects named `typename`."""
+    return [parse_xml_object(obj) for obj in xml.findall(f".//*[@type='{typename}']")]
+
+
+def find_xml_object_dict(xml, typename, key="id") -> t.Dict[str, t.Any]:
+    """Find and parse XML objects named `typename`, combining them into a dict."""
+    return {
+        obj.attrib[key]: parse_xml_object(obj)
+        for obj in xml.findall(f".//*[@type='{typename}']")
+    }
+
+
+def read_mslice(path: MSliceFile) -> AtomCell:
+    if isinstance(path, et.ElementTree):
+        tree = path
+    else:
+        with open_file(path, 'r') as t:
+            tree = et.parse(t)
+
+    xml = tree.getroot()
+
+    structure = find_xml_object(xml, "STRUCTURE")
+    structure_atoms = find_xml_object_list(xml, "STRUCTUREATOM")
+
+    n_cells = tuple(structure.get(k, 1) for k in ('repeata', 'repeatb', 'repeatc'))
+    cell_size = tuple(structure[k] for k in ('aparam', 'bparam', 'cparam'))
+
+    atoms = Atoms(
+        polars.from_dicts(structure_atoms, schema={
+            'atomicnumber': polars.UInt8,
+            'x': polars.Float64, 'y': polars.Float64, 'z': polars.Float64,
+            'wobble': polars.Float64, 'fracoccupancy': polars.Float64,
+        })
+        .rename({'atomicnumber': 'elem', 'fracoccupancy': 'frac_occupancy'}) \
+        .with_columns((3. * polars.col('wobble')**2).alias('wobble'))
+    )
+    cell = Cell.from_ortho(LinearTransform3D.scale(cell_size), n_cells, [True, True, False])
+
+    return AtomCell(atoms, cell, frame='cell_frac')
+
+
+def write_mslice(cell: HasAtomCell, f: FileOrPath, template: t.Optional[MSliceFile] = None, *,
                  slice_thickness: t.Optional[float] = None,
                  scan_points: t.Optional[ArrayLike] = None,
                  scan_extent: t.Optional[ArrayLike] = None):
@@ -67,6 +142,7 @@ def write_mslice(cell: HasAtomCell, f: FileOrPath, template: t.Optional[MSliceTe
     else:
         out = deepcopy(template)
 
+    # TODO clean up this code
     db = out.getroot() if out.getroot().tag == 'database' else out.find("./database")
     if db is None:
         raise ValueError("Couldn't find 'database' tag in template.")
@@ -137,14 +213,15 @@ def write_mslice(cell: HasAtomCell, f: FileOrPath, template: t.Optional[MSliceTe
 
 """)
         out.write(f, encoding='unicode', xml_declaration=False, short_empty_elements=False)
+        f.write('\n')
 
 
 def _atom_elem(i: int, atomic_number: int, x: float, y: float, z: float, wobble: float = 0., frac_occupancy: float = 1.) -> et.Element:
     return et.XML(f"""\
 <object type="STRUCTUREATOM" id="atom{i}">
-    <attribute name="z" type="float">{z:.8f}</attribute>
-    <attribute name="y" type="float">{y:.8f}</attribute>
     <attribute name="x" type="float">{x:.8f}</attribute>
+    <attribute name="y" type="float">{y:.8f}</attribute>
+    <attribute name="z" type="float">{z:.8f}</attribute>
     <attribute name="wobble" type="float">{wobble:.4f}</attribute>
     <attribute name="fracoccupancy" type="float">{frac_occupancy:.4f}</attribute>
     <attribute name="atomicnumber" type="int16">{atomic_number}</attribute>

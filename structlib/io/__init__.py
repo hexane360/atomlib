@@ -11,7 +11,7 @@ from .cif import CIF
 from .xyz import XYZ, XYZFormat
 from .xsf import XSF
 from .cfg import CFG
-from .mslice import write_mslice
+from .mslice import write_mslice, read_mslice
 from .lmp import write_lmp
 from .qe import write_qe
 
@@ -154,7 +154,7 @@ _READ_TABLE: t.Mapping[FileType, t.Optional[ReadFunc]] = {
     'xyz': read_xyz,
     'xsf': read_xsf,
     'cfg': read_cfg,
-    'mslice': None,
+    'mslice': read_mslice,
     'lmp': None,
     'qe': None
 }
