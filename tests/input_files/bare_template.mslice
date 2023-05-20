@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE database SYSTEM "file:///System/Library/DTDs/CoreData.dtd">
+
+<database>
+    <object type="MICROSCOPE" id="z103">
+        <attribute name="kv" type="float">200</attribute>
+        <attribute name="aperture" type="float">19.6</attribute>
+    </object>
+    <object type="SIMPARAMETERS" id="z107">
+        <attribute name="realspace" type="bool">0</attribute>
+        <attribute name="wavesamples" type="int16">1024</attribute>
+        <attribute name="thermalconfigs" type="int16">30</attribute>
+        <attribute name="temperature" type="float">300</attribute>
+        <attribute name="slicethickness" type="float">1.0</attribute>
+        <attribute name="pacbed" type="bool">1</attribute>
+        <attribute name="overrideslices" type="bool">1</attribute>
+        <attribute name="numscany" type="int16">64</attribute>
+        <attribute name="numscanx" type="int16">64</attribute>
+        <attribute name="numsaves" type="int16">2</attribute>
+        <attribute name="inty" type="float">0</attribute>
+        <attribute name="intx" type="float">0</attribute>
+        <attribute name="includetds" type="bool">0</attribute>
+        <attribute name="finy" type="float">1</attribute>
+        <attribute name="finx" type="float">1</attribute>
+        <attribute name="cbed" type="bool">1</attribute>
+        <attribute name="saveSlices" type="bool">1</attribute>
+    </object>
+    <object type="STRUCTURE" id="z110">
+        <attribute name="tilty" type="float">0</attribute>
+        <attribute name="tiltx" type="float">0</attribute>
+        <attribute name="repeatc" type="int16">1</attribute>
+        <attribute name="repeatb" type="int16">1</attribute>
+        <attribute name="repeata" type="int16">1</attribute>
+        <attribute name="aparam" type="float">1</attribute>
+        <attribute name="bparam" type="float">1</attribute>
+        <attribute name="cparam" type="float">1</attribute>
+        <relationship name="atoms" type="0/1" destination="STRUCTUREATOM"></relationship>
+    </object>
+</database>

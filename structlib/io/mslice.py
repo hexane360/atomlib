@@ -10,6 +10,7 @@ from xml.etree import ElementTree as et
 import builtins
 from copy import deepcopy
 from pathlib import Path
+from warnings import warn
 import typing as t
 
 import numpy
@@ -109,6 +110,7 @@ def read_mslice(path: MSliceFile) -> AtomCell:
             'wobble': polars.Float64, 'fracoccupancy': polars.Float64,
         })
         .rename({'atomicnumber': 'elem', 'fracoccupancy': 'frac_occupancy'}) \
+        # 1d sigma -> <u^2>
         .with_columns((3. * polars.col('wobble')**2).alias('wobble'))
     )
     cell = Cell.from_ortho(LinearTransform3D.scale(cell_size), n_cells, [True, True, False])
@@ -119,19 +121,23 @@ def read_mslice(path: MSliceFile) -> AtomCell:
 def write_mslice(cell: HasAtomCell, f: FileOrPath, template: t.Optional[MSliceFile] = None, *,
                  slice_thickness: t.Optional[float] = None,
                  scan_points: t.Optional[ArrayLike] = None,
-                 scan_extent: t.Optional[ArrayLike] = None):
+                 scan_extent: t.Optional[ArrayLike] = None,
+                 n_cells: t.Optional[ArrayLike] = None):
     if not isinstance(cell, HasAtomCell):
         raise TypeError("mslice format requires an AtomCell.")
 
     if not cell.is_orthogonal_in_local():
         raise ValueError("mslice requires an orthogonal AtomCell.")
 
+    if not numpy.all(cell.pbc[:2]):
+        warn("AtomCell may not be periodic", UserWarning, stacklevel=2)
+
+    cell_size = cell._cell_size_in_local()
+
     # get atoms in local frame (which we verified aligns with the cell's axes)
     # then scale into fractional coordinates
-    bbox = cell.bbox()
-    cell_size = bbox.size
-    atoms = cell.get_atoms('local') \
-        .transform(AffineTransform3D.translate(bbox.min).scale(cell_size).inverse()) \
+    atoms = cell.get_atoms('linear') \
+        .transform(AffineTransform3D.scale(1/cell_size)) \
         .with_wobble().with_occupancy()
 
     if template is None:
@@ -165,8 +171,7 @@ def write_mslice(cell: HasAtomCell, f: FileOrPath, template: t.Optional[MSliceFi
         node.text = val
 
     # TODO how to store atoms in unexploded form
-    #(n_a, n_b, n_c) = map(str, atoms.n_cells)
-    (n_a, n_b, n_c) = map(str, (1, 1, 1))
+    (n_a, n_b, n_c) = map(str, (1, 1, 1) if n_cells is None else numpy.asarray(n_cells).astype(int))
     set_attr(struct, 'repeata', 'int16', n_a)
     set_attr(struct, 'repeatb', 'int16', n_b)
     set_attr(struct, 'repeatc', 'int16', n_c)
@@ -196,11 +201,11 @@ def write_mslice(cell: HasAtomCell, f: FileOrPath, template: t.Optional[MSliceFi
     for elem in db.findall("./object[@type='STRUCTUREATOM']"):
         db.remove(elem)
 
-    atoms = atoms.with_wobble((polars.col('wobble') / 3.).sqrt())  # pyMultislicer wants wobble in one dimension
+    # <u^2> -> 1d sigma
+    atoms = atoms.with_wobble((polars.col('wobble') / 3.).sqrt())
     rows = atoms.select(('elem', 'x', 'y', 'z', 'wobble', 'frac_occupancy')).rows()
     for (i, (elem, x, y, z, wobble, frac_occupancy)) in enumerate(rows):
         e = _atom_elem(i, elem, x, y, z, wobble, frac_occupancy)
-        #et.indent(e, space="    ", level=1)
         db.append(e)
 
     et.indent(db, space="    ", level=0)

@@ -30,6 +30,15 @@ def mono_cell() -> Cell:
     return Cell.from_ortho(mono_ortho, n_cells=[2, 3, 5])
 
 
+@pytest.fixture(scope='module')
+def affine_cell() -> Cell:
+    ortho = cell_to_ortho([3., 4., 5.]) \
+        .rotate([0., 0., 1.], numpy.pi/2.) \
+        .translate(-1., -1., -1.)
+
+    return Cell.from_ortho(ortho, n_cells=[2, 3, 5])
+
+
 def test_cell_from_ortho(mono_cell: Cell):
     assert mono_cell.affine.to_linear().is_orthogonal()
     #assert mono_cell.affine.inner == pytest.approx(AffineTransform3D.rotate([0., 0., 1.], numpy.pi/2.).inner)
@@ -60,6 +69,23 @@ def test_mono_cell(mono_cell: Cell, frame_in, frame_out, pts_in, pts_out):
     pts_in = numpy.eye(3) if pts_in is None else pts_in
     assert_array_almost_equal(mono_cell.get_transform(frame_in, frame_out).transform(pts_out), pts_in)
     assert_array_almost_equal(mono_cell.get_transform(frame_out, frame_in).transform(pts_in), pts_out)
+
+
+@pytest.mark.parametrize(('frame_in', 'frame_out', 'pts_in', 'pts_out'), [
+    ('linear', 'local', [[0., 0., 0.]], [[-1., -1., -1.]]),
+    ('local', 'linear', [[0., 0., 0.]], [[1., 1., 1.]]),
+])
+def test_affine_cell(affine_cell: Cell, frame_in, frame_out, pts_in, pts_out):
+    pts_in = numpy.eye(3) if pts_in is None else pts_in
+    assert_array_almost_equal(affine_cell.get_transform(frame_in, frame_out).transform(pts_out), pts_in)
+    assert_array_almost_equal(affine_cell.get_transform(frame_out, frame_in).transform(pts_in), pts_out)
+
+
+def test_cell_in_local(affine_cell: Cell):
+    assert affine_cell.is_orthogonal_in_local()
+
+    assert_array_equal(affine_cell._n_cells_in_local(), [3, 2, 5])
+    assert_array_almost_equal(affine_cell._cell_size_in_local(), [4., 3., 5.])
 
 
 def test_transform_affine_cell():

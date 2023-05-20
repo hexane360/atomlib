@@ -161,6 +161,9 @@ class AffineTransform3D(Transform3D):
         """Return the linear part of an affine transformation."""
         return LinearTransform3D(self.inner[:3, :3])
 
+    def to_translation(self) -> AffineTransform3D:
+        return AffineTransform3D.translate(self.translation())
+
     def det(self) -> float:
         """Return the determinant of an affine transformation."""
         return numpy.linalg.det(self.inner[:3, :3])

@@ -26,7 +26,7 @@ from .bbox import BBox3D
 CoordinateFrame = t.Union[
     t.Literal['cell'], t.Literal['cell_frac'], t.Literal['cell_box'],
     t.Literal['ortho'], t.Literal['ortho_frac'], t.Literal['ortho_box'],
-    t.Literal['local'], t.Literal['global']
+    t.Literal['linear'], t.Literal['local'], t.Literal['global'],
 ]
 """
 A coordinate frame to use.
@@ -36,6 +36,7 @@ A coordinate frame to use.
  - 'ortho': Angstroms along orthogonal cell
  - 'ortho_frac': Fraction of orthogonal cell
  - 'ortho_box': Fraction of orthogonal box
+ - 'linear': Angstroms in local coordinate system (without affine transformation)
  - 'local': Angstroms in local coordinate system (with affine transformation)
  - 'global': Angstroms in global coordinate system (with all transformations)
 """
@@ -132,6 +133,9 @@ class HasCell:
         if frame == 'local' or frame == 'global':
             return LinearTransform3D()
 
+        if frame == 'linear':
+            return self.affine.to_translation()
+
         if frame.startswith('cell'):
             transform = self.affine @ self.ortho
             cell_size = self.cell_size
@@ -186,6 +190,14 @@ class HasCell:
             any(numpy.isclose(numpy.abs(numpy.dot(row, v)), 1., atol=tol) for v in numpy.eye(3))
             for row in normed
         )
+
+    def _cell_size_in_local(self) -> Vec3:
+        """Calculate cell_size in the local coordinate system. Assumes ``self.is_orthogonal_in_local()``."""
+        return numpy.abs(self.get_transform('local', 'ortho').transform_vec(self.cell_size))
+
+    def _n_cells_in_local(self) -> NDArray[numpy.int_]:
+        """Calculate n_cells after any local rotation. Assumes ``self.is_orthogonal_in_local()``."""
+        return numpy.abs(numpy.round(self.get_transform('local', 'ortho').transform_vec(self.n_cells)).astype(int))
 
     def to_ortho(self) -> AffineTransform3D:
         return self.get_transform('local', 'cell_box')

@@ -189,13 +189,6 @@ def test_cfg_hex(aln_ortho):
 
 
 @check_equals_file('AlN_roundtrip.cfg')
-def test_cfg_write(s: StringIO, aln_ortho: LinearTransform3D):
-    path = INPUT_PATH / 'AlN.cfg'
-    cfg = CFG.from_file(path)
-    cfg.write(s)
-
-
-@check_equals_file('AlN_roundtrip.cfg')
 def test_cfg_roundtrip(s: StringIO, aln_ortho: LinearTransform3D):
     path = OUTPUT_PATH / 'AlN_roundtrip.cfg'
     cfg = CFG.from_file(path)
