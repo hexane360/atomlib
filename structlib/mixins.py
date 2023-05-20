@@ -12,7 +12,7 @@ if t.TYPE_CHECKING:  # pragma: no cover
     from .atomcell import HasAtomCell as _HasAtomCell
 
     from .io import CIF, XYZ, XYZFormat, XSF, CFG, FileType, FileOrPath
-    from .io.mslice import MSliceTemplate
+    from .io.mslice import MSliceFile
 
 else:
     class _HasAtoms: ...
@@ -120,14 +120,25 @@ class AtomsIOMixin(_HasAtoms, abc.ABC):
 
 
 class AtomCellIOMixin(_HasAtomCell, AtomsIOMixin):
-    def write_mslice(self, f: FileOrPath, template: t.Optional[MSliceTemplate] = None, *,
-                 slice_thickness: t.Optional[float] = None,
-                 scan_points: t.Optional[ArrayLike] = None,
-                 scan_extent: t.Optional[ArrayLike] = None):
-        """Write this structure to an mslice file."""
+    def write_mslice(self, f: FileOrPath, template: t.Optional[MSliceFile] = None, *,
+                    slice_thickness: t.Optional[float] = None,
+                    scan_points: t.Optional[ArrayLike] = None,
+                    scan_extent: t.Optional[ArrayLike] = None,
+                    n_cells: t.Optional[ArrayLike] = None):
+        """
+        Write a structure to an mslice file.
+
+        ``template`` may be a file, path, or ElementTree containing an existing mslice file.
+        Its structure will be modified to make the final output. If not specified, a default
+        template will be used.
+
+        Additional options modify simulation properties. If an option is not specified, the
+        template's properties are used.
+        """
         from .io import write_mslice
         return write_mslice(self, f, template, slice_thickness=slice_thickness,
-                            scan_points=scan_points, scan_extent=scan_extent)
+                            scan_points=scan_points, scan_extent=scan_extent,
+                            n_cells=n_cells)
 
     def write_qe(self, f: FileOrPath, pseudo: t.Optional[t.Mapping[str, str]] = None):
         from .io import write_qe

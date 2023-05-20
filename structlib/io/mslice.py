@@ -123,6 +123,17 @@ def write_mslice(cell: HasAtomCell, f: FileOrPath, template: t.Optional[MSliceFi
                  scan_points: t.Optional[ArrayLike] = None,
                  scan_extent: t.Optional[ArrayLike] = None,
                  n_cells: t.Optional[ArrayLike] = None):
+    """
+    Write a structure to an mslice file. The structure must be orthogonal and aligned
+    with the local coordinate system. It should be periodic in X and Y.
+
+    ``template`` may be a file, path, or ElementTree containing an existing mslice file.
+    Its structure will be modified to make the final output. If not specified, a default
+    template will be used.
+
+    Additional options modify simulation properties. If an option is not specified, the
+    template's properties are used.
+    """
     if not isinstance(cell, HasAtomCell):
         raise TypeError("mslice format requires an AtomCell.")
 

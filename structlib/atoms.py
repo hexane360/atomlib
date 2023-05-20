@@ -46,8 +46,8 @@ UniqueKeepStrategy = t.Literal['first', 'last']
 ConcatMethod = t.Literal['horizontal', 'vertical', 'diagonal', 'inner']
 
 
+# pyright: reportImportCycles=false
 if t.TYPE_CHECKING:  # pragma: no cover
-    # pyright: reportImportCycles=false
     from .atomcell import AtomCell
 
     class ColumnNotFoundError(Exception):

@@ -5,8 +5,8 @@ import typing as t
 import numpy
 
 
+# pyright: reportImportCycles=false
 if t.TYPE_CHECKING:
-    # pyright: reportImportCycles=false
     from .types import Vec3, VecLike
 
 from .vec import to_vec3

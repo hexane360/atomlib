@@ -122,7 +122,7 @@ def get_azim_elev(zone: VecLike) -> t.Tuple[float, float]:
 
 def show_atoms_mpl_3d(atoms: HasAtoms, *, fig: t.Optional[Figure] = None,
                       zone: t.Optional[VecLike] = None, plane: t.Optional[VecLike] = None) -> AtomImageMpl:
-    fig = AtomImageMpl(fig or pyplot.figure())
+    fig = AtomImageMpl(fig or pyplot.figure())  # type: ignore
 
     zone = get_zone(atoms, zone, plane, [1., 2., 4.])
     (azim, elev) = get_azim_elev(zone)
@@ -160,7 +160,7 @@ def show_atoms_mpl_3d(atoms: HasAtoms, *, fig: t.Optional[Figure] = None,
         for face in faces:
             ax.plot3D(*split_arr(face, axis=-1), '.-k', alpha=1, markersize=8)
 
-    ax.scatter(coords[:, 0], coords[:, 1], coords[:, 2], c=elem_colors, alpha=1, s=s)
+    ax.scatter(coords[:, 0], coords[:, 1], coords[:, 2], c=elem_colors, alpha=1, s=s)  # type: ignore
 
     return fig
 
@@ -171,7 +171,7 @@ def show_atoms_mpl_2d(atoms: HasAtoms, *, fig: t.Optional[Figure] = None,
                       horz: t.Optional[VecLike] = None,
                       s: t.Optional[float] = None) -> AtomImageMpl:
     zone = get_zone(atoms, zone, plane, [0., 0., 1.])
-    fig = AtomImageMpl(fig or pyplot.figure())
+    fig = AtomImageMpl(fig or pyplot.figure())  # type: ignore
 
     rect = [0.05, 0.05, 0.95, 0.95]
     ax: Axes = fig.add_axes(rect)

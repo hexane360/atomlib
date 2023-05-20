@@ -4,8 +4,8 @@ import typing as t
 import numpy
 from numpy.typing import NDArray, ArrayLike
 
+# pyright: reportImportCycles=false
 if t.TYPE_CHECKING:
-    # pyright: reportImportCycles=false
     from .bbox import BBox3D
 
 
