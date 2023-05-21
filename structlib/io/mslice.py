@@ -134,8 +134,8 @@ def write_mslice(cell: HasAtomCell, f: FileOrPath, template: t.Optional[MSliceFi
     Additional options modify simulation properties. If an option is not specified, the
     template's properties are used.
     """
-    if not isinstance(cell, HasAtomCell):
-        raise TypeError("mslice format requires an AtomCell.")
+    #if not issubclass(type(cell), HasAtomCell):
+    #    raise TypeError("mslice format requires an AtomCell.")
 
     if not cell.is_orthogonal_in_local():
         raise ValueError("mslice requires an orthogonal AtomCell.")
@@ -143,12 +143,12 @@ def write_mslice(cell: HasAtomCell, f: FileOrPath, template: t.Optional[MSliceFi
     if not numpy.all(cell.pbc[:2]):
         warn("AtomCell may not be periodic", UserWarning, stacklevel=2)
 
-    cell_size = cell._cell_size_in_local()
+    box_size = cell._box_size_in_local()
 
     # get atoms in local frame (which we verified aligns with the cell's axes)
     # then scale into fractional coordinates
     atoms = cell.get_atoms('linear') \
-        .transform(AffineTransform3D.scale(1/cell_size)) \
+        .transform(AffineTransform3D.scale(1/box_size)) \
         .with_wobble().with_occupancy()
 
     if template is None:
@@ -187,7 +187,7 @@ def write_mslice(cell: HasAtomCell, f: FileOrPath, template: t.Optional[MSliceFi
     set_attr(struct, 'repeatb', 'int16', n_b)
     set_attr(struct, 'repeatc', 'int16', n_c)
 
-    (a, b, c) = map(lambda v: f"{v:.8f}", cell_size)
+    (a, b, c) = map(lambda v: f"{v:.8f}", box_size)
     set_attr(struct, 'aparam', 'float', a)
     set_attr(struct, 'bparam', 'float', b)
     set_attr(struct, 'cparam', 'float', c)

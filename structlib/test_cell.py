@@ -86,6 +86,7 @@ def test_cell_in_local(affine_cell: Cell):
 
     assert_array_equal(affine_cell._n_cells_in_local(), [3, 2, 5])
     assert_array_almost_equal(affine_cell._cell_size_in_local(), [4., 3., 5.])
+    assert_array_almost_equal(affine_cell._box_size_in_local(), [12., 6., 25.])
 
 
 def test_transform_affine_cell():

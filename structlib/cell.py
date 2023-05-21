@@ -195,6 +195,10 @@ class HasCell:
         """Calculate cell_size in the local coordinate system. Assumes ``self.is_orthogonal_in_local()``."""
         return numpy.abs(self.get_transform('local', 'ortho').transform_vec(self.cell_size))
 
+    def _box_size_in_local(self) -> Vec3:
+        """Calculate box_size in the local coordinate system. Assumes ``self.is_orthogonal_in_local()``."""
+        return numpy.abs(self.get_transform('local', 'ortho').transform_vec(self.box_size))
+
     def _n_cells_in_local(self) -> NDArray[numpy.int_]:
         """Calculate n_cells after any local rotation. Assumes ``self.is_orthogonal_in_local()``."""
         return numpy.abs(numpy.round(self.get_transform('local', 'ortho').transform_vec(self.n_cells)).astype(int))
