@@ -144,6 +144,29 @@ def get_mass(elem: t.Union[int, t.Sequence[int], numpy.ndarray, polars.Series]):
     return _ELEMENT_MASSES[[e-1 for e in elem]]  # type: ignore
 
 
+def get_ionic_radius(elem: int, charge: int) -> float:
+    """
+    Get crystal ionic radius in angstroms for ``elem`` in charge state ``charge``.
+
+    Follows `R.D. Shannon, Acta Cryst. A32 (1976) <https://doi.org/10.1107/S0567739476001551>`.
+    """
+    global _ION_RADII
+
+    import json
+
+    if _ION_RADII is None:
+        with open(DATA_PATH / 'ion_radii.json') as f:
+            _ION_RADII = json.load(f)
+        assert _ION_RADII is not None
+
+    s = f"{get_sym(elem)}{charge:+d}"
+
+    try:
+        return _ION_RADII[s]
+    except KeyError:
+        raise ValueError(f"Unknown radius for ion '{s}'") from None
+
+
 @t.overload
 def get_radius(elem: int) -> float:
     ...
@@ -158,7 +181,7 @@ def get_radius(elem: t.Union[numpy.ndarray, t.Sequence[int]]) -> numpy.ndarray:
 
 def get_radius(elem: t.Union[int, t.Sequence[int], numpy.ndarray, polars.Series]):
     """
-    Get the neutral atomic radius for the given element(s).
+    Get the neutral atomic radius for the given element(s), in angstroms.
 
     Follows the calculated values in `E. Clementi et. al, J. Chem. Phys. 47 (1967) <https://doi.org/10.1063/1.1712084>`_.
     """

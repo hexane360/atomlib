@@ -7,6 +7,7 @@ import numpy
 import polars
 
 from .elem import get_elem, get_elems, get_sym, get_mass
+from .elem import get_radius, get_ionic_radius
 
 
 @pytest.mark.parametrize(('sym', 'elem'), (
@@ -85,3 +86,22 @@ def test_get_mass(elem, mass):
 
     if isinstance(result, numpy.ndarray):
         assert result.dtype == numpy.float32
+
+
+@pytest.mark.parametrize(('elem', 'radius'), (
+    (47, 1.65),
+    (1, 0.53),
+    (55, 2.98),
+    (70, 2.22),
+))
+def test_get_radius(elem, radius):
+    assert get_radius(elem) == pytest.approx(radius)
+
+
+@pytest.mark.parametrize(('elem', 'charge', 'radius'), (
+    (47, +1, 1.29),
+    (1, -1, 2.08),
+    (34, +6, 0.56),
+))
+def test_get_ionic_radius(elem, charge, radius):
+    assert get_ionic_radius(elem, charge) == pytest.approx(radius)
