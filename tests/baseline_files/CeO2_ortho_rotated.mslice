@@ -31,9 +31,9 @@
         <attribute name="repeatc" type="int16">1</attribute>
         <attribute name="repeatb" type="int16">1</attribute>
         <attribute name="repeata" type="int16">1</attribute>
-        <attribute name="aparam" type="float">3.86787409</attribute>
-        <attribute name="bparam" type="float">5.47000000</attribute>
-        <attribute name="cparam" type="float">3.86787409</attribute>
+        <attribute name="aparam" type="float">3.8678741</attribute>
+        <attribute name="bparam" type="float">5.47</attribute>
+        <attribute name="cparam" type="float">3.8678741</attribute>
         <relationship name="atoms" type="0/1" destination="STRUCTUREATOM"></relationship>
     </object>
     <object type="STRUCTUREATOM" id="atom0">

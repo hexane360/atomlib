@@ -87,7 +87,7 @@
         <attribute name="wavesamples" type="int16">1024</attribute>
         <attribute name="thermalconfigs" type="int16">30</attribute>
         <attribute name="temperature" type="float">300</attribute>
-        <attribute name="slicethickness" type="float">2.02500000</attribute>
+        <attribute name="slicethickness" type="float">2.025</attribute>
         <attribute name="pacbed" type="bool">1</attribute>
         <attribute name="overrideslices" type="bool">1</attribute>
         <attribute name="numscany" type="int16">64</attribute>
@@ -119,9 +119,9 @@
         <attribute name="repeatc" type="int16">1</attribute>
         <attribute name="repeatb" type="int16">1</attribute>
         <attribute name="repeata" type="int16">1</attribute>
-        <attribute name="aparam" type="float">4.05000000</attribute>
-        <attribute name="bparam" type="float">4.05000000</attribute>
-        <attribute name="cparam" type="float">4.05000000</attribute>
+        <attribute name="aparam" type="float">4.05</attribute>
+        <attribute name="bparam" type="float">4.05</attribute>
+        <attribute name="cparam" type="float">4.05</attribute>
         <relationship name="atoms" type="0/1" destination="STRUCTUREATOM"></relationship>
     </object>
     <object type="DETECTOR" id="ABF">

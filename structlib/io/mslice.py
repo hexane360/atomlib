@@ -122,6 +122,7 @@ def write_mslice(cell: HasAtomCell, f: FileOrPath, template: t.Optional[MSliceFi
                  slice_thickness: t.Optional[float] = None,
                  scan_points: t.Optional[ArrayLike] = None,
                  scan_extent: t.Optional[ArrayLike] = None,
+                 noise_sigma: t.Optional[float] = None,
                  n_cells: t.Optional[ArrayLike] = None):
     """
     Write a structure to an mslice file. The structure must be orthogonal and aligned
@@ -172,6 +173,8 @@ def write_mslice(cell: HasAtomCell, f: FileOrPath, template: t.Optional[MSliceFi
     if params is None:
         raise ValueError("Couldn't find SIMPARAMETERS object in template.")
 
+    scan = db.find("./object[@type='SCAN']")
+
     def set_attr(struct: et.Element, name: str, type: str, val: str):
         node = struct.find(f"./attribute[@name='{name}']")
         if node is None:
@@ -193,20 +196,35 @@ def write_mslice(cell: HasAtomCell, f: FileOrPath, template: t.Optional[MSliceFi
     set_attr(struct, 'cparam', 'float', c)
 
     if slice_thickness is not None:
-        set_attr(params, 'slicethickness', 'float', f"{float(slice_thickness):.8f}")
+        set_attr(params, 'slicethickness', 'float', f"{float(slice_thickness):.8g}")
 
     if scan_points is not None:
         (nx, ny) = numpy.broadcast_to(scan_points, 2,).astype(int)
-        set_attr(params, 'numscanx', 'int16', str(nx))
-        set_attr(params, 'numscany', 'int16', str(ny))
+        if scan is not None:
+            set_attr(scan, 'nx', 'int16', str(nx))
+            set_attr(scan, 'ny', 'int16', str(ny))
+        else:
+            set_attr(params, 'numscanx', 'int16', str(nx))
+            set_attr(params, 'numscany', 'int16', str(ny))
 
     if scan_extent is not None:
         (finx, finy) = numpy.broadcast_to(scan_extent, 2,).astype(float)
         # flipped
-        set_attr(params, 'intx', 'float', f"{1.0-float(finx):.8f}")
-        set_attr(params, 'inty', 'float', f"{1.0-float(finy):.8f}")
-        set_attr(params, 'finx', 'float', "1.0")
-        set_attr(params, 'finy', 'float', "1.0")
+        if scan is not None:
+            set_attr(scan, 'x_i', 'float', "0.0")
+            set_attr(scan, 'y_i', 'float', "0.0")
+            set_attr(scan, 'x_f', 'float', f"{float(finx):.8g}")
+            set_attr(scan, 'y_f', 'float', f"{float(finy):.8g}")
+        else:
+            set_attr(params, 'intx', 'float', "0.0")
+            set_attr(params, 'inty', 'float', "0.0")
+            set_attr(params, 'finx', 'float', f"{float(finx):.8g}")
+            set_attr(params, 'finy', 'float', f"{float(finy):.8g}")
+
+    if noise_sigma is not None:
+        if scan is None:
+            raise ValueError("New scan specification required for 'noise_sigma'.")
+        set_attr(scan, 'noise_sigma', 'float', f"{float(noise_sigma):.8g}")
 
     # remove existing atoms
     for elem in db.findall("./object[@type='STRUCTUREATOM']"):
