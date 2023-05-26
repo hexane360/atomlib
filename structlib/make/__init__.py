@@ -223,6 +223,57 @@ def fluorite(elems: t.Union[str, t.Sequence[ElemLike]], a: Num, *,
     return fcc(elems[0], a, cell=cell, additional=additional)
 
 
+@t.overload # CsCl
+def cesium_chloride(elems: t.Literal['CsCl'] = 'CsCl', a: None = None, *,
+                    d: None = None, cell: CellType = 'conv') -> AtomCell:
+    ...
+
+@t.overload # general, specify a
+def cesium_chloride(elems: t.Union[str, t.Sequence[ElemLike]], a: Num, *,
+                    d: None = None, cell: CellType = 'conv') -> AtomCell:
+    ...
+
+@t.overload # general, specify d
+def cesium_chloride(elems: t.Union[str, t.Sequence[ElemLike]] = 'CsCl', a: None = None, *,
+                    d: Num, cell: CellType = 'conv') -> AtomCell:
+    ...
+
+def cesium_chloride(elems: t.Union[str, t.Sequence[ElemLike]] = 'CsCl', a: t.Optional[Num] = None, *,
+                    d: t.Optional[Num] = None, cell: CellType = 'conv') -> AtomCell:
+    """
+    Create a CsCl structure AB.
+
+    May specify 'a' (lattice parameter) or 'd' (nearest-neighbor bond length).
+    All cell types are identical.
+    """
+    if isinstance(elems, str):
+        elems = get_elems(elems)
+    else:
+        elems = list(map(get_elem, elems))
+
+    if len(elems) != 2:
+        raise ValueError("Expected two elements.")
+
+    if a is not None and d is not None:
+        raise ValueError("Both 'a' and 'd' cannot be specified.")
+
+    if a is None:
+        if d is not None:
+            a_ = d * 2/numpy.sqrt(3)
+        elif elems == [55, 17]:
+            # CsCl lattice parameter
+            a_ = 4.123
+        else:
+            raise ValueError("Must specify either 'a' or 'd' lattice parameter")
+    else:
+        a_ = a
+
+    ortho = cell_to_ortho([a_] * 3)
+
+    frame = Atoms(dict(x=[0., 0.5], y=[0., 0.5], z=[0., 0.5], elem=elems))
+    return AtomCell.from_ortho(frame, ortho, frame='cell_frac')
+
+
 def perovskite(elems: t.Union[str, t.Sequence[ElemLike]], cell_size: VecLike, *,
                cell: CellType = 'conv') -> AtomCell:
     """

@@ -1,7 +1,8 @@
 
 import numpy
+import pytest
 
-from . import fcc, wurtzite, graphite, zincblende, fluorite, perovskite, slab
+from . import fcc, wurtzite, graphite, zincblende, fluorite, perovskite, slab, cesium_chloride
 from .. import AtomCell, Atoms
 from ..transform import LinearTransform3D
 from ..testing import check_equals_structure
@@ -86,6 +87,29 @@ def test_ceo2_prim():
     return fluorite('CeO2', 5.47, cell='prim')
 
 
+@check_equals_structure('CsCl.xsf')
+def test_cesium_chloride():
+    return cesium_chloride()
+
+
+@check_equals_structure('CsBr.xsf')
+def test_cesium_bromide():
+    return cesium_chloride('CsBr', a=4.291)
+
+
+@check_equals_structure('CsBr.xsf')
+def test_cesium_bromide_2():
+    return cesium_chloride('CsBr', d=3.71611500764)
+
+
+def test_cesium_chloride_fail():
+    with pytest.raises(ValueError, match="Must specify either 'a' or 'd' lattice parameter"):
+        cesium_chloride('NaCl')  # type: ignore
+
+    with pytest.raises(ValueError, match="Both 'a' and 'd' cannot be specified."):
+        cesium_chloride('NaCl', a=1., d=5.)  # type: ignore
+
+
 @check_equals_structure('ZnSe_conv.xsf')
 def test_znse_conv():
     return zincblende('ZnSe', 5.66)
@@ -121,6 +145,8 @@ def test_slab_ceo2_112():
 def test_slab_ceo2_100():
     cell = fluorite('CeO2', 5.47, cell='conv')
     return slab(cell, [1, 0, 0], [0, 0, 1])
+
+
 
 
 def test_graphite():
