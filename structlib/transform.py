@@ -523,6 +523,11 @@ class LinearTransform3D(AffineTransform3D):
         v3 = numpy.cross(v1, v2)
         # rotate along v1 x v2 (geodesic rotation)
         theta = numpy.arctan2(numpy.linalg.norm(v3), numpy.dot(v1, v2))
+        if numpy.isclose(numpy.linalg.norm(v3), 0.):
+            # any non-v1/v2 vector works. We choose the unit vector with largest cross product
+            v3 = numpy.zeros_like(v3)
+            v3[numpy.argmin(numpy.abs(v1))] = 1.
+
         aligned = self.rotate(v3, theta)
 
         if p1 is None and p2 is None:

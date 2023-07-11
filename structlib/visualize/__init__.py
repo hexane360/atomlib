@@ -75,6 +75,7 @@ _ELEM_MAP = {
     13: [255, 215, 0], # Al
     16: [253, 218, 13], # S
     74: [52, 152, 219], # W
+    68: [0, 255, 255], # Er
 }
 
 
@@ -162,7 +163,7 @@ def show_atoms_mpl_3d(atoms: HasAtoms, *, fig: t.Optional[Figure] = None,
 
     ax.scatter(coords[:, 0], coords[:, 1], coords[:, 2], c=elem_colors, alpha=1, s=s)  # type: ignore
 
-    return fig
+    return t.cast(AtomImageMpl, fig)
 
 
 def show_atoms_mpl_2d(atoms: HasAtoms, *, fig: t.Optional[Figure] = None,
@@ -181,13 +182,17 @@ def show_atoms_mpl_2d(atoms: HasAtoms, *, fig: t.Optional[Figure] = None,
     coords = frame.coords()
     elem_colors = numpy.array(list(map(get_elem_color, frame['elem']))) / 255.
 
-    transform = LinearTransform3D.align(zone, horz)
+    transform = LinearTransform3D.align_to(zone, [0, 0, -1], horz, [1, 0, 0] if horz is not None else None)
     bbox_2d = transform @ atoms.bbox()
-    coords_2d = (transform @ coords)[..., :2]
+    coords = transform @ coords
+    # sort by z-order
+    sort = numpy.argsort(coords[..., 2])
+    coords = coords[sort]
+    elem_colors = elem_colors[sort]
 
     s = s or 8.
     ax.set_xbound(*bbox_2d.x)
     ax.set_ybound(*bbox_2d.y)
-    ax.scatter(coords_2d[:, 0], coords_2d[:, 1], c=elem_colors, alpha=1, s=s)
+    ax.scatter(coords[:, 0], coords[:, 1], c=elem_colors, alpha=1., s=s)
 
-    return fig
+    return t.cast(AtomImageMpl, fig)
