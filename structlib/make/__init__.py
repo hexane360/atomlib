@@ -166,7 +166,7 @@ def zincblende(elems: t.Union[str, t.Sequence[ElemLike]], a: Num, *,
         additional: t.Dict[str, t.Any] = {
             'x': [0.5, 0.0],
             'y': [0.0, 0.5],
-            'z': [0.25, 0.25],
+            'z': [0.25, 0.75],
             'elem': [elems[1]] * 2,
         }
     elif cell == 'conv':
@@ -181,6 +181,36 @@ def zincblende(elems: t.Union[str, t.Sequence[ElemLike]], a: Num, *,
 
     return fcc(elems[0], a, cell=cell, additional=additional)
 
+
+@t.overload
+def diamond(elem: None = None, a: t.Optional[Num] = None, *,
+            cell: CellType = 'conv') -> AtomCell:
+    ...
+
+@t.overload
+def diamond(elem: t.Optional[ElemLike], a: Num, *,
+            cell: CellType = 'conv') -> AtomCell:
+    ...
+
+def diamond(elem: t.Optional[ElemLike] = None, a: t.Optional[Num] = None, *,
+            cell: CellType = 'conv') -> AtomCell:
+    """
+    Create a diamond cubic structure. Returns the same cell types as `fcc`.
+    """
+    if elem is None:
+        elems = (6, 6)
+    else:
+        elem = get_elem(elem)
+        elems = (elem, elem)
+
+    if a is None:
+        if elems == (6, 6):
+            # diamond lattice parameter
+            a = 3.567
+        else:
+            raise ValueError("Must specify lattice parameter 'a'.")
+
+    return zincblende(elems, a, cell=cell)
 
 
 def fluorite(elems: t.Union[str, t.Sequence[ElemLike]], a: Num, *,
