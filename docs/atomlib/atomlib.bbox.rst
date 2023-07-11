@@ -1,7 +1,7 @@
-﻿structlib.bbox
-==============
-.. currentmodule:: structlib.bbox
-.. automodule:: structlib.bbox
+﻿atomlib.bbox
+============
+.. currentmodule:: atomlib.bbox
+.. automodule:: atomlib.bbox
 
 
 

@@ -1,7 +1,7 @@
-﻿structlib.visualize
-===================
-.. currentmodule:: structlib.visualize
-.. automodule:: structlib.visualize
+﻿atomlib.visualize
+=================
+.. currentmodule:: atomlib.visualize
+.. automodule:: atomlib.visualize
 
 .. rubric:: Function Summary
 .. autosummary::

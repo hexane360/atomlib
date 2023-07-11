@@ -1,7 +1,7 @@
-﻿structlib.cell
-==============
-.. currentmodule:: structlib.cell
-.. automodule:: structlib.cell
+﻿atomlib.cell
+============
+.. currentmodule:: atomlib.cell
+.. automodule:: atomlib.cell
 
 .. rubric:: Function Summary
 .. autosummary::

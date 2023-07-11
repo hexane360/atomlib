@@ -4,10 +4,10 @@ API Reference
 Modules
 -------
 
-.. currentmodule:: structlib
+.. currentmodule:: atomlib
 
 .. autosummary::
-   :toctree: structlib
+   :toctree: atomlib
 
    io
    make

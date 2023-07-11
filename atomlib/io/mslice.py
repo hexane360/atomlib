@@ -9,10 +9,10 @@ from __future__ import annotations
 from xml.etree import ElementTree as et
 import builtins
 from copy import deepcopy
-from pathlib import Path
 from warnings import warn
 import typing as t
 
+from importlib_resources import files
 import numpy
 from numpy.typing import ArrayLike
 import polars
@@ -27,7 +27,7 @@ from ..transform import AffineTransform3D, LinearTransform3D
 MSliceFile = t.Union[et.ElementTree, FileOrPath]
 
 
-DEFAULT_TEMPLATE_PATH: Path = Path(__file__).parents[2] / 'data' / 'template.mslice'
+DEFAULT_TEMPLATE_PATH = files('atomlib.data') / 'template.mslice'
 DEFAULT_TEMPLATE: t.Optional[et.ElementTree] = None
 
 
@@ -35,7 +35,7 @@ def default_template() -> et.ElementTree:
     global DEFAULT_TEMPLATE
 
     if DEFAULT_TEMPLATE is None:
-        with open(DEFAULT_TEMPLATE_PATH, 'r') as f:
+        with DEFAULT_TEMPLATE_PATH.open('r') as f:
             DEFAULT_TEMPLATE = et.parse(f)  # type: ignore
 
     return deepcopy(DEFAULT_TEMPLATE)

@@ -9,8 +9,8 @@ import typing as t
 import pytest
 
 if t.TYPE_CHECKING:
-    from structlib import HasAtoms
-    from structlib.mixins import AtomsIOMixin
+    from atomlib import HasAtoms
+    from atomlib.mixins import AtomsIOMixin
 
 CallableT = t.TypeVar('CallableT', bound=t.Callable)
 
@@ -63,7 +63,7 @@ def check_equals_file(name: t.Union[str, Path]) -> t.Callable[[t.Callable[..., t
 
 
 def assert_structure_equal(expected_path: t.Union[str, Path], actual: t.Union[str, Path, AtomsIOMixin]):
-    from structlib.io import read
+    from atomlib.io import read
 
     expected = read(OUTPUT_PATH / expected_path)
 
@@ -120,7 +120,7 @@ def check_parse_structure(name: t.Union[str, Path]) -> t.Callable[[t.Callable[..
         def wrapper(*args, **kwargs):  # type: ignore
             expected = f(*args, **kwargs)
 
-            from structlib.io import read
+            from atomlib.io import read
             result = read(INPUT_PATH / name)
 
             if hasattr(result, 'assert_equal'):

@@ -4,11 +4,11 @@ import numpy
 import polars
 import pytest
 
-from structlib import HasAtoms, AtomCell, Atoms
-from structlib.transform import LinearTransform3D
-from structlib.io import *
+from atomlib import HasAtoms, AtomCell, Atoms
+from atomlib.transform import LinearTransform3D
+from atomlib.io import *
 
-from structlib.testing import check_parse_structure, check_equals_file, INPUT_PATH, OUTPUT_PATH
+from atomlib.testing import check_parse_structure, check_equals_file, INPUT_PATH, OUTPUT_PATH
 
 
 def xyz_expected(s: HasAtoms):

@@ -1,7 +1,7 @@
-﻿structlib.util
-==============
-.. currentmodule:: structlib.util
-.. automodule:: structlib.util
+﻿atomlib.util
+============
+.. currentmodule:: atomlib.util
+.. automodule:: atomlib.util
 
 .. rubric:: Function Summary
 .. autosummary::

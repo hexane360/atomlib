@@ -1,7 +1,7 @@
-structlib Documentation
+atomlib Documentation
 ===================================
 
-structlib is a collection of utilities for creating,
+atomlib is a collection of utilities for creating,
 manipulating, and visualizing atomic structures.
 
 Contents

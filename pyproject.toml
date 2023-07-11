@@ -1,14 +1,77 @@
 [build-system]
-requires = [
-  "setuptools>=51.0",
-  "wheel",
-]
+requires = ["setuptools>=51.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
+[project]
+name = "atomlib"
+version = "0.3"
+authors = [
+  {name = "Colin Gilgenbach", email = "hexane@mit.edu"},
+]
+license = {file = "LICENSE.txt"}
+description = "A collection of utilities to manipulate atomic structures"
+readme = "README.md"
+keywords = ["science", "atoms", "materials", "chemistry"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Physics",
+    "License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)",
+    "Typing :: Typed",
+]
+
+requires-python = ">=3.9"
+dependencies = [
+    "click~=8.1",  # for cli
+    "numpy~=1.22",
+    "scipy~=1.8",
+    "polars~=0.17.5",
+    "matplotlib~=3.5",
+    "requests~=2.28",
+    "typing-extensions~=4.4;python_version<'3.10'",
+    "importlib_resources>=5.0",  # importlib.resources backport
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=6.2.4",
+    "pytest-cov>=3.0.0",
+    "coveragepy-lcov>=0.1.1",
+    "nbmake>=1.4.1",
+]
+docs = [
+    "sphinx~=6.0",
+    "sphinx-rtd-theme~=1.0",
+]
+
+[project.urls]
+Repository = "https://github.com/hexane360/atomlib.git"
+
+[project.scripts]
+atom = "atomlib.cli:cli"
+
+[tool.setuptools]
+packages = ["atomlib"]
+
+[tool.pytest.ini_options]
+markers = [
+  "expected_filename: Filename to compare test result to",
+]
+
+[tool.flake8]
+ignore = "W191,E101,E117,E741"
+max-line-length = 99
+
 [tool.pyright]
-include = ['structlib']
-ignore = ['structlib/cli.py']
-exclude = ['**/test_*.py', 'structlib/tests']
+include = ['atomlib']
+ignore = ['atomlib/cli.py']
+exclude = ['**/test_*.py', 'atomlib/tests']
 typeCheckingMode = "strict"
 reportUnknownParameterType = "none"
 reportUnknownArgumentType = "none"
@@ -24,5 +87,6 @@ reportUnusedVariable = "warning"
 reportPrivateUsage = "none"
 reportUnnecessaryIsInstance = "none"
 reportUnnecessaryComparison = "information"
+reportUnnecessaryCast = "information"
 reportUntypedBaseClass = "information"
 reportConstantRedefinition = "none"

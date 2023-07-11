@@ -1,7 +1,7 @@
 
 from click.testing import CliRunner
 
-from structlib.cli import cli
+from atomlib.cli import cli
 
 
 def test_cli_help():

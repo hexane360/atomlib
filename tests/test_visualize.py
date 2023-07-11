@@ -1,10 +1,10 @@
 import pytest
 from matplotlib import pyplot
 
-from structlib.visualize import show_atoms_mpl_2d
-from structlib import make, AtomCell
+from atomlib.visualize import show_atoms_mpl_2d
+from atomlib import make, AtomCell
 
-from structlib.testing import check_figure_draw
+from atomlib.testing import check_figure_draw
 
 
 @pytest.fixture

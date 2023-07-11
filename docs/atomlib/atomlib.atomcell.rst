@@ -1,7 +1,7 @@
-﻿structlib.atomcell
-==================
-.. currentmodule:: structlib.atomcell
-.. automodule:: structlib.atomcell
+﻿atomlib.atomcell
+================
+.. currentmodule:: atomlib.atomcell
+.. automodule:: atomlib.atomcell
 
 
 

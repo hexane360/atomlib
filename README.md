@@ -1,13 +1,13 @@
-# structlib: A modern, extensible library for creating atomic structures
+# atomlib: A modern, extensible library for creating atomic structures
 
-`structlib` is a package for creating, modifying, and controlling atomic structures. It draws heavy inspiration from previous tools like [Atomsk][atomsk] and [ASE][ase], but attempts to provide a cleaner, more consistent interface that can be used from Python or a command line.
+`atomlib` is a package for creating, modifying, and controlling atomic structures. It draws heavy inspiration from previous tools like [Atomsk][atomsk] and [ASE][ase], but attempts to provide a cleaner, more consistent interface that can be used from Python or a command line.
 
-`structlib` has minimal dependencies: `numpy`, `scipy`, and `polars` are required for core atom structure manipulation, and `click` is required for command line functionality.
+`atomlib` has minimal dependencies: `numpy`, `scipy`, and `polars` are required for core atom structure manipulation, and `click` is required for command line functionality.
 
 ## Atomic representation & supported properties
 
 Atomic structures are stored as `polars` DataFrames, providing a clean, immutable interface that maximizes expressiveness and minimizes errors.
-For formats that allow arbitrary properties, these properties can be passed through transparently. `structlib` has first-class support for fractional occupancy, Debye-Waller factors, atomic forces, and labels.
+For formats that allow arbitrary properties, these properties can be passed through transparently. `atomlib` has first-class support for fractional occupancy, Debye-Waller factors, atomic forces, and labels.
 
 Translational symmetry is stored in `Cell` objects, which represent a fully generic cell. Atoms can be modified in any coordinate system that makes sense (global, local real-space, cell fraction, box fraction, etc.). Support for non-translational symmetry operations is limited at this point.
 

@@ -6,7 +6,7 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = 'structlib'
+project = 'atomlib'
 #copyright = ''
 author = 'Colin Gilgenbach'
 release = '0.1'
@@ -49,20 +49,20 @@ autodoc_type_aliases = {
     'ArrayLike': 'numpy.typing.ArrayLike',
     'NDArray': 'numpy.typing.NDArray',
 
-    'Vec3': 'structlib.types.Vec3',
-    'VecLike': 'structlib.types.VecLike',
-    'Pts3DLike': 'structlib.types.Pts3DLike',
-    'Num': 'structlib.types.Num',
-    'ElemLike': 'structlib.types.ElemLike',
+    'Vec3': 'atomlib.types.Vec3',
+    'VecLike': 'atomlib.types.VecLike',
+    'Pts3DLike': 'atomlib.types.Pts3DLike',
+    'Num': 'atomlib.types.Num',
+    'ElemLike': 'atomlib.types.ElemLike',
 
-    'SchemaDict': 'structlib.atoms.SchemaDict',
-    'IntoAtoms': 'structlib.atoms.IntoAtoms',
-    'AtomSelection': 'structlib.atoms.AtomSelection',
-    'AtomValues': 'structlib.atoms.AtomValues',
+    'SchemaDict': 'atomlib.atoms.SchemaDict',
+    'IntoAtoms': 'atomlib.atoms.IntoAtoms',
+    'AtomSelection': 'atomlib.atoms.AtomSelection',
+    'AtomValues': 'atomlib.atoms.AtomValues',
 
-    'CoordinateFrame': 'structlib.cell.CoordinateFrame',
-    'IntoTransform3D': 'structlib.transform.IntoTransform3D',
-    'CellType': 'structlib.make.CellType',
+    'CoordinateFrame': 'atomlib.cell.CoordinateFrame',
+    'IntoTransform3D': 'atomlib.transform.IntoTransform3D',
+    'CellType': 'atomlib.make.CellType',
 }
 
 autodoc_typehints_format = 'short'

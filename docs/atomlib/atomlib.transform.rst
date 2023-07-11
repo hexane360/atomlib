@@ -1,7 +1,7 @@
-﻿structlib.transform
-===================
-.. currentmodule:: structlib.transform
-.. automodule:: structlib.transform
+﻿atomlib.transform
+=================
+.. currentmodule:: atomlib.transform
+.. automodule:: atomlib.transform
 
 
 

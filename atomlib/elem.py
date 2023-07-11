@@ -1,8 +1,8 @@
 
 import re
-from pathlib import Path
 import typing as t
 
+from importlib_resources import files
 import polars
 import numpy
 
@@ -38,7 +38,7 @@ ELEMENT_SYMBOLS = [
 ]
 assert len(ELEMENTS) == len(ELEMENT_SYMBOLS)
 
-DATA_PATH: Path = Path(__file__).parent.parent / 'data'
+DATA_PATH = files('atomlib.data')
 _ELEMENT_MASSES: t.Optional[numpy.ndarray] = None
 _ION_RADII: t.Optional[t.Dict[str, float]] = None
 _ELEMENT_RADII: t.Optional[numpy.ndarray] = None
@@ -134,7 +134,8 @@ def get_mass(elem: t.Union[int, t.Sequence[int], numpy.ndarray, polars.Series]):
     global _ELEMENT_MASSES
 
     if _ELEMENT_MASSES is None:
-        _ELEMENT_MASSES = numpy.load(DATA_PATH / 'masses.npy', allow_pickle=False)
+        with (DATA_PATH / 'masses.npy').open('rb') as f:
+            _ELEMENT_MASSES = numpy.load(f, allow_pickle=False)
 
     if isinstance(elem, polars.Series):
         return polars.Series(values=_ELEMENT_MASSES)[elem-1]
@@ -155,7 +156,7 @@ def get_ionic_radius(elem: int, charge: int) -> float:
     import json
 
     if _ION_RADII is None:
-        with open(DATA_PATH / 'ion_radii.json') as f:
+        with (DATA_PATH / 'ion_radii.json').open('r') as f:
             _ION_RADII = json.load(f)
         assert _ION_RADII is not None
 
@@ -188,7 +189,8 @@ def get_radius(elem: t.Union[int, t.Sequence[int], numpy.ndarray, polars.Series]
     global _ELEMENT_RADII
 
     if _ELEMENT_RADII is None:
-        _ELEMENT_RADII = numpy.load(DATA_PATH / 'radii.npy', allow_pickle=False)
+        with (DATA_PATH / 'radii.npy').open('rb') as f:
+            _ELEMENT_RADII = numpy.load(f, allow_pickle=False)
 
     if isinstance(elem, polars.Series):
         return polars.Series(values=_ELEMENT_RADII)[elem-1]

@@ -1,11 +1,13 @@
-﻿structlib.make
-==============
-.. currentmodule:: structlib.make
-.. automodule:: structlib.make
+﻿atomlib.make
+============
+.. currentmodule:: atomlib.make
+.. automodule:: atomlib.make
 
 .. rubric:: Function Summary
 .. autosummary::
 
+   cesium_chloride
+   diamond
    fcc
    fluorite
    graphite
@@ -20,6 +22,8 @@
 
 .. rubric:: Functions
 
+.. autofunction:: cesium_chloride
+.. autofunction:: diamond
 .. autofunction:: fcc
 .. autofunction:: fluorite
 .. autofunction:: graphite

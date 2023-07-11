@@ -1,5 +1,5 @@
 #!/bin/bash
 
-pytest --cov=structlib
-pytest --cov=structlib --cov-append --nbmake examples/*.ipynb
+pytest --cov=atomlib
+pytest --cov=atomlib --cov-append --nbmake examples/*.ipynb
 coveragepy-lcov

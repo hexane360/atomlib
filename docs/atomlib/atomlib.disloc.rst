@@ -1,7 +1,7 @@
-﻿structlib.disloc
-================
-.. currentmodule:: structlib.disloc
-.. automodule:: structlib.disloc
+﻿atomlib.disloc
+==============
+.. currentmodule:: atomlib.disloc
+.. automodule:: atomlib.disloc
 
 .. rubric:: Function Summary
 .. autosummary::

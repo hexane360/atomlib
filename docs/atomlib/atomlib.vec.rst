@@ -1,7 +1,7 @@
-﻿structlib.vec
-=============
-.. currentmodule:: structlib.vec
-.. automodule:: structlib.vec
+﻿atomlib.vec
+===========
+.. currentmodule:: atomlib.vec
+.. automodule:: atomlib.vec
 
 .. rubric:: Function Summary
 .. autosummary::
