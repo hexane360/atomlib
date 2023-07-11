@@ -9,7 +9,7 @@ authors = [
   {name = "Colin Gilgenbach", email = "hexane@mit.edu"},
 ]
 license = {file = "LICENSE.txt"}
-description = "A collection of utilities to manipulate atomic structures"
+description = "A modern, extensible library for creating atomic structures"
 readme = "README.md"
 keywords = ["science", "atoms", "materials", "chemistry"]
 classifiers = [
@@ -52,12 +52,13 @@ docs = [
 
 [project.urls]
 Repository = "https://github.com/hexane360/atomlib.git"
+Documentation = "https://hexane360.github.io/atomlib/"
 
 [project.scripts]
 atom = "atomlib.cli:cli"
 
-[tool.setuptools]
-packages = ["atomlib"]
+[tool.setuptools.packages.find]
+include = ["atomlib", "atomlib.*"]
 
 [tool.pytest.ini_options]
 markers = [
@@ -71,7 +72,7 @@ max-line-length = 99
 [tool.pyright]
 include = ['atomlib']
 ignore = ['atomlib/cli.py']
-exclude = ['**/test_*.py', 'atomlib/tests']
+exclude = ['**/test_*.py']
 typeCheckingMode = "strict"
 reportUnknownParameterType = "none"
 reportUnknownArgumentType = "none"
