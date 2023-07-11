@@ -123,6 +123,7 @@ def write_mslice(cell: HasAtomCell, f: FileOrPath, template: t.Optional[MSliceFi
                  scan_points: t.Optional[ArrayLike] = None,
                  scan_extent: t.Optional[ArrayLike] = None,
                  noise_sigma: t.Optional[float] = None,
+                 tds: t.Optional[bool] = None,
                  n_cells: t.Optional[ArrayLike] = None):
     """
     Write a structure to an mslice file. The structure must be orthogonal and aligned
@@ -190,13 +191,16 @@ def write_mslice(cell: HasAtomCell, f: FileOrPath, template: t.Optional[MSliceFi
     set_attr(struct, 'repeatb', 'int16', n_b)
     set_attr(struct, 'repeatc', 'int16', n_c)
 
-    (a, b, c) = map(lambda v: f"{v:.8f}", box_size)
+    (a, b, c) = map(lambda v: f"{v:.8g}", box_size)
     set_attr(struct, 'aparam', 'float', a)
     set_attr(struct, 'bparam', 'float', b)
     set_attr(struct, 'cparam', 'float', c)
 
     if slice_thickness is not None:
         set_attr(params, 'slicethickness', 'float', f"{float(slice_thickness):.8g}")
+
+    if tds is not None:
+        set_attr(params, 'includetds', 'bool', str(int(bool(tds))))
 
     if scan_points is not None:
         (nx, ny) = numpy.broadcast_to(scan_points, 2,).astype(int)
@@ -212,14 +216,14 @@ def write_mslice(cell: HasAtomCell, f: FileOrPath, template: t.Optional[MSliceFi
         # flipped
         if scan is not None:
             set_attr(scan, 'x_i', 'float', "0.0")
-            set_attr(scan, 'y_i', 'float', "0.0")
+            set_attr(scan, 'y_f', 'float', "1.0")
             set_attr(scan, 'x_f', 'float', f"{float(finx):.8g}")
-            set_attr(scan, 'y_f', 'float', f"{float(finy):.8g}")
+            set_attr(scan, 'y_i', 'float', f"{1.0-float(finy):.8g}")
         else:
             set_attr(params, 'intx', 'float', "0.0")
-            set_attr(params, 'inty', 'float', "0.0")
+            set_attr(params, 'finy', 'float', "1.0")
             set_attr(params, 'finx', 'float', f"{float(finx):.8g}")
-            set_attr(params, 'finy', 'float', f"{float(finy):.8g}")
+            set_attr(params, 'inty', 'float', f"{1.0-float(finy):.8g}")
 
     if noise_sigma is not None:
         if scan is None:
