@@ -14,7 +14,7 @@ def write_lmp(atoms: HasAtoms, f: FileOrPath):
 
         frame = atoms.get_atoms('local').with_type()
 
-        types = frame.unique(False, subset='type')
+        types = frame.unique(subset='type')
         types = types.with_mass().sort('type')
 
         p(f" {len(frame):8} atoms")

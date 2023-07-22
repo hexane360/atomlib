@@ -135,7 +135,7 @@ class XYZ:
             f.writelines(
                 "".join(
                     f"{val:< {space}.8f}" if isinstance(val, float) else f"{val:<{space}}" for (val, space) in zip(row, col_space)
-                    ) + '\n' for row in self.atoms.select(('symbol', 'x', 'y', 'z')).rows()
+                ).strip() + '\n' for row in self.atoms.select(('symbol', 'x', 'y', 'z')).rows()
             )
 
     def cell_matrix(self) -> t.Optional[numpy.ndarray]:

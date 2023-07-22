@@ -81,7 +81,7 @@ class XSF:
         return XSF(
             primitive_cell=ortho,
             conventional_cell=ortho,
-            prim_coords=cell.get_atoms('local').inner,
+            prim_coords=cell.get_atoms('linear').inner,
             periodicity=_pbc_to_periodicity(cell.pbc)
         )
 
