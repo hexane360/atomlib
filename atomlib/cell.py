@@ -264,6 +264,17 @@ class HasCell:
             pbc=self.pbc,
         ))
 
+    def explode_z(self: HasCellT) -> HasCellT:
+        """Materialize repeated cells as one supercell in z."""
+        return self.with_cell(Cell(
+            affine=self.affine,
+            ortho=self.ortho,
+            cell_size=self.cell_size*[1, 1, self.n_cells[2]],
+            n_cells=[*self.n_cells[:2], 1],
+            cell_angle=self.cell_angle,
+            pbc=self.pbc,
+        ))
+
     def crop(self: HasCellT, x_min: float = -numpy.inf, x_max: float = numpy.inf,
              y_min: float = -numpy.inf, y_max: float = numpy.inf,
              z_min: float = -numpy.inf, z_max: float = numpy.inf, *,

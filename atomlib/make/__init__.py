@@ -12,11 +12,12 @@ import polars
 
 from ..atomcell import Atoms, AtomCell, HasAtomCellT, IntoAtoms
 from ..transform import LinearTransform3D
-from ..elem import get_elem, get_elems
+from ..elem import get_elem, get_elems, get_mass
 from ..types import ElemLike, Num, VecLike
 from ..cell import cell_to_ortho, Cell
 from ..vec import reduce_vec, split_arr, to_vec3
 from ..bbox import BBox3D
+from ..util import proc_seed
 
 
 CellType = t.Literal['conv', 'prim', 'ortho']
@@ -343,6 +344,34 @@ def perovskite(elems: t.Union[str, t.Sequence[ElemLike]], cell_size: VecLike, *,
 
     atoms = Atoms(dict(x=xs, y=ys, z=zs, elem=elems))
     return AtomCell(atoms, Cell.from_unit_cell(cell_size), frame='cell_frac')
+
+
+def random(cell: t.Union[Cell, VecLike], elem: ElemLike, density: float,
+           seed: t.Optional[object] = None, **extra_cols: t.Any) -> AtomCell:
+    """
+    Make a random arrangement of atoms inside ``cell`` (``Cell`` or ``cell_size``).
+
+    ``elem`` is the element to add.
+    ``density`` is the density (in g/cm^3) of atoms to add.
+    """
+    if not isinstance(cell, Cell):
+        cell = Cell.from_unit_cell(cell, pbc=[True, True, True])
+
+    elem = get_elem(elem)
+    mass = get_mass(elem)
+
+    # g/cm^3 / g/mol * 6.022e23/mol * 1e-24 cm^3/angstrom^3
+    number_density = density / mass * 0.60221408
+    n = int(numpy.round(numpy.prod(cell.box_size) * number_density).astype(int))
+
+    rng = numpy.random.RandomState(proc_seed(seed, 'make.random'))
+    pos = rng.uniform(0., 1., size=(3, n))
+
+    return AtomCell(Atoms({
+        'x': pos[0], 'y': pos[1], 'z': pos[2],
+        'elem': [elem] * n,
+        **{k: [v] * n for (k, v) in extra_cols.items()}
+    }), cell=cell, frame='cell_box')
 
 
 def slab(atoms: HasAtomCellT, zone: VecLike = (0., 0., 1.), horz: VecLike = (1., 0., 0.), *,

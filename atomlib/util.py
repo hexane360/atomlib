@@ -2,9 +2,14 @@
 from io import BufferedIOBase, TextIOBase, TextIOWrapper, IOBase, StringIO, BytesIO
 from pathlib import Path
 from contextlib import nullcontext, AbstractContextManager
+from hashlib import sha256
 import datetime
+import json
 import time
 import typing as t
+
+import numpy
+from numpy.typing import NDArray
 
 from .types import ParamSpec, Concatenate
 
@@ -120,7 +125,21 @@ class opt_classmethod(classmethod, t.Generic[T, P, U_co]):
             super().__get__(obj, obj)  # type: ignore
         )
 
+
+def proc_seed(seed: object, entropy: object) -> t.Optional[NDArray[numpy.uint32]]:
+    """
+    Process a random seed for passing to ``numpy.random.default_rng``.
+    """
+    if seed is None:
+        return None
+    # hash our seed and our extra entropy
+    state = sha256()
+    state.update(str(seed).encode('utf-8'))
+    state.update(json.dumps(entropy).encode('utf-8'))
+    return numpy.frombuffer(state.digest(), dtype=numpy.uint32)
+
+
 __all__ = [
     'open_file', 'open_file_binary', 'FileOrPath', 'BinaryFileOrPath',
-    'opt_classmethod', 'localtime', 'map_some',
+    'opt_classmethod', 'localtime', 'map_some', 'proc_seed',
 ]

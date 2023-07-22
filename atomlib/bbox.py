@@ -8,6 +8,7 @@ import numpy
 # pyright: reportImportCycles=false
 if t.TYPE_CHECKING:
     from .types import Vec3, VecLike
+    from .transform import AffineTransform3D
 
 from .vec import to_vec3
 
@@ -21,8 +22,19 @@ class BBox3D:
         min, max = to_vec3(min), to_vec3(max)
         self.inner: numpy.ndarray = numpy.stack((min, max), axis=-1)
 
+    def transform_from_unit(self) -> AffineTransform3D:
+        """Return the transform which transforms a unit bbox to `self`."""
+        from .transform import AffineTransform3D
+        return AffineTransform3D.translate(self.min).scale(self.max - self.min)
+
+    def transform_to_unit(self) -> AffineTransform3D:
+        """Return the transform which transforms `self` to a unit bbox."""
+        from .transform import AffineTransform3D
+        return self.transform_from_unit().inverse()
+
     @classmethod
     def unit(cls) -> BBox3D:
+        """Return a unit bbox (cube from [0,0,0] to [1,1,1])."""
         return cls([0., 0., 0.], [1., 1., 1.])
 
     @property

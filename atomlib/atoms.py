@@ -358,10 +358,14 @@ class HasAtoms(abc.ABC):
                 if not changed:
                     break
 
-        self = self.with_column(polars.Series('_unique_pts', indices))
-        cols.add('_unique_pts')
-        new = Atoms(self._get_frame().unique(subset=list(cols), keep=keep).drop('_unique_pts'), _unchecked=True)
-        return self.with_atoms(new)
+            self = self.with_column(polars.Series('_unique_pts', indices))
+            cols.add('_unique_pts')
+
+        frame = self._get_frame().unique(subset=list(cols), keep=keep)
+        if len(spatial_cols) > 0:
+            frame = frame.drop('_unique_pts')
+
+        return self.with_atoms(Atoms(frame, _unchecked=True))
 
     unique = deduplicate
 
