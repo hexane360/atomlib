@@ -208,7 +208,7 @@ def disloc_screw(atoms: HasAtomsT, center: VecLike, b: VecLike, cut: t.Optional[
 def disloc_loop_z(atoms: HasAtomsT, center: VecLike, b: VecLike,
                   loop_r: float, *, poisson: float = 0.25) -> HasAtomsT:
     r"""
-    Add a square dislocation loop to the structure, assuming an elastically isotropic material.
+    Add a circular dislocation loop to the structure, assuming an elastically isotropic material.
 
     The loop will have radius ``loop_r``, be centered at ``center``, and oriented along the z-axis.
 
