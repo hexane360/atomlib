@@ -44,6 +44,14 @@ _ION_RADII: t.Optional[t.Dict[str, float]] = None
 _ELEMENT_RADII: t.Optional[numpy.ndarray] = None
 
 
+def _open_binary_data(filename: str) -> t.ContextManager[t.BinaryIO]:
+    return t.cast(t.ContextManager[t.BinaryIO], (DATA_PATH / filename).open('rb'))
+
+
+def _open_text_data(filename: str) -> t.ContextManager[t.TextIO]:
+    return t.cast(t.ContextManager[t.TextIO], (DATA_PATH / filename).open('r'))
+
+
 def _get_sym(elem: int) -> str:
     try:
         return ELEMENT_SYMBOLS[elem-1]
@@ -110,7 +118,7 @@ def get_sym(elem: t.Union[int, polars.Series]):
         return elem.apply(_get_sym, return_dtype=polars.Utf8) \
                    .alias('symbol')
 
-    return ELEMENT_SYMBOLS[elem-1]
+    return ELEMENT_SYMBOLS[t.cast(int, elem)-1]
 
 
 @t.overload
@@ -134,7 +142,7 @@ def get_mass(elem: t.Union[int, t.Sequence[int], numpy.ndarray, polars.Series]):
     global _ELEMENT_MASSES
 
     if _ELEMENT_MASSES is None:
-        with (DATA_PATH / 'masses.npy').open('rb') as f:
+        with _open_binary_data('masses.npy') as f:
             _ELEMENT_MASSES = numpy.load(f, allow_pickle=False)
 
     if isinstance(elem, polars.Series):
@@ -156,7 +164,7 @@ def get_ionic_radius(elem: int, charge: int) -> float:
     import json
 
     if _ION_RADII is None:
-        with (DATA_PATH / 'ion_radii.json').open('r') as f:
+        with _open_text_data('ion_radii.json') as f:
             _ION_RADII = json.load(f)
         assert _ION_RADII is not None
 
@@ -189,7 +197,7 @@ def get_radius(elem: t.Union[int, t.Sequence[int], numpy.ndarray, polars.Series]
     global _ELEMENT_RADII
 
     if _ELEMENT_RADII is None:
-        with (DATA_PATH / 'radii.npy').open('rb') as f:
+        with _open_binary_data('radii.npy') as f:
             _ELEMENT_RADII = numpy.load(f, allow_pickle=False)
 
     if isinstance(elem, polars.Series):

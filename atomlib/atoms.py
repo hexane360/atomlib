@@ -71,7 +71,7 @@ def _values_to_series(df: polars.DataFrame, selection: AtomSelection, ty: t.Type
     if isinstance(selection, polars.Expr):
         return df.select(selection.cast(ty)).to_series()
 
-    selection = numpy.broadcast_to(selection, len(df))
+    selection = numpy.broadcast_to(t.cast(ArrayLike, selection), len(df))
     return polars.Series(selection, dtype=ty)
 
 

@@ -370,7 +370,7 @@ class HasAtomCell(HasAtoms, HasCell, abc.ABC):
         ...
 
     @_fwd_atoms_transform
-    def add_atom(self: HasAtomCellT, elem: t.Union[int, str], /,
+    def add_atom(self: HasAtomCellT, elem: t.Union[int, str], /,  # type: ignore (spurious)
                  x: t.Union[ArrayLike, float],
                  y: t.Optional[float] = None,
                  z: t.Optional[float] = None, *,
@@ -509,20 +509,25 @@ class AtomCell(AtomCellIOMixin, HasAtomCell):
         return self.frame
 
     @classmethod
-    def _combine_metadata(cls: t.Type[AtomCellT], *atoms: HasAtoms) -> AtomCellT:
+    def _combine_metadata(cls: t.Type[AtomCellT], *atoms: HasAtoms, n: t.Optional[int] = None) -> AtomCellT:
         """
         When combining multiple :py:`HasAtoms`, check that they are compatible with each other,
         and return a 'representative' which best represents the combined metadata.
         Implementors should treat :py:`Atoms` as acceptable, but having no metadata.
         """
-        atom_cells = [a for a in atoms if isinstance(a, AtomCell)]
-        if len(atom_cells) == 0:
-            raise TypeError(f"No AtomCells to combine")
-        cell = atom_cells[0].cell
-        frame = atom_cells[0].frame
-        if not all(a.cell == cell for a in atom_cells[1:]):
-            raise TypeError(f"Can't combine AtomCells with different cells")
-        return cls(Atoms.empty(), frame=frame, cell=cell)
+        if n is not None:
+            rep = atoms[n]
+            if not isinstance(rep, AtomCell):
+                raise ValueError(f"Atoms #{n} has no cell")
+        else:
+            atom_cells = [a for a in atoms if isinstance(a, AtomCell)]
+            if len(atom_cells) == 0:
+                raise TypeError(f"No AtomCells to combine")
+            rep = atom_cells[0]
+            if not all(a.cell == rep.cell for a in atom_cells[1:]):
+                raise TypeError(f"Can't combine AtomCells with different cells")
+
+        return cls(Atoms.empty(), frame=rep.frame, cell=rep.cell)
 
     @classmethod
     def from_ortho(cls, atoms: IntoAtoms, ortho: LinearTransform3D, *,

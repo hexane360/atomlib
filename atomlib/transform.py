@@ -349,7 +349,7 @@ class AffineTransform3D(Transform3D):
     def __matmul__(self, other: ArrayLike) -> NDArray[numpy.floating]:
         ...
 
-    def __matmul__(self, other: t.Union[Transform3D, ArrayLike, BBox3D]):
+    def __matmul__(self, other: t.Union[Transform3D, ArrayLike, BBox3D]):  # type: ignore (spurious)
         if isinstance(other, Transform3D):
             return other.compose(self)
         return self.transform(other)
@@ -598,7 +598,7 @@ class LinearTransform3D(AffineTransform3D):
         a[numpy.diag_indices(3)] = all * v
         return LinearTransform3D(a @ self.inner)
 
-    def conjugate(self, transform: Transform3DT) -> Transform3DT:
+    def conjugate(self, transform: Transform3DT) -> Transform3DT:  # type: ignore (spurious)
         """
         Apply ``transform`` in the coordinate frame of ``self``.
 
@@ -606,7 +606,7 @@ class LinearTransform3D(AffineTransform3D):
         """
         return self.inverse() @ self.compose(transform)
 
-    def compose(self, other: Transform3DT) -> Transform3DT:
+    def compose(self, other: Transform3DT) -> Transform3DT:  # type: ignore (spurious)
         if isinstance(other, LinearTransform3D):
             return other.__class__(other.inner @ self.inner)
         if isinstance(other, AffineTransform3D):
