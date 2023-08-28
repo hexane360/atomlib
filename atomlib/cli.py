@@ -8,7 +8,8 @@ import logging
 
 import click
 
-from . import CoordinateFrame, HasAtoms, AtomSelection
+from . import CoordinateFrame, HasAtoms, Atoms, AtomCell, AtomSelection
+from . import io
 from .types import ParamSpec, Concatenate
 from .transform import LinearTransform3D, AffineTransform3D
 
@@ -135,7 +136,7 @@ out_file_type_no_stdout = click.Path(allow_dash=False, path_type=Path)
 @lazy_append
 def input(file: Path):
     """Input a crystal structure from `file`. Type will be detected via file extension."""
-    yield HasAtoms.read(file)
+    yield io.read(file)
 
 
 @cli.command('in_cif')
@@ -143,23 +144,39 @@ def input(file: Path):
 @lazy_append
 def input_cif(file: t.Optional[Path] = None):
     """Input a CIF structure. If `file` is not specified, use stdin."""
-    yield HasAtoms.read_cif(file or sys.stdin)
+    yield io.read_cif(file or sys.stdin)
 
 
 @cli.command('in_xyz')
 @click.argument('file', type=file_type, required=False)
 @lazy_append
 def input_xyz(file: t.Optional[Path] = None):
-    """Input an XYZ structure. If `file` is not specified, use stdin."""
-    yield HasAtoms.read_xyz(file or sys.stdin)
+    """Input structure from an XYZ file. If `file` is not specified, use stdin."""
+    yield io.read_xyz(file or sys.stdin)
 
 
 @cli.command('in_xsf')
 @click.argument('file', type=file_type, required=False)
 @lazy_append
 def input_xsf(file: t.Optional[Path] = None):
-    """Input an XSF structure. If `file` is not specified, use stdin."""
-    yield HasAtoms.read_xsf(file or sys.stdin)
+    """Input structure from an XSF file. If `file` is not specified, use stdin."""
+    yield io.read_xsf(file or sys.stdin)
+
+
+@cli.command('in_cfg')
+@click.argument('file', type=file_type, required=False)
+@lazy_append
+def input_cfg(file: t.Optional[Path] = None):
+    """Input structure from an AtomEye CFG file. If `file` is not specified, use stdin."""
+    yield io.read_cfg(file or sys.stdin)
+
+
+@cli.command('in_cfg')
+@click.argument('file', type=file_type, required=False)
+@lazy_append
+def input_cfg(file: t.Optional[Path] = None):
+    """Input a pyMultislicer mslice file. If `file` is not specified, use stdin."""
+    yield io.read_mslice(file or sys.stdin)
 
 
 @cli.command('loop')
@@ -175,6 +192,36 @@ def loop(state: State, n: int) -> t.Iterable[State]:
         state.indices[-1] = i
         yield state
     state.pop_index()
+
+
+@cli.command('show')
+@click.option('--zone', type=float, nargs=3)
+@click.option('--plane', type=float, nargs=3)
+@lazy_map
+def show(state: State,
+         zone: t.Optional[t.Tuple[float, float, float]] = None,
+         plane: t.Optional[t.Tuple[float, float, float]] = None) -> State:
+    """Show the current structure. Doesn't affect the stream of structures."""
+    from matplotlib import pyplot
+    from .visualize import show_atoms_mpl_3d
+    show_atoms_mpl_3d(state.structure, zone=zone, plane=plane)
+    pyplot.show()
+    yield state
+
+
+@cli.command('show_2d')
+@click.option('--zone', type=float, nargs=3)
+@click.option('--plane', type=float, nargs=3)
+@lazy_map
+def show_2d(state: State,
+         zone: t.Optional[t.Tuple[float, float, float]] = None,
+         plane: t.Optional[t.Tuple[float, float, float]] = None) -> State:
+    """Show the current structure. Doesn't affect the stream of structures."""
+    from matplotlib import pyplot
+    from .visualize import show_atoms_mpl_2d
+    show_atoms_mpl_2d(state.structure, zone=zone, plane=plane)
+    pyplot.show()
+    yield state
 
 
 @cli.command('union')
