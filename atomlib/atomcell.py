@@ -260,13 +260,19 @@ class HasAtomCell(HasAtoms, HasCell, abc.ABC):
         return self.repeat_to([0., 0., size], [False, False, crop])
 
     def repeat_to_aspect(self: HasAtomCellT, plane: t.Literal['xy', 'xz', 'yz'] = 'xy', *,
-                         aspect: float = 1., max_size: t.Optional[VecLike] = None) -> HasAtomCellT:
+                         aspect: float = 1., min_size: t.Optional[VecLike] = None,
+                         max_size: t.Optional[VecLike] = None) -> HasAtomCellT:
         """
         Repeat to optimize the aspect ratio in ``plane``,
-        while staying under ``max_size``.
+        while staying above ``min_size`` and under ``max_size``.
         """
+        if min_size is None:
+            min_n = numpy.array([1, 1, 1], numpy.int_)
+        else:
+            min_n = numpy.maximum(numpy.ceil(to_vec3(min_size) / self.box_size), 1).astype(numpy.int_)
+
         if max_size is None:
-            max_n = numpy.array([3, 3, 3], numpy.int_)
+            max_n = 3 * min_n
         else:
             max_n = numpy.maximum(numpy.floor(to_vec3(max_size) / self.box_size), 1).astype(numpy.int_)
 
@@ -279,8 +285,8 @@ class HasAtomCell(HasAtoms, HasCell, abc.ABC):
         else:
             raise ValueError(f"Invalid plane '{plane}'. Exepcted 'xy', 'xz', 'or 'yz'.")
 
-        na = numpy.arange(1, max_n[indices[0]])
-        nb = numpy.arange(1, max_n[indices[1]])
+        na = numpy.arange(min_n[indices[0]], max_n[indices[0]])
+        nb = numpy.arange(min_n[indices[1]], max_n[indices[1]])
         (na, nb) = numpy.meshgrid(na, nb)
 
         aspects = na * self.box_size[indices[0]] / (nb * self.box_size[indices[1]])

@@ -35,7 +35,7 @@ def default_template() -> et.ElementTree:
     global DEFAULT_TEMPLATE
 
     if DEFAULT_TEMPLATE is None:
-        with DEFAULT_TEMPLATE_PATH.open('r') as f:
+        with DEFAULT_TEMPLATE_PATH.open('r') as f:  # type: ignore
             DEFAULT_TEMPLATE = et.parse(f)  # type: ignore
 
     return deepcopy(DEFAULT_TEMPLATE)
@@ -119,10 +119,13 @@ def read_mslice(path: MSliceFile) -> AtomCell:
 
 
 def write_mslice(cell: HasAtomCell, f: FileOrPath, template: t.Optional[MSliceFile] = None, *,
-                 slice_thickness: t.Optional[float] = None,
+                 slice_thickness: t.Optional[float] = None,  # angstrom
                  scan_points: t.Optional[ArrayLike] = None,
                  scan_extent: t.Optional[ArrayLike] = None,
-                 noise_sigma: t.Optional[float] = None,
+                 noise_sigma: t.Optional[float] = None,  # angstrom
+                 conv_angle: t.Optional[float] = None,  # mrad
+                 energy: t.Optional[float] = None,  # keV
+                 defocus: t.Optional[float] = None,  # angstrom
                  tds: t.Optional[bool] = None,
                  n_cells: t.Optional[ArrayLike] = None):
     """
@@ -166,24 +169,41 @@ def write_mslice(cell: HasAtomCell, f: FileOrPath, template: t.Optional[MSliceFi
     if db is None:
         raise ValueError("Couldn't find 'database' tag in template.")
 
-    struct = db.find("./object[@type='STRUCTURE']")
+    struct = db.find(".//object[@type='STRUCTURE']")
     if struct is None:
         raise ValueError("Couldn't find STRUCTURE object in template.")
 
-    params = db.find("./object[@type='SIMPARAMETERS']")
+    params = db.find(".//object[@type='SIMPARAMETERS']")
     if params is None:
         raise ValueError("Couldn't find SIMPARAMETERS object in template.")
 
-    scan = db.find("./object[@type='SCAN']")
+    microscope = db.find(".//object[@type='MICROSCOPE']")
+    if microscope is None:
+        raise ValueError("Couldn't find MICROSCOPE object in template.")
+
+    scan = db.find(".//object[@type='SCAN']")
+    aberrations = db.findall(".//object[@type='ABERRATION']")
 
     def set_attr(struct: et.Element, name: str, type: str, val: str):
-        node = struct.find(f"./attribute[@name='{name}']")
+        node = struct.find(f".//attribute[@name='{name}']")
         if node is None:
             node = et.Element('attribute', dict(name=name, type=type))
             struct.append(node)
         else:
             node.attrib['type'] = type
         node.text = val
+
+    def parse_xml_object(obj: et.Element) -> t.Dict[str, t.Any]:
+        """Parse the attributes of a passed XML object."""
+        params = {}
+        for attr in obj:
+            if attr.tag == 'attribute':
+                params[attr.attrib['name']] = convert_xml_value(attr.text, attr.attrib['type'])
+            elif attr.tag == 'relationship':
+                # todo give this a better API
+                if 'idrefs' in attr.attrib:
+                    params[f"{attr.attrib['name']}ID"] = attr.attrib['idrefs']
+        return params
 
     # TODO how to store atoms in unexploded form
     (n_a, n_b, n_c) = map(str, (1, 1, 1) if n_cells is None else numpy.asarray(n_cells).astype(int))
@@ -198,9 +218,26 @@ def write_mslice(cell: HasAtomCell, f: FileOrPath, template: t.Optional[MSliceFi
 
     if slice_thickness is not None:
         set_attr(params, 'slicethickness', 'float', f"{float(slice_thickness):.8g}")
-
     if tds is not None:
         set_attr(params, 'includetds', 'bool', str(int(bool(tds))))
+    if conv_angle is not None:
+        set_attr(microscope, 'aperture', 'float', f"{float(conv_angle):.8g}")
+    if energy is not None:
+        set_attr(microscope, 'kv', 'float', f"{float(energy):.8g}")
+    if noise_sigma is not None:
+        if scan is None:
+            raise ValueError("New scan specification required for 'noise_sigma'.")
+        set_attr(scan, 'noise_sigma', 'float', f"{float(noise_sigma):.8g}")
+
+    if defocus is not None:
+        for aberration in aberrations:
+            obj = parse_xml_object(aberration)
+            if obj['n'] == 1 and obj['m'] == 0:
+                set_attr(aberration, 'cnma', 'float', f"{float(defocus):.8g}")  # A, + is over
+                set_attr(aberration, 'cnmb', 'float', "0.0")
+                break
+        else:
+            raise ValueError("Couldn't find defocus aberration to modify.")
 
     if scan_points is not None:
         (nx, ny) = numpy.broadcast_to(scan_points, 2,).astype(int)
@@ -212,23 +249,26 @@ def write_mslice(cell: HasAtomCell, f: FileOrPath, template: t.Optional[MSliceFi
             set_attr(params, 'numscany', 'int16', str(ny))
 
     if scan_extent is not None:
-        (finx, finy) = numpy.broadcast_to(scan_extent, 2,).astype(float)
-        # flipped
-        if scan is not None:
-            set_attr(scan, 'x_i', 'float', "0.0")
-            set_attr(scan, 'y_f', 'float', "1.0")
-            set_attr(scan, 'x_f', 'float', f"{float(finx):.8g}")
-            set_attr(scan, 'y_i', 'float', f"{1.0-float(finy):.8g}")
-        else:
-            set_attr(params, 'intx', 'float', "0.0")
-            set_attr(params, 'finy', 'float', "1.0")
-            set_attr(params, 'finx', 'float', f"{float(finx):.8g}")
-            set_attr(params, 'inty', 'float', f"{1.0-float(finy):.8g}")
+        scan_extent = numpy.asarray(scan_extent, dtype=float)
+        try:
+            if scan_extent.ndim < 2:
+                if not scan_extent.shape == (4,):
+                    scan_extent = numpy.broadcast_to(scan_extent, (2,))
+                    scan_extent = numpy.stack(((0., 0.), scan_extent), axis=-1)
+            else:
+                scan_extent = numpy.broadcast_to(scan_extent, (2, 2))
+        except ValueError as e:
+            raise ValueError(f"Invalid scan_extent '{scan_extent}'. Expected an array of shape (2,), (4,), or (2, 2).") from e
 
-    if noise_sigma is not None:
-        if scan is None:
-            raise ValueError("New scan specification required for 'noise_sigma'.")
-        set_attr(scan, 'noise_sigma', 'float', f"{float(noise_sigma):.8g}")
+        if scan is not None:
+            names = ('x_i', 'x_f', 'y_i', 'y_f')
+            elem = scan
+        else:
+            names = ('intx', 'finx', 'inty', 'finy')
+            elem = params
+
+        for (name, val) in zip(names, scan_extent.ravel()):
+            set_attr(elem, name, 'float', f"{float(val):.8g}")
 
     # remove existing atoms
     for elem in db.findall("./object[@type='STRUCTUREATOM']"):

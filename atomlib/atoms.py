@@ -43,7 +43,7 @@ _COLUMN_DTYPES: t.Mapping[str, t.Type[polars.DataType]] = {
 
 SchemaDict = t.Mapping[str, t.Union[t.Type[polars.DataType], polars.DataType]]
 UniqueKeepStrategy = t.Literal['first', 'last']
-ConcatMethod = t.Literal['horizontal', 'vertical', 'diagonal', 'inner']
+ConcatMethod = t.Literal['horizontal', 'vertical', 'diagonal', 'inner', 'align']
 
 
 # pyright: reportImportCycles=false
@@ -210,7 +210,11 @@ class HasAtoms(abc.ABC):
         if len(dfs) == 0:
             return representative.with_atoms(Atoms.empty(), 'local')
 
-        if how == 'inner':
+        if how in ('vertical', 'vertical_relaxed'):
+            # get order from first member
+            cols = dfs[0].columns
+            dfs = [df.select(cols) for df in dfs]
+        elif how == 'inner':
             cols = reduce(operator.and_, (df.schema.keys() for df in dfs))
             schema = t.cast(SchemaDict, {col: dfs[0].schema[col] for col in cols})
             if len(schema) == 0:

@@ -121,12 +121,15 @@ class AtomsIOMixin(_HasAtoms, abc.ABC):
 
 class AtomCellIOMixin(_HasAtomCell, AtomsIOMixin):
     def write_mslice(self, f: FileOrPath, template: t.Optional[MSliceFile] = None, *,
-                    slice_thickness: t.Optional[float] = None,
-                    scan_points: t.Optional[ArrayLike] = None,
-                    scan_extent: t.Optional[ArrayLike] = None,
-                    noise_sigma: t.Optional[float] = None,
-                    tds: t.Optional[bool] = None,
-                    n_cells: t.Optional[ArrayLike] = None):
+                 slice_thickness: t.Optional[float] = None,  # angstrom
+                 scan_points: t.Optional[ArrayLike] = None,
+                 scan_extent: t.Optional[ArrayLike] = None,
+                 noise_sigma: t.Optional[float] = None,  # angstrom
+                 conv_angle: t.Optional[float] = None,  # mrad
+                 energy: t.Optional[float] = None,  # keV
+                 defocus: t.Optional[float] = None,  # angstrom
+                 tds: t.Optional[bool] = None,
+                 n_cells: t.Optional[ArrayLike] = None):
         """
         Write a structure to an mslice file.
 
@@ -140,6 +143,7 @@ class AtomCellIOMixin(_HasAtomCell, AtomsIOMixin):
         from .io import write_mslice
         return write_mslice(self, f, template, slice_thickness=slice_thickness,
                             scan_points=scan_points, scan_extent=scan_extent,
+                            conv_angle=conv_angle, energy=energy, defocus=defocus,
                             noise_sigma=noise_sigma, tds=tds, n_cells=n_cells)
 
     def write_qe(self, f: FileOrPath, pseudo: t.Optional[t.Mapping[str, str]] = None):
