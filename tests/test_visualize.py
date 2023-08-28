@@ -17,7 +17,7 @@ def aln_cell():
 @check_figure_draw('mpl_aln_2d.png')
 def test_show_atoms_mpl_2d(aln_cell: AtomCell):
     fig = pyplot.figure()
-    assert show_atoms_mpl_2d(aln_cell, fig=fig, zone=[0, 0, 1], horz=[1, 0, 0], s=20.) is fig
+    assert show_atoms_mpl_2d(aln_cell, fig=fig, zone=[0, 0, 1], horz=[1, 0, 0]) is fig
 
 
 """

@@ -5,10 +5,13 @@ from abc import abstractmethod, ABC
 import typing as t
 
 import numpy
+from numpy.typing import NDArray
 from matplotlib import pyplot
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
+from matplotlib.collections import EllipseCollection
 #from matplotlib.colors import Colormap
+#from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d import Axes3D
 #from mpl_toolkits.mplot3d.art3d import PathPatch3D
 
@@ -19,9 +22,11 @@ from ..transform import LinearTransform3D
 from ..util import FileOrPath
 from ..types import VecLike, to_vec3
 from ..vec import split_arr
+from ..elem import get_radius
 
 
-BackendName = t.Union[t.Literal['mpl'], t.Literal['ase']]
+BackendName = t.Literal['mpl', 'ase']
+AtomStyle = t.Literal['spacefill', 'ballstick', 'small']
 
 
 class AtomImage(ABC):
@@ -33,10 +38,11 @@ class AtomImage(ABC):
 def show_atoms_3d(atoms: HasAtoms, *,
                   zone: t.Optional[VecLike] = None,
                   plane: t.Optional[VecLike] = None,
-                  backend: BackendName = 'mpl') -> AtomImage:
+                  backend: BackendName = 'mpl',
+                  style: AtomStyle = 'small', **kwargs: t.Any) -> AtomImage:
     backend = t.cast(BackendName, backend.lower())
     if backend == 'mpl':
-        return show_atoms_mpl_3d(atoms, zone=zone, plane=plane)
+        return show_atoms_mpl_3d(atoms, zone=zone, plane=plane, style=style, **kwargs)
     elif backend == 'ase':
         raise NotImplementedError()
 
@@ -47,10 +53,11 @@ def show_atoms_2d(atoms: HasAtoms, *,
                   zone: t.Optional[VecLike] = None,
                   plane: t.Optional[VecLike] = None,
                   horz: t.Optional[VecLike] = None,
-                  backend: BackendName = 'mpl') -> AtomImage:
+                  backend: BackendName = 'mpl',
+                  style: AtomStyle = 'small', **kwargs: t.Any) -> AtomImage:
     backend = t.cast(BackendName, backend.lower())
     if backend == 'mpl':
-        return show_atoms_mpl_2d(atoms, zone=zone, plane=plane, horz=horz)
+        return show_atoms_mpl_2d(atoms, zone=zone, plane=plane, horz=horz, style=style, **kwargs)
     elif backend == 'ase':
         raise NotImplementedError()
 
@@ -74,6 +81,7 @@ _ELEM_MAP = {
     8: [255, 0, 0],    # O
     13: [255, 215, 0], # Al
     16: [253, 218, 13], # S
+    58: [0, 0, 255], # Ce
     74: [52, 152, 219], # W
     68: [0, 255, 255], # Er
 }
@@ -100,7 +108,7 @@ class AtomPatch3D(PathPatch3D):
 
 def get_zone(atoms: HasAtoms, zone: t.Optional[VecLike] = None,
              plane: t.Optional[VecLike] = None,
-             default: t.Optional[VecLike] = None) -> numpy.ndarray:
+             default: t.Optional[VecLike] = None) -> NDArray[numpy.float_]:
     if zone is not None and plane is not None:
         raise ValueError("'zone' and 'plane' can't both be specified.")
     if plane is not None:
@@ -115,14 +123,33 @@ def get_zone(atoms: HasAtoms, zone: t.Optional[VecLike] = None,
     return numpy.array([0., 0., 1.])
 
 
+def get_plot_radii(atoms: HasAtoms, min_r: t.Optional[float] = 1.0, style: AtomStyle = 'small') -> NDArray[numpy.float_]:
+    radii = get_radius(atoms['elem']).to_numpy()
+    if style == 'small':
+        radii = radii * 0.6
+    elif style == 'ballstick':
+        radii = radii * 0.5
+    elif style == 'spacefill':
+        radii = radii * 1.0
+    else:
+        raise ValueError(f"Unknown atom style '{style}'. Expected 'spacefill', 'ballstick', or 'small'.")
+    if min_r is not None:
+        return numpy.maximum(min_r, radii)
+    return radii
+
+
 def get_azim_elev(zone: VecLike) -> t.Tuple[float, float]:
-    (a, b, c) = to_vec3(zone)
+    (a, b, c) = -to_vec3(zone)  # look down zone
     l = numpy.sqrt(a**2 + b**2)
+    # todo: aren't these just arctan2s?
     return (numpy.angle(a + b*1.j, deg=True), numpy.angle(l + c*1.j, deg=True))  # type: ignore
 
 
 def show_atoms_mpl_3d(atoms: HasAtoms, *, fig: t.Optional[Figure] = None,
-                      zone: t.Optional[VecLike] = None, plane: t.Optional[VecLike] = None) -> AtomImageMpl:
+                      zone: t.Optional[VecLike] = None,
+                      plane: t.Optional[VecLike] = None,
+                      min_r: t.Optional[float] = 1.0,
+                      style: AtomStyle = 'small') -> AtomImageMpl:
     fig = AtomImageMpl(fig or pyplot.figure())  # type: ignore
 
     zone = get_zone(atoms, zone, plane, [1., 2., 4.])
@@ -143,6 +170,7 @@ def show_atoms_mpl_3d(atoms: HasAtoms, *, fig: t.Optional[Figure] = None,
     ax.set_zlabel('Z')
 
     frame = atoms.get_atoms('local')
+    #radii = get_plot_radii(atoms, min_r=min_r, style=style)
     coords = frame.coords()
     elem_colors = numpy.array(list(map(get_elem_color, frame['elem']))) / 255.
     s = 100
@@ -170,7 +198,8 @@ def show_atoms_mpl_2d(atoms: HasAtoms, *, fig: t.Optional[Figure] = None,
                       zone: t.Optional[VecLike] = None,
                       plane: t.Optional[VecLike] = None,
                       horz: t.Optional[VecLike] = None,
-                      s: t.Optional[float] = None) -> AtomImageMpl:
+                      min_r: t.Optional[float] = 1.0,
+                      style: AtomStyle = 'small') -> AtomImageMpl:
     zone = get_zone(atoms, zone, plane, [0., 0., 1.])
     fig = AtomImageMpl(fig or pyplot.figure())  # type: ignore
 
@@ -181,7 +210,9 @@ def show_atoms_mpl_2d(atoms: HasAtoms, *, fig: t.Optional[Figure] = None,
     frame = atoms.get_atoms('local')
     coords = frame.coords()
     elem_colors = numpy.array(list(map(get_elem_color, frame['elem']))) / 255.
+    radii = get_plot_radii(frame, min_r=min_r, style=style)
 
+    # look down zone
     transform = LinearTransform3D.align_to(zone, [0, 0, -1], horz, [1, 0, 0] if horz is not None else None)
     bbox_2d = transform @ atoms.bbox()
     coords = transform @ coords
@@ -189,10 +220,17 @@ def show_atoms_mpl_2d(atoms: HasAtoms, *, fig: t.Optional[Figure] = None,
     sort = numpy.argsort(coords[..., 2])
     coords = coords[sort]
     elem_colors = elem_colors[sort]
+    radii = radii[sort]
 
-    s = s or 8.
     ax.set_xbound(*bbox_2d.x)
     ax.set_ybound(*bbox_2d.y)
-    ax.scatter(coords[:, 0], coords[:, 1], c=elem_colors, alpha=1., s=s)
+
+    # old plotting method
+    # ax.scatter(coords[:, 0], coords[:, 1], c=elem_colors, alpha=1., s=s)
+
+    ax.add_collection(EllipseCollection(
+        radii, radii, numpy.zeros_like(radii), units='xy', facecolors=elem_colors, ec='black',
+        offsets=coords[..., :2], offset_transform=ax.transData,
+    ))  # type: ignore (bad api typing)
 
     return t.cast(AtomImageMpl, fig)
