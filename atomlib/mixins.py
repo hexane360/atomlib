@@ -128,6 +128,7 @@ class AtomCellIOMixin(_HasAtomCell, AtomsIOMixin):
                  conv_angle: t.Optional[float] = None,  # mrad
                  energy: t.Optional[float] = None,  # keV
                  defocus: t.Optional[float] = None,  # angstrom
+                 tilt: t.Optional[t.Tuple[float, float]] = None,  # (mrad, mrad)
                  tds: t.Optional[bool] = None,
                  n_cells: t.Optional[ArrayLike] = None):
         """
@@ -144,7 +145,7 @@ class AtomCellIOMixin(_HasAtomCell, AtomsIOMixin):
         return write_mslice(self, f, template, slice_thickness=slice_thickness,
                             scan_points=scan_points, scan_extent=scan_extent,
                             conv_angle=conv_angle, energy=energy, defocus=defocus,
-                            noise_sigma=noise_sigma, tds=tds, n_cells=n_cells)
+                            noise_sigma=noise_sigma, tilt=tilt, tds=tds, n_cells=n_cells)
 
     def write_qe(self, f: FileOrPath, pseudo: t.Optional[t.Mapping[str, str]] = None):
         from .io import write_qe

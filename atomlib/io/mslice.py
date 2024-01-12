@@ -126,6 +126,7 @@ def write_mslice(cell: HasAtomCell, f: FileOrPath, template: t.Optional[MSliceFi
                  conv_angle: t.Optional[float] = None,  # mrad
                  energy: t.Optional[float] = None,  # keV
                  defocus: t.Optional[float] = None,  # angstrom
+                 tilt: t.Optional[t.Tuple[float, float]] = None,  # (mrad, mrad)
                  tds: t.Optional[bool] = None,
                  n_cells: t.Optional[ArrayLike] = None):
     """
@@ -215,6 +216,11 @@ def write_mslice(cell: HasAtomCell, f: FileOrPath, template: t.Optional[MSliceFi
     set_attr(struct, 'aparam', 'float', a)
     set_attr(struct, 'bparam', 'float', b)
     set_attr(struct, 'cparam', 'float', c)
+
+    if tilt is not None:
+        (tiltx, tilty) = tilt
+        set_attr(struct, 'tiltx', 'float', f"{tiltx:.4g}")
+        set_attr(struct, 'tilty', 'float', f"{tilty:.4g}")
 
     if slice_thickness is not None:
         set_attr(params, 'slicethickness', 'float', f"{float(slice_thickness):.8g}")
