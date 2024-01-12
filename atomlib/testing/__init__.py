@@ -143,6 +143,6 @@ def check_figure_draw(name: t.Union[str, Path, t.Sequence[t.Union[str, Path]]],
 
     def decorator(f: t.Callable[..., None]):
         from matplotlib.testing.decorators import image_comparison
-        return image_comparison(names, savefig_kwarg=savefig_kwarg)(f)
+        return image_comparison(list(names), savefig_kwarg=savefig_kwarg)(f)
 
     return decorator

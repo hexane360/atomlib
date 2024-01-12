@@ -124,7 +124,7 @@ class SymmetryVec:
         return isinstance(self.inner, float)
 
     def to_vec(self) -> NDArray[numpy.floating]:
-        if isinstance(self.inner, float):
+        if isinstance(self.inner, (int, float)):
             vec = numpy.zeros((4,))
             vec[3] = self.inner
             return vec

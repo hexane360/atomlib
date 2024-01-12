@@ -155,14 +155,14 @@ def show_atoms_mpl_3d(atoms: HasAtoms, *, fig: t.Optional[Figure] = None,
     zone = get_zone(atoms, zone, plane, [1., 2., 4.])
     (azim, elev) = get_azim_elev(zone)
 
-    rect = [0., 0., 1., 1.]
+    rect = (0., 0., 1., 1.)
     ax: Axes3D = fig.add_axes(rect, axes_class=Axes3D, proj_type='ortho', azim=azim, elev=elev)  # type: ignore
     ax.grid(False)
 
     bbox = atoms.bbox().pad(0.2)
-    ax.set_xlim3d(bbox.x)
-    ax.set_ylim3d(bbox.y)
-    ax.set_zlim3d(bbox.z)
+    ax.set_xlim3d(bbox.x)  # type: ignore
+    ax.set_ylim3d(bbox.y)  # type: ignore
+    ax.set_zlim3d(bbox.z)  # type: ignore
     ax.set_box_aspect(bbox.size)
 
     ax.set_xlabel('X')
@@ -203,7 +203,7 @@ def show_atoms_mpl_2d(atoms: HasAtoms, *, fig: t.Optional[Figure] = None,
     zone = get_zone(atoms, zone, plane, [0., 0., 1.])
     fig = AtomImageMpl(fig or pyplot.figure())  # type: ignore
 
-    rect = [0.05, 0.05, 0.95, 0.95]
+    rect = (0.05, 0.05, 0.95, 0.95)
     ax: Axes = fig.add_axes(rect)
     ax.set_aspect('equal')
 

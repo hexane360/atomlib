@@ -89,7 +89,7 @@ def contaminate(structure: HasAtomCellT,
     c_size = cell.cell_size[2]
     assert cell.cell_size[2] == cell.box_size[2]
 
-    if isinstance(thickness, float):
+    if isinstance(thickness, (int, float)):
         (top_thick, bot_thick) = (thickness, thickness)
     else:
         (top_thick, bot_thick) = thickness

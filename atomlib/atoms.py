@@ -711,7 +711,7 @@ class Atoms(AtomsIOMixin, HasAtoms):
             self.inner = polars.DataFrame(data, schema=columns, orient=orient)  # type: ignore
 
         if not _unchecked:
-            missing: t.Tuple[str] = tuple(set(['symbol', 'elem']) - set(self.columns))
+            missing: t.Tuple[str, ...] = tuple(set(['symbol', 'elem']) - set(self.columns))
             if len(missing) > 1:
                 raise ValueError("'Atoms' missing columns 'elem' and/or 'symbol'.")
             # fill 'symbol' from 'elem' or vice-versa

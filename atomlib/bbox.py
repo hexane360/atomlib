@@ -29,7 +29,6 @@ class BBox3D:
 
     def transform_to_unit(self) -> AffineTransform3D:
         """Return the transform which transforms `self` to a unit bbox."""
-        from .transform import AffineTransform3D
         return self.transform_from_unit().inverse()
 
     @classmethod
