@@ -142,6 +142,46 @@ def graphite(elem: t.Union[str, ElemLike, None] = None, a: t.Optional[Num] = Non
     return atoms
 
 
+def rocksalt(elems: t.Union[str, t.Sequence[ElemLike]], a: Num, *,
+             cell: CellType = 'conv') -> AtomCell:
+    """
+    Create a rock salt FCC structure AB. Returns the same cell types as `fcc`.
+    """
+    if isinstance(elems, str):
+        elems = get_elems(elems)
+    else:
+        elems = list(map(get_elem, elems))
+
+    if len(elems) != 2:
+        raise ValueError("Expected two elements.")
+
+    if cell == 'prim':
+        additional: t.Dict[str, t.Any] = {
+            'x': [-0.5],
+            'y': [0.5],
+            'z': [0.5],
+            'elem': [elems[1]],
+        }
+    elif cell == 'ortho':
+        additional: t.Dict[str, t.Any] = {
+            'x': [0.5, 0.0],
+            'y': [0.5, 0.0],
+            'z': [0.0, 0.5],
+            'elem': [elems[1]] * 2,
+        }
+    elif cell == 'conv':
+        additional: t.Dict[str, t.Any] = {
+            'x': [0.5, 0.0, 0.0, 0.5],
+            'y': [0.0, 0.5, 0.0, 0.5],
+            'z': [0.0, 0.0, 0.5, 0.5],
+            'elem': [elems[1]] * 4,
+        }
+    else:
+        raise ValueError(f"Unknown cell type '{cell}'. Expected 'conv', 'prim', or 'ortho'.")
+
+    return fcc(elems[0], a, cell=cell, additional=additional)
+
+
 def zincblende(elems: t.Union[str, t.Sequence[ElemLike]], a: Num, *,
                cell: CellType = 'conv') -> AtomCell:
     """
@@ -451,7 +491,7 @@ def _ortho_hexagonal(cell: AtomCell) -> AtomCell:
 
 
 __all__ = [
-    'fcc', 'zincblende', 'fluorite',
-    'graphite', 'wurtzite',
+    'fcc', 'rocksalt', 'zincblende',
+    'fluorite', 'graphite', 'wurtzite',
     'CellType',
 ]
