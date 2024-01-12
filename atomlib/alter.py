@@ -38,6 +38,7 @@ def unbunch(structure: HasAtomsT, threshold: float = 0.4, *,
         tree = KDTree(coords, compact_nodes=False, balanced_tree=False)
 
         pairs = tree.query_pairs(threshold, output_type='ndarray')
+        pairs.sort(axis=0, kind='quicksort')  # required to ensure deterministicity
         for (i, j) in pairs:
             v_ij = coords[j] - coords[i]
             r = numpy.linalg.norm(v_ij)
