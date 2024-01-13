@@ -296,6 +296,24 @@ class HasAtomCell(HasAtoms, HasCell, abc.ABC):
         repeat[indices] = na.flatten()[min_i], nb.flatten()[min_i]
         return self.repeat(repeat)
 
+    def periodic_duplicate(self: HasAtomCellT, eps: float = 1e-5) -> HasAtomCellT:
+        """
+        Add duplicate copies of atoms near periodic boundaries.
+
+        For instance, an atom at a corner will be duplicated into 8 copies.
+        This is mostly only useful for visualization.
+        """
+        frame_save = self.get_frame()
+        self = self.to_frame('cell_box').wrap(eps=eps)
+
+        for i, ax in enumerate(('x', 'y', 'z')):
+            self = self.concat((self,
+                self.filter(polars.col(ax).abs() <= eps, frame='cell_box')
+                    .transform_atoms(AffineTransform3D.translate([1. if i == j else 0. for j in range(3)]), frame='cell_box')
+            ))
+
+        return self.to_frame(frame_save)
+
     # add frame to some HasAtoms methods
 
     @_fwd_atoms_transform
