@@ -1,4 +1,5 @@
 # atomlib: A modern, extensible library for creating atomic structures
+[![][ci-badge]][ci-url] [![][commit-badge]][commit-url] [![][docs-stable-badge]][docs-stable-url] [![][docs-dev-badge]][docs-dev-url]
 
 `atomlib` is a package for creating, modifying, and controlling atomic structures. It draws heavy inspiration from previous tools like [Atomsk][atomsk] and [ASE][ase], but attempts to provide a cleaner, more consistent interface that can be used from Python or a command line.
 
@@ -40,3 +41,12 @@ This means you can write your own code to utilize advanced format features even 
 [lmp]: https://docs.lammps.org/read_data.html
 [qe]: https://www.quantum-espresso.org/Doc/INPUT_PW.html
 [pyM]: https://github.com/LeBeauGroup/pyMultislicer
+
+[ci-badge]: https://github.com/hexane360/atomlib/workflows/CI/badge.svg
+[ci-url]: https://github.com/hexane360/atomlib/actions?query=workflow%3ACI
+[docs-dev-badge]: https://img.shields.io/badge/docs-dev-blue
+[docs-dev-url]: https://hexane360.github.io/atomlib/dev/
+[docs-stable-badge]: https://img.shields.io/badge/docs-stable-blue
+[docs-stable-url]: https://hexane360.github.io/atomlib/latest/
+[commit-badge]: https://img.shields.io/github/last-commit/hexane360/atomlib
+[commit-url]: https://github.com/hexane360/atomlib/commits
