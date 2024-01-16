@@ -22,15 +22,15 @@ U_co = t.TypeVar('U_co', covariant=True)
 
 def map_some(f: t.Callable[[T], U], val: t.Optional[T]) -> t.Optional[U]:
     """
-    Map ``f`` over ``val`` if not ``None``.
+    Map `f` over `val` if not `None`.
     """
     return None if val is None else f(val)
 
 
 FileOrPath = t.Union[str, Path, TextIOBase, t.TextIO]
-"""Open text file or path to a file. Use with :func:`open_file`."""
+"""Open text file or path to a file. Use with [open_file][atomlib.util.open_file]."""
 BinaryFileOrPath = t.Union[str, Path, t.TextIO, t.BinaryIO, IOBase]
-"""Open binary file or path to a file. Use with :func:`open_file_binary`."""
+"""Open binary file or path to a file. Use with [open_file_binary][atomlib.util.open_file_binary]."""
 
 
 def _validate_file(f: t.Union[t.IO, IOBase], mode: t.Union[t.Literal['r'], t.Literal['w']]):
@@ -98,7 +98,7 @@ def open_file_binary(f: BinaryFileOrPath,
 
 
 def localtime() -> datetime.datetime:
-    """Return the current time in a timezone-aware datetime object."""
+    """Return the current time in a timezone-aware [datetime][datetime.datetime] object."""
     ltime = time.localtime()
     tz = datetime.timezone(datetime.timedelta(seconds=ltime.tm_gmtoff), ltime.tm_zone)
     return datetime.datetime.now(tz)
@@ -126,9 +126,15 @@ class opt_classmethod(classmethod, t.Generic[T, P, U_co]):
         )
 
 
-def proc_seed(seed: object, entropy: object) -> t.Optional[NDArray[numpy.uint32]]:
+def proc_seed(seed: t.Optional[object], entropy: object) -> t.Optional[NDArray[numpy.uint32]]:
     """
-    Process a random seed for passing to ``numpy.random.default_rng``.
+    Process a random seed, which can be any object (or `None` for a random seed).
+    Return it in a form which can be passed to [numpy.random.default_rng][].
+
+    Uses a SHA-256 sum under the hood.
+
+    `entropy` should be a routine-specific object, to ensure that separate random
+    routines called using the same seed return uncorrelated results.
     """
     if seed is None:
         return None
