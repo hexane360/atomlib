@@ -12,13 +12,20 @@ if t.TYPE_CHECKING:
 if sys.version_info < (3, 10):
     import typing_extensions
     ParamSpec = typing_extensions.ParamSpec
+    """Re-export of [`typing.ParamSpec`][typing.ParamSpec]"""
+
     Concatenate = typing_extensions.Concatenate
+    """Re-export of [`typing.Concatenate`][typing.Concatenate]"""
 else:
     ParamSpec = t.ParamSpec
+    """Re-export of [`typing.ParamSpec`][typing.ParamSpec]"""
+
     Concatenate = t.Concatenate
+    """Re-export of [`typing.Concatenate`][typing.Concatenate]"""
 
 
 Vec3 = NDArray[numpy.floating[t.Any]]
+"""3D float vector, of shape (3,)."""
 
 
 VecLike = ArrayLike
@@ -34,7 +41,10 @@ ElemLike = t.Union[str, int]
 """Element-like"""
 
 NumT = t.TypeVar('NumT', bound=numpy.number)
+"""[`numpy.number`][numpy.number]-bound type variable"""
+
 ScalarT = t.TypeVar('ScalarT', bound=numpy.generic)
+"""[`numpy.generic`][numpy.generic]-bound type variable"""
 
 
 @t.overload
@@ -46,6 +56,10 @@ def to_vec3(v: VecLike, dtype: t.Type[ScalarT]) -> NDArray[ScalarT]:
     ...
 
 def to_vec3(v: VecLike, dtype: t.Optional[t.Type[numpy.generic]] = None) -> NDArray[numpy.generic]:
+    """
+    Broadcast and coerce `v` to a [`Vec3`][atomlib.types.Vec3] of type `dtype`.
+    """
+
     try:
         v = numpy.broadcast_to(v, (3,)).astype(dtype or numpy.float_)
     except (ValueError, TypeError):

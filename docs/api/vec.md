@@ -1,0 +1,3 @@
+# `atomlib.vec`
+
+::: atomlib.vec

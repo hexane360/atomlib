@@ -1,0 +1,3 @@
+# `atomlib.mixins`
+
+::: atomlib.mixins

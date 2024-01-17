@@ -1,0 +1,3 @@
+# `atomlib.cell`
+
+::: atomlib.cell

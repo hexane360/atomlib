@@ -1,0 +1,3 @@
+# `atomlib.bbox`
+
+::: atomlib.bbox

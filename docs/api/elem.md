@@ -1,0 +1,3 @@
+# `atomlib.elem`
+
+::: atomlib.elem

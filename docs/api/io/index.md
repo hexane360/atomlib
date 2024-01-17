@@ -1,0 +1,3 @@
+# `atomlib.io`
+
+::: atomlib.io

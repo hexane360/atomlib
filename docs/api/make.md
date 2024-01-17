@@ -1,0 +1,3 @@
+# `atomlib.make`
+
+::: atomlib.make

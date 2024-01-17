@@ -9,11 +9,14 @@ extra_css:
 nav:
   - Home: index.md
   - 'Using atomlib':
-    - Getting started: using/getting_started.md
-    - Coordinate systems: using/coords.md
+    - using/getting_started.md
+    - using/coords.md
   - API:
     - api/index.md
-    - atomlib.util: api/util.md
+    - api/disloc.md
+    - api/transform.md
+    - api/types.md
+    - api/util.md
 
 theme:
   name: material
@@ -28,6 +31,10 @@ theme:
 extra:
   version:
     provider: mike
+extra_javascript:
+  - javascript/mathjax.js
+  - https://polyfill.io/v3/polyfill.min.js?features=es6
+  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
 
 markdown_extensions:
   - admonition
@@ -35,9 +42,17 @@ markdown_extensions:
       anchor_linenums: true
       line_spans: __span
       pygments_lang_class: true
+  - pymdownx.arithmatex:
+      generic: true
   - pymdownx.inlinehilite
   - pymdownx.snippets
   - pymdownx.superfences
+  - attr_list
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - markdown_include.include:
+      base_path: docs
 
 plugins:
   - search
@@ -60,9 +75,9 @@ plugins:
             - https://pola-rs.github.io/polars/py-polars/html/objects.inv
           options:
             show_if_no_docstring: true
-            show_root_heading: true
+            show_root_heading: false
             members_order: source
-            filters: ["!^_", "!^__(all|repr|str)__$", "!^[TUKVP](_co(ntra)?)?$"]
+            filters: ["!^_", "!^__(all|repr|str)__$", "!^(Transform3D|Num)?[TUKVP](_co(ntra)?)?$", "!^.*Self$"]
             inherited_members: true
   - mike:
       version_selector: true
@@ -71,3 +86,4 @@ plugins:
 
 watch:
   - atomlib/
+  - README.md

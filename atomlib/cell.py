@@ -23,22 +23,26 @@ from .vec import reduce_vec
 from .bbox import BBox3D
 
 
-CoordinateFrame = t.Union[
-    t.Literal['cell'], t.Literal['cell_frac'], t.Literal['cell_box'],
-    t.Literal['ortho'], t.Literal['ortho_frac'], t.Literal['ortho_box'],
-    t.Literal['linear'], t.Literal['local'], t.Literal['global'],
+CoordinateFrame = t.Literal[
+    'cell', 'cell_frac', 'cell_box',
+    'ortho', 'ortho_frac', 'ortho_box',
+    'linear', 'local', 'global',
 ]
 """
 A coordinate frame to use.
- - 'cell': Angstroms along crystal axes
- - 'cell_frac': Fraction of unit cells
- - 'cell_box': Fraction of cell box
- - 'ortho': Angstroms along orthogonal cell
- - 'ortho_frac': Fraction of orthogonal cell
- - 'ortho_box': Fraction of orthogonal box
- - 'linear': Angstroms in local coordinate system (without affine transformation)
- - 'local': Angstroms in local coordinate system (with affine transformation)
- - 'global': Angstroms in global coordinate system (with all transformations)
+
+ - `cell`: Real-space units along crystal axes
+ - `cell_frac`: Fraction of unit cells
+ - `cell_box`: Fraction of cell box
+ - `ortho`: Real-space units along orthogonal cell
+ - `ortho_frac`: Fraction of orthogonal cell
+ - `ortho_box`: Fraction of orthogonal box
+ - `linear`: Angstroms in local coordinate system (without affine transformation)
+ - `local`: Angstroms in local coordinate system (with affine transformation)
+ - `global`: Angstroms in global coordinate system (with all transformations)
+
+For more information, see the documentation at [Coordinate systems][coordinate-systems],
+or the example notebook at `examples/coords.ipynb`.
 """
 
 
