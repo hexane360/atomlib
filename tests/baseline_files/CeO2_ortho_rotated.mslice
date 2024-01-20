@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<?xml version='1.0' encoding='UTF-8' standalone='yes'?>
 <!DOCTYPE database SYSTEM "file:///System/Library/DTDs/CoreData.dtd">
 
 <database>
@@ -34,7 +34,7 @@
         <attribute name="aparam" type="float">3.8678741</attribute>
         <attribute name="bparam" type="float">5.47</attribute>
         <attribute name="cparam" type="float">3.8678741</attribute>
-        <relationship name="atoms" type="0/1" destination="STRUCTUREATOM"></relationship>
+        <relationship name="atoms" type="0/1" destination="STRUCTUREATOM"/>
     </object>
     <object type="STRUCTUREATOM" id="atom0">
         <attribute name="x" type="float">0.00000000</attribute>

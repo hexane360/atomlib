@@ -12,7 +12,7 @@ if t.TYPE_CHECKING:  # pragma: no cover
     from .atomcell import HasAtomCell as _HasAtomCell
 
     from .io import CIF, XYZ, XYZFormat, XSF, CFG, FileType, FileOrPath
-    from .io.mslice import MSliceFile
+    from .io.mslice import MSliceFile, BinaryFileOrPath
 
 else:
     class _HasAtoms: ...
@@ -120,7 +120,7 @@ class AtomsIOMixin(_HasAtoms, abc.ABC):
 
 
 class AtomCellIOMixin(_HasAtomCell, AtomsIOMixin):
-    def write_mslice(self, f: FileOrPath, template: t.Optional[MSliceFile] = None, *,
+    def write_mslice(self, f: BinaryFileOrPath, template: t.Optional[MSliceFile] = None, *,
                  slice_thickness: t.Optional[float] = None,  # angstrom
                  scan_points: t.Optional[ArrayLike] = None,
                  scan_extent: t.Optional[ArrayLike] = None,

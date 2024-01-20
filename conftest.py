@@ -19,10 +19,20 @@ def expected_structure(request) -> 'HasAtoms':
 
 
 @pytest.fixture(scope='function')
-def expected_contents(request) -> str:
+def expected_contents_text(request) -> str:
     from atomlib.testing import OUTPUT_PATH
 
     marker = request.node.get_closest_marker('expected_filename')
     name = str(marker.args[0])
     with open(OUTPUT_PATH / name, 'r') as f:
+        return f.read()
+
+
+@pytest.fixture(scope='function')
+def expected_contents_binary(request) -> bytes:
+    from atomlib.testing import OUTPUT_PATH
+
+    marker = request.node.get_closest_marker('expected_filename')
+    name = str(marker.args[0])
+    with open(OUTPUT_PATH / name, 'rb') as f:
         return f.read()

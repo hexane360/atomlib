@@ -6,7 +6,8 @@ Writes mslice files with the help of a user-supplied template.
 
 from __future__ import annotations
 
-from xml.etree import ElementTree as et
+from lxml import etree as et  # type: ignore
+#from xml.etree import ElementTree as et
 import builtins
 from copy import deepcopy
 from warnings import warn
@@ -17,26 +18,28 @@ import numpy
 from numpy.typing import ArrayLike
 import polars
 
-from ..util import FileOrPath, open_file
+from ..util import FileOrPath, open_file, open_file_binary, BinaryFileOrPath
 from ..atoms import Atoms
 from ..cell import Cell
 from ..atomcell import HasAtomCell, AtomCell
 from ..transform import AffineTransform3D, LinearTransform3D
 
 
-MSliceFile = t.Union[et.ElementTree, FileOrPath]
+ElementTree = et._ElementTree
+Element = et._Element
+MSliceFile = t.Union[ElementTree, FileOrPath]
 
 
 DEFAULT_TEMPLATE_PATH = files('atomlib.data') / 'template.mslice'
-DEFAULT_TEMPLATE: t.Optional[et.ElementTree] = None
+DEFAULT_TEMPLATE: t.Optional[ElementTree] = None
 
 
-def default_template() -> et.ElementTree:
+def default_template() -> ElementTree:
     global DEFAULT_TEMPLATE
 
     if DEFAULT_TEMPLATE is None:
         with DEFAULT_TEMPLATE_PATH.open('r') as f:  # type: ignore
-            DEFAULT_TEMPLATE = et.parse(f)  # type: ignore
+            DEFAULT_TEMPLATE = t.cast(ElementTree, et.parse(f, None))
 
     return deepcopy(DEFAULT_TEMPLATE)
 
@@ -54,10 +57,10 @@ def convert_xml_value(val, ty):
     return getattr(builtins, ty)(val)
 
 
-def parse_xml_object(obj) -> t.Dict[str, t.Any]:
+def parse_xml_object(obj: Element) -> t.Dict[str, t.Any]:
     """Parse the attributes of a passed XML object."""
     params = {}
-    for attr in obj:
+    for attr in t.cast(t.Iterator[Element], obj.iter(None)):
         if attr.tag == 'attribute':
             params[attr.attrib['name']] = convert_xml_value(attr.text, attr.attrib['type'])
         elif attr.tag == 'relationship':
@@ -67,35 +70,36 @@ def parse_xml_object(obj) -> t.Dict[str, t.Any]:
     return params
 
 
-def find_xml_object(xml, typename) -> t.Dict[str, t.Any]:
+def find_xml_object(xml: Element, typename: str) -> t.Dict[str, t.Any]:
     """Find and parse XML objects named `typename`, flattening them into a single Dict."""
     params = {}
-    for obj in xml.findall(f".//*[@type='{typename}']"):
+    for obj in xml.findall(f".//*[@type='{typename}']", None):
         params.update(parse_xml_object(obj))
     return params
 
 
-def find_xml_object_list(xml, typename) -> t.List[t.Any]:
+def find_xml_object_list(xml: Element, typename: str) -> t.List[t.Any]:
     """Find and parse a list of XML objects named `typename`."""
-    return [parse_xml_object(obj) for obj in xml.findall(f".//*[@type='{typename}']")]
+    return [parse_xml_object(obj) for obj in xml.findall(f".//*[@type='{typename}']", None)]
 
 
-def find_xml_object_dict(xml, typename, key="id") -> t.Dict[str, t.Any]:
+def find_xml_object_dict(xml: Element, typename: str, key: str = "id") -> t.Dict[str, t.Any]:
     """Find and parse XML objects named `typename`, combining them into a dict."""
     return {
         obj.attrib[key]: parse_xml_object(obj)
-        for obj in xml.findall(f".//*[@type='{typename}']")
+        for obj in xml.findall(f".//*[@type='{typename}']", None)
     }
 
 
 def read_mslice(path: MSliceFile) -> AtomCell:
-    if isinstance(path, et.ElementTree):
+    tree: ElementTree
+    if isinstance(path, ElementTree):
         tree = path
     else:
-        with open_file(path, 'r') as t:
-            tree = et.parse(t)
+        with open_file(path, 'r') as temp:
+            tree = et.parse(temp, None)
 
-    xml = tree.getroot()
+    xml: Element = tree.getroot()
 
     structure = find_xml_object(xml, "STRUCTURE")
     structure_atoms = find_xml_object_list(xml, "STRUCTUREATOM")
@@ -118,7 +122,7 @@ def read_mslice(path: MSliceFile) -> AtomCell:
     return AtomCell(atoms, cell, frame='cell_frac')
 
 
-def write_mslice(cell: HasAtomCell, f: FileOrPath, template: t.Optional[MSliceFile] = None, *,
+def write_mslice(cell: HasAtomCell, f: BinaryFileOrPath, template: t.Optional[MSliceFile] = None, *,
                  slice_thickness: t.Optional[float] = None,  # angstrom
                  scan_points: t.Optional[ArrayLike] = None,
                  scan_extent: t.Optional[ArrayLike] = None,
@@ -157,47 +161,48 @@ def write_mslice(cell: HasAtomCell, f: FileOrPath, template: t.Optional[MSliceFi
         .transform(AffineTransform3D.scale(1/box_size)) \
         .with_wobble().with_occupancy()
 
+    out: ElementTree
     if template is None:
         out = default_template()
-    elif not isinstance(template, et.ElementTree):
-        with open_file(template, 'r') as t:
-            out = et.parse(t)
+    elif not isinstance(template, ElementTree):
+        with open_file(template, 'r') as temp:
+            out = et.parse(temp, None)
     else:
         out = deepcopy(template)
 
     # TODO clean up this code
-    db = out.getroot() if out.getroot().tag == 'database' else out.find("./database")
+    db: t.Optional[Element] = out.getroot() if out.getroot().tag == 'database' else out.find("./database", None)
     if db is None:
         raise ValueError("Couldn't find 'database' tag in template.")
 
-    struct = db.find(".//object[@type='STRUCTURE']")
+    struct = db.find(".//object[@type='STRUCTURE']", None)
     if struct is None:
         raise ValueError("Couldn't find STRUCTURE object in template.")
 
-    params = db.find(".//object[@type='SIMPARAMETERS']")
+    params = db.find(".//object[@type='SIMPARAMETERS']", None)
     if params is None:
         raise ValueError("Couldn't find SIMPARAMETERS object in template.")
 
-    microscope = db.find(".//object[@type='MICROSCOPE']")
+    microscope = db.find(".//object[@type='MICROSCOPE']", None)
     if microscope is None:
         raise ValueError("Couldn't find MICROSCOPE object in template.")
 
-    scan = db.find(".//object[@type='SCAN']")
-    aberrations = db.findall(".//object[@type='ABERRATION']")
+    scan = db.find(".//object[@type='SCAN']", None)
+    aberrations = db.findall(".//object[@type='ABERRATION']", None)
 
-    def set_attr(struct: et.Element, name: str, type: str, val: str):
-        node = struct.find(f".//attribute[@name='{name}']")
+    def set_attr(struct: Element, name: str, type: str, val: str):
+        node = t.cast(t.Optional[Element], struct.find(f".//attribute[@name='{name}']", None))
         if node is None:
-            node = et.Element('attribute', dict(name=name, type=type))
+            node = t.cast(Element, et.Element('attribute', dict(name=name, type=type), None))
             struct.append(node)
         else:
             node.attrib['type'] = type
-        node.text = val
+        node.text = val  # type: ignore
 
-    def parse_xml_object(obj: et.Element) -> t.Dict[str, t.Any]:
+    def parse_xml_object(obj: Element) -> t.Dict[str, t.Any]:
         """Parse the attributes of a passed XML object."""
         params = {}
-        for attr in obj:
+        for attr in obj.iterchildren(None):
             if attr.tag == 'attribute':
                 params[attr.attrib['name']] = convert_xml_value(attr.text, attr.attrib['type'])
             elif attr.tag == 'relationship':
@@ -277,7 +282,7 @@ def write_mslice(cell: HasAtomCell, f: FileOrPath, template: t.Optional[MSliceFi
             set_attr(elem, name, 'float', f"{float(val):.8g}")
 
     # remove existing atoms
-    for elem in db.findall("./object[@type='STRUCTUREATOM']"):
+    for elem in db.findall("./object[@type='STRUCTUREATOM']", None):
         db.remove(elem)
 
     # <u^2> -> 1d sigma
@@ -287,20 +292,15 @@ def write_mslice(cell: HasAtomCell, f: FileOrPath, template: t.Optional[MSliceFi
         e = _atom_elem(i, elem, x, y, z, wobble, frac_occupancy)
         db.append(e)
 
-    et.indent(db, space="    ", level=0)
+    et.indent(db, space="    ", level=0)  # type: ignore
 
-    with open_file(f, 'w') as f:
-        # hack to specify doctype of output
-        f.write("""\
-<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
-<!DOCTYPE database SYSTEM "file:///System/Library/DTDs/CoreData.dtd">
-
-""")
-        out.write(f, encoding='unicode', xml_declaration=False, short_empty_elements=False)
-        f.write('\n')
+    with open_file_binary(f, 'w') as f:
+        doctype = b"""<!DOCTYPE database SYSTEM "file:///System/Library/DTDs/CoreData.dtd">\n"""
+        out.write(f, encoding='UTF-8', xml_declaration=True, standalone=True, doctype=doctype)  # type: ignore
+        f.write(b'\n')
 
 
-def _atom_elem(i: int, atomic_number: int, x: float, y: float, z: float, wobble: float = 0., frac_occupancy: float = 1.) -> et.Element:
+def _atom_elem(i: int, atomic_number: int, x: float, y: float, z: float, wobble: float = 0., frac_occupancy: float = 1.) -> Element:
     return et.XML(f"""\
 <object type="STRUCTUREATOM" id="atom{i}">
     <attribute name="x" type="float">{x:.8f}</attribute>
@@ -309,4 +309,4 @@ def _atom_elem(i: int, atomic_number: int, x: float, y: float, z: float, wobble:
     <attribute name="wobble" type="float">{wobble:.4f}</attribute>
     <attribute name="fracoccupancy" type="float">{frac_occupancy:.4f}</attribute>
     <attribute name="atomicnumber" type="int16">{atomic_number}</attribute>
-</object>""")
+</object>""", None)

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 import inspect
-from io import StringIO
+from io import StringIO, BytesIO
 import re
 import typing as t
 
@@ -52,12 +52,25 @@ def assert_files_equal(expected_path: t.Union[str, Path], actual_path: t.Union[s
 def check_equals_file(name: t.Union[str, Path]) -> t.Callable[[t.Callable[..., t.Any]], t.Callable[..., None]]:
     def decorator(f: t.Callable[..., str]):
         @pytest.mark.expected_filename(name)
-        def wrapper(expected_contents: str, *args, **kwargs):  # type: ignore
+        def wrapper(expected_contents_text: str, *args, **kwargs):  # type: ignore
             buf = StringIO()
             f(buf, *args, **kwargs)
-            assert buf.getvalue() == expected_contents
+            assert buf.getvalue() == expected_contents_text
 
-        return _wrap_pytest(wrapper, f, lambda params: [inspect.Parameter('expected_contents', inspect.Parameter.POSITIONAL_OR_KEYWORD), *params[1:]])
+        return _wrap_pytest(wrapper, f, lambda params: [inspect.Parameter('expected_contents_text', inspect.Parameter.POSITIONAL_OR_KEYWORD), *params[1:]])
+
+    return decorator
+
+
+def check_equals_binary_file(name: t.Union[str, Path]) -> t.Callable[[t.Callable[..., t.Any]], t.Callable[..., None]]:
+    def decorator(f: t.Callable[..., str]):
+        @pytest.mark.expected_filename(name)
+        def wrapper(expected_contents_binary: bytes, *args, **kwargs):  # type: ignore
+            buf = BytesIO()
+            f(buf, *args, **kwargs)
+            assert buf.getvalue() == expected_contents_binary
+
+        return _wrap_pytest(wrapper, f, lambda params: [inspect.Parameter('expected_contents_binary', inspect.Parameter.POSITIONAL_OR_KEYWORD), *params[1:]])
 
     return decorator
 

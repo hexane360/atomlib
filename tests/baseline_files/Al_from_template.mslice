@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<?xml version='1.0' encoding='UTF-8' standalone='yes'?>
 <!DOCTYPE database SYSTEM "file:///System/Library/DTDs/CoreData.dtd">
 
 <database>
@@ -68,7 +68,7 @@
         <attribute name="m" type="int16">0</attribute>
         <attribute name="cnmb" type="float">0</attribute>
         <attribute name="cnma" type="float">0</attribute>
-        <relationship name="unit" type="0/1" destination="UNIT" idrefs="z106"></relationship>
+        <relationship name="unit" type="0/1" destination="UNIT" idrefs="z106"/>
     </object>
     <object type="ABERRATION" id="z105">
         <attribute name="name" type="string">Two-fold Stig</attribute>
@@ -76,7 +76,7 @@
         <attribute name="m" type="int16">2</attribute>
         <attribute name="cnmb" type="float">0</attribute>
         <attribute name="cnma" type="float">0</attribute>
-        <relationship name="unit" type="0/1" destination="UNIT" idrefs="z106"></relationship>
+        <relationship name="unit" type="0/1" destination="UNIT" idrefs="z106"/>
     </object>
     <object type="UNIT" id="z106">
         <attribute name="value" type="int32">1</attribute>
@@ -111,7 +111,7 @@
         <attribute name="m" type="int16">0</attribute>
         <attribute name="cnmb" type="float">0</attribute>
         <attribute name="cnma" type="float">0</attribute>
-        <relationship name="unit" type="0/1" destination="UNIT" idrefs="z102"></relationship>
+        <relationship name="unit" type="0/1" destination="UNIT" idrefs="z102"/>
     </object>
     <object type="STRUCTURE" id="z110">
         <attribute name="tilty" type="float">0</attribute>
@@ -122,7 +122,7 @@
         <attribute name="aparam" type="float">4.05</attribute>
         <attribute name="bparam" type="float">4.05</attribute>
         <attribute name="cparam" type="float">4.05</attribute>
-        <relationship name="atoms" type="0/1" destination="STRUCTUREATOM"></relationship>
+        <relationship name="atoms" type="0/1" destination="STRUCTUREATOM"/>
     </object>
     <object type="DETECTOR" id="ABF">
         <attribute name="outerangle" type="float">30</attribute>
