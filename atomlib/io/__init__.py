@@ -79,7 +79,8 @@ def read_xyz(f: t.Union[FileOrPath, XYZ]) -> HasAtoms:
     atoms = Atoms(xyz.atoms)
 
     if (cell_matrix := xyz.cell_matrix()) is not None:
-        return AtomCell.from_ortho(atoms, LinearTransform3D(cell_matrix))
+        cell = Cell.from_ortho(LinearTransform3D(cell_matrix), pbc=xyz.pbc())
+        return AtomCell(atoms, cell, frame='local')
     return Atoms(atoms)
 
 

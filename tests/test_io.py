@@ -16,6 +16,7 @@ def xyz_expected(s: HasAtoms):
 
     assert s.cell.cell_angle == pytest.approx([numpy.pi/2] * 3)
     assert s.cell.cell_size == pytest.approx([5.44] * 3)
+    assert s.cell.pbc == pytest.approx([False, True, False])
 
     assert list(s.atoms['elem']) == [14] * 8
     assert list(s.atoms['symbol']) == ['Si'] * 8

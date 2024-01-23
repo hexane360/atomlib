@@ -14,6 +14,7 @@ import logging
 import typing as t
 
 import numpy
+from numpy.typing import NDArray
 import polars
 from polars.exceptions import PolarsPanicError  # type: ignore
 
@@ -60,6 +61,9 @@ class XYZ:
             coords = atoms.get_cell().to_ortho().to_linear().inner.ravel()
             lattice_str = " ".join((f"{c:.8f}" for c in coords))
             params['Lattice'] = lattice_str
+
+            pbc_str = " ".join(str(int(v)) for v in atoms.get_cell().pbc)
+            params['pbc'] = pbc_str
 
         return XYZ(
             atoms.get_atoms('local')._get_frame(),
@@ -138,17 +142,32 @@ class XYZ:
                 ).strip() + '\n' for row in self.atoms.select(('symbol', 'x', 'y', 'z')).rows()
             )
 
-    def cell_matrix(self) -> t.Optional[numpy.ndarray]:
-        if 'Lattice' not in self.params:
+    def cell_matrix(self) -> t.Optional[NDArray[numpy.float_]]:
+        if (s := self.params.get('Lattice')) is None:
             return None
-        s = self.params['Lattice']
+
         try:
             items = list(map(float, s.split()))
             if not len(items) == 9:
                 raise ValueError("Invalid length")
-            return numpy.array(items).reshape((3, 3)).T
+            return numpy.array(items, dtype=numpy.float_).reshape((3, 3)).T
         except ValueError:
             warnings.warn(f"Warning: Invalid format for key 'Lattice=\"{s}\"'")
+        return None
+
+    def pbc(self) -> t.Optional[NDArray[numpy.bool_]]:
+        if (s := self.params.get('pbc')) is None:
+            return None
+
+        val_map = {'0': False, 'f': False, '1': True, 't': True}
+        try:
+            items = [val_map[v.lower()] for v in s.split()]
+            if not len(items) == 3:
+                raise ValueError("Invalid length")
+            return numpy.array(items, dtype=numpy.bool_)
+        except ValueError:
+            warnings.warn(f"Warning: Invalid format for key 'pbc=\"{s}\"'")
+        return None
 
 
 def param_strings(params: t.Dict[str, str]) -> t.Iterator[str]:
