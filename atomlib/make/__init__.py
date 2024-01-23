@@ -491,7 +491,9 @@ def _ortho_hexagonal(cell: AtomCell) -> AtomCell:
 
 
 __all__ = [
-    'fcc', 'rocksalt', 'zincblende',
-    'fluorite', 'graphite', 'wurtzite',
+    'fcc', 'wurtzite', 'graphite',
+    'zincblende', 'diamond', 'fluorite',
+    'cesium_chloride', 'perovskite',
+    'random', 'slab',
     'CellType',
 ]

@@ -15,14 +15,14 @@ import typing as t
 
 import numpy
 import polars
-from polars.exceptions import PolarsPanicError
+from polars.exceptions import PolarsPanicError  # type: ignore
 
 from ..util import open_file, open_file_binary, BinaryFileOrPath, FileOrPath
-from ..elem import get_sym
+from ..elem import get_sym, get_elem
 from ..atoms import HasAtoms
 from ..atomcell import HasAtomCell
 
-_COMMENT_RE = re.compile(r"(=|\s+|\")")
+_EXT_TOKEN_RE = re.compile(r"(=|\s+|\")")
 
 
 XYZFormat = t.Literal['xyz', 'exyz']
@@ -82,27 +82,27 @@ class XYZ:
             comment = f.readline().rstrip(b'\n').decode('utf-8')
             # TODO handle if there's not a gap here
 
-            f= XYZToCSVReader(f)
-            df = polars.read_csv(f, separator='\t',  # type: ignore
-                                new_columns=['symbol', 'x', 'y', 'z'],
-                                dtypes=[polars.Utf8, polars.Float64, polars.Float64, polars.Float64],
-                                has_header=False, use_pyarrow=False)
+            f = XYZToCSVReader(f)
+            df: polars.DataFrame = polars.read_csv(
+                f, separator='\t',  # type: ignore
+                new_columns=['symbol', 'x', 'y', 'z'],
+                dtypes=[polars.Utf8, polars.Float64, polars.Float64, polars.Float64],
+                has_header=False, use_pyarrow=False
+            )
             if len(df.columns) > 4:
                 raise ValueError("Error parsing XYZ file: Extra columns in at least one row.")
 
-            try:
-                #TODO .fill_null(Series) seems to be broken on polars 0.14.11
-                sym = df.select(polars.col('symbol')
-                                      .cast(polars.UInt8, strict=False)
-                                      .map(get_sym, return_dtype=polars.Utf8)).to_series()
-                df = df.with_columns(
-                    polars.when(sym.is_null())
-                    .then(polars.col('symbol'))
-                    .otherwise(sym)
-                    .alias('symbol'))
-            except PolarsPanicError:
-                invalid = (polars.col('symbol').cast(polars.UInt8) > 118).first()
-                raise ValueError(f"Invalid atomic number {invalid}") from None
+            #TODO .fill_null(Series) seems to be broken on polars 0.14.11
+            # map atomic numbers -> symbols (on columns whichare UInt8)
+            sym = get_sym(df.select(polars.col('symbol').cast(polars.UInt8, strict=False)).to_series())
+            df = df.with_columns(
+                polars.when(sym.is_null())  # type: ignore
+                .then(polars.col('symbol'))
+                .otherwise(sym)  # type: ignore
+                .alias('symbol'))
+
+            # ensure all symbols are recognizable (this will raise ValueError if not)
+            get_elem(df['symbol'])
 
             if length < len(df):
                 warnings.warn(f"Warning: truncating structure of length {len(df)} "
@@ -162,7 +162,7 @@ def param_strings(params: t.Dict[str, str]) -> t.Iterator[str]:
 
 class ExtXYZParser:
     def __init__(self, comment: str):
-        self._tokens = list(filter(len, _COMMENT_RE.split(comment)))
+        self._tokens = list(filter(len, _EXT_TOKEN_RE.split(comment)))
         self._tokens.reverse()
 
     def peek(self) -> t.Optional[str]:

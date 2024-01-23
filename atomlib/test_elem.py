@@ -16,9 +16,13 @@ from .elem import get_radius, get_ionic_radius
     ('nA1+', 11),
     ('Na_test', 11),
     (11, 11),
+    (polars.Series(['nA1+', 'SI2', 'Ag']), polars.Series([11, 14, 47]))
 ))
 def test_get_elem(sym: str, elem: int):
-    assert get_elem(sym) == elem
+    if isinstance(sym, polars.Series):
+        assert (get_elem(sym) == elem).all()  # type: ignore
+    else:
+        assert get_elem(sym) == elem
     if isinstance(sym, str):
         assert get_sym(elem).lower() in sym.lower()
 
@@ -42,11 +46,29 @@ def test_get_elem_series():
     assert all(roundtrip.lower() in sym.lower() for (roundtrip, sym) in zip(get_sym(elem), sym))
 
 
+def test_get_elem_series_nulls():
+    sym = polars.Series(['Al', None, 'Ag', 'Na'])
+
+    assert (get_elem(sym) == polars.Series([13, None, 47, 11])).all()
+
+    with pytest.raises(ValueError, match="Invalid element symbol 'None'"):
+        get_elem(sym, skip_nulls=False)
+
+
 def test_get_sym_series():
     elem = polars.Series((14, 8, 1, 102))
     sym = get_sym(elem)
 
     assert tuple(sym) == ('Si', 'O', 'H', 'No')
+
+
+def test_get_sym_series_nulls():
+    elem = polars.Series((74, 102, 62, None, 19))
+
+    assert (get_sym(elem) == polars.Series(["W", "No", "Sm", None, "K"])).all()
+
+    with pytest.raises(ValueError, match="Invalid atomic number None"):
+        get_sym(elem, skip_nulls=False)
 
 
 def test_get_elem_fail():
@@ -58,6 +80,17 @@ def test_get_elem_fail():
 
     with pytest.raises(ValueError, match=re.escape("Invalid element symbol '<4*sd>'")):
         get_elem("<4*sd>")
+
+    with pytest.raises(ValueError, match="Invalid element symbol 'Ay'"):
+        get_elem(polars.Series(["Ag", "au", "Ay"]))
+
+
+def test_get_sym_fail():
+    with pytest.raises(ValueError, match="Invalid atomic number 255"):
+        get_sym(255)
+
+    with pytest.raises(ValueError, match="Invalid atomic number 255"):
+        get_sym(polars.Series([12, 14, 255, 1]))
 
 
 def test_get_elems_fail():
