@@ -24,7 +24,7 @@ ELEMENTS = {
     'ac': 89, 'th': 90, 'pa': 91, 'u': 92, 'np': 93, 'pu': 94, 'am': 95, 'cm': 96,
     'bk': 97, 'cf': 98, 'es': 99, 'fm': 100, 'md': 101, 'no': 102, 'lr': 103, 'rf': 104,
     'db': 105, 'sg': 106, 'bh': 107, 'hs': 108, 'mt': 109, 'ds': 110, 'rg': 111, 'cn': 112,
-    'uut': 113, 'fl': 114, 'uup': 115, 'lv': 116, 'uus': 117, 'uuo': 118,
+    'nh': 113, 'fl': 114, 'mc': 115, 'lv': 116, 'ts': 117, 'og': 118,
 }
 
 ELEMENT_SYMBOLS = [
@@ -35,7 +35,7 @@ ELEMENT_SYMBOLS = [
     'Tb', 'Dy', 'Ho', 'Er', 'Tm', 'Yb', 'Lu', 'Hf', 'Ta', 'W', 'Re', 'Os', 'Ir', 'Pt', 'Au', 'Hg',
     'Tl', 'Pb', 'Bi', 'Po', 'At', 'Rn', 'Fr', 'Ra', 'Ac', 'Th', 'Pa', 'U', 'Np', 'Pu', 'Am', 'Cm',
     'Bk', 'Cf', 'Es', 'Fm', 'Md', 'No', 'Lr', 'Rf', 'Db', 'Sg', 'Bh', 'Hs', 'Mt', 'Ds', 'Rg', 'Cn',
-    'Uut', 'Fl', 'Uup', 'Lv', 'Uus', 'Uuo',
+    'Nh', 'Fl', 'Mc', 'Lv', 'Ts', 'Og',
 ]
 assert len(ELEMENTS) == len(ELEMENT_SYMBOLS)
 
