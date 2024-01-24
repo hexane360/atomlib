@@ -161,10 +161,10 @@ def test_graphite():
     ])
 
     expected = AtomCell.from_ortho(Atoms({
-        'symbol': ['C'] * 4,
         'x': [0.0, 2/3, 0.0, 1/3],
         'y': [0.0, 1/3, 0.0, 2/3],
-        'z': [0.0, 0.0, 1/2, 1/2]
+        'z': [0.0, 0.0, 1/2, 1/2],
+        'symbol': ['C'] * 4,
     }), ortho, frame='cell_frac')
 
     expected.assert_equal(cell)

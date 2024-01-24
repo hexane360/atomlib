@@ -1,5 +1,6 @@
 from io import StringIO, BytesIO
 
+import re
 import pytest
 
 from .xyz import XYZ, ExtXYZParser
@@ -38,7 +39,7 @@ Si      1.36     4.08     4.08
 Ay      1.36     4.08     4.08
 O       1.36     4.08     4.08
 """
-    with pytest.raises(ValueError, match="Invalid element symbol 'Ay'"):
+    with pytest.raises(ValueError, match=re.escape("Invalid element symbol(s) 'Ay'")):
         print(XYZ.from_file(BytesIO(xyz_in)))
 
 

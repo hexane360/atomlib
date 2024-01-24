@@ -49,7 +49,7 @@ def test_atom_frame_creation():
 
 
 def test_repr():
-    from polars import Series, Float64, Int8, Int64, Utf8  # type: ignore
+    from polars import Series, Float64, Int8, Int64, Utf8, String  # type: ignore
 
     atoms = Atoms({
         'x': [0., 1., 2.],
@@ -58,6 +58,8 @@ def test_repr():
         'elem': [1, 5, 22],
         'type': [1, 2, 3],
     })
+
+    print(atoms.__repr__())
 
     new_atoms = eval(atoms.__repr__())
 

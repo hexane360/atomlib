@@ -279,7 +279,7 @@ class XSFParser:
             elif keyword in ('primvec', 'convvec'):
                 data[keyword] = self.parse_lattice()
             elif keyword in ('crystal', 'slab', 'polymer', 'molecule'):
-                periodicity = t.cast(Periodicity, keyword)
+                periodicity = keyword
             elif keyword.startswith('begin_'):
                 self.eat_sandwich(keyword.removeprefix('begin_'))
             elif keyword.startswith('end_'):

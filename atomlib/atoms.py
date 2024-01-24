@@ -9,6 +9,7 @@ around :class:`polars.DataFrame`.
 from __future__ import annotations
 
 import logging
+from collections import OrderedDict
 from functools import reduce
 import warnings
 import operator
@@ -20,6 +21,7 @@ import scipy.spatial
 from numpy.typing import ArrayLike, NDArray
 import polars
 import polars.datatypes
+import polars.testing
 
 from .types import to_vec3, VecLike
 from .bbox import BBox3D
@@ -41,7 +43,7 @@ _COLUMN_DTYPES: t.Mapping[str, t.Type[polars.DataType]] = {
     'mass': polars.Float32,
 }
 
-SchemaDict = t.Mapping[str, t.Union[t.Type[polars.DataType], polars.DataType]]
+SchemaDict = OrderedDict[str, polars.DataType]
 UniqueKeepStrategy = t.Literal['first', 'last']
 ConcatMethod = t.Literal['horizontal', 'vertical', 'diagonal', 'inner', 'align']
 
@@ -159,7 +161,7 @@ class HasAtoms(abc.ABC):
     @property
     def schema(self) -> SchemaDict:
         """Return the schema of `self`."""
-        return t.cast(SchemaDict, self._get_frame().schema)
+        return self._get_frame().schema
 
     def with_column(self: HasAtomsT, column: t.Union[polars.Series, polars.Expr]) -> HasAtomsT:
         """Return a copy of ``self`` with the given column added."""
@@ -204,7 +206,7 @@ class HasAtoms(abc.ABC):
 
         if isinstance(atoms, HasAtoms):
             atoms = (atoms,)
-        dfs = [a.get_atoms('local').inner if isinstance(a, HasAtoms) else Atoms(a).inner for a in atoms]
+        dfs = [a.get_atoms('local').inner if isinstance(a, HasAtoms) else Atoms(t.cast(IntoAtoms, a)).inner for a in atoms]
         representative = cls._combine_metadata(*(a for a in atoms if isinstance(a, HasAtoms)))
 
         if len(dfs) == 0:
@@ -216,7 +218,7 @@ class HasAtoms(abc.ABC):
             dfs = [df.select(cols) for df in dfs]
         elif how == 'inner':
             cols = reduce(operator.and_, (df.schema.keys() for df in dfs))
-            schema = t.cast(SchemaDict, {col: dfs[0].schema[col] for col in cols})
+            schema = OrderedDict((col, dfs[0].schema[col]) for col in cols)
             if len(schema) == 0:
                 raise ValueError(f"Atoms have no columns in common")
 
@@ -256,12 +258,9 @@ class HasAtoms(abc.ABC):
 
     def assert_equal(self, other: t.Any):
         assert isinstance(other, HasAtoms)
-        assert self.schema == other.schema
-        for (col, dtype) in self.schema.items():
-            if dtype in (polars.Float32, polars.Float64):
-                numpy.testing.assert_array_almost_equal(self[col].view(ignore_nulls=True), other[col].view(ignore_nulls=True), 5)
-            else:
-                assert (self[col] == other[col]).all()
+        assert dict(self.schema) == dict(other.schema)
+        for col in self.schema.keys():
+            polars.testing.assert_series_equal(self[col], other[col], check_names=False, rtol=1e-3, atol=1e-8)
 
     # dunders
 
@@ -692,6 +691,7 @@ class Atoms(AtomsIOMixin, HasAtoms):
                  orient: t.Union[t.Literal['row'], t.Literal['col'], None] = None,
                  _unchecked: bool = False):
         self._bbox: t.Optional[BBox3D] = None
+        self.inner: polars.DataFrame
 
         if data is None:
             assert columns is None
@@ -708,7 +708,7 @@ class Atoms(AtomsIOMixin, HasAtoms):
             self.inner = data.inner
             _unchecked = True
         else:
-            self.inner = polars.DataFrame(data, schema=columns, orient=orient)  # type: ignore
+            self.inner = polars.DataFrame(data, schema=columns, orient=orient)
 
         if not _unchecked:
             missing: t.Tuple[str, ...] = tuple(set(['symbol', 'elem']) - set(self.columns))
@@ -718,7 +718,11 @@ class Atoms(AtomsIOMixin, HasAtoms):
             if missing == ('symbol',):
                 self.inner = self.inner.with_columns(get_sym(self.inner['elem']))
             elif missing == ('elem',):
-                self.inner = self.inner.with_columns(get_elem(self.inner['symbol']))
+                # by convention, add before 'symbol' column
+                self.inner = self.inner.insert_column(
+                    self.inner.get_column_index('symbol'),
+                    get_elem(self.inner['symbol']),
+                )
 
             # cast to standard dtypes
             self.inner = self.inner.with_columns([

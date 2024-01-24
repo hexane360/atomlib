@@ -51,9 +51,6 @@ def test_get_elem_series_nulls():
 
     assert (get_elem(sym) == polars.Series([13, None, 47, 11])).all()
 
-    with pytest.raises(ValueError, match="Invalid element symbol 'None'"):
-        get_elem(sym, skip_nulls=False)
-
 
 def test_get_sym_series():
     elem = polars.Series((14, 8, 1, 102))
@@ -67,9 +64,6 @@ def test_get_sym_series_nulls():
 
     assert (get_sym(elem) == polars.Series(["W", "No", "Sm", None, "K"])).all()
 
-    with pytest.raises(ValueError, match="Invalid atomic number None"):
-        get_sym(elem, skip_nulls=False)
-
 
 def test_get_elem_fail():
     with pytest.raises(ValueError, match="Invalid atomic number -5"):
@@ -81,7 +75,7 @@ def test_get_elem_fail():
     with pytest.raises(ValueError, match=re.escape("Invalid element symbol '<4*sd>'")):
         get_elem("<4*sd>")
 
-    with pytest.raises(ValueError, match="Invalid element symbol 'Ay'"):
+    with pytest.raises(ValueError, match=re.escape("Invalid element symbol(s) 'Ay'")):
         get_elem(polars.Series(["Ag", "au", "Ay"]))
 
 

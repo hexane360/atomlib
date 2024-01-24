@@ -4,7 +4,7 @@ import typing as t
 
 from importlib_resources import files
 import polars
-from polars.exceptions import PolarsPanicError  # type: ignore
+from polars.exceptions import PolarsPanicError
 import numpy
 
 from .types import ElemLike
@@ -68,29 +68,24 @@ def get_elem(sym: ElemLike) -> int:
     ...
 
 @t.overload
-def get_elem(sym: polars.Series, skip_nulls: bool = True) -> polars.Series:
+def get_elem(sym: polars.Series) -> polars.Series:
     ...
 
-def get_elem(sym: t.Union[int, str, polars.Series], skip_nulls: bool = True):
+def get_elem(sym: t.Union[int, str, polars.Series]):
     if isinstance(sym, int):
         if not 0 < sym < len(ELEMENTS):
             raise ValueError(f"Invalid atomic number {sym}")
         return sym
 
     if isinstance(sym, polars.Series):
-        sym_expr = sym.str.extract(_SYM_RE, 0)
-        try:
-            return sym_expr.str.to_lowercase() \
-                .apply(lambda e: ELEMENTS[e], return_dtype=polars.UInt8, skip_nulls=skip_nulls) \
-                .alias('elem')
-        except PolarsPanicError:
-            # attempt to recreate the error in Python
-            it = sym_expr.to_list()
-            if skip_nulls:
-                it = filter(lambda e: e is not None, it)
+        elem = sym.str.extract(_SYM_RE, 0).str.to_lowercase() \
+            .replace(ELEMENTS, return_dtype=polars.UInt8, default=255) \
+            .alias('elem')
 
-            _ = [get_elem(t.cast(str, e)) for e in it]
-            raise
+        if (invalid := sym.filter(sym.is_not_null() & (elem > 118)).to_list()):
+            raise ValueError(f"Invalid element symbol(s) '{', '.join(map(str, invalid))}'")
+
+        return elem
 
     sym_s = re.search(_SYM_RE, str(sym))
     try:
@@ -120,24 +115,20 @@ def get_sym(elem: int) -> str:
     ...
 
 @t.overload
-def get_sym(elem: polars.Series, skip_nulls: bool = True) -> polars.Series:
+def get_sym(elem: polars.Series) -> polars.Series:
     ...
 
-def get_sym(elem: t.Union[int, polars.Series], skip_nulls: bool = True):
+def get_sym(elem: t.Union[int, polars.Series]):
     if isinstance(elem, polars.Series):
         try:
-            return elem.apply(_get_sym, return_dtype=polars.Utf8, skip_nulls=skip_nulls) \
+            return elem.map_elements(_get_sym, return_dtype=polars.Utf8, skip_nulls=True) \
                     .alias('symbol')
         except PolarsPanicError:
             # attempt to recreate the error in Python
-            it = elem.to_list()
-            if skip_nulls:
-                it = filter(lambda e: e is not None, it)
-
-            _ = [_get_sym(t.cast(int, e)) for e in it]
+            _ = [_get_sym(t.cast(int, e)) for e in elem.to_list() if e is not None]
             raise
 
-    return _get_sym(elem)
+    return _get_sym(t.cast(int, elem))
 
 
 @t.overload
