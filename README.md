@@ -22,7 +22,7 @@ This means you can write your own code to utilize advanced format features even 
 
 | Format                 | Ext.    | Read               | Write              | Notes |
 | :--------------------- | :------ | :----------------: | :----------------: | :---- |
-| [CIF][cif]             | .cif    | :white_check_mark: | :x:                | CIF1 & CIF2. Isotropic B-factor only |
+| [CIF][cif]             | .cif    | :white_check_mark: | :white_check_mark: | CIF1 & CIF2. Isotropic B-factor only |
 | [XCrysDen][xsf]        | .xsf    | :white_check_mark: | :white_check_mark: |       |
 | [AtomEye CFG][cfg]     | .cfg    | :white_check_mark: | :white_check_mark: | Currently basic format only |
 | [Basic XYZ][xyz]       | .xyz    | :white_check_mark: | :white_check_mark: |       |
@@ -30,7 +30,7 @@ This means you can write your own code to utilize advanced format features even 
 | [Special XYZ][xyz]     | .sxyz   | :x:                | :x:                | To be implemented |
 | [LAMMPS Data][lmp]     | .lmp    | :x:                | :white_check_mark: |       |
 | [Quantum Espresso][qe] | .qe     | :x:                | :white_check_mark: | pw.x format  |
-| [pyMultislicer][pyM]   | .mslice | :x:                | :white_check_mark: |       |
+| [pyMultislicer][pyM]   | .mslice | :white_check_mark: | :white_check_mark: |       |
 
 [atomsk]: https://atomsk.univ-lille.fr/
 [ase]: https://wiki.fysik.dtu.dk/ase/

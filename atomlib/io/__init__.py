@@ -6,6 +6,7 @@ import logging
 import typing as t
 
 import numpy
+import polars
 
 from .cif import CIF, CIFDataBlock
 from .xyz import XYZ, XYZFormat
@@ -50,18 +51,21 @@ def read_cif(f: t.Union[FileOrPath, CIF, CIFDataBlock], block: t.Union[int, str,
     logging.debug("cif data: %r", cif.data_dict)
 
     # TODO: support atom_site_Cartn_[xyz]
-    # TODO: support atom_site_B_iso_or_equiv
     df = cif.stack_tags('atom_site_fract_x', 'atom_site_fract_y', 'atom_site_fract_z',
-                        'atom_site_type_symbol', 'atom_site_label', 'atom_site_occupancy', 'atom_site_U_iso_or_equiv',
-                        rename=('x', 'y', 'z', 'symbol', 'label', 'frac_occupancy', 'wobble'),
-                        required=(True, True, True, False, False, False, False))
+                        'atom_site_type_symbol', 'atom_site_label', 'atom_site_occupancy',
+                        'atom_site_U_iso_or_equiv', 'atom_site_B_iso_or_equiv',
+                        rename=('x', 'y', 'z', 'symbol', 'label', 'frac_occupancy', 'wobble', 'wobble_B'),
+                        required=(True, True, True, False, False, False, False, False))
+    if 'wobble_B' in df.columns:
+        if 'wobble' in df.columns:
+            raise ValueError("CIF file specifies both 'atom_site_U_iso_or_equiv' and 'atom_site_B_iso_or_equiv'")
+        df = df.rename({'wobble_B': 'wobble'}) \
+            .with_columns(polars.col('wobble') * (3./8. / numpy.pi**2))
     if 'symbol' not in df.columns:
         if 'label' not in df.columns:
             raise ValueError("Tag 'atom_site_type_symbol' or 'atom_site_label' missing from CIF file")
-        # infer symbol from label
-        df = df.with_columns(get_sym(get_elem(df['label'])))
-        # reorder symbol column
-        df = df.select([*df.columns[:3], df.columns[-1], *df.columns[3:-1]])
+        # infer symbol from label, insert at beginning
+        df = df.insert_column(0, get_sym(get_elem(df['label'])))
     atoms = Atoms(df)
 
     # parse and apply symmetry

@@ -164,6 +164,16 @@ def test_cif_aln(aln):
     return aln
 
 
+@check_parse_structure('AlN_Ufactor.cif')
+def test_cif_aln_u_factor(aln: AtomCell):
+    return aln.with_wobble(numpy.array([0.1, 0.2, 0.3, 0.4]))
+
+
+@check_parse_structure('AlN_Bfactor.cif')
+def test_cif_aln_b_factor(aln: AtomCell):
+    return aln.with_wobble(numpy.array([0.1, 0.2, 0.3, 0.4]) * 3. / (8. * numpy.pi**2))
+
+
 @check_parse_structure('label_only.cif')
 def test_cif_aln_labelonly(aln):
     return AtomCell(
