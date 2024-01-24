@@ -42,13 +42,20 @@ def load_materials_project(id: t.Union[str, int], *, api_key: t.Optional[str] = 
     api_endpoint = (api_endpoint or get_api_endpoint()).rstrip('/')
 
     logging.info(f"Fetching structure mp-{id} from materials project...")
-    response = requests.get(
-        api_endpoint + f'/materials/mp-{id}/',
+    response: requests.Response = requests.get(
+        api_endpoint + f'/materials/core/mp-{id}/',
         headers={'X-Api-Key': api_key},
         params={'_fields': 'structure'}
     )
-    data = response.json()['data'][0]
-    structure = data['structure']
+    try:
+        response.raise_for_status()
+    except requests.HTTPError as e:
+        raise ValueError(f"Failed to fetch structure 'mp-{id}'") from e
+    try:
+        data = response.json()['data'][0]
+        structure = data['structure']
+    except (KeyError, ValueError, TypeError) as e:
+        raise ValueError(f"Unexpected API response: {response}") from e
 
     ortho = LinearTransform3D(numpy.array(structure['lattice']['matrix']).T)
     sites = structure['sites']
