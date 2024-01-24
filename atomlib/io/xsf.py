@@ -77,7 +77,7 @@ class XSF:
 
     @staticmethod
     def from_cell(cell: HasAtomCell) -> XSF:
-        ortho = cell.to_ortho().to_linear()
+        ortho = cell.get_transform('local', 'cell_box').to_linear()
         return XSF(
             primitive_cell=ortho,
             conventional_cell=ortho,

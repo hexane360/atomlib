@@ -155,12 +155,7 @@ class HasAtomCell(HasAtoms, HasCell, abc.ABC):
 
     def wrap(self: HasAtomCellT, eps: float = 1e-5) -> HasAtomCellT:
         """Wrap atoms around the cell boundaries."""
-        def transform(atoms):
-            coords = atoms.coords()
-            coords = (coords + eps) % 1. - eps
-            return atoms.with_coords(coords)
-
-        return self.with_atoms(self._transform_atoms_in_frame('cell_box', transform))
+        return self.with_atoms(self._transform_atoms_in_frame('cell_box', lambda a: a._wrap(eps)))
 
     """
     def explode(self: HasAtomCellT) -> HasAtomCellT:

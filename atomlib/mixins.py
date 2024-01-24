@@ -92,6 +92,10 @@ class AtomsIOMixin(_HasAtoms, abc.ABC):
         from .io import read_cfg
         return _cast_atoms(read_cfg(f), cls)
 
+    def write_cif(self, f: FileOrPath):
+        from .io import write_cif
+        write_cif(self, f)
+
     def write_xyz(self, f: FileOrPath, fmt: XYZFormat = 'exyz'):
         from .io import write_xyz
         write_xyz(self, f, fmt)

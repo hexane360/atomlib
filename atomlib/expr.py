@@ -549,6 +549,9 @@ class SupportsNum(t.Protocol):
     def __neg__(self: SupportsNumSelf) -> SupportsNumSelf:
         ...
 
+    def __pos__(self: SupportsNumSelf) -> SupportsNumSelf:
+        ...
+
 
 def parse_numeric(s: str) -> t.Union[int, float]:
     try:
@@ -562,6 +565,12 @@ def sub(lhs: SupportsNum, rhs: t.Optional[SupportsNum] = None):
     if rhs is None:
         return -lhs
     return lhs-rhs
+
+
+def add(lhs: SupportsNum, rhs: t.Optional[SupportsNum] = None):
+    if rhs is None:
+        return +lhs
+    return lhs+rhs
 
 
 def parse_boolean(s: str) -> bool:

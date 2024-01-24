@@ -49,6 +49,8 @@ def read_cif(f: t.Union[FileOrPath, CIF, CIFDataBlock], block: t.Union[int, str,
 
     logging.debug("cif data: %r", cif.data_dict)
 
+    # TODO: support atom_site_Cartn_[xyz]
+    # TODO: support atom_site_B_iso_or_equiv
     df = cif.stack_tags('atom_site_fract_x', 'atom_site_fract_y', 'atom_site_fract_z',
                         'atom_site_type_symbol', 'atom_site_label', 'atom_site_occupancy', 'atom_site_U_iso_or_equiv',
                         rename=('x', 'y', 'z', 'symbol', 'label', 'frac_occupancy', 'wobble'),
@@ -68,15 +70,27 @@ def read_cif(f: t.Union[FileOrPath, CIF, CIFDataBlock], block: t.Union[int, str,
         sym_atoms.append(atoms.transform(sym))
 
     if len(sym_atoms) > 0:
-        atoms = AtomCell.from_ortho(Atoms.concat(sym_atoms), LinearTransform3D()) \
-            .wrap().get_atoms().deduplicate()
+        atoms = Atoms.concat(sym_atoms)._wrap().deduplicate()
 
     if (cell_size := cif.cell_size()) is not None:
         cell_size = to_vec3(cell_size)
         if (cell_angle := cif.cell_angle()) is not None:
+            # degrees to radians
             cell_angle = to_vec3(cell_angle) * numpy.pi/180.
         return AtomCell.from_unit_cell(atoms, cell_size, cell_angle, frame='cell_frac')
     return Atoms(atoms)
+
+
+def write_cif(atoms: t.Union[HasAtoms, CIF, CIFDataBlock], f: FileOrPath):
+    """Write a structure to an XSF file."""
+    if isinstance(atoms, (CIF, CIFDataBlock)):
+        cif = atoms
+    elif isinstance(atoms, AtomCell):
+        cif = CIF((CIFDataBlock.from_atomcell(atoms),))
+    else:
+        cif = CIF((CIFDataBlock.from_atoms(atoms),))
+
+    cif.write(f)
 
 
 def read_xyz(f: t.Union[FileOrPath, XYZ]) -> HasAtoms:
@@ -172,7 +186,7 @@ _READ_TABLE: t.Mapping[FileType, t.Optional[ReadFunc]] = {
 
 WriteFunc = t.Callable[[HasAtoms, FileOrPath], None]
 _WRITE_TABLE: t.Mapping[FileType, t.Optional[WriteFunc]] = {
-    'cif': None,
+    'cif': write_cif,
     'xyz': write_xyz,
     'xsf': write_xsf,
     'cfg': write_cfg,

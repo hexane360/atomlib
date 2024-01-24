@@ -181,6 +181,11 @@ def test_cif_roundtrip(s: StringIO):
     cif.write(s)
 
 
+@check_equals_file('AlN_out.cif')
+def test_cif_write_cell(s: StringIO, aln: AtomCell):
+    aln.write_cif(s)
+
+
 @check_parse_structure('AlN.cfg')
 def test_cfg_hex(aln_ortho):
     return AtomCell.from_ortho(Atoms({

@@ -327,8 +327,12 @@ class HasAtoms(abc.ABC):
 
     crop_atoms = crop
 
+    def _wrap(self: HasAtomsT, eps: float = 1e-5) -> HasAtomsT:
+        coords = (self.coords() + eps) % 1. - eps
+        return self.with_coords(coords)
+
     def deduplicate(self: HasAtomsT, tol: float = 1e-3, subset: t.Iterable[str] = ('x', 'y', 'z', 'symbol'),
-                    keep: UniqueKeepStrategy = 'first') -> HasAtomsT:
+                    keep: UniqueKeepStrategy = 'first', maintain_order: bool = True) -> HasAtomsT:
         """
         De-duplicate atoms in `self`. Atoms of the same `symbol` that are closer than `tolerance`
         to each other (by Euclidian distance) will be removed, leaving only the atom specified by
@@ -346,7 +350,6 @@ class HasAtoms(abc.ABC):
         cols -= spatial_cols
         if len(spatial_cols) > 0:
             coords = self.select(list(spatial_cols)).to_numpy()
-            print(coords.shape)
             tree = scipy.spatial.KDTree(coords)
 
             # TODO This is a bad algorithm
@@ -364,7 +367,7 @@ class HasAtoms(abc.ABC):
             self = self.with_column(polars.Series('_unique_pts', indices))
             cols.add('_unique_pts')
 
-        frame = self._get_frame().unique(subset=list(cols), keep=keep)
+        frame = self._get_frame().unique(subset=list(cols), keep=keep, maintain_order=maintain_order)
         if len(spatial_cols) > 0:
             frame = frame.drop('_unique_pts')
 
