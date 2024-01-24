@@ -11,7 +11,7 @@ if t.TYPE_CHECKING:  # pragma: no cover
     from .atoms import HasAtomsT
     from .atomcell import HasAtomCell as _HasAtomCell
 
-    from .io import CIF, XYZ, XYZFormat, XSF, CFG, FileType, FileOrPath
+    from .io import CIF, CIFDataBlock, XYZ, XYZFormat, XSF, CFG, FileType, FileOrPath
     from .io.mslice import MSliceFile, BinaryFileOrPath
 
 else:
@@ -65,10 +65,14 @@ class AtomsIOMixin(_HasAtoms, abc.ABC):
         return _cast_atoms(read(path, ty), cls)  # type: ignore
 
     @classmethod
-    def read_cif(cls: t.Type[HasAtomsT], f: t.Union[FileOrPath, CIF]) -> HasAtomsT:
-        """Read a structure from a CIF file."""
+    def read_cif(cls: t.Type[HasAtomsT], f: t.Union[FileOrPath, CIF, CIFDataBlock], block: t.Union[int, str, None] = None) -> HasAtomsT:
+        """
+        Read a structure from a CIF file.
+
+        If `block` is specified, read data from the given block of the CIF file (index or name).
+        """
         from .io import read_cif
-        return _cast_atoms(read_cif(f), cls)
+        return _cast_atoms(read_cif(f, block), cls)
 
     @classmethod
     def read_xyz(cls: t.Type[HasAtomsT], f: t.Union[FileOrPath, XYZ]) -> HasAtomsT:

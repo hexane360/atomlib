@@ -7,7 +7,7 @@ import typing as t
 
 import numpy
 
-from .cif import CIF
+from .cif import CIF, CIFDataBlock
 from .xyz import XYZ, XYZFormat
 from .xsf import XSF
 from .cfg import CFG
@@ -25,19 +25,29 @@ from ..util import FileOrPath
 FileType = t.Literal['cif', 'xyz', 'xsf', 'cfg', 'lmp', 'mslice', 'qe']
 
 
-def read_cif(f: t.Union[FileOrPath, CIF]) -> HasAtoms:
-    """Read a structure from a CIF file."""
+def read_cif(f: t.Union[FileOrPath, CIF, CIFDataBlock], block: t.Union[int, str, None] = None) -> HasAtoms:
+    """
+    Read a structure from a CIF file.
 
-    if isinstance(f, CIF):
+    If `block` is specified, read data from the given block of the CIF file (index or name).
+    """
+
+    if isinstance(f, (CIF, CIFDataBlock)):
         cif = f
     else:
-        cif = list(CIF.from_file(f))
+        cif = CIF.from_file(f)
+
+    if isinstance(cif, CIF):
         if len(cif) == 0:
-            raise ValueError("No data in CIF file.")
-        if len(cif) > 1:
-            raise NotImplementedError()
-        [cif] = cif
-    logging.debug("cif data: %r", cif.data)
+            raise ValueError("No data present in CIF file.")
+        if block is None:
+            if len(cif) > 1:
+                logging.warn("Multiple blocks present in CIF file. Defaulting to reading first block.")
+            cif = cif.data_blocks[0]
+        else:
+            cif = cif.get_block(block)
+
+    logging.debug("cif data: %r", cif.data_dict)
 
     df = cif.stack_tags('atom_site_fract_x', 'atom_site_fract_y', 'atom_site_fract_z',
                         'atom_site_type_symbol', 'atom_site_label', 'atom_site_occupancy', 'atom_site_U_iso_or_equiv',

@@ -45,13 +45,12 @@ def test_integration():
 
     reader = CifReader(StringIO(s))
     [c1, c2] = reader.parse()
-    [d1, d2] = [c1.data, c2.data]
+    [d1, d2] = [c1.data_dict, c2.data_dict]
 
     assert c1.name == 'dataname'
-    assert d1['text_block'] == textwrap.dedent("""
+    assert d1['text_block'] == textwrap.dedent("""\
     This is a text block; which ' can ; contain " many characters
-    _ - loop_ data_data
-    """)
+    _ - loop_ data_data""")
     assert d1['quoted_text'] == 'this is a quote\'d text" block\n' \
     'which extends over multiple lines'
     assert d1['bare_text'] == "bar'etextwith\"quotes"
@@ -61,4 +60,4 @@ def test_integration():
     assert d1['float3'] == .5
 
     assert c2.name == 'data2'
-    assert d2['tag1'] == ' foo\nbar\n'
+    assert d2['tag1'] == 'foo\nbar'

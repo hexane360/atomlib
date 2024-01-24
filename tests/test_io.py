@@ -174,6 +174,13 @@ def test_cif_aln_labelonly(aln):
     )
 
 
+@check_equals_file('AlN_roundtrip.cif')
+def test_cif_roundtrip(s: StringIO):
+    path = OUTPUT_PATH / 'AlN_roundtrip.cif'
+    cif = CIF.from_file(path)
+    cif.write(s)
+
+
 @check_parse_structure('AlN.cfg')
 def test_cfg_hex(aln_ortho):
     return AtomCell.from_ortho(Atoms({
@@ -190,7 +197,7 @@ def test_cfg_hex(aln_ortho):
 
 
 @check_equals_file('AlN_roundtrip.cfg')
-def test_cfg_roundtrip(s: StringIO, aln_ortho: LinearTransform3D):
+def test_cfg_roundtrip(s: StringIO):
     path = OUTPUT_PATH / 'AlN_roundtrip.cfg'
     cfg = CFG.from_file(path)
     cfg.write(s)
