@@ -16,12 +16,18 @@ if sys.version_info < (3, 10):
 
     Concatenate = typing_extensions.Concatenate
     """Re-export of [`typing.Concatenate`][typing.Concatenate]"""
+
+    TypeAlias = typing_extensions.TypeAlias
+    """Re-export of [`typing.TypeAlias`][typing.TypeAlias]"""
 else:
     ParamSpec = t.ParamSpec
     """Re-export of [`typing.ParamSpec`][typing.ParamSpec]"""
 
     Concatenate = t.Concatenate
     """Re-export of [`typing.Concatenate`][typing.Concatenate]"""
+
+    TypeAlias = t.TypeAlias
+    """Re-export of [`typing.TypeAlias`][typing.TypeAlias]"""
 
 
 Vec3 = NDArray[numpy.floating[t.Any]]

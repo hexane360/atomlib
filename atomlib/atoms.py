@@ -24,7 +24,7 @@ import polars.interchange.dataframe
 import polars.testing
 import polars.type_aliases
 
-from .types import to_vec3, VecLike
+from .types import to_vec3, VecLike, ParamSpec, Concatenate, TypeAlias
 from .bbox import BBox3D
 from .elem import get_elem, get_sym, get_mass
 from .transform import Transform3D, IntoTransform3D, AffineTransform3D
@@ -47,12 +47,12 @@ _COLUMN_DTYPES: t.Mapping[str, t.Type[polars.DataType]] = {
     'type': polars.Int32,
 }
 
-SchemaDict: t.TypeAlias = OrderedDict[str, polars.DataType]
-IntoExprColumn: t.TypeAlias = polars.type_aliases.IntoExprColumn
-IntoExpr: t.TypeAlias = polars.type_aliases.IntoExpr
-UniqueKeepStrategy: t.TypeAlias = polars.type_aliases.UniqueKeepStrategy
-FillNullStrategy: t.TypeAlias = polars.type_aliases.FillNullStrategy
-ConcatMethod: t.TypeAlias = t.Literal['horizontal', 'vertical', 'diagonal', 'inner', 'align']
+SchemaDict: TypeAlias = OrderedDict[str, polars.DataType]
+IntoExprColumn: TypeAlias = polars.type_aliases.IntoExprColumn
+IntoExpr: TypeAlias = polars.type_aliases.IntoExpr
+UniqueKeepStrategy: TypeAlias = polars.type_aliases.UniqueKeepStrategy
+FillNullStrategy: TypeAlias = polars.type_aliases.FillNullStrategy
+ConcatMethod: TypeAlias = t.Literal['horizontal', 'vertical', 'diagonal', 'inner', 'align']
 
 
 IntoAtoms = t.Union[t.Dict[str, t.Sequence[t.Any]], t.Sequence[t.Any], numpy.ndarray, polars.DataFrame, 'Atoms']
@@ -144,13 +144,13 @@ def _select_schema(df: t.Union[polars.DataFrame, HasAtoms], schema: SchemaDict) 
 
 
 HasAtomsT = t.TypeVar('HasAtomsT', bound='HasAtoms')
-P = t.ParamSpec('P')
+P = ParamSpec('P')
 T = t.TypeVar('T')
 
 
 def _map_unchecked(
-    f: t.Callable[t.Concatenate[HasAtomsT, P], polars.DataFrame]
-) -> t.Callable[t.Concatenate[HasAtomsT, P], HasAtomsT]:
+    f: t.Callable[Concatenate[HasAtomsT, P], polars.DataFrame]
+) -> t.Callable[Concatenate[HasAtomsT, P], HasAtomsT]:
 
     @wraps(f)
     def wrapper(self: HasAtomsT, *args: P.args, **kwargs: P.kwargs) -> HasAtomsT:
@@ -161,9 +161,9 @@ def _map_unchecked(
 
 
 def _frame_delegate(
-    impl_f: t.Callable[t.Concatenate[polars.DataFrame, P], T]
-) -> t.Callable[[t.Callable[t.Concatenate[HasAtomsT, P], t.Any]], t.Callable[t.Concatenate[HasAtomsT, P], T]]:
-    def inner(f: t.Callable[t.Concatenate[HasAtomsT, P], t.Any]) -> t.Callable[t.Concatenate[HasAtomsT, P], T]:
+    impl_f: t.Callable[Concatenate[polars.DataFrame, P], T]
+) -> t.Callable[[t.Callable[Concatenate[HasAtomsT, P], t.Any]], t.Callable[Concatenate[HasAtomsT, P], T]]:
+    def inner(f: t.Callable[Concatenate[HasAtomsT, P], t.Any]) -> t.Callable[Concatenate[HasAtomsT, P], T]:
         @wraps(f)
         def wrapper(self: HasAtoms, *args: P.args, **kwargs: P.kwargs) -> T:
             return impl_f(self._get_frame(), *args, **kwargs)
@@ -258,7 +258,7 @@ class HasAtoms(abc.ABC):
     def group_by(self, by: t.Union[IntoExpr, t.Iterable[IntoExpr]], *more_by: IntoExpr, maintain_order: bool = False):
         ...
 
-    def pipe(self: HasAtomsT, function: t.Callable[t.Concatenate[HasAtomsT, P], T], *args: P.args, **kwargs: P.kwargs) -> T:
+    def pipe(self: HasAtomsT, function: t.Callable[Concatenate[HasAtomsT, P], T], *args: P.args, **kwargs: P.kwargs) -> T:
         """Apply `function` to `self` (in method-call syntax)."""
         return function(self, *args, **kwargs)
 
