@@ -49,7 +49,7 @@ def test_atom_frame_creation():
 
 
 def test_repr():
-    from polars import Series, Float64, Int8, Int64, Utf8, String  # type: ignore
+    from polars import Series, Float64, Int8, Int32, Int64, Utf8, String  # type: ignore
 
     atoms = Atoms({
         'x': [0., 1., 2.],
@@ -71,7 +71,7 @@ Atoms, shape: (3, 6)
 ┌─────┬─────┬─────┬──────┬──────┬────────┐
 │ x   ┆ y   ┆ z   ┆ elem ┆ type ┆ symbol │
 │ --- ┆ --- ┆ --- ┆ ---  ┆ ---  ┆ ---    │
-│ f64 ┆ f64 ┆ f64 ┆ i8   ┆ i64  ┆ str    │
+│ f64 ┆ f64 ┆ f64 ┆ i8   ┆ i32  ┆ str    │
 ╞═════╪═════╪═════╪══════╪══════╪════════╡
 │ 0.0 ┆ 1.0 ┆ 0.0 ┆ 1    ┆ 1    ┆ H      │
 │ 1.0 ┆ 1.0 ┆ 2.0 ┆ 5    ┆ 2    ┆ B      │

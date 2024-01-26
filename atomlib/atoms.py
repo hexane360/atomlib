@@ -1,16 +1,16 @@
 """
 Raw atoms collection
 
-This module defines :class:`Atoms`, which holds a collection of atoms
-with no cell or periodicity. :class:`Atoms` is essentially a wrapper
-around :class:`polars.DataFrame`.
+This module defines [`Atoms`][atomlib.atoms.Atoms], which holds a collection of atoms
+with no cell or periodicity. [`Atoms`][atomlib.atoms.Atoms] is essentially a wrapper
+around [`polars.DataFrame`][polars.DataFrame].
 """
 
 from __future__ import annotations
 
 import logging
 from collections import OrderedDict
-from functools import reduce
+from functools import reduce, wraps
 import warnings
 import operator
 import abc
@@ -21,13 +21,14 @@ import scipy.spatial
 from numpy.typing import ArrayLike, NDArray
 import polars
 import polars.datatypes
+import polars.interchange.dataframe
 import polars.testing
+import polars.type_aliases
 
 from .types import to_vec3, VecLike
 from .bbox import BBox3D
 from .elem import get_elem, get_sym, get_mass
 from .transform import Transform3D, IntoTransform3D, AffineTransform3D
-from .util import map_some
 from .cell import Cell
 from .mixins import AtomsIOMixin
 
@@ -41,40 +42,56 @@ _COLUMN_DTYPES: t.Mapping[str, t.Type[polars.DataType]] = {
     'v_z': polars.Float64,
     'elem': polars.Int8,
     'mass': polars.Float32,
+    'i': polars.Int64,
+    'wobble': polars.Float64,
+    'frac_occupancy': polars.Float64,
+    'type': polars.Int32,
 }
 
-SchemaDict = OrderedDict[str, polars.DataType]
-UniqueKeepStrategy = t.Literal['first', 'last']
-ConcatMethod = t.Literal['horizontal', 'vertical', 'diagonal', 'inner', 'align']
+SchemaDict: t.TypeAlias = OrderedDict[str, polars.DataType]
+IntoExprColumn: t.TypeAlias = polars.type_aliases.IntoExprColumn
+IntoExpr: t.TypeAlias = polars.type_aliases.IntoExpr
+UniqueKeepStrategy: t.TypeAlias = polars.type_aliases.UniqueKeepStrategy
+FillNullStrategy: t.TypeAlias = polars.type_aliases.FillNullStrategy
+ConcatMethod: t.TypeAlias = t.Literal['horizontal', 'vertical', 'diagonal', 'inner', 'align']
+
+
+IntoAtoms = t.Union[t.Dict[str, t.Sequence[t.Any]], t.Sequence[t.Any], numpy.ndarray, polars.DataFrame, 'Atoms']
+"""
+A type convertible into an `Atoms`.
+"""
+
+
+AtomSelection = t.Union[IntoExprColumn, NDArray[numpy.bool_], ArrayLike, t.Mapping[str, t.Any]]
+"""
+Polars expression selecting a subset of atoms from an Atoms.
+Can be used with many Atoms methods.
+"""
+
+AtomValues = t.Union[IntoExprColumn, NDArray[numpy.generic], ArrayLike, t.Mapping[str, t.Any]]
+"""
+Array, value, or polars expression mapping atom symbols to values.
+Can be used with `with_*` methods on Atoms
+"""
 
 
 # pyright: reportImportCycles=false
 if t.TYPE_CHECKING:  # pragma: no cover
     from .atomcell import AtomCell
 
-    class ColumnNotFoundError(Exception):
-        ...
-else:
-    try:
-        # polars 0.16
-        ColumnNotFoundError = polars.exceptions.ColumnNotFoundError
-    except AttributeError:
-        # polars 0.15
-        ColumnNotFoundError = polars.NotFoundError
-
 
 def _is_abstract(cls: t.Type) -> bool:
     return bool(getattr(cls, "__abstractmethods__", False))
 
 
-def _values_to_series(df: polars.DataFrame, selection: AtomSelection, ty: t.Type[polars.DataType]) -> polars.Series:
-    if isinstance(selection, polars.Series):
-        return selection.cast(ty)
-    if isinstance(selection, polars.Expr):
-        return df.select(selection.cast(ty)).to_series()
-
-    selection = numpy.broadcast_to(selection, len(df))
-    return polars.Series(selection, dtype=ty)
+def _polars_to_numpy_dtype(dtype: t.Type[polars.DataType]) -> numpy.dtype:
+    from polars.datatypes import dtype_to_ctype
+    if dtype == polars.Boolean:
+        return numpy.dtype(numpy.bool_)
+    try:
+        return numpy.dtype(dtype_to_ctype(dtype))
+    except NotImplementedError:
+        return numpy.dtype(object)
 
 
 def _values_to_expr(values: AtomValues, ty: t.Type[polars.DataType]) -> polars.Expr:
@@ -83,29 +100,35 @@ def _values_to_expr(values: AtomValues, ty: t.Type[polars.DataType]) -> polars.E
     if isinstance(values, polars.Series):
         return polars.lit(values, dtype=ty)
     if isinstance(values, t.Mapping):
-        return polars.col('symbol').apply(lambda s: values[s], ty)  # type: ignore
+        return polars.col('symbol').map_dict(dict(values), return_dtype=ty)
     arr = numpy.asarray(values)
-    return polars.lit(polars.Series(arr, dtype=ty) if arr.size > 1 else values)
+    return polars.lit(polars.Series(arr, dtype=ty) if arr.size > 1 else arr[()])
+
+def _values_to_numpy(df: t.Union[polars.DataFrame, HasAtoms], values: AtomValues, ty: t.Type[polars.DataType]) -> numpy.ndarray:
+    if isinstance(values, polars.Expr):
+        values = df.select(values).to_series()
+    elif isinstance(values, t.Mapping):
+        values = polars.col('symbol').map_dict(dict(values), return_dtype=ty)
+    if isinstance(values, polars.Series):
+        if ty == polars.Boolean:
+            # force conversion to numpy (unpacked) bool
+            return values.cast(polars.UInt8).to_numpy().astype(numpy.bool_)
+        return numpy.broadcast_to(values.cast(ty).to_numpy(), len(df))
+
+    dtype = _polars_to_numpy_dtype(ty)
+    return numpy.broadcast_to(numpy.asarray(values, dtype), len(df))
 
 
-def _selection_to_series(df: t.Union[polars.DataFrame, HasAtoms], selection: AtomSelection) -> polars.Series:
-    if isinstance(df, HasAtoms):
-        df = df.get_atoms().inner
-    return _values_to_series(df, selection, ty=polars.Boolean)
-
-
-def _selection_to_expr(selection: AtomSelection) -> polars.Expr:
+def _selection_to_expr(selection: t.Optional[AtomSelection] = None) -> polars.Expr:
+    if selection is None:
+        return polars.lit(True, dtype=polars.Boolean)
     return _values_to_expr(selection, ty=polars.Boolean)
 
 
-def _selection_to_numpy(df: t.Union[polars.DataFrame, HasAtoms], selection: AtomSelection) -> NDArray[numpy.bool_]:
-    series = _selection_to_series(df, selection)
-    try:
-        import pyarrow  # type: ignore
-    except ImportError:
-        # workaround without pyarrow
-        return numpy.array(series.to_list(), dtype=numpy.bool_)
-    return series.to_numpy(zero_copy_only=False)
+def _selection_to_numpy(df: t.Union[polars.DataFrame, HasAtoms], selection: t.Optional[AtomSelection]) -> NDArray[numpy.bool_]:
+    if selection is None:
+        return numpy.full_like(len(df), 1, dtype=numpy.bool_)
+    return _values_to_numpy(df, selection, polars.Boolean)
 
 
 def _select_schema(df: t.Union[polars.DataFrame, HasAtoms], schema: SchemaDict) -> polars.DataFrame:
@@ -117,11 +140,37 @@ def _select_schema(df: t.Union[polars.DataFrame, HasAtoms], schema: SchemaDict) 
             polars.col(col).cast(ty, strict=True)
             for (col, ty) in schema.items()
         ])
-    except (polars.ComputeError, ColumnNotFoundError):
+    except (polars.ComputeError, polars.ColumnNotFoundError):
         raise TypeError(f"Failed to cast '{df.__class__.__name__}' with schema '{df.schema}' to schema '{schema}'.")
 
 
 HasAtomsT = t.TypeVar('HasAtomsT', bound='HasAtoms')
+P = t.ParamSpec('P')
+T = t.TypeVar('T')
+
+
+def _map_unchecked(
+    f: t.Callable[t.Concatenate[HasAtomsT, P], polars.DataFrame]
+) -> t.Callable[t.Concatenate[HasAtomsT, P], HasAtomsT]:
+
+    @wraps(f)
+    def wrapper(self: HasAtomsT, *args: P.args, **kwargs: P.kwargs) -> HasAtomsT:
+        frame = f(self, *args, **kwargs)
+        return self.with_atoms(Atoms(frame, _unchecked=True))
+
+    return wrapper
+
+
+def _frame_delegate(
+    impl_f: t.Callable[t.Concatenate[polars.DataFrame, P], T]
+) -> t.Callable[[t.Callable[t.Concatenate[HasAtomsT, P], t.Any]], t.Callable[t.Concatenate[HasAtomsT, P], T]]:
+    def inner(f: t.Callable[t.Concatenate[HasAtomsT, P], t.Any]) -> t.Callable[t.Concatenate[HasAtomsT, P], T]:
+        @wraps(f)
+        def wrapper(self: HasAtoms, *args: P.args, **kwargs: P.kwargs) -> T:
+            return impl_f(self._get_frame(), *args, **kwargs)
+
+        return wrapper
+    return inner
 
 
 class HasAtoms(abc.ABC):
@@ -154,51 +203,143 @@ class HasAtoms(abc.ABC):
     # dataframe methods
 
     @property
+    @_frame_delegate(lambda df: df.columns)
     def columns(self) -> t.Sequence[str]:
         """Return the columns in `self`."""
-        return self._get_frame().columns
+        ...
 
     @property
+    @_frame_delegate(lambda df: df.dtypes)
+    def dtypes(self) -> t.Sequence[polars.DataType]:
+        """Return the datatypes in `self`."""
+        ...
+
+    @property
+    @_frame_delegate(lambda df: df.schema)
     def schema(self) -> SchemaDict:
         """Return the schema of `self`."""
-        return self._get_frame().schema
+        ...
 
-    def with_column(self: HasAtomsT, column: t.Union[polars.Series, polars.Expr]) -> HasAtomsT:
-        """Return a copy of ``self`` with the given column added."""
-        return self.with_atoms(Atoms(self._get_frame().with_columns((column,)), _unchecked=True))
+    @_frame_delegate(polars.DataFrame.describe)
+    def describe(self, percentiles: t.Union[t.Sequence[float], float, None] = (0.25, 0.5, 0.75)) -> polars.DataFrame:
+        """Return summary statistics for `self`."""
+        ...
 
-    def with_columns(self: HasAtomsT,
-                     exprs: t.Union[t.Literal[None], polars.Series, polars.Expr, t.Sequence[t.Union[polars.Series, polars.Expr]]],
-                     **named_exprs: t.Union[polars.Expr, polars.Series]) -> HasAtomsT:
-        """Return a copy of ``self`` with the given columns added."""
-        return self.with_atoms(Atoms(self._get_frame().with_columns(exprs, **named_exprs), _unchecked=True))
+    @_map_unchecked
+    def with_column(self, column: IntoExpr) -> polars.DataFrame:
+        """Return a copy of `self` with the given column added."""
+        return self._get_frame().with_columns((column,))
 
+    @_map_unchecked
+    def with_columns(self,
+                     exprs: t.Union[IntoExpr, t.Iterable[IntoExpr]],
+                     **named_exprs: IntoExpr) -> polars.DataFrame:
+        """Return a copy of `self` with the given columns added."""
+        return self._get_frame().with_columns(exprs, **named_exprs)
+
+    @_map_unchecked
+    def insert_column(self, index: int, column: polars.Series) -> polars.DataFrame:
+        return self._get_frame().insert_column(index, column)
+
+    @_frame_delegate(polars.DataFrame.get_column)
     def get_column(self, name: str) -> polars.Series:
-        """Get the specified column from ``self``, raising :py:`polars.NotFoundError` if it's not present."""
-        return self._get_frame().get_column(name)
+        """Get the specified column from `self`, raising [`polars.ColumnNotFoundError`][polars.ColumnNotFoundError] if it's not present."""
+        ...
 
-    def filter(self: HasAtomsT, selection: t.Optional[AtomSelection] = None) -> HasAtomsT:
-        """Filter ``self``, removing rows which evaluate to ``False``."""
-        if selection is None:
+    @_frame_delegate(polars.DataFrame.get_columns)
+    def get_columns(self) -> t.List[polars.Series]:
+        ...
+
+    @_frame_delegate(polars.DataFrame.get_column_index)
+    def get_column_index(self, name: str) -> int:
+        """Get the index of a column by name, raising [`polars.ColumnNotFoundError`][polars.ColumnNotFoundError] if it's not present."""
+        ...
+
+    @_frame_delegate(polars.DataFrame.group_by)
+    def group_by(self, by: t.Union[IntoExpr, t.Iterable[IntoExpr]], *more_by: IntoExpr, maintain_order: bool = False):
+        ...
+
+    def pipe(self: HasAtomsT, function: t.Callable[t.Concatenate[HasAtomsT, P], T], *args: P.args, **kwargs: P.kwargs) -> T:
+        """Apply `function` to `self` (in method-call syntax)."""
+        return function(self, *args, **kwargs)
+
+    @_map_unchecked
+    def clone(self) -> polars.DataFrame:
+        """Return a copy of `self`."""
+        return self._get_frame().clone()
+
+    def drop(self, *columns: t.Union[str, t.Iterable[str]]) -> polars.DataFrame:
+        """Return `self` with the specified columns removed."""
+        return self._get_frame().drop(*columns)
+
+    # row-wise operations
+
+    def filter(
+        self: HasAtomsT,
+        *predicates: t.Union[None, IntoExprColumn, t.Iterable[IntoExprColumn], bool, t.List[bool], numpy.ndarray],
+        **constraints: t.Any,
+    ) -> HasAtomsT:
+        """Filter `self`, removing rows which evaluate to `False`."""
+        # TODO clean up
+        preds_not_none: t.Tuple[t.Union[IntoExprColumn, t.Iterable[IntoExprColumn], bool, t.List[bool], numpy.ndarray], ...]
+        preds_not_none = tuple(filter(lambda p: p is not None, predicates))  # type: ignore
+        if not len(preds_not_none) and not len(constraints):
             return self
-        return self.with_atoms(Atoms(self._get_frame().filter(_selection_to_expr(selection)), _unchecked=True))
+        return self.with_atoms(Atoms(self._get_frame().filter(*preds_not_none, **constraints), _unchecked=True))
 
-    def select(self, exprs: t.Union[str, polars.Expr, polars.Series, t.Sequence[t.Union[str, polars.Expr, polars.Series]]]
+    @_map_unchecked
+    def sort(
+        self,
+        by: t.Union[IntoExpr, t.Iterable[IntoExpr]],
+        *more_by: IntoExpr,
+        descending: t.Union[bool, t.Sequence[bool]] = False,
+        nulls_last: bool = False,
     ) -> polars.DataFrame:
         """
-        Select ``exprs`` from ``self``, and return as a :py:class:`polars.DataFrame`.
-
-        Expressions may either be columns or expressions of columns.
+        Sort the atoms in `self` by the given columns/expressions.
         """
-        return self._get_frame().select(exprs)
+        return self._get_frame().sort(
+            by, *more_by, descending=descending, nulls_last=nulls_last
+        )
 
-    def sort(self: HasAtomsT, by: t.Union[str, polars.Expr, t.List[str], t.List[polars.Expr]], descending: t.Union[bool, t.List[bool]] = False) -> HasAtomsT:
-        return self.with_atoms(Atoms(self._get_frame().sort(by, descending=descending), _unchecked=True))
+    @_map_unchecked
+    def slice(self, offset: int, length: t.Optional[int] = None) -> polars.DataFrame:
+        """Return a slice of the rows in `self`."""
+        return self._get_frame().slice(offset, length)
+
+    @_map_unchecked
+    def head(self, n: int = 5) -> polars.DataFrame:
+        """Return the first `n` rows of `self`."""
+        return self._get_frame().head(n)
+
+    @_map_unchecked
+    def tail(self, n: int = 5) -> polars.DataFrame:
+        """Return the last `n` rows of `self`."""
+        return self._get_frame().tail(n)
+
+    @_map_unchecked
+    def drop_nulls(self, subset: t.Union[str, t.Collection[str], None] = None) -> polars.DataFrame:
+        """Drop rows that contain nulls in any of columns `subset`."""
+        return self._get_frame().drop_nulls(subset)
+
+    @_map_unchecked
+    def fill_null(
+        self, value: t.Any = None, strategy: t.Optional[FillNullStrategy] = None,
+        limit: t.Optional[int] = None, matches_supertype: bool = True,
+    ) -> polars.DataFrame:
+        """Fill null values in `self`, using the specified value or strategy."""
+        return self._get_frame().fill_null(value, strategy, limit, matches_supertype=matches_supertype)
+
+    @_map_unchecked
+    def fill_nan(self, value: t.Union[polars.Expr, int, float, None]) -> polars.DataFrame:
+        """Fill floating-point NaN values in `self`."""
+        return self._get_frame().fill_nan(value)
 
     @classmethod
     def concat(cls: t.Type[HasAtomsT],
                atoms: t.Union[HasAtomsT, IntoAtoms, t.Iterable[t.Union[HasAtomsT, IntoAtoms]]], *,
                rechunk: bool = True, how: ConcatMethod = 'vertical') -> HasAtomsT:
+        """Concatenate multiple `Atoms` together, handling metadata appropriately."""
         # this method is tricky. It needs to accept raw Atoms, as well as HasAtoms of the
         # same type as ``cls``.
         if _is_abstract(cls):
@@ -227,33 +368,83 @@ class HasAtoms(abc.ABC):
 
         return representative.with_atoms(Atoms(polars.concat(dfs, rechunk=rechunk, how=how)), 'local')
 
+    @t.overload
+    def partition_by(
+        self: HasAtomsT, by: t.Union[str, t.Sequence[str]], *more_by: str,
+        maintain_order: bool = True, include_key: bool = True, as_dict: t.Literal[False] = False
+    ) -> t.List[HasAtomsT]:
+        ...
+
+    @t.overload
+    def partition_by(
+        self: HasAtomsT, by: t.Union[str, t.Sequence[str]], *more_by: str,
+        maintain_order: bool = True, include_key: bool = True, as_dict: t.Literal[True] = ...
+    ) -> t.Dict[t.Any, HasAtomsT]:
+        ...
+
+    def partition_by(
+        self: HasAtomsT, by: t.Union[str, t.Sequence[str]], *more_by: str,
+        maintain_order: bool = True, include_key: bool = True, as_dict: bool = False
+    ) -> t.Union[t.List[HasAtomsT], t.Dict[t.Any, HasAtomsT]]:
+        """
+        Group by the given columns and partition into separate dataframes.
+
+        Return the partitions as a dictionary by specifying `as_dict=True`.
+        """
+        if as_dict:
+            d = self._get_frame().partition_by(by, *more_by, maintain_order=maintain_order, include_key=include_key, as_dict=True)
+            return {k: self.with_atoms(Atoms(df, _unchecked=True)) for (k, df) in d.items()}
+
+        return [
+            self.with_atoms(Atoms(df, _unchecked=True))
+            for df in self._get_frame().partition_by(by, *more_by, maintain_order=maintain_order, include_key=include_key, as_dict=False)
+        ]
+
+    # column-wise operations
+
+    @_frame_delegate(polars.DataFrame.select)
+    def select(
+        self,
+        *exprs: t.Union[IntoExpr, t.Iterable[IntoExpr]],
+        **named_exprs: IntoExpr,
+    ):
+        """
+        Select `exprs` from `self`, and return as a `polars.DataFrame`.
+
+        Expressions may either be columns or expressions of columns.
+        """
+        ...
+
     # some helpers we add
 
     def select_schema(self, schema: SchemaDict) -> polars.DataFrame:
         """
-        Select columns from ``self`` and cast to the given schema.
-        Raises :py:`TypeError` if a column is not found or if it can't be cast.
+        Select columns from `self` and cast to the given schema.
+        Raises `TypeError` if a column is not found or if it can't be cast.
         """
         return _select_schema(self, schema)
 
-    def try_select(self, exprs: t.Union[str, polars.Expr, polars.Series, t.Sequence[t.Union[str, polars.Expr, polars.Series]]]
+    def try_select(
+        self,
+        *exprs: t.Union[IntoExpr, t.Iterable[IntoExpr]],
+        **named_exprs: IntoExpr,
     ) -> t.Optional[polars.DataFrame]:
         """
-        Try to select ``exprs`` from ``self``, and return as a ``DataFrame``.
+        Try to select `exprs` from `self`, and return as a `DataFrame`.
 
         Expressions may either be columns or expressions of columns.
-        Return ``None`` if any columns are missing.
+        Return `None` if any columns are missing.
         """
         try:
-            return self._get_frame().select(exprs)
-        except ColumnNotFoundError:
+            return self._get_frame().select(*exprs, **named_exprs)
+        except polars.ColumnNotFoundError:
             return None
 
     def try_get_column(self, name: str) -> t.Optional[polars.Series]:
         """Try to get a column from `self`, returning `None` if it doesn't exist."""
         try:
             return self.get_column(name)
-        except ColumnNotFoundError:
+        except polars.ColumnNotFoundError:
             return None
 
     def assert_equal(self, other: t.Any):
@@ -264,13 +455,15 @@ class HasAtoms(abc.ABC):
 
     # dunders
 
+    @_frame_delegate(polars.DataFrame.__len__)
     def __len__(self) -> int:
         """Return the number of atoms in `self`."""
-        return self._get_frame().__len__()
+        ...
 
-    def __contains__(self, col: str) -> bool:
+    @_frame_delegate(polars.DataFrame.__contains__)
+    def __contains__(self, key: str) -> bool:
         """Return whether `self` contains the given column."""
-        return col in self.columns
+        ...
 
     def __add__(self: HasAtomsT, other: IntoAtoms) -> HasAtomsT:
         return self.__class__.concat((self, other), how='inner')
@@ -279,6 +472,14 @@ class HasAtoms(abc.ABC):
         return self.__class__.concat((other, self), how='inner')
 
     __getitem__ = get_column
+
+    @_frame_delegate(polars.DataFrame.__dataframe__)
+    def __dataframe__(self, nan_as_null: bool = False, allow_copy: bool = True) -> polars.interchange.dataframe.PolarsDataFrame:
+        ...
+
+    @_frame_delegate(polars.DataFrame.__dataframe_consortium_standard__)
+    def __dataframe_consortium_standard__(self, *, api_version: t.Optional[str] = None) -> t.Any:
+        ...
 
     # atoms-specific methods
 
@@ -294,7 +495,7 @@ class HasAtoms(abc.ABC):
         If `selection` is given, only transform the atoms in `selection`.
         """
         transform = Transform3D.make(transform)
-        selection = map_some(lambda s: _selection_to_series(self, s), selection)
+        selection = _selection_to_numpy(self, selection)
         transformed = self.with_coords(Transform3D.make(transform) @ self.coords(selection), selection)
         # try to transform velocities as well
         if transform_velocities and (velocities := self.velocities(selection)) is not None:
@@ -320,9 +521,9 @@ class HasAtoms(abc.ABC):
         """
 
         return self.filter(
-            (polars.col('x') >= x_min) & (polars.col('x') <= x_max) &
-            (polars.col('y') >= y_min) & (polars.col('y') <= y_max) &
-            (polars.col('z') >= z_min) & (polars.col('z') <= z_max)
+            polars.col('x') >= x_min, polars.col('x') <= x_max,
+            polars.col('y') >= y_min, polars.col('y') <= y_max,
+            polars.col('z') >= z_min, polars.col('z') <= z_max
         )
 
     crop_atoms = crop
@@ -399,23 +600,25 @@ class HasAtoms(abc.ABC):
     # property getters and setters
 
     def coords(self, selection: t.Optional[AtomSelection] = None) -> NDArray[numpy.float64]:
-        """Returns a (N, 3) ndarray of atom coordinates (dtype `numpy.float64`)."""
+        """Return a `(N, 3)` ndarray of atom coordinates (dtype [`numpy.float64`][numpy.float64])."""
         # TODO find a way to get a view
-        return self.filter(selection).select(('x', 'y', 'z')).to_numpy().astype(numpy.float64)
+        return self._get_frame().lazy().filter(_selection_to_expr(selection)) \
+            .select(('x', 'y', 'z')).collect(_eager=True).to_numpy().astype(numpy.float64)
 
     def velocities(self, selection: t.Optional[AtomSelection] = None) -> t.Optional[NDArray[numpy.float64]]:
-        """Returns a (N, 3) ndarray of atom velocities (dtype `numpy.float64`)."""
-        if selection is not None:
-            self = self.filter(selection)
-        return map_some(lambda df: df.to_numpy().astype(numpy.float64),
-                        self.try_select(('v_x', 'v_y', 'v_z')))
+        """Return a `(N, 3)` ndarray of atom velocities (dtype [`numpy.float64`][numpy.float64])."""
+        if not all(c in self for c in ('v_x', 'v_y', 'v_z')):
+            return None
+
+        return self._get_frame().lazy().filter(_selection_to_expr(selection)) \
+            .select(('v_x', 'v_y', 'v_z')).collect(_eager=True).to_numpy().astype(numpy.float64)
 
     def types(self) -> t.Optional[polars.Series]:
-        """Returns a `Series` of atom types (dtype polars.Int32)."""
+        """Returns a [`Series`][polars.Series] of atom types (dtype [`polars.Int32`][polars.Int32])."""
         return self.try_get_column('type')
 
     def masses(self) -> t.Optional[polars.Series]:
-        """Returns a `Series` of atom masses (dtype polars.Float32)."""
+        """Returns a [`Series`][polars.Series] of atom masses (dtype [`polars.Float32`][polars.Float32])."""
         return self.try_get_column('mass')
 
     @t.overload
@@ -436,11 +639,11 @@ class HasAtoms(abc.ABC):
                  z: t.Optional[float] = None,
                  **kwargs: t.Any) -> HasAtomsT:
         """
-        Return a copy of ``self`` with an extra atom.
+        Return a copy of `self` with an extra atom.
 
-        By default, all extra columns present in ``self`` must be specified as ``**kwargs``.
+        By default, all extra columns present in `self` must be specified as `**kwargs`.
 
-        Try to avoid calling this in a loop (Use :function:`Atoms.concat` instead).
+        Try to avoid calling this in a loop (Use [`HasAtoms.concat`][atomlib.atoms.HasAtoms.concat] instead).
         """
         if isinstance(elem, int):
             kwargs.update(elem=elem)
@@ -636,9 +839,9 @@ class HasAtoms(abc.ABC):
 
         pts = numpy.broadcast_to(pts, (len(self), 3))
         return self.with_columns((
-            polars.Series(pts[:, 0], dtype=polars.Float64).alias('x'),
-            polars.Series(pts[:, 1], dtype=polars.Float64).alias('y'),
-            polars.Series(pts[:, 2], dtype=polars.Float64).alias('z'),
+            polars.Series('x', pts[:, 0], polars.Float64),
+            polars.Series('y', pts[:, 1], polars.Float64),
+            polars.Series('z', pts[:, 2], polars.Float64),
         ))
 
     def with_velocity(self: HasAtomsT, pts: t.Optional[ArrayLike] = None,
@@ -654,19 +857,18 @@ class HasAtoms(abc.ABC):
         else:
             pts = numpy.broadcast_to(pts, (len(self), 3))
 
-        if selection is None:
-            return self.with_columns((
-                polars.Series(pts[:, 0], dtype=polars.Float64).alias('v_x'),
-                polars.Series(pts[:, 1], dtype=polars.Float64).alias('v_y'),
-                polars.Series(pts[:, 2], dtype=polars.Float64).alias('v_z'),
-            ))
+        series = (
+            polars.Series('v_x', pts[:, 0], polars.Float64),
+            polars.Series('v_y', pts[:, 1], polars.Float64),
+            polars.Series('v_z', pts[:, 2], polars.Float64),
+        )
 
-        selection = _selection_to_series(self, selection)
-        return self.__class__(self.with_columns((
-            self['v_x'].set_at_idx(selection, pts[:, 0]),  # type: ignore
-            self['v_y'].set_at_idx(selection, pts[:, 1]),  # type: ignore
-            self['v_z'].set_at_idx(selection, pts[:, 2]),  # type: ignore
-        )))
+        sel = _selection_to_expr(selection)
+
+        return self.with_columns((
+            polars.when(sel).then(s).otherwise(polars.col(s.name)) if s.name in self else s
+            for s in series
+        ))
 
 
 class Atoms(AtomsIOMixin, HasAtoms):
@@ -687,7 +889,7 @@ class Atoms(AtomsIOMixin, HasAtoms):
     - frac_occupancy: Fractional occupancy, [0., 1.]
     - mass: Atomic mass, in g/mol (approx. Da)
     - v_[xyz]: Atom velocities, dimensions of length/time
-    - atom_type: Numeric atom type, as used by programs like LAMMPS
+    - type: Numeric atom type, as used by programs like LAMMPS
     """
 
     def __init__(self, data: t.Optional[IntoAtoms] = None, columns: t.Optional[t.Sequence[str]] = None,
@@ -782,24 +984,6 @@ class Atoms(AtomsIOMixin, HasAtoms):
     def _repr_pretty_(self, p, cycle: bool) -> None:
         p.text('Atoms(...)') if cycle else p.text(str(self))
 
-
-IntoAtoms = t.Union[t.Dict[str, t.Sequence[t.Any]], t.Sequence[t.Any], numpy.ndarray, polars.DataFrame, Atoms]
-"""
-A type convertible into an `Atoms`.
-"""
-
-
-AtomSelection = t.Union[polars.Series, polars.Expr, ArrayLike]
-"""
-Polars expression selecting a subset of atoms from an Atoms.
-Can be used with many Atoms methods.
-"""
-
-AtomValues = t.Union[polars.Series, polars.Expr, ArrayLike, t.Mapping[str, t.Any]]
-"""
-Array, value, or polars expression mapping atoms to values.
-Can be used with `with_*` methods on Atoms
-"""
 
 __all__ = [
     'Atoms', 'HasAtoms', 'IntoAtoms', 'AtomSelection', 'AtomValues',
