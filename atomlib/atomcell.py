@@ -20,7 +20,7 @@ from .bbox import BBox3D
 from .types import VecLike, to_vec3, ParamSpec
 from .transform import LinearTransform3D, AffineTransform3D, Transform3D, IntoTransform3D
 from .cell import CoordinateFrame, HasCell, Cell
-from .atoms import HasAtoms, Atoms, IntoAtoms, AtomSelection, AtomValues
+from .atoms import HasAtoms, Atoms, IntoAtoms, AtomSelection, AtomValues, IntoExpr, IntoExprColumn
 
 # pyright: reportImportCycles=false
 from .mixins import AtomCellIOMixin
@@ -312,24 +312,34 @@ class HasAtomCell(HasAtoms, HasCell, abc.ABC):
     # add frame to some HasAtoms methods
 
     @_fwd_atoms_transform
-    def filter(self: HasAtomCellT, selection: t.Optional[AtomSelection] = None, *,
-               frame: t.Optional[CoordinateFrame] = None) -> HasAtomCellT:
-        """Filter ``self``, removing rows which evaluate to ``False``."""
+    def filter(
+        self: HasAtomCellT,
+        *predicates: t.Union[None, IntoExprColumn, t.Iterable[IntoExprColumn], bool, t.List[bool], numpy.ndarray],
+        frame: t.Optional[CoordinateFrame] = None,
+        **constraints: t.Any,
+    ) -> HasAtomCellT:
+        """Filter `self`, removing rows which evaluate to `False`."""
         ...
 
     @_fwd_atoms_get
-    def select(self, exprs: t.Union[str, polars.Expr, polars.Series, t.Sequence[t.Union[str, polars.Expr, polars.Series]]], *,
-               frame: t.Optional[CoordinateFrame] = None) -> polars.DataFrame:
+    def select(
+        self, *exprs: t.Union[IntoExpr, t.Iterable[IntoExpr]],
+        frame: t.Optional[CoordinateFrame] = None,
+        **named_exprs: IntoExpr
+    ) -> polars.DataFrame:
         """
-        Select ``exprs`` from ``self``, and return as a :py:class:`polars.DataFrame`.
+        Select ``exprs`` from ``self``, and return as a `polars.DataFrame`.
 
         Expressions may either be columns or expressions of columns.
         """
         ...
 
     @_fwd_atoms_get
-    def try_select(self, exprs: t.Union[str, polars.Expr, polars.Series, t.Sequence[t.Union[str, polars.Expr, polars.Series]]], *,
-                   frame: t.Optional[CoordinateFrame] = None) -> t.Optional[polars.DataFrame]:
+    def try_select(
+        self, *exprs: t.Union[IntoExpr, t.Iterable[IntoExpr]],
+        frame: t.Optional[CoordinateFrame] = None,
+        **named_exprs: IntoExpr
+    ) -> t.Optional[polars.DataFrame]:
         """
         Try to select ``exprs`` from ``self``, and return as a :py:class:`polars.DataFrame`.
 
@@ -339,21 +349,26 @@ class HasAtomCell(HasAtoms, HasCell, abc.ABC):
         ...
 
     @_fwd_atoms_transform
-    def sort(self: HasAtomCellT, by: t.Union[str, polars.Expr, t.List[str], t.List[polars.Expr]],
-             descending: t.Union[bool, t.List[bool]] = False, *,
-             frame: t.Optional[CoordinateFrame] = None) -> HasAtomCellT:
+    def sort(
+        self: HasAtomCellT,
+        by: t.Union[IntoExpr, t.Iterable[IntoExpr]],
+        *more_by: IntoExpr,
+        descending: t.Union[bool, t.Sequence[bool]] = False,
+        nulls_last: bool = False,
+        frame: t.Optional[CoordinateFrame] = None,
+    ) -> HasAtomCellT:
         ...
 
     @_fwd_atoms_transform
-    def with_column(self: HasAtomCellT, column: t.Union[polars.Series, polars.Expr], *,
+    def with_column(self: HasAtomCellT, column: IntoExpr,
                     frame: t.Optional[CoordinateFrame] = None) -> HasAtomCellT:
         """Return a copy of ``self`` with the given column added."""
         ...
 
     def with_columns(self: HasAtomCellT,
-                     exprs: t.Union[t.Literal[None], polars.Series, polars.Expr, t.Sequence[t.Union[polars.Series, polars.Expr]]], *,
+                     exprs: t.Union[IntoExpr, t.Iterable[IntoExpr]],
                      frame: t.Optional[CoordinateFrame] = None,
-                     **named_exprs: t.Union[polars.Expr, polars.Series]) -> HasAtomCellT:
+                     **named_exprs: IntoExpr) -> HasAtomCellT:
         """Return a copy of ``self`` with the given columns added."""
         ...
 

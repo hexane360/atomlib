@@ -17,7 +17,6 @@ import abc
 import typing as t
 
 import numpy
-import scipy.spatial
 from numpy.typing import ArrayLike, NDArray
 import polars
 import polars.datatypes
@@ -542,6 +541,7 @@ class HasAtoms(abc.ABC):
         If `subset` is specified, only those columns will be included while assessing duplicates.
         Floating point columns other than 'x', 'y', and 'z' will not by toleranced.
         """
+        import scipy.spatial
 
         cols = set((subset,) if isinstance(subset, str) else subset)
 
