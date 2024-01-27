@@ -139,6 +139,28 @@ def test_add_atom():
         atoms.add_atom(1, [4., 5., 6.])
 
 
+def test_with_props():
+    atoms = Atoms({
+        'x': [0., 1.],
+        'y': [1., 2.],
+        'z': [0., 3.],
+        'elem': [1, 5],
+        'symbol': ['H', 'B'],
+        'type': [1, 2],
+        'prop1': [1., 2.],
+    })
+
+    atoms.select_props(polars.col('prop1'), prop2=polars.Series([2., 3.])).assert_equal(Atoms({
+        'x': [0., 1.],
+        'y': [1., 2.],
+        'z': [0., 3.],
+        'elem': [1, 5],
+        'symbol': ['H', 'B'],
+        'prop1': [1., 2.],
+        'prop2': [2., 3.]
+    }))
+
+
 def test_coords():
     frame = Atoms({
         'x': [0., 1., -1., -3.],

@@ -15,12 +15,14 @@ import typing as t
 import numpy
 from numpy.typing import NDArray, ArrayLike
 import polars
+import polars.dataframe.group_by
 
 from .bbox import BBox3D
-from .types import VecLike, to_vec3, ParamSpec
+from .types import VecLike, to_vec3, ParamSpec, Concatenate
 from .transform import LinearTransform3D, AffineTransform3D, Transform3D, IntoTransform3D
 from .cell import CoordinateFrame, HasCell, Cell
-from .atoms import HasAtoms, Atoms, IntoAtoms, AtomSelection, AtomValues, IntoExpr, IntoExprColumn
+from .atoms import HasAtoms, Atoms, IntoAtoms, AtomSelection, AtomValues
+from .atoms import IntoExpr, IntoExprColumn, FillNullStrategy
 
 # pyright: reportImportCycles=false
 from .mixins import AtomCellIOMixin
@@ -33,7 +35,7 @@ T = t.TypeVar('T')
 
 
 def _fwd_atoms_get(f: t.Callable[P, T]) -> t.Callable[P, T]:
-    """Forward getter method on :py:`HasAtomCell` to method on :py:`HasAtoms`"""
+    """Forward getter method on `HasAtomCell` to method on `HasAtoms`"""
     def inner(self, *args, frame: t.Optional[CoordinateFrame] = None, **kwargs):
         return getattr(self.get_atoms(frame), f.__name__)(*args, **kwargs)
 
@@ -41,7 +43,7 @@ def _fwd_atoms_get(f: t.Callable[P, T]) -> t.Callable[P, T]:
 
 
 def _fwd_atoms_transform(f: t.Callable[P, T]) -> t.Callable[P, T]:
-    """Forward transformation method on :py:`HasAtomCell` to method on :py:`HasAtoms`"""
+    """Forward transformation method on `HasAtomCell` to method on `HasAtoms`"""
     def inner(self, *args, frame: t.Optional[CoordinateFrame] = None, **kwargs):
         return self.with_atoms(self._transform_atoms_in_frame(frame, lambda atoms: getattr(atoms, f.__name__)(*args, **kwargs)))
 
@@ -135,7 +137,7 @@ class HasAtomCell(HasAtoms, HasCell, abc.ABC):
         cell, this must be specified in cell coordinates. This
         function implicity `explode`s the cell as well.
 
-        To crop atoms only, use :py:meth:`crop_atoms` instead.
+        To crop atoms only, use `crop_atoms` instead.
         """
 
         cell = self.get_cell().crop(x_min, x_max, y_min, y_max, z_min, z_max, frame=frame)
@@ -156,17 +158,6 @@ class HasAtomCell(HasAtoms, HasCell, abc.ABC):
     def wrap(self: HasAtomCellT, eps: float = 1e-5) -> HasAtomCellT:
         """Wrap atoms around the cell boundaries."""
         return self.with_atoms(self._transform_atoms_in_frame('cell_box', lambda a: a._wrap(eps)))
-
-    """
-    def explode(self: HasAtomCellT) -> HasAtomCellT:
-        \"""
-        Forget any cell repetitions.
-
-        Afterwards, ``self.explode().cell.cell_size == self.cell.box_size``.
-        \"""
-        # when we explode, we need to make sure atoms aren't stored in cell coordinates
-        return self.to_frame('local').with_cell(self.get_cell().explode())
-    """
 
     def _repeat_to_contain(self: HasAtomCellT, pts: numpy.ndarray, pad: int = 0, frame: CoordinateFrame = 'cell_frac') -> HasAtomCellT:
         #print(f"pts: {pts} in frame {frame}")
@@ -311,6 +302,46 @@ class HasAtomCell(HasAtoms, HasCell, abc.ABC):
 
     # add frame to some HasAtoms methods
 
+    @_fwd_atoms_get
+    def describe(self, percentiles: t.Union[t.Sequence[float], float, None] = (0.25, 0.5, 0.75), *,
+                 frame: t.Optional[CoordinateFrame] = None) -> polars.DataFrame:
+        """Return summary statistics for `self`."""
+        ...
+
+    @_fwd_atoms_transform
+    def with_column(self: HasAtomCellT, column: IntoExpr,
+                    frame: t.Optional[CoordinateFrame] = None) -> HasAtomCellT:
+        """Return a copy of ``self`` with the given column added."""
+        ...
+
+    @_fwd_atoms_transform
+    def with_columns(self: HasAtomCellT,
+                     exprs: t.Union[IntoExpr, t.Iterable[IntoExpr]],
+                     frame: t.Optional[CoordinateFrame] = None,
+                     **named_exprs: IntoExpr) -> HasAtomCellT:
+        """Return a copy of ``self`` with the given columns added."""
+        ...
+
+    @_fwd_atoms_get
+    def get_column(self, name: str, *, frame: t.Optional[CoordinateFrame] = None) -> polars.Series:
+        """Get the specified column from `self`, raising [`polars.ColumnNotFoundError`][polars.ColumnNotFoundError] if it's not present."""
+        ...
+
+    @_fwd_atoms_get
+    def get_columns(self, *, frame: t.Optional[CoordinateFrame] = None) -> t.List[polars.Series]:
+        ...
+
+    @_fwd_atoms_get
+    def group_by(
+        self, by: t.Union[IntoExpr, t.Iterable[IntoExpr]], *more_by: IntoExpr,
+        frame: t.Optional[CoordinateFrame] = None, maintain_order: bool = False
+    ) -> polars.dataframe.group_by.GroupBy:
+        ...
+
+    def pipe(self: HasAtomCellT, function: t.Callable[Concatenate[HasAtomCellT, P], T], *args: P.args, **kwargs: P.kwargs) -> T:
+        """Apply `function` to `self` (in method-call syntax)."""
+        return function(self, *args, **kwargs)
+
     @_fwd_atoms_transform
     def filter(
         self: HasAtomCellT,
@@ -320,6 +351,49 @@ class HasAtomCell(HasAtoms, HasCell, abc.ABC):
     ) -> HasAtomCellT:
         """Filter `self`, removing rows which evaluate to `False`."""
         ...
+
+    @_fwd_atoms_transform
+    def sort(
+        self: HasAtomCellT,
+        by: t.Union[IntoExpr, t.Iterable[IntoExpr]],
+        *more_by: IntoExpr,
+        descending: t.Union[bool, t.Sequence[bool]] = False,
+        nulls_last: bool = False,
+    ) -> HasAtomCellT:
+        """
+        Sort the atoms in `self` by the given columns/expressions.
+        """
+        ...
+
+    @_fwd_atoms_transform
+    def slice(self: HasAtomCellT, offset: int, length: t.Optional[int] = None, *,
+              frame: t.Optional[CoordinateFrame] = None) -> HasAtomCellT:
+        """Return a slice of the rows in `self`."""
+        ...
+
+    @_fwd_atoms_transform
+    def head(self: HasAtomCellT, n: int = 5, *, frame: t.Optional[CoordinateFrame] = None) -> HasAtomCellT:
+        """Return the first `n` rows of `self`."""
+        ...
+
+    @_fwd_atoms_transform
+    def tail(self: HasAtomCellT, n: int = 5, *, frame: t.Optional[CoordinateFrame] = None) -> HasAtomCellT:
+        """Return the last `n` rows of `self`."""
+        ...
+
+    @_fwd_atoms_transform
+    def fill_null(
+        self: HasAtomCellT, value: t.Any = None, strategy: t.Optional[FillNullStrategy] = None,
+        limit: t.Optional[int] = None, matches_supertype: bool = True,
+    ) -> HasAtomCellT:
+        ...
+
+    @_fwd_atoms_transform
+    def fill_nan(self: HasAtomCellT, value: t.Union[polars.Expr, int, float, None], *,
+                 frame: t.Optional[CoordinateFrame] = None) -> HasAtomCellT:
+        ...
+
+    # TODO: partition_by
 
     @_fwd_atoms_get
     def select(
@@ -331,6 +405,20 @@ class HasAtomCell(HasAtoms, HasCell, abc.ABC):
         Select ``exprs`` from ``self``, and return as a `polars.DataFrame`.
 
         Expressions may either be columns or expressions of columns.
+        """
+        ...
+
+    @_fwd_atoms_transform
+    def select_props(
+        self: HasAtomCellT,
+        *exprs: t.Union[IntoExpr, t.Iterable[IntoExpr]],
+        frame: t.Optional[CoordinateFrame] = None,
+        **named_exprs: IntoExpr
+    ) -> HasAtomCellT:
+        """
+        Select `exprs` from `self`, while keeping required columns.
+
+        Returns a HasAtoms.
         """
         ...
 
@@ -346,30 +434,6 @@ class HasAtomCell(HasAtoms, HasCell, abc.ABC):
         Expressions may either be columns or expressions of columns.
         Return ``None`` if any columns are missing.
         """
-        ...
-
-    @_fwd_atoms_transform
-    def sort(
-        self: HasAtomCellT,
-        by: t.Union[IntoExpr, t.Iterable[IntoExpr]],
-        *more_by: IntoExpr,
-        descending: t.Union[bool, t.Sequence[bool]] = False,
-        nulls_last: bool = False,
-        frame: t.Optional[CoordinateFrame] = None,
-    ) -> HasAtomCellT:
-        ...
-
-    @_fwd_atoms_transform
-    def with_column(self: HasAtomCellT, column: IntoExpr,
-                    frame: t.Optional[CoordinateFrame] = None) -> HasAtomCellT:
-        """Return a copy of ``self`` with the given column added."""
-        ...
-
-    def with_columns(self: HasAtomCellT,
-                     exprs: t.Union[IntoExpr, t.Iterable[IntoExpr]],
-                     frame: t.Optional[CoordinateFrame] = None,
-                     **named_exprs: IntoExpr) -> HasAtomCellT:
-        """Return a copy of ``self`` with the given columns added."""
         ...
 
     @_fwd_atoms_transform

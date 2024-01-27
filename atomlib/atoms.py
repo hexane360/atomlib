@@ -19,6 +19,7 @@ import typing as t
 import numpy
 from numpy.typing import ArrayLike, NDArray
 import polars
+import polars.dataframe.group_by
 import polars.datatypes
 import polars.interchange.dataframe
 import polars.testing
@@ -46,6 +47,7 @@ _COLUMN_DTYPES: t.Mapping[str, t.Type[polars.DataType]] = {
     'frac_occupancy': polars.Float64,
     'type': polars.Int32,
 }
+_REQUIRED_COLUMNS: t.Tuple[str, ...] = ('x', 'y', 'z', 'elem', 'symbol')
 
 SchemaDict: TypeAlias = OrderedDict[str, polars.DataType]
 IntoExprColumn: TypeAlias = polars.type_aliases.IntoExprColumn
@@ -54,12 +56,10 @@ UniqueKeepStrategy: TypeAlias = polars.type_aliases.UniqueKeepStrategy
 FillNullStrategy: TypeAlias = polars.type_aliases.FillNullStrategy
 ConcatMethod: TypeAlias = t.Literal['horizontal', 'vertical', 'diagonal', 'inner', 'align']
 
-
 IntoAtoms = t.Union[t.Dict[str, t.Sequence[t.Any]], t.Sequence[t.Any], numpy.ndarray, polars.DataFrame, 'Atoms']
 """
 A type convertible into an `Atoms`.
 """
-
 
 AtomSelection = t.Union[IntoExprColumn, NDArray[numpy.bool_], ArrayLike, t.Mapping[str, t.Any]]
 """
@@ -72,7 +72,6 @@ AtomValues = t.Union[IntoExprColumn, NDArray[numpy.generic], ArrayLike, t.Mappin
 Array, value, or polars expression mapping atom symbols to values.
 Can be used with `with_*` methods on Atoms
 """
-
 
 # pyright: reportImportCycles=false
 if t.TYPE_CHECKING:  # pragma: no cover
@@ -148,7 +147,7 @@ P = ParamSpec('P')
 T = t.TypeVar('T')
 
 
-def _map_unchecked(
+def _fwd_frame_map(
     f: t.Callable[Concatenate[HasAtomsT, P], polars.DataFrame]
 ) -> t.Callable[Concatenate[HasAtomsT, P], HasAtomsT]:
 
@@ -160,7 +159,7 @@ def _map_unchecked(
     return wrapper
 
 
-def _frame_delegate(
+def _fwd_frame(
     impl_f: t.Callable[Concatenate[polars.DataFrame, P], T]
 ) -> t.Callable[[t.Callable[Concatenate[HasAtomsT, P], t.Any]], t.Callable[Concatenate[HasAtomsT, P], T]]:
     def inner(f: t.Callable[Concatenate[HasAtomsT, P], t.Any]) -> t.Callable[Concatenate[HasAtomsT, P], T]:
@@ -202,67 +201,67 @@ class HasAtoms(abc.ABC):
     # dataframe methods
 
     @property
-    @_frame_delegate(lambda df: df.columns)
+    @_fwd_frame(lambda df: df.columns)
     def columns(self) -> t.Sequence[str]:
         """Return the columns in `self`."""
         ...
 
     @property
-    @_frame_delegate(lambda df: df.dtypes)
+    @_fwd_frame(lambda df: df.dtypes)
     def dtypes(self) -> t.Sequence[polars.DataType]:
         """Return the datatypes in `self`."""
         ...
 
     @property
-    @_frame_delegate(lambda df: df.schema)
+    @_fwd_frame(lambda df: df.schema)
     def schema(self) -> SchemaDict:
         """Return the schema of `self`."""
         ...
 
-    @_frame_delegate(polars.DataFrame.describe)
+    @_fwd_frame(polars.DataFrame.describe)
     def describe(self, percentiles: t.Union[t.Sequence[float], float, None] = (0.25, 0.5, 0.75)) -> polars.DataFrame:
         """Return summary statistics for `self`."""
         ...
 
-    @_map_unchecked
+    @_fwd_frame_map
     def with_column(self, column: IntoExpr) -> polars.DataFrame:
         """Return a copy of `self` with the given column added."""
         return self._get_frame().with_columns((column,))
 
-    @_map_unchecked
+    @_fwd_frame_map
     def with_columns(self,
                      exprs: t.Union[IntoExpr, t.Iterable[IntoExpr]],
                      **named_exprs: IntoExpr) -> polars.DataFrame:
         """Return a copy of `self` with the given columns added."""
         return self._get_frame().with_columns(exprs, **named_exprs)
 
-    @_map_unchecked
+    @_fwd_frame_map
     def insert_column(self, index: int, column: polars.Series) -> polars.DataFrame:
         return self._get_frame().insert_column(index, column)
 
-    @_frame_delegate(polars.DataFrame.get_column)
+    @_fwd_frame(polars.DataFrame.get_column)
     def get_column(self, name: str) -> polars.Series:
         """Get the specified column from `self`, raising [`polars.ColumnNotFoundError`][polars.ColumnNotFoundError] if it's not present."""
         ...
 
-    @_frame_delegate(polars.DataFrame.get_columns)
+    @_fwd_frame(polars.DataFrame.get_columns)
     def get_columns(self) -> t.List[polars.Series]:
         ...
 
-    @_frame_delegate(polars.DataFrame.get_column_index)
+    @_fwd_frame(polars.DataFrame.get_column_index)
     def get_column_index(self, name: str) -> int:
         """Get the index of a column by name, raising [`polars.ColumnNotFoundError`][polars.ColumnNotFoundError] if it's not present."""
         ...
 
-    @_frame_delegate(polars.DataFrame.group_by)
-    def group_by(self, by: t.Union[IntoExpr, t.Iterable[IntoExpr]], *more_by: IntoExpr, maintain_order: bool = False):
+    @_fwd_frame(polars.DataFrame.group_by)
+    def group_by(self, by: t.Union[IntoExpr, t.Iterable[IntoExpr]], *more_by: IntoExpr, maintain_order: bool = False) -> polars.dataframe.group_by.GroupBy:
         ...
 
     def pipe(self: HasAtomsT, function: t.Callable[Concatenate[HasAtomsT, P], T], *args: P.args, **kwargs: P.kwargs) -> T:
         """Apply `function` to `self` (in method-call syntax)."""
         return function(self, *args, **kwargs)
 
-    @_map_unchecked
+    @_fwd_frame_map
     def clone(self) -> polars.DataFrame:
         """Return a copy of `self`."""
         return self._get_frame().clone()
@@ -286,7 +285,7 @@ class HasAtoms(abc.ABC):
             return self
         return self.with_atoms(Atoms(self._get_frame().filter(*preds_not_none, **constraints), _unchecked=True))
 
-    @_map_unchecked
+    @_fwd_frame_map
     def sort(
         self,
         by: t.Union[IntoExpr, t.Iterable[IntoExpr]],
@@ -301,27 +300,27 @@ class HasAtoms(abc.ABC):
             by, *more_by, descending=descending, nulls_last=nulls_last
         )
 
-    @_map_unchecked
+    @_fwd_frame_map
     def slice(self, offset: int, length: t.Optional[int] = None) -> polars.DataFrame:
         """Return a slice of the rows in `self`."""
         return self._get_frame().slice(offset, length)
 
-    @_map_unchecked
+    @_fwd_frame_map
     def head(self, n: int = 5) -> polars.DataFrame:
         """Return the first `n` rows of `self`."""
         return self._get_frame().head(n)
 
-    @_map_unchecked
+    @_fwd_frame_map
     def tail(self, n: int = 5) -> polars.DataFrame:
         """Return the last `n` rows of `self`."""
         return self._get_frame().tail(n)
 
-    @_map_unchecked
+    @_fwd_frame_map
     def drop_nulls(self, subset: t.Union[str, t.Collection[str], None] = None) -> polars.DataFrame:
         """Drop rows that contain nulls in any of columns `subset`."""
         return self._get_frame().drop_nulls(subset)
 
-    @_map_unchecked
+    @_fwd_frame_map
     def fill_null(
         self, value: t.Any = None, strategy: t.Optional[FillNullStrategy] = None,
         limit: t.Optional[int] = None, matches_supertype: bool = True,
@@ -329,7 +328,7 @@ class HasAtoms(abc.ABC):
         """Fill null values in `self`, using the specified value or strategy."""
         return self._get_frame().fill_null(value, strategy, limit, matches_supertype=matches_supertype)
 
-    @_map_unchecked
+    @_fwd_frame_map
     def fill_nan(self, value: t.Union[polars.Expr, int, float, None]) -> polars.DataFrame:
         """Fill floating-point NaN values in `self`."""
         return self._get_frame().fill_nan(value)
@@ -401,7 +400,7 @@ class HasAtoms(abc.ABC):
 
     # column-wise operations
 
-    @_frame_delegate(polars.DataFrame.select)
+    @_fwd_frame(polars.DataFrame.select)
     def select(
         self,
         *exprs: t.Union[IntoExpr, t.Iterable[IntoExpr]],
@@ -422,6 +421,21 @@ class HasAtoms(abc.ABC):
         Raises `TypeError` if a column is not found or if it can't be cast.
         """
         return _select_schema(self, schema)
+
+    def select_props(
+        self: HasAtomsT,
+        *exprs: t.Union[IntoExpr, t.Iterable[IntoExpr]],
+        **named_exprs: IntoExpr
+    ) -> HasAtomsT:
+        """
+        Select `exprs` from `self`, while keeping required columns.
+
+        Returns a HasAtoms.
+        """
+        props = self._get_frame().lazy().select(*exprs, **named_exprs).drop(_REQUIRED_COLUMNS).collect(_eager=True)
+        return self.with_atoms(
+            Atoms(self._get_frame().select(_REQUIRED_COLUMNS).hstack(props), _unchecked=False)
+        )
 
     def try_select(
         self,
@@ -454,12 +468,12 @@ class HasAtoms(abc.ABC):
 
     # dunders
 
-    @_frame_delegate(polars.DataFrame.__len__)
+    @_fwd_frame(polars.DataFrame.__len__)
     def __len__(self) -> int:
         """Return the number of atoms in `self`."""
         ...
 
-    @_frame_delegate(polars.DataFrame.__contains__)
+    @_fwd_frame(polars.DataFrame.__contains__)
     def __contains__(self, key: str) -> bool:
         """Return whether `self` contains the given column."""
         ...
@@ -472,11 +486,11 @@ class HasAtoms(abc.ABC):
 
     __getitem__ = get_column
 
-    @_frame_delegate(polars.DataFrame.__dataframe__)
+    @_fwd_frame(polars.DataFrame.__dataframe__)
     def __dataframe__(self, nan_as_null: bool = False, allow_copy: bool = True) -> polars.interchange.dataframe.PolarsDataFrame:
         ...
 
-    @_frame_delegate(polars.DataFrame.__dataframe_consortium_standard__)
+    @_fwd_frame(polars.DataFrame.__dataframe_consortium_standard__)
     def __dataframe_consortium_standard__(self, *, api_version: t.Optional[str] = None) -> t.Any:
         ...
 
@@ -871,6 +885,8 @@ class HasAtoms(abc.ABC):
         ))
 
 
+
+
 class Atoms(AtomsIOMixin, HasAtoms):
     """
     A collection of atoms, absent any implied coordinate system.
@@ -945,7 +961,7 @@ class Atoms(AtomsIOMixin, HasAtoms):
         return Atoms()
 
     def _validate_atoms(self):
-        missing = [col for col in ['x', 'y', 'z', 'elem', 'symbol'] if col not in self.columns]
+        missing = [col for col in _REQUIRED_COLUMNS if col not in self.columns]
         if len(missing):
             raise ValueError(f"'Atoms' missing column(s) {', '.join(map(repr, missing))}")
 
