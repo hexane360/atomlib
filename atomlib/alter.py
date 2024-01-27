@@ -5,7 +5,6 @@ Functions to modify/distort atomic structures.
 import typing as t
 
 import numpy
-from scipy.spatial import KDTree
 
 from .elem import ElemLike
 from .cell import Cell
@@ -22,6 +21,8 @@ def unbunch(structure: HasAtomsT, threshold: float = 0.4, *,
     """
     Iteratively separate closely-spaced atoms in `structure`.
     """
+    from scipy.spatial import KDTree
+
     if isinstance(structure, HasAtomCell):
         cell = structure.get_cell()
         ortho = cell.get_transform('local', 'cell_box')

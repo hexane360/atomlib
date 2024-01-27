@@ -11,7 +11,6 @@ from typing import cast
 import numpy
 from numpy.typing import NDArray, ArrayLike
 import polars
-from scipy.special import ellipe, ellipk, elliprf, elliprj
 
 from .atomcell import VecLike, to_vec3
 from .transform import AffineTransform3D, LinearTransform3D
@@ -27,6 +26,8 @@ def ellip_pi(n: NDArray[numpy.float_], m: NDArray[numpy.float_]) -> NDArray[nump
 
     [wolfram_ellip_pi]: https://mathworld.wolfram.com/EllipticIntegraloftheThirdKind.html
     """
+    from scipy.special import elliprf, elliprj
+
     y = 1 - m
     assert numpy.all(y > 0)
 
@@ -356,6 +357,8 @@ def _poly_disp_z(pts: NDArray[numpy.float_], b_vec: NDArray[numpy.float_], poly:
 
 def _loop_disp_z(pts: NDArray[numpy.float_], b_vec: numpy.ndarray, loop_r: float, *,
                  poisson: float = 0.25, branch: t.Optional[numpy.ndarray] = None) -> numpy.ndarray:
+    from scipy.special import ellipk, ellipe
+
     rho = numpy.linalg.norm(pts[..., :2], axis=-1)
     r = numpy.linalg.norm(pts, axis=-1)
     (x, y, z) = split_arr(pts, axis=-1)

@@ -5,7 +5,6 @@ import typing as t
 
 import numpy
 from numpy.typing import ArrayLike, NDArray
-import scipy.linalg
 
 from .types import VecLike, Pts3DLike, Num, to_vec3
 from .vec import perp, reduce_vec, is_diagonal
@@ -629,6 +628,8 @@ class LinearTransform3D(AffineTransform3D):
         This is equivalent to a $QR$ decomposition which keeps only the
         right-triangular matrix $R$.
         """
+        import scipy.linalg
+
         assert self.det() > 0  # only works on right handed crystal systems
         _q, r = t.cast(t.Tuple[numpy.ndarray, numpy.ndarray], scipy.linalg.qr(self.inner))
         # qr unique up to the sign of the digonal
@@ -643,6 +644,8 @@ class LinearTransform3D(AffineTransform3D):
 
         More formally, returns a small integer matrix M such that A@M is normal.
         """
+        import scipy.linalg
+
         inv = self.inverse().inner
         r, _q = scipy.linalg.rq(inv)
         # rq unique up to the sign of the digonal
