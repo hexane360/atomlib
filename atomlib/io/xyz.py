@@ -7,6 +7,7 @@ Partially supports the extended XYZ format, described here: https://atomsk.univ-
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from itertools import islice
 import warnings
 import re
 import io
@@ -24,9 +25,31 @@ from ..atoms import HasAtoms
 from ..atomcell import HasAtomCell
 
 _EXT_TOKEN_RE = re.compile(r"(=|\s+|\")")
+_PROP_TYPE_MAP: t.Dict[str, t.Type[polars.DataType]] = {
+    's': polars.Utf8,
+    'r': polars.Float64,
+    'i': polars.Int64,
+}
+# map OVITO property names into our standard names
+# see: https://www.ovito.org/manual/reference/file_formats/input/xyz.html
+_PROP_NAME_MAP: t.Dict[str, str] = {
+    'pos': '',  # turns into 'x', 'y', 'z'
+    'species': 'symbol', 'element': 'symbol',
+    'vel': 'v', 'velo': 'v',
+    'atom_types': 'type',
+    'id': 'i',
+    'transparency': 'frac_occupancy',
+}
+_PROP_NAME_UNMAP: t.Dict[str, str] = {
+    'frac_occupancy': 'transparency',
+    'symbol': 'species',
+    'i': 'id',
+}
 
 
 XYZFormat = t.Literal['xyz', 'exyz']
+
+T = t.TypeVar('T')
 
 
 class XYZToCSVReader(io.IOBase):
@@ -86,11 +109,18 @@ class XYZ:
             comment = f.readline().rstrip(b'\n').decode('utf-8')
             # TODO handle if there's not a gap here
 
+            try:
+                params = ExtXYZParser(comment).parse()
+            except ValueError:
+                params = None
+
+            column_names, column_types = _get_columns_from_params(params)
+
             f = XYZToCSVReader(f)
             df: polars.DataFrame = polars.read_csv(
                 f, separator='\t',  # type: ignore
-                new_columns=['symbol', 'x', 'y', 'z'],
-                dtypes=[polars.Utf8, polars.Float64, polars.Float64, polars.Float64],
+                new_columns=column_names,
+                dtypes=column_types,
                 has_header=False, use_pyarrow=False
             )
             if len(df.columns) > 4:
@@ -129,7 +159,7 @@ class XYZ:
 
             f.write(f"{len(self.atoms)}\n")
             if len(self.params) > 0 and fmt == 'exyz':
-                f.write(" ".join(param_strings(self.params)))
+                f.write(" ".join(_param_strings(self.params)))
             else:
                 f.write(self.comment or "")
             f.write("\n")
@@ -169,14 +199,64 @@ class XYZ:
             warnings.warn(f"Warning: Invalid format for key 'pbc=\"{s}\"'")
         return None
 
+    
 
-def param_strings(params: t.Dict[str, str]) -> t.Iterator[str]:
+
+def batched(iterable: t.Iterable[T], n: int) -> t.Iterator[t.Tuple[T, ...]]:
+    if n < 1:
+        raise ValueError('n must be at least one')
+    it = iter(iterable)
+    while batch := tuple(islice(it, n)):
+        yield batch
+
+
+def _param_strings(params: t.Dict[str, str]) -> t.Iterator[str]:
     for (k, v) in params.items():
         if any(c in k for c in (' ', '\t', '\n')):
             k = f'"{k}"'
         if any(c in v for c in (' ', '\t', '\n')):
             v = f'"{v}"'
         yield f"{k}={v}"
+
+
+def _get_columns_from_params(params: t.Optional[t.Dict[str, str]]) -> t.Tuple[t.List[str], t.List[t.Type[polars.DataType]]]:
+    if params is None or (s := params.get('Properties')) is None:
+        return (
+            ['symbol', 'x', 'y', 'z'],
+            [polars.Utf8, polars.Float64, polars.Float64, polars.Float64]
+        )
+
+    try:
+        segs = s.split(':')
+        if len(segs) % 3:
+            raise ValueError()
+
+        col_names = []
+        col_types = []
+        for (name, ty, num) in batched(segs, 3):
+            num = int(num)
+            if num < 1:
+                raise ValueError()
+
+            name = _PROP_NAME_REMAP.get(name, name)
+            ty = _PROP_TYPE_MAP[ty.lower()]
+
+            if num == 1:
+                col_names.append(name)
+                col_types.append(ty)
+                continue
+
+            suffixes = ('x', 'y', 'z') if num == 3 else range(num)
+            col_names.extend(f"{name}_{c}".lstrip('_') for c in suffixes)
+            col_types.extend(ty for _ in suffixes)
+
+        if not all(c in col_names for c in ('symbol', 'x', 'y', 'z')):
+            raise ValueError("Properties string missing required columns.")
+
+        return (col_names, col_types)
+
+    except ValueError:
+        raise ValueError(f"Improperly formmated 'Properties' parameter: {s}")
 
 
 class ExtXYZParser:
