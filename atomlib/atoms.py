@@ -512,10 +512,6 @@ class HasAtoms(abc.ABC):
     def __dataframe__(self, nan_as_null: bool = False, allow_copy: bool = True) -> polars.interchange.dataframe.PolarsDataFrame:
         ...
 
-    @_fwd_frame(polars.DataFrame.__dataframe_consortium_standard__)
-    def __dataframe_consortium_standard__(self, *, api_version: t.Optional[str] = None) -> t.Any:
-        ...
-
     # atoms-specific methods
 
     def bbox_atoms(self) -> BBox3D:
