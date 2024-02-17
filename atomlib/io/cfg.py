@@ -78,8 +78,8 @@ class CFG:
                 f.write(f"\nR = {self.rate_scale:.8}{unit}\n")
 
             f.write("\n")
-            for row in self.atoms.select(('mass', 'symbol', 'x', 'y', 'z', 'v_x', 'v_y', 'v_z')).rows():
-                (mass, sym, x, y, z, v_x, v_y, v_z) = row
+            for row in self.atoms.select(('mass', 'symbol', 'coords', 'velocity')).rows():
+                (mass, sym, (x, y, z), (v_x, v_y, v_z)) = row
                 f.write(f"{mass:.4f} {sym:>2} {x:.8} {y:.8} {z:.8} {v_x:.8} {v_y:.8} {v_z:.8}\n")
 
 
@@ -231,8 +231,8 @@ class CFGParser:
         rows = []
         columns = (
             ('elem', polars.Int8), ('symbol', polars.Utf8),
-            ('x', polars.Float64), ('y', polars.Float64), ('z', polars.Float64),
-            ('v_x', polars.Float64), ('v_y', polars.Float64), ('v_z', polars.Float64),
+            ('coords', polars.Array(polars.Float64, 3)),
+            ('velocity', polars.Array(polars.Float64, 3)),
             ('mass', polars.Float64),
         )
 
@@ -257,7 +257,7 @@ class CFGParser:
             except ValueError:
                 raise ValueError(f"Invalid atomic symbol '{sym}' at line {self.buf.line}")
 
-            rows.append((elem, sym, x, y, z, v_x, v_y, v_z, mass))
+            rows.append((elem, sym, (x, y, z), (v_x, v_y, v_z), mass))
 
         if n != len(rows):
             raise ValueError(f"# of atom rows doesn't match declared number ({len(rows)} vs. {n})")

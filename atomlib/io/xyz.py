@@ -17,7 +17,6 @@ import typing as t
 import numpy
 from numpy.typing import NDArray
 import polars
-from polars.exceptions import PolarsPanicError  # type: ignore
 
 from ..util import open_file, open_file_binary, BinaryFileOrPath, FileOrPath
 from ..elem import get_sym, get_elem
@@ -50,6 +49,14 @@ _PROP_NAME_UNMAP: t.Dict[str, str] = {
 XYZFormat = t.Literal['xyz', 'exyz']
 
 T = t.TypeVar('T')
+
+
+def _flatten(it: t.Iterable[t.Union[T, t.Iterable[T]]]) -> t.Iterator[T]:
+    for val in it:
+        if isinstance(val, (list, tuple)):
+            yield from t.cast(t.Iterable[T], val)
+        else:
+            yield t.cast(T, val)
 
 
 class XYZToCSVReader(io.IOBase):
@@ -126,6 +133,8 @@ class XYZ:
             if len(df.columns) > 4:
                 raise ValueError("Error parsing XYZ file: Extra columns in at least one row.")
 
+            df = df.with_columns(polars.concat_list('x', 'y', 'z').list.to_array(3).alias('coords')).drop('x', 'y', 'z')
+
             #TODO .fill_null(Series) seems to be broken on polars 0.14.11
             # map atomic numbers -> symbols (on columns whichare UInt8)
             sym = get_sym(df.select(polars.col('symbol').cast(polars.UInt8, strict=False)).to_series())
@@ -168,8 +177,8 @@ class XYZ:
             col_space = (3, 12, 12, 12)
             f.writelines(
                 "".join(
-                    f"{val:< {space}.8f}" if isinstance(val, float) else f"{val:<{space}}" for (val, space) in zip(row, col_space)
-                ).strip() + '\n' for row in self.atoms.select(('symbol', 'x', 'y', 'z')).rows()
+                    f"{val:< {space}.8f}" if isinstance(val, float) else f"{val:<{space}}" for (val, space) in zip(_flatten(row), col_space)
+                ).strip() + '\n' for row in self.atoms.select(('symbol', 'coords')).rows()
             )
 
     def cell_matrix(self) -> t.Optional[NDArray[numpy.float_]]:
@@ -238,7 +247,7 @@ def _get_columns_from_params(params: t.Optional[t.Dict[str, str]]) -> t.Tuple[t.
             if num < 1:
                 raise ValueError()
 
-            name = _PROP_NAME_REMAP.get(name, name)
+            name = _PROP_NAME_MAP.get(name, name)
             ty = _PROP_TYPE_MAP[ty.lower()]
 
             if num == 1:

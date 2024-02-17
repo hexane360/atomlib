@@ -4,8 +4,30 @@ import pytest
 import numpy
 from numpy.testing import assert_array_equal
 import polars
+from polars.testing import assert_frame_equal
 
-from .atoms import Atoms
+from .atoms import Atoms, _with_columns_stacked
+
+
+def test_with_columns_stacked():
+    df = polars.DataFrame({
+        'before': [0, 1, 2, 3],
+        'x': [1., 2., 3., 4.],
+        'y': [2., 5., 6., 7.],
+        'z': [3., 6., 8., 9.],
+        'after': [0, 1, 2, 3],
+    })
+
+    arr = [[1., 2., 3.], [2., 5., 6.], [3., 6., 8.], [4., 7., 9.]]
+
+    assert_frame_equal(
+        _with_columns_stacked(df, ('x', 'y', 'z'), 'coords'),
+        polars.DataFrame({
+            'before': polars.Series([0, 1, 2, 3], dtype=polars.Int64),
+            'coords': polars.Series(arr, dtype=polars.Array(polars.Float64, 3)),
+            'after': polars.Series([0, 1, 2, 3], dtype=polars.Int64),
+        })
+    )
 
 
 def test_atom_frame_creation():
@@ -15,7 +37,7 @@ def test_atom_frame_creation():
         'z': [0., 0., 0.],
         'elem': [1, 5, 22],
     })
-    assert frame.select(('x', 'y', 'z')).dtypes == [polars.Float64] * 3
+    assert frame['coords'].dtype == polars.Array(polars.Float64, 3)
     assert frame.select('elem').dtypes[0] == polars.Int8
 
     assert list(frame.select('symbol').to_series()) == ["H", "B", "Ti"]
@@ -29,7 +51,7 @@ def test_atom_frame_creation():
 
     assert list(frame.select('elem').to_series()) == [1, 5, 22]
 
-    with pytest.raises(ValueError, match=re.escape("'Atoms' missing column(s) 'x', 'y'")):
+    with pytest.raises(ValueError, match=re.escape("'Atoms' missing column(s) 'coords'")):
         frame = Atoms({
             'z': [0., 0., 0.],
             'symbol': ["H", "b+", "tI2+"],
@@ -44,12 +66,13 @@ def test_atom_frame_creation():
         })
 
     empty = Atoms.empty()
-    assert empty.select(('x', 'y', 'z')).dtypes == [polars.Float64] * 3
+    assert frame['coords'].dtype == polars.Array(polars.Float64, 3)
     assert empty.select('elem').dtypes[0] == polars.Int8
 
 
+#@pytest.mark.xfail(reason="Polars array __repr__ broken")
 def test_repr():
-    from polars import Series, Float64, Int8, Int32, Int64, Utf8, String  # type: ignore
+    from polars import Series, Float64, Int8, Int32, Int64, Utf8, String, Array  # type: ignore
 
     atoms = Atoms({
         'x': [0., 1., 2.],
@@ -67,16 +90,16 @@ def test_repr():
     atoms.assert_equal(new_atoms)
 
     assert str(atoms) == """\
-Atoms, shape: (3, 6)
-┌─────┬─────┬─────┬──────┬──────┬────────┐
-│ x   ┆ y   ┆ z   ┆ elem ┆ type ┆ symbol │
-│ --- ┆ --- ┆ --- ┆ ---  ┆ ---  ┆ ---    │
-│ f64 ┆ f64 ┆ f64 ┆ i8   ┆ i32  ┆ str    │
-╞═════╪═════╪═════╪══════╪══════╪════════╡
-│ 0.0 ┆ 1.0 ┆ 0.0 ┆ 1    ┆ 1    ┆ H      │
-│ 1.0 ┆ 1.0 ┆ 2.0 ┆ 5    ┆ 2    ┆ B      │
-│ 2.0 ┆ 1.0 ┆ 5.0 ┆ 22   ┆ 3    ┆ Ti     │
-└─────┴─────┴─────┴──────┴──────┴────────┘\
+Atoms, shape: (3, 4)
+┌─────────────────┬──────┬──────┬────────┐
+│ coords          ┆ elem ┆ type ┆ symbol │
+│ ---             ┆ ---  ┆ ---  ┆ ---    │
+│ array[f64, 3]   ┆ i8   ┆ i32  ┆ str    │
+╞═════════════════╪══════╪══════╪════════╡
+│ [0.0, 1.0, 0.0] ┆ 1    ┆ 1    ┆ H      │
+│ [1.0, 1.0, 2.0] ┆ 5    ┆ 2    ┆ B      │
+│ [2.0, 1.0, 5.0] ┆ 22   ┆ 3    ┆ Ti     │
+└─────────────────┴──────┴──────┴────────┘\
 """
 
 
@@ -177,7 +200,7 @@ def test_coords():
     ])
 
     assert_array_equal(frame.coords(), expected)
-    assert_array_equal(frame.coords(polars.col('x') < 0.), expected[expected[:, 0] < 0.])
+    assert_array_equal(frame.coords(polars.col('coords').arr.get(0) < 0.), expected[expected[:, 0] < 0.])
     assert_array_equal(frame.coords(polars.col('elem') == 22), expected[2:])
     assert_array_equal(frame.coords([False, True, False, True]), expected[[1, 3]])
 

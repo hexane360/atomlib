@@ -35,7 +35,7 @@ def write_lmp(atoms: HasAtoms, f: FileOrPath):
             p(f" {ty:8} {mass:14.7f}  # {sym}")
 
         p(f"\nAtoms  # atomic\n")
-        for (i, (ty, x, y, z)) in enumerate(frame.select(('type', 'x', 'y', 'z')).rows()):
+        for (i, (ty, (x, y, z))) in enumerate(frame.select(('type', 'coords')).rows()):
             p(f" {i+1:8} {ty:4} {x:14.7f} {y:14.7f} {z:14.7f}")
 
         if (velocities := frame.velocities()) is not None:

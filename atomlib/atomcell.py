@@ -282,6 +282,14 @@ class HasAtomCell(HasAtoms, HasCell, abc.ABC):
         repeat[indices] = na.flatten()[min_i], nb.flatten()[min_i]
         return self.repeat(repeat)
 
+    def explode(self: HasAtomCellT) -> HasAtomCellT:
+        """Materialize repeated cells as one supercell."""
+        frame = self.get_frame()
+
+        return self.with_atoms(self.get_atoms('local'), 'local') \
+            .with_cell(self.get_cell().explode()) \
+            .to_frame(frame)
+
     def periodic_duplicate(self: HasAtomCellT, eps: float = 1e-5) -> HasAtomCellT:
         """
         Add duplicate copies of atoms near periodic boundaries.
@@ -292,9 +300,9 @@ class HasAtomCell(HasAtoms, HasCell, abc.ABC):
         frame_save = self.get_frame()
         self = self.to_frame('cell_box').wrap(eps=eps)
 
-        for i, ax in enumerate(('x', 'y', 'z')):
+        for i in range(3):
             self = self.concat((self,
-                self.filter(polars.col(ax).abs() <= eps, frame='cell_box')
+                self.filter(polars.col('coords').arr.get(i).abs() <= eps, frame='cell_box')
                     .transform_atoms(AffineTransform3D.translate([1. if i == j else 0. for j in range(3)]), frame='cell_box')
             ))
 
@@ -402,7 +410,7 @@ class HasAtomCell(HasAtoms, HasCell, abc.ABC):
         **named_exprs: IntoExpr
     ) -> polars.DataFrame:
         """
-        Select ``exprs`` from ``self``, and return as a `polars.DataFrame`.
+        Select `exprs`` from ``self`, and return as a `polars.DataFrame`.
 
         Expressions may either be columns or expressions of columns.
         """
@@ -429,10 +437,10 @@ class HasAtomCell(HasAtoms, HasCell, abc.ABC):
         **named_exprs: IntoExpr
     ) -> t.Optional[polars.DataFrame]:
         """
-        Try to select ``exprs`` from ``self``, and return as a :py:class:`polars.DataFrame`.
+        Try to select `exprs` from `self`, and return as a `polars.DataFrame`.
 
         Expressions may either be columns or expressions of columns.
-        Return ``None`` if any columns are missing.
+        Return `None` if any columns are missing.
         """
         ...
 
@@ -446,12 +454,12 @@ class HasAtomCell(HasAtoms, HasCell, abc.ABC):
 
     @_fwd_atoms_get
     def coords(self, selection: t.Optional[AtomSelection] = None, *, frame: t.Optional[CoordinateFrame] = None) -> NDArray[numpy.float64]:
-        """Returns a ``(N, 3)`` ndarray of atom coordinates (dtype ``numpy.float64``)."""
+        """Returns a `(N, 3)` ndarray of atom coordinates (dtype ``numpy.float64``)."""
         ...
 
     @_fwd_atoms_get
     def velocities(self, selection: t.Optional[AtomSelection] = None, *, frame: t.Optional[CoordinateFrame] = None) -> t.Optional[NDArray[numpy.float64]]:
-        """Returns a ``(N, 3)`` ndarray of atom velocities (dtype ``numpy.float64``)."""
+        """Returns a `(N, 3)` ndarray of atom velocities (dtype ``numpy.float64``)."""
         ...
 
     @t.overload
@@ -676,7 +684,7 @@ class AtomCell(AtomCellIOMixin, HasAtomCell):
         raise NotImplementedError()
 
     def clone(self: AtomCellT) -> AtomCellT:
-        """Make a deep copy of ``self``."""
+        """Make a deep copy of `self`."""
         return self.__class__(**{field.name: copy.deepcopy(getattr(self, field.name)) for field in fields(self)})
 
     def assert_equal(self, other: t.Any):

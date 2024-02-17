@@ -287,8 +287,8 @@ def write_mslice(cell: HasAtomCell, f: BinaryFileOrPath, template: t.Optional[MS
 
     # <u^2> -> 1d sigma
     atoms = atoms.with_wobble((polars.col('wobble') / 3.).sqrt())
-    rows = atoms.select(('elem', 'x', 'y', 'z', 'wobble', 'frac_occupancy')).rows()
-    for (i, (elem, x, y, z, wobble, frac_occupancy)) in enumerate(rows):
+    rows = atoms.select(('elem', 'coords', 'wobble', 'frac_occupancy')).rows()
+    for (i, (elem, (x, y, z), wobble, frac_occupancy)) in enumerate(rows):
         e = _atom_elem(i, elem, x, y, z, wobble, frac_occupancy)
         db.append(e)
 

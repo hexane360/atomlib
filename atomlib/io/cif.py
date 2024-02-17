@@ -110,9 +110,9 @@ class CIFDataBlock:
             ('atom_site_type_symbol', 'symbol', True),
             ('atom_site_label', 'label', 'label'),
             ('atom_site_occupancy', 'frac_occupancy', 'frac_occupancy'),
-            ('atom_site_Cartn_x', 'x', True),
-            ('atom_site_Cartn_y', 'y', True),
-            ('atom_site_Cartn_z', 'z', True),
+            ('atom_site_Cartn_x', polars.col('coords').arr.get(0), True),
+            ('atom_site_Cartn_y', polars.col('coords').arr.get(1), True),
+            ('atom_site_Cartn_z', polars.col('coords').arr.get(2), True),
             ('atom_site_U_iso_or_equiv', 'wobble', 'wobble'),
         )
         data.append(CIFTable({
@@ -153,9 +153,9 @@ class CIFDataBlock:
             ('atom_site_type_symbol', 'symbol', True),
             ('atom_site_label', 'label', 'label'),
             ('atom_site_occupancy', 'frac_occupancy', 'frac_occupancy'),
-            ('atom_site_fract_x', 'x', True),
-            ('atom_site_fract_y', 'y', True),
-            ('atom_site_fract_z', 'z', True),
+            ('atom_site_fract_x', polars.col('coords').arr.get(0), True),
+            ('atom_site_fract_y', polars.col('coords').arr.get(1), True),
+            ('atom_site_fract_z', polars.col('coords').arr.get(2), True),
             ('atom_site_U_iso_or_equiv', 'wobble', 'wobble'),
         )
         data.append(CIFTable({

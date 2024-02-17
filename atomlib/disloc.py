@@ -113,13 +113,17 @@ def disloc_edge(atoms: HasAtomsT, center: VecLike, b: VecLike, t: VecLike, cut: 
         logging.info("Removing atoms.")
         old_len = len(frame)
         frame = frame.filter(~(
-            (polars.col('x') < 0) & (polars.col('y') >= d/2.) & (polars.col('y') <= -d/2.)
+            (polars.col('coords').arr.get(0) < 0)
+            & (polars.col('coords').arr.get(1) >= d/2.)
+            & (polars.col('coords').arr.get(1) <= -d/2.)
         ))
         logging.info(f"Removed {old_len - len(frame)} atoms")
     if d > 1e-8:
         logging.info("Duplicating atoms.")
         duplicate = frame.filter(
-            (polars.col('x') < 0) & (polars.col('y') >= -d/2.) & (polars.col('y') <= d/2.)
+            (polars.col('coords').arr.get(0) < 0)
+            & (polars.col('coords').arr.get(1) >= -d/2.)
+            & (polars.col('coords').arr.get(1) <= d/2.)
         )
         logging.info(f"Duplicated {len(duplicate)} atoms")
 
@@ -234,15 +238,15 @@ def disloc_loop_z(atoms: HasAtomsT, center: VecLike, b: VecLike,
     if -d > 1e-8:
         logging.info("Non-conservative dislocation. Removing atoms.")
         frame = frame.filter(~(
-            (polars.col('x')**2 + polars.col('y')**2 < loop_r**2)
-            & (polars.col('z') >= d/2.) & (polars.col('z') <= -d/2.)
+            (frame.x()**2 + frame.y()**2 < loop_r**2)
+            & frame.z().is_between(d/2., -d/2., closed='both')
         ))
 
     if d > 1e-8:
         logging.info("Non-conservative dislocation. Duplicating atoms.")
         duplicate = frame.filter(
-            (polars.col('x')**2 + polars.col('y')**2 < loop_r**2)
-            & (polars.col('z') >= -d/2.) & (polars.col('z') <= d/2.)
+            (frame.x()**2 + frame.y()**2 < loop_r**2)
+            & frame.z().is_between(-d/2., d/2., closed='both')
         )
         logging.info(f"Adding {len(duplicate)} atoms")
 

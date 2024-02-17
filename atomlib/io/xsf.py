@@ -141,7 +141,7 @@ class XSF:
             f.write('\n')
 
     def _write_coords(self, f: TextIOBase, coords: polars.DataFrame):
-        for (elem, x, y, z) in coords.select(['elem', 'x', 'y', 'z']).rows():
+        for (elem, [x, y, z]) in coords.select(['elem', 'coords']).rows():
             print(f"{elem:2d} {x:11.6f} {y:11.6f} {z:11.6f}", file=f)
         print(file=f)
 

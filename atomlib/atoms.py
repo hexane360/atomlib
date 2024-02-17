@@ -14,6 +14,7 @@ from functools import reduce, wraps
 import warnings
 import operator
 import abc
+from io import StringIO
 import typing as t
 
 import numpy
@@ -33,13 +34,9 @@ from .cell import Cell
 from .mixins import AtomsIOMixin
 
 
-_COLUMN_DTYPES: t.Mapping[str, t.Type[polars.DataType]] = {
-    'x': polars.Float64,
-    'y': polars.Float64,
-    'z': polars.Float64,
-    'v_x': polars.Float64,
-    'v_y': polars.Float64,
-    'v_z': polars.Float64,
+_COLUMN_DTYPES: t.Mapping[str, t.Union[polars.DataType, t.Type[polars.DataType]]] = {
+    'coords': polars.Array(polars.Float64, 3),
+    'velocity': polars.Array(polars.Float64, 3),
     'elem': polars.Int8,
     'mass': polars.Float32,
     'i': polars.Int64,
@@ -47,7 +44,7 @@ _COLUMN_DTYPES: t.Mapping[str, t.Type[polars.DataType]] = {
     'frac_occupancy': polars.Float64,
     'type': polars.Int32,
 }
-_REQUIRED_COLUMNS: t.Tuple[str, ...] = ('x', 'y', 'z', 'elem', 'symbol')
+_REQUIRED_COLUMNS: t.Tuple[str, ...] = ('coords', 'elem', 'symbol')
 
 SchemaDict: TypeAlias = OrderedDict[str, polars.DataType]
 IntoExprColumn: TypeAlias = polars.type_aliases.IntoExprColumn
@@ -102,6 +99,7 @@ def _values_to_expr(values: AtomValues, ty: t.Type[polars.DataType]) -> polars.E
     arr = numpy.asarray(values)
     return polars.lit(polars.Series(arr, dtype=ty) if arr.size > 1 else arr[()])
 
+
 def _values_to_numpy(df: t.Union[polars.DataFrame, HasAtoms], values: AtomValues, ty: t.Type[polars.DataType]) -> numpy.ndarray:
     if isinstance(values, polars.Expr):
         values = df.select(values).to_series()
@@ -142,6 +140,18 @@ def _select_schema(df: t.Union[polars.DataFrame, HasAtoms], schema: SchemaDict) 
         raise TypeError(f"Failed to cast '{df.__class__.__name__}' with schema '{df.schema}' to schema '{schema}'.")
 
 
+def _with_columns_stacked(df: polars.DataFrame, cols: t.Sequence[str], out_col: str) -> polars.DataFrame:
+    if not all(c in df for c in cols):
+        return df
+
+    i = df.get_column_index(cols[0])
+    dtype = df[cols[0]].dtype
+
+    arr = numpy.array(tuple(df[c].to_numpy() for c in cols)).T
+
+    return df.drop(cols).insert_column(i, polars.Series(out_col, arr, polars.Array(dtype, arr.shape[-1])))
+
+
 HasAtomsT = t.TypeVar('HasAtomsT', bound='HasAtoms')
 P = ParamSpec('P')
 T = t.TypeVar('T')
@@ -169,6 +179,12 @@ def _fwd_frame(
 
         return wrapper
     return inner
+
+
+def _coord_expr(col: t.Union[str, int]) -> polars.Expr:
+    if isinstance(col, str):
+        col = "xyz".index(col)
+    return polars.col('coords').arr.get(col).alias("xyz"[col])
 
 
 class HasAtoms(abc.ABC):
@@ -484,7 +500,13 @@ class HasAtoms(abc.ABC):
     def __radd__(self: HasAtomsT, other: IntoAtoms) -> HasAtomsT:
         return self.__class__.concat((other, self), how='inner')
 
-    __getitem__ = get_column
+    def __getitem__(self, column: str) -> polars.Series:
+        try:
+            return self.get_column(column)
+        except polars.ColumnNotFoundError:
+            if column in ('x', 'y', 'z'):
+                return self.select(_coord_expr(column)).to_series()
+            raise
 
     @_fwd_frame(polars.DataFrame.__dataframe__)
     def __dataframe__(self, nan_as_null: bool = False, allow_copy: bool = True) -> polars.interchange.dataframe.PolarsDataFrame:
@@ -521,10 +543,10 @@ class HasAtoms(abc.ABC):
         """
         Round atom position values near zero to zero.
         """
-        return self.with_columns(tuple(
-            polars.when(col.abs() >= tol).then(col).otherwise(polars.lit(0.))
-            for col in map(polars.col, ('x', 'y', 'z'))
-        ))
+        return self.with_columns(polars.concat_list(
+            polars.when(_coord_expr(col).abs() >= tol).then(_coord_expr(col)).otherwise(polars.lit(0.))
+            for col in range(3)
+        ).list.to_array(3).alias('coords'))
 
     def crop(self: HasAtomsT, x_min: float = -numpy.inf, x_max: float = numpy.inf,
              y_min: float = -numpy.inf, y_max: float = numpy.inf,
@@ -534,9 +556,9 @@ class HasAtoms(abc.ABC):
         """
 
         return self.filter(
-            polars.col('x') >= x_min, polars.col('x') <= x_max,
-            polars.col('y') >= y_min, polars.col('y') <= y_max,
-            polars.col('z') >= z_min, polars.col('z') <= z_max
+            self.x().is_between(x_min, x_max, closed='both'),
+            self.y().is_between(y_min, y_max, closed='both'),
+            self.z().is_between(z_min, z_max, closed='both'),
         )
 
     crop_atoms = crop
@@ -564,7 +586,7 @@ class HasAtoms(abc.ABC):
         spatial_cols = cols.intersection(('x', 'y', 'z'))
         cols -= spatial_cols
         if len(spatial_cols) > 0:
-            coords = self.select(list(spatial_cols)).to_numpy()
+            coords = self.select([_coord_expr(col).alias(col) for col in spatial_cols]).to_numpy()
             tree = scipy.spatial.KDTree(coords)
 
             # TODO This is a bad algorithm
@@ -615,17 +637,25 @@ class HasAtoms(abc.ABC):
 
     def coords(self, selection: t.Optional[AtomSelection] = None) -> NDArray[numpy.float64]:
         """Return a `(N, 3)` ndarray of atom coordinates (dtype [`numpy.float64`][numpy.float64])."""
-        # TODO find a way to get a view
-        return self._get_frame().lazy().filter(_selection_to_expr(selection)) \
-            .select(('x', 'y', 'z')).collect(_eager=True).to_numpy().astype(numpy.float64)
+        df = self if selection is None else self.filter(_selection_to_expr(selection))
+        return df.get_column('coords').to_numpy().astype(numpy.float64)
+
+    def x(self) -> polars.Expr:
+        return polars.col('coords').arr.get(0).alias('x')
+
+    def y(self) -> polars.Expr:
+        return polars.col('coords').arr.get(1).alias('y')
+
+    def z(self) -> polars.Expr:
+        return polars.col('coords').arr.get(2).alias('z')
 
     def velocities(self, selection: t.Optional[AtomSelection] = None) -> t.Optional[NDArray[numpy.float64]]:
         """Return a `(N, 3)` ndarray of atom velocities (dtype [`numpy.float64`][numpy.float64])."""
-        if not all(c in self for c in ('v_x', 'v_y', 'v_z')):
+        if 'velocity' not in self:
             return None
 
-        return self._get_frame().lazy().filter(_selection_to_expr(selection)) \
-            .select(('v_x', 'v_y', 'v_z')).collect(_eager=True).to_numpy().astype(numpy.float64)
+        df = self if selection is None else self.filter(_selection_to_expr(selection))
+        return df.get_column('velocity').to_numpy().astype(numpy.float64)
 
     def types(self) -> t.Optional[polars.Series]:
         """Returns a [`Series`][polars.Series] of atom types (dtype [`polars.Int32`][polars.Int32])."""
@@ -706,11 +736,11 @@ class HasAtoms(abc.ABC):
         tol = abs(float(tol))
         selection = polars.lit(True)
         if x is not None:
-            selection &= (x - tol < polars.col('x')) & (polars.col('x') < x + tol)
+            selection &= self.x().is_between(x - tol, x + tol, closed='none')
         if y is not None:
-            selection &= (y - tol < polars.col('y')) & (polars.col('y') < y + tol)
+            selection &= self.y().is_between(y - tol, y + tol, closed='none')
         if z is not None:
-            selection &= (z - tol < polars.col('z')) & (polars.col('z') < z + tol)
+            selection &= self.z().is_between(z - tol, z + tol, closed='none')
         for (col, val) in kwargs.items():
             selection &= (polars.col(col) == val)
 
@@ -852,11 +882,7 @@ class HasAtoms(abc.ABC):
             pts = new_pts
 
         pts = numpy.broadcast_to(pts, (len(self), 3))
-        return self.with_columns((
-            polars.Series('x', pts[:, 0], polars.Float64),
-            polars.Series('y', pts[:, 1], polars.Float64),
-            polars.Series('z', pts[:, 2], polars.Float64),
-        ))
+        return self.with_columns(polars.Series('coords', pts, polars.Array(polars.Float64, 3)))
 
     def with_velocity(self: HasAtomsT, pts: t.Optional[ArrayLike] = None,
                       selection: t.Optional[AtomSelection] = None) -> HasAtomsT:
@@ -865,26 +891,23 @@ class HasAtoms(abc.ABC):
         If `pts` is not specified, use the already existing velocities or zero.
         """
         if pts is None:
-            if all(col in self.columns for col in ('v_x', 'v_y', 'v_z')):
+            if 'velocity' in self:
                 return self
-            pts = numpy.zeros((len(self), 3))
+            all_pts = numpy.zeros((len(self), 3))
         else:
-            pts = numpy.broadcast_to(pts, (len(self), 3))
+            all_pts = self['velocity'].to_numpy()
 
-        series = (
-            polars.Series('v_x', pts[:, 0], polars.Float64),
-            polars.Series('v_y', pts[:, 1], polars.Float64),
-            polars.Series('v_z', pts[:, 2], polars.Float64),
-        )
+        if selection is None:
+            all_pts = pts or all_pts
+        elif pts is not None:
+            selection = _selection_to_numpy(self, selection)
+            all_pts = numpy.require(all_pts, requirements=['WRITEABLE'])
+            pts = numpy.atleast_2d(pts)
+            assert pts.shape[-1] == 3
+            all_pts[selection] = pts
 
-        sel = _selection_to_expr(selection)
-
-        return self.with_columns((
-            polars.when(sel).then(s).otherwise(polars.col(s.name)) if s.name in self else s
-            for s in series
-        ))
-
-
+        all_pts = numpy.broadcast_to(all_pts, (len(self), 3))
+        return self.with_columns(polars.Series('velocity', all_pts, polars.Array(polars.Float64, 3)))
 
 
 class Atoms(AtomsIOMixin, HasAtoms):
@@ -893,9 +916,7 @@ class Atoms(AtomsIOMixin, HasAtoms):
     Implemented as a wrapper around a Polars DataFrame.
 
     Must contain the following columns:
-    - x: x position, float
-    - y: y position, float
-    - z: z position, float
+    - coords: array of [x, y, z] positions, float
     - elem: atomic number, int
     - symbol: atomic symbol (may contain charges)
 
@@ -904,7 +925,7 @@ class Atoms(AtomsIOMixin, HasAtoms):
     - wobble: Isotropic Debye-Waller mean-squared deviation (<u^2> = B*3/8pi^2, dimensions of [Length^2])
     - frac_occupancy: Fractional occupancy, [0., 1.]
     - mass: Atomic mass, in g/mol (approx. Da)
-    - v_[xyz]: Atom velocities, dimensions of length/time
+    - vel: array of [x, y, z] velocities, float, dimensions of length/time
     - type: Numeric atom type, as used by programs like LAMMPS
     """
 
@@ -917,9 +938,7 @@ class Atoms(AtomsIOMixin, HasAtoms):
         if data is None:
             assert columns is None
             self.inner = polars.DataFrame([
-                polars.Series('x', (), dtype=polars.Float64),
-                polars.Series('y', (), dtype=polars.Float64),
-                polars.Series('z', (), dtype=polars.Float64),
+                polars.Series('coords', (), dtype=polars.Array(polars.Float64, 3)),
                 polars.Series('elem', (), dtype=polars.Int8),
                 polars.Series('symbol', (), dtype=polars.Utf8),
             ])
@@ -932,6 +951,10 @@ class Atoms(AtomsIOMixin, HasAtoms):
             self.inner = polars.DataFrame(data, schema=columns, orient=orient)
 
         if not _unchecked:
+            # stack ('x', 'y', 'z') -> 'coords'
+            self.inner = _with_columns_stacked(self.inner, ('x', 'y', 'z'), 'coords')
+            self.inner = _with_columns_stacked(self.inner, ('v_x', 'v_y', 'v_z'), 'velocity')
+
             missing: t.Tuple[str, ...] = tuple(set(['symbol', 'elem']) - set(self.columns))
             if len(missing) > 1:
                 raise ValueError("'Atoms' missing columns 'elem' and/or 'symbol'.")
@@ -990,12 +1013,14 @@ class Atoms(AtomsIOMixin, HasAtoms):
         return f"Atoms, {self.inner!s}"
 
     def __repr__(self) -> str:
-        # real __repr__ that polars doesn't provide
-        lines = ["Atoms(["]
-        for (col, series) in self.inner.to_dict().items():
-            lines.append(f"    Series({col!r}, {list(series)!r}, {series.dtype!r}),")
-        lines.append("])")
-        return "\n".join(lines)
+        buf = StringIO()
+        buf.write("Atoms([\n")
+
+        for series in self.inner.to_dict().values():
+            buf.write(f"    Series({series.name!r}, {series.to_list()!r}, dtype={series.dtype!r}),\n")
+
+        buf.write("])\n")
+        return buf.getvalue()
 
     def _repr_pretty_(self, p, cycle: bool) -> None:
         p.text('Atoms(...)') if cycle else p.text(str(self))

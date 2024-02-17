@@ -430,7 +430,7 @@ class Cell(HasCell):
             self.__class__.__name__,
             f"Cell size: {self.cell_size!r}",
             f"Cell angle: {self.cell_angle!r}",
-            f"# cells: {self.cell_angle!r}",
+            f"# cells: {self.n_cells!r}",
             f"pbc: {self.pbc!r}",
         ))
 
@@ -528,6 +528,8 @@ def plane_to_zone(metric: LinearTransform3D, plane: VecLike, reduce: bool = True
     # [b1 b2 b3]^T = [a1 a2 a3]^-1
     # so real indices [uvw] = O^-1 O^-1^T (hkl)
     # O^-1 O^-1^T = (O^T O)^-1 = M^-1
+    # in other words, we are raising the index of the tensor,
+    # converting a covector into a vector
     zone = metric.inverse() @ plane
 
     if reduce:

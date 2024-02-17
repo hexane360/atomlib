@@ -20,9 +20,9 @@ def xyz_expected(s: HasAtoms):
 
     assert list(s.atoms['elem']) == [14] * 8
     assert list(s.atoms['symbol']) == ['Si'] * 8
-    assert list(s.atoms['x']) == pytest.approx([0.00, 1.36, 2.72, 4.08, 2.72, 4.08, 0.00, 1.36])
-    assert list(s.atoms['y']) == pytest.approx([0.00, 1.36, 2.72, 4.08, 0.00, 1.36, 2.72, 4.08])
-    assert list(s.atoms['z']) == pytest.approx([0.00, 1.36, 0.00, 1.36, 2.72, 4.08, 2.72, 4.08])
+    assert list(s['x']) == pytest.approx([0.00, 1.36, 2.72, 4.08, 2.72, 4.08, 0.00, 1.36])
+    assert list(s['y']) == pytest.approx([0.00, 1.36, 2.72, 4.08, 0.00, 1.36, 2.72, 4.08])
+    assert list(s['z']) == pytest.approx([0.00, 1.36, 0.00, 1.36, 2.72, 4.08, 2.72, 4.08])
 
 
 def test_xyz():
@@ -69,9 +69,12 @@ def cfg_expected(s: HasAtoms):
     assert list(s.atoms['x']) == pytest.approx([0.00, 0.00, 2.72, 2.72])
     assert list(s.atoms['y']) == pytest.approx([0.00, 2.72, 0.00, 2.72])
     assert list(s.atoms['z']) == pytest.approx([0.00, 2.72, 2.72, 0.00])
-    assert list(s.atoms['v_x']) == pytest.approx([  5.44, 0.00, 0.00, 0.00])
-    assert list(s.atoms['v_y']) == pytest.approx([-10.88, 0.00, 0.00, 0.00])
-    assert list(s.atoms['v_z']) == pytest.approx([  5.44, 0.00, 0.00, 0.00])
+    assert s.atoms['velocity'].to_numpy().ravel() == pytest.approx([
+        5.44, -10.88, 5.44,
+        0.00, 0.00, 0.00,
+        0.00, 0.00, 0.00,
+        0.00, 0.00, 0.00,
+    ])
 
 
 def test_cfg():
@@ -179,7 +182,7 @@ def test_cif_aln_labelonly(aln):
     return AtomCell(
         aln.get_atoms('local')
             .with_column(polars.Series('label', ['Al(0)', 'Al(1)', 'N(0)', 'N(1)']))
-            .select(['x', 'y', 'z', 'symbol', 'label', 'elem']),
+            .select(['coords', 'symbol', 'label', 'elem']),
         aln.cell, frame='local'
     )
 
