@@ -10,6 +10,8 @@ __pycache__/
 /docs/_build/
 /docs/build/
 /result_images/
+/site/
+/docs_old/
 
 .pytest_cache/
 .mypy_cache/

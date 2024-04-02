@@ -16,7 +16,7 @@ def write_qe(atomcell: HasAtomCell, f: FileOrPath, pseudo: t.Optional[t.Mapping[
 
     types = atoms.select(('symbol', 'mass')).unique(subset='symbol').sort('mass')
     if pseudo is not None:
-        types = types.with_columns(polars.col('symbol').apply(lambda sym: pseudo[str(sym)]).alias('pot'))
+        types = types.with_columns(polars.col('symbol').cast(polars.Utf8).map_dict(dict(pseudo), return_dtype=polars.Utf8).alias('pot'))
     else:
         types = types.with_columns(polars.col('symbol').apply(lambda sym: f"{sym}.UPF").alias('pot'))
 
@@ -33,5 +33,5 @@ def write_qe(atomcell: HasAtomCell, f: FileOrPath, pseudo: t.Optional[t.Mapping[
             print(f"{symbol:>4} {mass:10.3f}  {pot}", file=f)
 
         print(f"\nATOMIC_POSITIONS crystal", file=f)
-        for (symbol, x, y, z) in atoms.select(('symbol', 'x', 'y', 'z')).rows():
+        for (symbol, (x, y, z)) in atoms.select(('symbol', 'coords')).rows():
             print(f"{symbol:>4} {x:.8f} {y:.8f} {z:.8f}", file=f)
