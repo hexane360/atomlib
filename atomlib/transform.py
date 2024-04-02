@@ -309,6 +309,32 @@ class AffineTransform3D(Transform3D):
         """
         return self.compose(LinearTransform3D.strain(strain, v, poisson))
 
+    def align_standard(self) -> AffineTransform3D:
+        """
+        Align `self` so `v1` is in the x-axis and `v2` is in the xy-plane.
+
+        This is equivalent to a $QR$ decomposition which keeps only the
+        right-triangular matrix $R$.
+
+        For an affine transformation, this rotates the transformation
+        around the global origin (including any transformation).
+        """
+        if self.det() <= 0:
+            raise ValueError("align_standard() requires a right-handed transformation")
+
+        translation = self.translation()
+
+        import scipy.linalg
+        q, r = t.cast(t.Tuple[numpy.ndarray, numpy.ndarray], scipy.linalg.qr(self.to_linear().inner))
+        # qr unique up to the sign of the digonal
+        # we choose the case where r is positive definite
+        q = q * numpy.sign(r.diagonal())
+        r = r * numpy.sign(r.diagonal())[:, None]
+        assert numpy.linalg.det(r) > 0
+        # we need to remove the rotation from the translation component as well
+        # q is orthogonal, so q^-1 = q.T
+        return LinearTransform3D(r).translate(q.T @ translation).round_near_zero()
+
     @t.overload
     def transform(self, points: BBox3D) -> BBox3D:
         ...
@@ -628,13 +654,15 @@ class LinearTransform3D(AffineTransform3D):
         This is equivalent to a $QR$ decomposition which keeps only the
         right-triangular matrix $R$.
         """
-        import scipy.linalg
+        if self.det() <= 0:
+            raise ValueError("align_standard() requires a right-handed transformation")
 
-        assert self.det() > 0  # only works on right handed crystal systems
+        import scipy.linalg
         _q, r = t.cast(t.Tuple[numpy.ndarray, numpy.ndarray], scipy.linalg.qr(self.inner))
         # qr unique up to the sign of the digonal
-        r = r * numpy.sign(r.diagonal())
-        assert numpy.linalg.det(r) > 0
+        # we choose the case where r is positive definite
+        r = r * numpy.sign(r.diagonal())[:, None]
+        assert numpy.linalg.det(r) > 0  # check our work
         return LinearTransform3D(r).round_near_zero()
 
     def _orthogonal_axes(self, max_denom: int = 1000) -> NDArray[numpy.int_]:

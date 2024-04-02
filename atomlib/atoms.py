@@ -96,7 +96,7 @@ def _values_to_expr(values: AtomValues, ty: t.Type[polars.DataType]) -> polars.E
     if isinstance(values, polars.Series):
         return polars.lit(values, dtype=ty)
     if isinstance(values, t.Mapping):
-        return polars.col('symbol').map_dict(dict(values), return_dtype=ty)
+        return polars.col('symbol').replace(values, return_dtype=ty)
     arr = numpy.asarray(values)
     return polars.lit(polars.Series(arr, dtype=ty) if arr.size > 1 else arr[()])
 
@@ -105,7 +105,7 @@ def _values_to_numpy(df: t.Union[polars.DataFrame, HasAtoms], values: AtomValues
     if isinstance(values, polars.Expr):
         values = df.select(values).to_series()
     elif isinstance(values, t.Mapping):
-        values = polars.col('symbol').map_dict(dict(values), return_dtype=ty)
+        values = df.select(polars.col('symbol').replace(values, return_dtype=ty)).to_series()
     if isinstance(values, polars.Series):
         if ty == polars.Boolean:
             # force conversion to numpy (unpacked) bool
@@ -248,10 +248,10 @@ class HasAtoms(abc.ABC):
 
     @_fwd_frame_map
     def with_columns(self,
-                     exprs: t.Union[IntoExpr, t.Iterable[IntoExpr]],
+                     *exprs: t.Union[IntoExpr, t.Iterable[IntoExpr]],
                      **named_exprs: IntoExpr) -> polars.DataFrame:
         """Return a copy of `self` with the given columns added."""
-        return self._get_frame().with_columns(exprs, **named_exprs)
+        return self._get_frame().with_columns(*exprs, **named_exprs)
 
     @_fwd_frame_map
     def insert_column(self, index: int, column: polars.Series) -> polars.DataFrame:
@@ -542,10 +542,10 @@ class HasAtoms(abc.ABC):
         """
         Round atom position values near zero to zero.
         """
-        return self.with_columns(polars.concat_list(
+        return self.with_columns(coords=polars.concat_list(
             polars.when(_coord_expr(col).abs() >= tol).then(_coord_expr(col)).otherwise(polars.lit(0.))
             for col in range(3)
-        ).list.to_array(3).alias('coords'))
+        ).list.to_array(3))
 
     def crop(self: HasAtomsT, x_min: float = -numpy.inf, x_max: float = numpy.inf,
              y_min: float = -numpy.inf, y_max: float = numpy.inf,
@@ -813,7 +813,7 @@ class HasAtoms(abc.ABC):
         For instance: ["Ag+", "Na", "H", "Ag"] => [3, 11, 1, 2]
         """
         if types is not None:
-            return self.with_column(_values_to_expr(types, polars.Int32).alias('type'))
+            return self.with_columns(type=_values_to_expr(types, polars.Int32))
         if 'type' in self.columns:
             return self
 

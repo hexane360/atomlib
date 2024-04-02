@@ -5,7 +5,7 @@ import polars
 import pytest
 
 from atomlib import HasAtoms, AtomCell, Atoms
-from atomlib.transform import LinearTransform3D
+from atomlib.transform import LinearTransform3D, AffineTransform3D
 from atomlib.io import *
 
 from atomlib.testing import check_parse_structure, check_equals_file, INPUT_PATH, OUTPUT_PATH
@@ -224,3 +224,13 @@ def test_cfg_roundtrip(s: StringIO):
 @check_equals_file('AlN_out.cfg')
 def test_cfg_write_cell(s: StringIO, aln: AtomCell):
     aln.write_cfg(s)
+
+
+@check_equals_file('AlN_out.lmp', skip_lines=1)
+def test_lmp_write_aln(s: StringIO, aln):
+    # add a random rotation. this should get undone on output
+    cell = aln.with_mass({'Al': 5., 'N': 10.}).with_type({'Al': 10, 'N': 20}) \
+        .transform(AffineTransform3D.translate([2., 0., -5.])
+                   .rotate([0.125, 0.582, -1.20], 29. * numpy.pi/180.))
+
+    cell.write_lmp(s)

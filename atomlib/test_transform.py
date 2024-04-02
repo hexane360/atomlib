@@ -239,3 +239,30 @@ def _test_transform_align_to(v1, v2, p1, p2):
     p1_perp = p1_t - v2 * numpy.dot(p1_t, v2)
     p2_perp = p2 - v2 * numpy.dot(p2, v2)
     assert_allclose(p1_perp / numpy.linalg.norm(p1_perp), p2_perp / numpy.linalg.norm(p2_perp), atol=1e-10)
+
+
+def test_align_standard_linear():
+    expected = LinearTransform3D([
+        [1., 2., -1.],
+        [0., 5., 3.],
+        [0., 0., 1.]
+    ])
+
+    rotated = expected.rotate([1.58, 2.384, 5.283], theta=80. * numpy.pi/180.)
+
+    assert_allclose(rotated.align_standard().inner, expected.inner)
+
+
+def test_align_standard_affine():
+    expected = LinearTransform3D([
+        [1., 2., -1.],
+        [0., 5., 3.],
+        [0., 0., 1.]
+    ]).translate([-5., 0., 2.])
+
+    rotation = LinearTransform3D.rotate([1.58, 2.384, 5.283], theta=80. * numpy.pi/180.)
+    rotated = rotation @ expected
+
+    print(f"rotation: {rotation}")
+
+    assert_allclose(rotated.align_standard().inner, expected.inner)

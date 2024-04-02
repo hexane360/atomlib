@@ -49,13 +49,18 @@ def assert_files_equal(expected_path: t.Union[str, Path], actual_path: t.Union[s
     assert expected == actual
 
 
-def check_equals_file(name: t.Union[str, Path]) -> t.Callable[[t.Callable[..., t.Any]], t.Callable[..., None]]:
+def check_equals_file(name: t.Union[str, Path], *, skip_lines: int = 0) -> t.Callable[[t.Callable[..., t.Any]], t.Callable[..., None]]:
     def decorator(f: t.Callable[..., str]):
         @pytest.mark.expected_filename(name)
         def wrapper(expected_contents_text: str, *args, **kwargs):  # type: ignore
             buf = StringIO()
             f(buf, *args, **kwargs)
-            assert buf.getvalue() == expected_contents_text
+            if skip_lines > 0:
+                lhs = "".join(buf.getvalue().splitlines(True)[skip_lines:])
+                rhs = "".join(expected_contents_text.splitlines(True)[skip_lines:])
+                assert lhs == rhs
+            else:
+                assert buf.getvalue() == expected_contents_text
 
         return _wrap_pytest(wrapper, f, lambda params: [inspect.Parameter('expected_contents_text', inspect.Parameter.POSITIONAL_OR_KEYWORD), *params[1:]])
 
