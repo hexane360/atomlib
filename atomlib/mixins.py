@@ -108,6 +108,10 @@ class AtomsIOMixin(_HasAtoms, abc.ABC):
         from .io import write_cfg
         write_cfg(self, f)
 
+    def write_lmp(self, f: FileOrPath):
+        from .io import write_lmp
+        write_lmp(self, f)
+
     @t.overload
     def write(self, path: FileOrPath, ty: FileType):
         ...

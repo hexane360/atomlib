@@ -11,7 +11,7 @@ import numpy
 import polars
 
 from ..atomcell import Atoms, AtomCell, HasAtomCellT, IntoAtoms
-from ..transform import LinearTransform3D
+from ..transform import LinearTransform3D, AffineTransform3D
 from ..elem import get_elem, get_elems, get_mass
 from ..types import ElemLike, Num, VecLike
 from ..cell import cell_to_ortho, Cell
@@ -475,15 +475,54 @@ def slab(atoms: HasAtomCellT, zone: VecLike = (0., 0., 1.), horz: VecLike = (1.,
     return atoms.with_cell(cell).with_atoms(raw_atoms, 'cell').crop_to_box()
 
 
+def stacking_sequence(layer: AtomCell, sequence: str, shift_vector: VecLike = (1, 0, 0), *,
+                      n_layers: int = 3) -> AtomCell:
+    """
+    Create an arbitrary stacking sequence from a single layer `layer`.
+
+    Parameters:
+     - `layer`: Layer to stack into a stacking sequence. Will be stacked along the c axis.
+     - `sequence`: Stacking sequence. Each layer should be "A", "B", or "C" (in the common case
+       where there are three layers). Example: `"ABCABC"`.
+     - `shift_vector`: Shift to apply, in fractional coordinates. The shift between each layer
+       will be `shift_vector/n_layers`. Typically an integer value, to preserve periodicity.
+       Defaults to `[100]`.
+     - `n_layers`: Number of layers which corresponds to a shift of a complete lattice vector.
+       Defaults to `3`, the case for FCC and HCP.
+
+    Returns an `AtomCell` containing the stacked structure.
+    """
+
+    layers = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"[:n_layers]
+
+    # TODO generalize this to arbitrary number of layers
+    sequence = sequence.upper()
+    if any(s not in layers for s in sequence):
+        raise ValueError(f"Invalid sequence '{sequence}'. Expected values in '{layers}'")
+
+    # c vector to shift along
+    c_vec = layer.to_ortho().transform_vec([0, 0, 1])
+    # new cell is original cell tiled by the number of layers
+    cell = layer.get_cell().repeat([1, 1, len(sequence)])
+
+    # convert shift_vector to local coordinates
+    shift_vector = layer.get_cell().get_transform('local', 'cell_frac').transform_vec(shift_vector)
+
+    atoms = layer.get_atoms('local')
+    return AtomCell(Atoms.concat(
+        # translate by the shift vector and translate to the correct layer
+        atoms.transform(AffineTransform3D.translate(shift_vector * (layers.find(c)) / n_layers + i*c_vec))
+        for (i, c) in enumerate(sequence)
+    ), cell).wrap()
+
+
 def _ortho_hexagonal(cell: AtomCell) -> AtomCell:
     a, _, c = cell.cell.cell_size
     cell = cell.repeat((2, 2, 1)).explode()
     frame = cell.get_atoms('local')
 
     eps = 1e-6
-    frame = frame.filter(
-        (polars.col('coords').arr.get(0) >= -eps) & (polars.col('coords').arr.get(0) < a - eps)
-    )
+    frame = frame.filter(frame.x() >= -eps, frame.x() < a - eps)
 
     ortho = cell_to_ortho([a, a * numpy.sqrt(3), c])
 

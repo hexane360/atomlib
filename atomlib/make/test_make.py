@@ -2,7 +2,8 @@
 import numpy
 import pytest
 
-from . import fcc, wurtzite, graphite, zincblende, fluorite, perovskite, slab, cesium_chloride
+from . import fcc, wurtzite, graphite, zincblende, fluorite, perovskite, cesium_chloride
+from . import slab, stacking_sequence
 from .. import AtomCell, Atoms
 from ..transform import LinearTransform3D
 from ..testing import check_equals_structure
@@ -147,8 +148,6 @@ def test_slab_ceo2_100():
     return slab(cell, [1, 0, 0], [0, 0, 1])
 
 
-
-
 def test_graphite():
     cell = graphite(cell='prim')
 
@@ -168,3 +167,15 @@ def test_graphite():
     }), ortho, frame='cell_frac')
 
     expected.assert_equal(cell)
+
+
+@check_equals_structure('ZnSe_extrinsic_stacking.xsf')
+def test_stacking_sequence_znse():
+    layer = AtomCell.from_unit_cell(Atoms({
+        'x': [0.5, 0.5, 0., 0.],
+        'y': [0.5, 0.5, 0., 0.],
+        'z': [0.0, 0.75, 0., 0.75],
+        'elem': [30, 34, 30, 34],
+    }), cell_size=[6.941, 4.007, 3.272], frame='cell_frac')
+
+    return stacking_sequence(layer, "ABCBABCABC").explode_z()
