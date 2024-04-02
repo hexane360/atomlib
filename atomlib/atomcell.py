@@ -22,7 +22,7 @@ from .types import VecLike, to_vec3, ParamSpec, Concatenate
 from .transform import LinearTransform3D, AffineTransform3D, Transform3D, IntoTransform3D
 from .cell import CoordinateFrame, HasCell, Cell
 from .atoms import HasAtoms, Atoms, IntoAtoms, AtomSelection, AtomValues
-from .atoms import IntoExpr, IntoExprColumn, FillNullStrategy
+from .atoms import IntoExpr, IntoExprColumn, FillNullStrategy, RollingInterpolationMethod
 
 # pyright: reportImportCycles=false
 from .mixins import AtomCellIOMixin
@@ -312,6 +312,7 @@ class HasAtomCell(HasAtoms, HasCell, abc.ABC):
 
     @_fwd_atoms_get
     def describe(self, percentiles: t.Union[t.Sequence[float], float, None] = (0.25, 0.5, 0.75), *,
+                 interpolation: RollingInterpolationMethod = 'nearest',
                  frame: t.Optional[CoordinateFrame] = None) -> polars.DataFrame:
         """Return summary statistics for `self`."""
         ...
@@ -340,10 +341,9 @@ class HasAtomCell(HasAtoms, HasCell, abc.ABC):
         ...
 
     @_fwd_atoms_get
-    def group_by(
-        self, by: t.Union[IntoExpr, t.Iterable[IntoExpr]], *more_by: IntoExpr,
-        frame: t.Optional[CoordinateFrame] = None, maintain_order: bool = False
-    ) -> polars.dataframe.group_by.GroupBy:
+    def group_by(self, *by: t.Union[IntoExpr, t.Iterable[IntoExpr]],
+                 maintain_order: bool = False, frame: t.Optional[CoordinateFrame] = None,
+                 **named_by: IntoExpr) -> polars.dataframe.group_by.GroupBy:
         ...
 
     def pipe(self: HasAtomCellT, function: t.Callable[Concatenate[HasAtomCellT, P], T], *args: P.args, **kwargs: P.kwargs) -> T:

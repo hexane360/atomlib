@@ -51,6 +51,7 @@ IntoExprColumn: TypeAlias = polars.type_aliases.IntoExprColumn
 IntoExpr: TypeAlias = polars.type_aliases.IntoExpr
 UniqueKeepStrategy: TypeAlias = polars.type_aliases.UniqueKeepStrategy
 FillNullStrategy: TypeAlias = polars.type_aliases.FillNullStrategy
+RollingInterpolationMethod: TypeAlias = polars.type_aliases.RollingInterpolationMethod
 ConcatMethod: TypeAlias = t.Literal['horizontal', 'vertical', 'diagonal', 'inner', 'align']
 
 IntoAtoms = t.Union[t.Dict[str, t.Sequence[t.Any]], t.Sequence[t.Any], numpy.ndarray, polars.DataFrame, 'Atoms']
@@ -235,7 +236,8 @@ class HasAtoms(abc.ABC):
         ...
 
     @_fwd_frame(polars.DataFrame.describe)
-    def describe(self, percentiles: t.Union[t.Sequence[float], float, None] = (0.25, 0.5, 0.75)) -> polars.DataFrame:
+    def describe(self, percentiles: t.Union[t.Sequence[float], float, None] = (0.25, 0.5, 0.75), *,
+                 interpolation: RollingInterpolationMethod = 'nearest') -> polars.DataFrame:
         """Return summary statistics for `self`."""
         ...
 
@@ -270,7 +272,8 @@ class HasAtoms(abc.ABC):
         ...
 
     @_fwd_frame(polars.DataFrame.group_by)
-    def group_by(self, by: t.Union[IntoExpr, t.Iterable[IntoExpr]], *more_by: IntoExpr, maintain_order: bool = False) -> polars.dataframe.group_by.GroupBy:
+    def group_by(self, *by: t.Union[IntoExpr, t.Iterable[IntoExpr]], maintain_order: bool = False,
+                 **named_by: IntoExpr) -> polars.dataframe.group_by.GroupBy:
         ...
 
     def pipe(self: HasAtomsT, function: t.Callable[Concatenate[HasAtomsT, P], T], *args: P.args, **kwargs: P.kwargs) -> T:
