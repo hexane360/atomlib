@@ -2974,7 +2974,7 @@ transformations to the local coordinate system, which atoms are stored in.</p>
 </span><span id="__span-0-430"><a id="__codelineno-0-430" name="__codelineno-0-430"></a>            <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
 </span><span id="__span-0-431"><a id="__codelineno-0-431" name="__codelineno-0-431"></a>            <span class="sa">f</span><span class="s2">&quot;Cell size: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">cell_size</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">,</span>
 </span><span id="__span-0-432"><a id="__codelineno-0-432" name="__codelineno-0-432"></a>            <span class="sa">f</span><span class="s2">&quot;Cell angle: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">cell_angle</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">,</span>
-</span><span id="__span-0-433"><a id="__codelineno-0-433" name="__codelineno-0-433"></a>            <span class="sa">f</span><span class="s2">&quot;# cells: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">cell_angle</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">,</span>
+</span><span id="__span-0-433"><a id="__codelineno-0-433" name="__codelineno-0-433"></a>            <span class="sa">f</span><span class="s2">&quot;# cells: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">n_cells</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">,</span>
 </span><span id="__span-0-434"><a id="__codelineno-0-434" name="__codelineno-0-434"></a>            <span class="sa">f</span><span class="s2">&quot;pbc: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">pbc</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">,</span>
 </span><span id="__span-0-435"><a id="__codelineno-0-435" name="__codelineno-0-435"></a>        <span class="p">))</span>
 </span><span id="__span-0-436"><a id="__codelineno-0-436" name="__codelineno-0-436"></a>
@@ -4136,7 +4136,9 @@ return a unit vector.</p>
 <span class="normal"><a href="#__codelineno-0-533">533</a></span>
 <span class="normal"><a href="#__codelineno-0-534">534</a></span>
 <span class="normal"><a href="#__codelineno-0-535">535</a></span>
-<span class="normal"><a href="#__codelineno-0-536">536</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-516"><a id="__codelineno-0-516" name="__codelineno-0-516"></a><span class="k">def</span> <span class="nf">plane_to_zone</span><span class="p">(</span><span class="n">metric</span><span class="p">:</span> <span class="n">LinearTransform3D</span><span class="p">,</span> <span class="n">plane</span><span class="p">:</span> <span class="n">VecLike</span><span class="p">,</span> <span class="n">reduce</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Vec3</span><span class="p">:</span>
+<span class="normal"><a href="#__codelineno-0-536">536</a></span>
+<span class="normal"><a href="#__codelineno-0-537">537</a></span>
+<span class="normal"><a href="#__codelineno-0-538">538</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-516"><a id="__codelineno-0-516" name="__codelineno-0-516"></a><span class="k">def</span> <span class="nf">plane_to_zone</span><span class="p">(</span><span class="n">metric</span><span class="p">:</span> <span class="n">LinearTransform3D</span><span class="p">,</span> <span class="n">plane</span><span class="p">:</span> <span class="n">VecLike</span><span class="p">,</span> <span class="n">reduce</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Vec3</span><span class="p">:</span>
 </span><span id="__span-0-517"><a id="__codelineno-0-517" name="__codelineno-0-517"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="__span-0-518"><a id="__codelineno-0-518" name="__codelineno-0-518"></a><span class="sd">    Return the zone axis associated with a given crystallographic plane.</span>
 </span><span id="__span-0-519"><a id="__codelineno-0-519" name="__codelineno-0-519"></a><span class="sd">    If `reduce` is True, call `reduce_vec` before returning. Otherwise,</span>
@@ -4151,12 +4153,14 @@ return a unit vector.</p>
 </span><span id="__span-0-528"><a id="__codelineno-0-528" name="__codelineno-0-528"></a>    <span class="c1"># [b1 b2 b3]^T = [a1 a2 a3]^-1</span>
 </span><span id="__span-0-529"><a id="__codelineno-0-529" name="__codelineno-0-529"></a>    <span class="c1"># so real indices [uvw] = O^-1 O^-1^T (hkl)</span>
 </span><span id="__span-0-530"><a id="__codelineno-0-530" name="__codelineno-0-530"></a>    <span class="c1"># O^-1 O^-1^T = (O^T O)^-1 = M^-1</span>
-</span><span id="__span-0-531"><a id="__codelineno-0-531" name="__codelineno-0-531"></a>    <span class="n">zone</span> <span class="o">=</span> <span class="n">metric</span><span class="o">.</span><span class="n">inverse</span><span class="p">()</span> <span class="o">@</span> <span class="n">plane</span>
-</span><span id="__span-0-532"><a id="__codelineno-0-532" name="__codelineno-0-532"></a>
-</span><span id="__span-0-533"><a id="__codelineno-0-533" name="__codelineno-0-533"></a>    <span class="k">if</span> <span class="n">reduce</span><span class="p">:</span>
-</span><span id="__span-0-534"><a id="__codelineno-0-534" name="__codelineno-0-534"></a>        <span class="k">return</span> <span class="n">to_vec3</span><span class="p">(</span><span class="n">reduce_vec</span><span class="p">(</span><span class="n">zone</span><span class="p">))</span>
-</span><span id="__span-0-535"><a id="__codelineno-0-535" name="__codelineno-0-535"></a>    <span class="c1"># otherwise reduce to unit vector</span>
-</span><span id="__span-0-536"><a id="__codelineno-0-536" name="__codelineno-0-536"></a>    <span class="k">return</span> <span class="n">zone</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">zone</span><span class="p">))</span>
+</span><span id="__span-0-531"><a id="__codelineno-0-531" name="__codelineno-0-531"></a>    <span class="c1"># in other words, we are raising the index of the tensor,</span>
+</span><span id="__span-0-532"><a id="__codelineno-0-532" name="__codelineno-0-532"></a>    <span class="c1"># converting a covector into a vector</span>
+</span><span id="__span-0-533"><a id="__codelineno-0-533" name="__codelineno-0-533"></a>    <span class="n">zone</span> <span class="o">=</span> <span class="n">metric</span><span class="o">.</span><span class="n">inverse</span><span class="p">()</span> <span class="o">@</span> <span class="n">plane</span>
+</span><span id="__span-0-534"><a id="__codelineno-0-534" name="__codelineno-0-534"></a>
+</span><span id="__span-0-535"><a id="__codelineno-0-535" name="__codelineno-0-535"></a>    <span class="k">if</span> <span class="n">reduce</span><span class="p">:</span>
+</span><span id="__span-0-536"><a id="__codelineno-0-536" name="__codelineno-0-536"></a>        <span class="k">return</span> <span class="n">to_vec3</span><span class="p">(</span><span class="n">reduce_vec</span><span class="p">(</span><span class="n">zone</span><span class="p">))</span>
+</span><span id="__span-0-537"><a id="__codelineno-0-537" name="__codelineno-0-537"></a>    <span class="c1"># otherwise reduce to unit vector</span>
+</span><span id="__span-0-538"><a id="__codelineno-0-538" name="__codelineno-0-538"></a>    <span class="k">return</span> <span class="n">zone</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">zone</span><span class="p">))</span>
 </span></code></pre></div></td></tr></table></div>
           </details>
   </div>
@@ -4182,9 +4186,7 @@ return a unit vector.</p>
 
           <details class="quote">
             <summary>Source code in <code>atomlib/cell.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-539">539</a></span>
-<span class="normal"><a href="#__codelineno-0-540">540</a></span>
-<span class="normal"><a href="#__codelineno-0-541">541</a></span>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-541">541</a></span>
 <span class="normal"><a href="#__codelineno-0-542">542</a></span>
 <span class="normal"><a href="#__codelineno-0-543">543</a></span>
 <span class="normal"><a href="#__codelineno-0-544">544</a></span>
@@ -4198,23 +4200,25 @@ return a unit vector.</p>
 <span class="normal"><a href="#__codelineno-0-552">552</a></span>
 <span class="normal"><a href="#__codelineno-0-553">553</a></span>
 <span class="normal"><a href="#__codelineno-0-554">554</a></span>
-<span class="normal"><a href="#__codelineno-0-555">555</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-539"><a id="__codelineno-0-539" name="__codelineno-0-539"></a><span class="k">def</span> <span class="nf">zone_to_plane</span><span class="p">(</span><span class="n">metric</span><span class="p">:</span> <span class="n">LinearTransform3D</span><span class="p">,</span> <span class="n">zone</span><span class="p">:</span> <span class="n">VecLike</span><span class="p">,</span> <span class="n">reduce</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Vec3</span><span class="p">:</span>
-</span><span id="__span-0-540"><a id="__codelineno-0-540" name="__codelineno-0-540"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="__span-0-541"><a id="__codelineno-0-541" name="__codelineno-0-541"></a><span class="sd">    Return the crystallographic plane associated with a given zone axis.</span>
-</span><span id="__span-0-542"><a id="__codelineno-0-542" name="__codelineno-0-542"></a><span class="sd">    If `reduce` is True, call `reduce_vec` before returning. Otherwise,</span>
-</span><span id="__span-0-543"><a id="__codelineno-0-543" name="__codelineno-0-543"></a><span class="sd">    return a unit vector.</span>
-</span><span id="__span-0-544"><a id="__codelineno-0-544" name="__codelineno-0-544"></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="__span-0-545"><a id="__codelineno-0-545" name="__codelineno-0-545"></a>
-</span><span id="__span-0-546"><a id="__codelineno-0-546" name="__codelineno-0-546"></a>    <span class="n">zone</span> <span class="o">=</span> <span class="n">to_vec3</span><span class="p">(</span><span class="n">zone</span><span class="p">)</span>
-</span><span id="__span-0-547"><a id="__codelineno-0-547" name="__codelineno-0-547"></a>    <span class="k">if</span> <span class="n">metric</span><span class="o">.</span><span class="n">is_orthogonal</span><span class="p">():</span>
-</span><span id="__span-0-548"><a id="__codelineno-0-548" name="__codelineno-0-548"></a>        <span class="k">return</span> <span class="n">zone</span>
-</span><span id="__span-0-549"><a id="__codelineno-0-549" name="__codelineno-0-549"></a>
-</span><span id="__span-0-550"><a id="__codelineno-0-550" name="__codelineno-0-550"></a>    <span class="n">plane</span> <span class="o">=</span> <span class="n">metric</span> <span class="o">@</span> <span class="n">zone</span>
+<span class="normal"><a href="#__codelineno-0-555">555</a></span>
+<span class="normal"><a href="#__codelineno-0-556">556</a></span>
+<span class="normal"><a href="#__codelineno-0-557">557</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-541"><a id="__codelineno-0-541" name="__codelineno-0-541"></a><span class="k">def</span> <span class="nf">zone_to_plane</span><span class="p">(</span><span class="n">metric</span><span class="p">:</span> <span class="n">LinearTransform3D</span><span class="p">,</span> <span class="n">zone</span><span class="p">:</span> <span class="n">VecLike</span><span class="p">,</span> <span class="n">reduce</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Vec3</span><span class="p">:</span>
+</span><span id="__span-0-542"><a id="__codelineno-0-542" name="__codelineno-0-542"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="__span-0-543"><a id="__codelineno-0-543" name="__codelineno-0-543"></a><span class="sd">    Return the crystallographic plane associated with a given zone axis.</span>
+</span><span id="__span-0-544"><a id="__codelineno-0-544" name="__codelineno-0-544"></a><span class="sd">    If `reduce` is True, call `reduce_vec` before returning. Otherwise,</span>
+</span><span id="__span-0-545"><a id="__codelineno-0-545" name="__codelineno-0-545"></a><span class="sd">    return a unit vector.</span>
+</span><span id="__span-0-546"><a id="__codelineno-0-546" name="__codelineno-0-546"></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="__span-0-547"><a id="__codelineno-0-547" name="__codelineno-0-547"></a>
+</span><span id="__span-0-548"><a id="__codelineno-0-548" name="__codelineno-0-548"></a>    <span class="n">zone</span> <span class="o">=</span> <span class="n">to_vec3</span><span class="p">(</span><span class="n">zone</span><span class="p">)</span>
+</span><span id="__span-0-549"><a id="__codelineno-0-549" name="__codelineno-0-549"></a>    <span class="k">if</span> <span class="n">metric</span><span class="o">.</span><span class="n">is_orthogonal</span><span class="p">():</span>
+</span><span id="__span-0-550"><a id="__codelineno-0-550" name="__codelineno-0-550"></a>        <span class="k">return</span> <span class="n">zone</span>
 </span><span id="__span-0-551"><a id="__codelineno-0-551" name="__codelineno-0-551"></a>
-</span><span id="__span-0-552"><a id="__codelineno-0-552" name="__codelineno-0-552"></a>    <span class="k">if</span> <span class="n">reduce</span><span class="p">:</span>
-</span><span id="__span-0-553"><a id="__codelineno-0-553" name="__codelineno-0-553"></a>        <span class="k">return</span> <span class="n">to_vec3</span><span class="p">(</span><span class="n">reduce_vec</span><span class="p">(</span><span class="n">plane</span><span class="p">))</span>
-</span><span id="__span-0-554"><a id="__codelineno-0-554" name="__codelineno-0-554"></a>    <span class="c1"># otherwise reduce to unit vector</span>
-</span><span id="__span-0-555"><a id="__codelineno-0-555" name="__codelineno-0-555"></a>    <span class="k">return</span> <span class="n">plane</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">plane</span><span class="p">))</span>
+</span><span id="__span-0-552"><a id="__codelineno-0-552" name="__codelineno-0-552"></a>    <span class="n">plane</span> <span class="o">=</span> <span class="n">metric</span> <span class="o">@</span> <span class="n">zone</span>
+</span><span id="__span-0-553"><a id="__codelineno-0-553" name="__codelineno-0-553"></a>
+</span><span id="__span-0-554"><a id="__codelineno-0-554" name="__codelineno-0-554"></a>    <span class="k">if</span> <span class="n">reduce</span><span class="p">:</span>
+</span><span id="__span-0-555"><a id="__codelineno-0-555" name="__codelineno-0-555"></a>        <span class="k">return</span> <span class="n">to_vec3</span><span class="p">(</span><span class="n">reduce_vec</span><span class="p">(</span><span class="n">plane</span><span class="p">))</span>
+</span><span id="__span-0-556"><a id="__codelineno-0-556" name="__codelineno-0-556"></a>    <span class="c1"># otherwise reduce to unit vector</span>
+</span><span id="__span-0-557"><a id="__codelineno-0-557" name="__codelineno-0-557"></a>    <span class="k">return</span> <span class="n">plane</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">plane</span><span class="p">))</span>
 </span></code></pre></div></td></tr></table></div>
           </details>
   </div>

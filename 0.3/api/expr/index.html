@@ -1051,6 +1051,39 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="GroupOpenToken">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#atomlib.expr.GroupOpenToken.raw" class="md-nav__link">
+    <span class="md-ellipsis">
+      raw
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#atomlib.expr.GroupOpenToken.line" class="md-nav__link">
+    <span class="md-ellipsis">
+      line
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#atomlib.expr.GroupOpenToken.span" class="md-nav__link">
+    <span class="md-ellipsis">
+      span
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1059,6 +1092,39 @@
       GroupCloseToken
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="GroupCloseToken">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#atomlib.expr.GroupCloseToken.raw" class="md-nav__link">
+    <span class="md-ellipsis">
+      raw
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#atomlib.expr.GroupCloseToken.line" class="md-nav__link">
+    <span class="md-ellipsis">
+      line
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#atomlib.expr.GroupCloseToken.span" class="md-nav__link">
+    <span class="md-ellipsis">
+      span
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1914,7 +1980,7 @@
 
 
 <h2 id="atomlib.expr.VECTOR_PARSER" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">VECTOR_PARSER</span> <span class="o">=</span> <span class="n">Parser</span><span class="p">(</span><span class="n">VECTOR_OPS</span><span class="p">,</span> <span class="k">lambda</span> <span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">parse_numeric</span><span class="p">(</span><span class="n">v</span><span class="p">)))</span></code>
+          <code class="highlight language-python"><span class="n">VECTOR_PARSER</span> <span class="o">=</span> <span class="n">Parser</span><span class="p">(</span><span class="n">VECTOR_OPS</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">parse_numeric</span><span class="p">(</span><span class="n">v</span><span class="p">)))</span></code>
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
@@ -3103,6 +3169,79 @@ Handles a tie using the associativity of self.</p>
 </span></code></pre></div></td></tr></table></div>
             </details>
 
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="atomlib.expr.GroupOpenToken.raw" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">raw</span><span class="p">:</span> <span class="nb">str</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="atomlib.expr.GroupOpenToken.line" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">line</span><span class="p">:</span> <span class="nb">int</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="atomlib.expr.GroupOpenToken.span" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">span</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+
+
+
+
+  </div>
+
   </div>
 
 
@@ -3138,6 +3277,79 @@ Handles a tie using the associativity of self.</p>
 </span></code></pre></div></td></tr></table></div>
             </details>
 
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="atomlib.expr.GroupCloseToken.raw" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">raw</span><span class="p">:</span> <span class="nb">str</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="atomlib.expr.GroupCloseToken.line" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">line</span><span class="p">:</span> <span class="nb">int</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="atomlib.expr.GroupCloseToken.span" class="doc doc-heading">
+          <code class="highlight language-python"><span class="n">span</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  </div>
+
+</div>
+
+
+
+
+
+  </div>
+
   </div>
 
 
@@ -3150,6 +3362,10 @@ Handles a tie using the associativity of self.</p>
 <h2 id="atomlib.expr.WhitespaceToken" class="doc doc-heading">
           <code>WhitespaceToken</code>
 
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
 
 </h2>
 
@@ -4695,7 +4911,7 @@ Handles a tie using the associativity of self.</p>
 
 
 <h3 id="atomlib.expr.Parser.parse_scalar" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">parse_scalar</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="n">T_co</span><span class="p">]</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="n">T_co</span><span class="p">],</span> <span class="n">parse_scalar</span> <span class="ow">or</span> <span class="k">lambda</span> <span class="p">:</span> <span class="n">s</span><span class="p">)</span></code>
+          <code class="highlight language-python"><span class="n">parse_scalar</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="n">T_co</span><span class="p">]</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="n">T_co</span><span class="p">],</span> <span class="n">parse_scalar</span> <span class="ow">or</span> <span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="n">s</span><span class="p">)</span></code>
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
