@@ -1,4 +1,4 @@
-from io import StringIO, BytesIO
+from io import StringIO
 
 import re
 import pytest
@@ -21,18 +21,18 @@ Lattice="5.44 0.0 0.0 0.0 5.44 0.0 0.0 0.0 5.44" Properties=species:S:1:pos:R:3 
 
 def test_xyz_invalid():
     xyz_in = \
-b"""4
+"""4
 
 Si      1.36     4.08     4.08
 14      1.36     4.08     4.08
 O       1.36     4.08     4.08
-255     1.36     4.08     4.08
+120     1.36     4.08     4.08
 """
-    with pytest.raises(ValueError, match="Invalid atomic number 255"):
-        XYZ.from_file(BytesIO(xyz_in))
+    with pytest.raises(ValueError, match="Invalid atomic number 120"):
+        XYZ.from_file(StringIO(xyz_in))
 
     xyz_in = \
-b"""4
+"""4
 
 Si      1.36     4.08     4.08
 14      1.36     4.08     4.08
@@ -40,7 +40,7 @@ Ay      1.36     4.08     4.08
 O       1.36     4.08     4.08
 """
     with pytest.raises(ValueError, match=re.escape("Invalid element symbol(s) 'Ay'")):
-        print(XYZ.from_file(BytesIO(xyz_in)))
+        print(XYZ.from_file(StringIO(xyz_in)))
 
 
 def test_xyz_write():

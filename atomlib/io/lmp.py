@@ -12,6 +12,7 @@ from ..atomcell import HasAtomCell, HasAtoms, Atoms, Cell, AtomCell
 from ..elem import get_elem, get_sym
 from ..util import open_file, FileOrPath, localtime, checked_left_join, CheckedJoinError
 from ..transform import AffineTransform3D, LinearTransform3D
+from .util import parse_whitespace_separated
 
 
 @dataclass
@@ -48,9 +49,10 @@ class LMP:
 
         cell = self.get_cell()
 
-        def _apply_type_labels(df: polars.DataFrame, section_name: str, d: t.Optional[t.Dict[str, int]]) -> polars.DataFrame:
-            if d is not None:
-                df = df.with_columns(polars.col('type').replace(d, default=polars.col('type').cast(polars.Int32, strict=False), return_dtype=polars.Int32))
+        def _apply_type_labels(df: polars.DataFrame, section_name: str, labels: t.Optional[polars.DataFrame] = None) -> polars.DataFrame:
+            if labels is not None:
+                #df = df.with_columns(polars.col('type').replace(d, default=polars.col('type').cast(polars.Int32, strict=False), return_dtype=polars.Int32))
+                df = df.with_columns(polars.col('type').replace(labels['symbol'], labels['type'], default=polars.col('type').cast(polars.Int32, strict=False), return_dtype=polars.Int32))
                 if df['type'].is_null().any():
                     raise ValueError(f"While parsing section {section_name}: Unknown atom label or invalid atom type")
             try:
@@ -60,31 +62,31 @@ class LMP:
 
         atoms: t.Optional[polars.DataFrame] = None
         labels: t.Optional[polars.DataFrame] = None
-        labels_dict: t.Optional[t.Dict[str, int]] = None
         masses: t.Optional[polars.DataFrame] = None
         velocities = None
 
         for section in self.sections:
+            start_line = section.start_line + 1
+
             if section.name == 'Atoms':
                 if section.style not in (None, 'atomic'):
                     # TODO support other styles
                     raise ValueError(f"Only 'atomic' atom_style is supported, instead got '{section.style}'")
 
-                atoms = _parse_whitespace_separated(section.body, {
+                atoms = parse_whitespace_separated(section.body, {
                     'i': polars.Int64, 'type': polars.Utf8,
                     'x': polars.Float64, 'y': polars.Float64, 'z': polars.Float64,
-                }).select('i', 'type', polars.concat_list('x', 'y', 'z').alias('coords').list.to_array(3))
-                atoms = _apply_type_labels(atoms, 'Atoms', labels_dict)
+                }, start_line=start_line).select('i', 'type', polars.concat_list('x', 'y', 'z').alias('coords').list.to_array(3))
+                atoms = _apply_type_labels(atoms, 'Atoms', labels)
             elif section.name == 'Atom Type Labels':
-                labels = _parse_whitespace_separated(section.body, {'type': polars.Int32, 'symbol': polars.Utf8})
-                labels_dict = {ty: sym for (sym, ty) in labels.iter_rows()}
+                labels = parse_whitespace_separated(section.body, {'type': polars.Int32, 'symbol': polars.Utf8}, start_line=start_line)
             elif section.name == 'Masses':
-                masses = _parse_whitespace_separated(section.body, {'type': polars.Utf8, 'mass': polars.Float64})
-                masses = _apply_type_labels(masses, 'Masses', labels_dict)
+                masses = parse_whitespace_separated(section.body, {'type': polars.Utf8, 'mass': polars.Float64}, start_line=start_line)
+                masses = _apply_type_labels(masses, 'Masses', labels)
             elif section.name == 'Velocities':
-                velocities = _parse_whitespace_separated(section.body, {
+                velocities = parse_whitespace_separated(section.body, {
                     'i': polars.Int64, 'x': polars.Float64, 'y': polars.Float64, 'z': polars.Float64
-                }).select('i', polars.concat_list('x', 'y', 'z').alias('velocity').list.to_array(3))
+                }, start_line=start_line).select('i', polars.concat_list('x', 'y', 'z').alias('velocity').list.to_array(3))
 
         # now all 'type's should be in Int32
 
@@ -227,6 +229,7 @@ class LMPSection:
     name: str
     body: t.Tuple[str, ...]
     style: t.Optional[str] = None
+    start_line: int = 0
 
 
 class LMPReader:
@@ -287,6 +290,7 @@ class LMPReader:
         sections: t.List[LMPSection] = []
 
         while True:
+            start_line = self.line
             line = self.next_line()
             if line is None:
                 break
@@ -324,7 +328,7 @@ class LMPReader:
                                  f"Unexpected EOF before {n_lines} lines were read")
 
             sections.append(LMPSection(
-                name, tuple(lines), style,
+                name, tuple(lines), style, start_line
             ))
             first = False
 
@@ -365,14 +369,6 @@ class LMPReader:
             return None
         self.line += n
         return lines
-
-
-def _parse_whitespace_separated(rows: t.Iterable[str], schema: t.Dict[str, t.Type[polars.DataType]]) -> polars.DataFrame:
-    # TODO more general version of this across io types
-    return polars.DataFrame([
-        row.split()[:len(schema)]
-        for row in rows
-    ], schema=schema, orient='row')
 
 
 def write_lmp(atoms: HasAtoms, f: FileOrPath):

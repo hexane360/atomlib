@@ -10,7 +10,6 @@ from dataclasses import dataclass, field
 from itertools import islice
 import warnings
 import re
-import io
 import logging
 import typing as t
 
@@ -18,10 +17,11 @@ import numpy
 from numpy.typing import NDArray
 import polars
 
-from ..util import open_file, open_file_binary, BinaryFileOrPath, FileOrPath
+from ..util import open_file, FileOrPath
 from ..elem import get_sym, get_elem
 from ..atoms import HasAtoms
 from ..atomcell import HasAtomCell
+from .util import parse_whitespace_separated
 
 _EXT_TOKEN_RE = re.compile(r"(=|\s+|\")")
 _PROP_TYPE_MAP: t.Dict[str, t.Type[polars.DataType]] = {
@@ -59,25 +59,6 @@ def _flatten(it: t.Iterable[t.Union[T, t.Iterable[T]]]) -> t.Iterator[T]:
             yield t.cast(T, val)
 
 
-class XYZToCSVReader(io.IOBase):
-    def __init__(self, inner: io.IOBase):
-        self.inner = inner
-
-    def read(self, n: int) -> bytes:  # type: ignore
-        buf = self.inner.read(n)
-        buf = re.sub(rb'[ \t]+', rb'\t', buf)
-        return buf
-
-    def seek(self, offset: int, whence: int = 0, /) -> int:  # pragma: nocover
-        return self.inner.seek(offset, whence)
-
-    def __getattr__(self, name: str):
-        if name in ('name', 'getvalue'):
-            # don't let polars steal the buffer from us
-            raise AttributeError()
-        return getattr(self.inner, name)
-
-
 @dataclass
 class XYZ:
     atoms: polars.DataFrame
@@ -101,10 +82,10 @@ class XYZ:
         )
 
     @staticmethod
-    def from_file(file: BinaryFileOrPath) -> XYZ:
+    def from_file(file: FileOrPath) -> XYZ:
         logging.info(f"Loading XYZ {file.name if hasattr(file, 'name') else file!r}...")  # type: ignore
 
-        with open_file_binary(file, 'r') as f:
+        with open_file(file, 'r') as f:
             try:
                 # TODO be more gracious about whitespace here
                 length = int(f.readline())
@@ -113,7 +94,7 @@ class XYZ:
             except IOError as e:
                 raise IOError(f"Error parsing XYZ file: {e}") from None
 
-            comment = f.readline().rstrip(b'\n').decode('utf-8')
+            comment = f.readline().rstrip('\n')
             # TODO handle if there's not a gap here
 
             try:
@@ -121,29 +102,16 @@ class XYZ:
             except ValueError:
                 params = None
 
-            column_names, column_types = _get_columns_from_params(params)
+            schema = _get_columns_from_params(params)
 
-            f = XYZToCSVReader(f)
-            df: polars.DataFrame = polars.read_csv(
-                f, separator='\t',  # type: ignore
-                new_columns=column_names,
-                dtypes=column_types,
-                has_header=False, use_pyarrow=False
-            )
-            if len(df.columns) > 4:
-                raise ValueError("Error parsing XYZ file: Extra columns in at least one row.")
-
+            df = parse_whitespace_separated(f, schema, start_line=1)
             df = df.with_columns(polars.concat_list('x', 'y', 'z').list.to_array(3).alias('coords')).drop('x', 'y', 'z')
 
-            #TODO .fill_null(Series) seems to be broken on polars 0.14.11
-            # map atomic numbers -> symbols (on columns whichare UInt8)
-            sym = get_sym(df.select(polars.col('symbol').cast(polars.UInt8, strict=False)).to_series())
+            # map atomic numbers -> symbols (on columns which are Int8)
             df = df.with_columns(
-                polars.when(sym.is_null())  # type: ignore
-                .then(polars.col('symbol'))
-                .otherwise(sym)  # type: ignore
-                .alias('symbol'))
-
+                get_sym(df.select(polars.col('symbol').cast(polars.Int8, strict=False)).to_series())
+                    .fill_null(df['symbol']).alias('symbol')
+            )
             # ensure all symbols are recognizable (this will raise ValueError if not)
             get_elem(df['symbol'])
 
@@ -228,20 +196,21 @@ def _param_strings(params: t.Dict[str, str]) -> t.Iterator[str]:
         yield f"{k}={v}"
 
 
-def _get_columns_from_params(params: t.Optional[t.Dict[str, str]]) -> t.Tuple[t.List[str], t.List[t.Type[polars.DataType]]]:
+def _get_columns_from_params(params: t.Optional[t.Dict[str, str]]) -> t.Dict[str, t.Type[polars.DataType]]:
     if params is None or (s := params.get('Properties')) is None:
-        return (
-            ['symbol', 'x', 'y', 'z'],
-            [polars.Utf8, polars.Float64, polars.Float64, polars.Float64]
-        )
+        return {
+            'symbol': polars.Utf8,
+            'x': polars.Float64,
+            'y': polars.Float64,
+            'z': polars.Float64,
+        }
 
     try:
         segs = s.split(':')
         if len(segs) % 3:
             raise ValueError()
 
-        col_names = []
-        col_types = []
+        d = {}
         for (name, ty, num) in batched(segs, 3):
             num = int(num)
             if num < 1:
@@ -251,18 +220,17 @@ def _get_columns_from_params(params: t.Optional[t.Dict[str, str]]) -> t.Tuple[t.
             ty = _PROP_TYPE_MAP[ty.lower()]
 
             if num == 1:
-                col_names.append(name)
-                col_types.append(ty)
+                d[name] = ty
                 continue
 
             suffixes = ('x', 'y', 'z') if num == 3 else range(num)
-            col_names.extend(f"{name}_{c}".lstrip('_') for c in suffixes)
-            col_types.extend(ty for _ in suffixes)
+            for c in suffixes:
+                d[f"{name}_{c}".lstrip('_')] = ty
 
-        if not all(c in col_names for c in ('symbol', 'x', 'y', 'z')):
+        if not all(c in d.keys() for c in ('symbol', 'x', 'y', 'z')):
             raise ValueError("Properties string missing required columns.")
 
-        return (col_names, col_types)
+        return d
 
     except ValueError:
         raise ValueError(f"Improperly formmated 'Properties' parameter: {s}")

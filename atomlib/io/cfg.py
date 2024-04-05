@@ -17,6 +17,7 @@ from ..util import FileOrPath, open_file, map_some
 from ..elem import get_elem
 from ..atoms import HasAtoms
 from ..atomcell import HasAtomCell
+from .util import parse_whitespace_separated, LineBuffer
 
 @dataclass
 class CFG:
@@ -136,11 +137,11 @@ class CFGParser:
         value_tags: t.Dict[str, t.Tuple[float, t.Optional[str]]] = {}
         array_tags: t.Dict[str, t.List[t.List[t.Optional[float]]]] = {}
 
-        while (line := self.buf.peek()) is not None:
+        while (line := self.buf.peek_line()) is not None:
             line = line.strip()
             if len(line) == 0 or line.startswith("#"):
                 # skip comments and blank lines
-                self.buf.next()
+                self.buf.next_line()
                 continue
 
             if first:
@@ -167,7 +168,7 @@ class CFGParser:
                     raise ValueError(f"Invalid # of elements '{value}' at line {self.buf.line}") from None
                 n = value
                 first = False
-                self.buf.next()
+                self.buf.next_line()
                 continue
 
             if tag.lower() in TAGS:
@@ -198,7 +199,7 @@ class CFGParser:
             else:
                 raise ValueError(f"Unknown tag '{tag}' at line {self.buf.line}")
 
-            self.buf.next()
+            self.buf.next_line()
 
         if n is None:
             raise ValueError("Empty CFG file")
@@ -228,57 +229,19 @@ class CFGParser:
         return (float(value), unit)
 
     def parse_atoms(self, n: int) -> polars.DataFrame:
-        rows = []
-        columns = (
-            ('elem', polars.Int8), ('symbol', polars.Utf8),
-            ('coords', polars.Array(polars.Float64, 3)),
-            ('velocity', polars.Array(polars.Float64, 3)),
-            ('mass', polars.Float64),
+        df = parse_whitespace_separated(self.buf, {
+            'mass': polars.Float64, 'symbol': polars.Utf8,
+            'x': polars.Float64, 'y': polars.Float64, 'z': polars.Float64,
+            'v_x': polars.Float64, 'v_y': polars.Float64, 'v_z': polars.Float64,
+        })
+        df = df.with_columns(get_elem(df['symbol'])).select(
+            'elem', 'symbol',
+            polars.concat_list('x', 'y', 'z').list.to_array(3).alias('coords'),
+            polars.concat_list('v_x', 'v_y', 'v_z').list.to_array(3).alias('velocity'),
+            'mass'
         )
 
-        while (line := self.buf.peek()) is not None:
-            self.buf.next()
-            line = line.strip()
-            if len(line) == 0 or line.startswith("#"):
-                # skip comments and blank lines
-                continue
+        if n != len(df):
+            raise ValueError(f"# of atom rows doesn't match declared number ({len(df)} vs. {n})")
 
-            cols = line.split()
-            if len(cols) != 8:
-                raise ValueError(f"Misformatted row '{line}' at line {self.buf.line}")
-
-            (mass, sym, x, y, z, v_x, v_y, v_z) = cols
-            try:
-                (mass, x, y, z, v_x, v_y, v_z) = map(float, (mass, x, y, z, v_x, v_y, v_z))
-            except ValueError:
-                raise ValueError(f"Invalid values at line {self.buf.line}")
-            try:
-                elem = get_elem(sym)
-            except ValueError:
-                raise ValueError(f"Invalid atomic symbol '{sym}' at line {self.buf.line}")
-
-            rows.append((elem, sym, (x, y, z), (v_x, v_y, v_z), mass))
-
-        if n != len(rows):
-            raise ValueError(f"# of atom rows doesn't match declared number ({len(rows)} vs. {n})")
-
-        return polars.DataFrame(rows, schema=columns, orient='row')  # type: ignore
-
-
-class LineBuffer:
-    def __init__(self, f: TextIOBase):
-        self.inner = iter(f)
-        self.line: int = 0
-        self._peek: t.Optional[str] = None
-
-    def next(self):
-        self._peek = None
-
-    def peek(self) -> t.Optional[str]:
-        if self._peek is None:
-            try:
-                self._peek = next(self.inner)
-                self.line += 1
-            except StopIteration:
-                pass
-        return self._peek
+        return df
