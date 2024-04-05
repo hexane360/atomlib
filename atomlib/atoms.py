@@ -43,6 +43,7 @@ _COLUMN_DTYPES: t.Mapping[str, t.Union[polars.DataType, t.Type[polars.DataType]]
     'wobble': polars.Float64,
     'frac_occupancy': polars.Float64,
     'type': polars.Int32,
+    'symbol': polars.Utf8,
 }
 _REQUIRED_COLUMNS: t.Tuple[str, ...] = ('coords', 'elem', 'symbol')
 
@@ -90,13 +91,21 @@ def _polars_to_numpy_dtype(dtype: t.Type[polars.DataType]) -> numpy.dtype:
         return numpy.dtype(object)
 
 
-def _values_to_expr(values: AtomValues, ty: t.Type[polars.DataType]) -> polars.Expr:
+def _get_symbol_mapping(df: t.Union[polars.DataFrame, HasAtoms], mapping: t.Mapping[str, t.Any], ty: t.Type[polars.DataType]) -> polars.Expr:
+    syms = df['symbol'].unique()
+    if (missing := set(syms) - set(mapping.keys())):
+        raise ValueError(f"Could not remap symbols {', '.join(map(repr, missing))}") 
+
+    return polars.col('symbol').replace(mapping, default=None, return_dtype=ty)
+
+
+def _values_to_expr(df: t.Union[polars.DataFrame, HasAtoms], values: AtomValues, ty: t.Type[polars.DataType]) -> polars.Expr:
     if isinstance(values, polars.Expr):
         return values.cast(ty)
     if isinstance(values, polars.Series):
         return polars.lit(values, dtype=ty)
     if isinstance(values, t.Mapping):
-        return polars.col('symbol').replace(values, return_dtype=ty)
+        return _get_symbol_mapping(df, values, ty)
     arr = numpy.asarray(values)
     return polars.lit(polars.Series(arr, dtype=ty) if arr.size > 1 else arr[()])
 
@@ -105,7 +114,10 @@ def _values_to_numpy(df: t.Union[polars.DataFrame, HasAtoms], values: AtomValues
     if isinstance(values, polars.Expr):
         values = df.select(values).to_series()
     elif isinstance(values, t.Mapping):
-        values = df.select(polars.col('symbol').replace(values, return_dtype=ty)).to_series()
+        values = df.select(_get_symbol_mapping(df, values, ty)).to_series()
+        #if values.is_null().any():
+        #    syms = df.select(polars.col('symbol').filter(values.is_null())).unique().to_series().to_list()
+        #    raise ValueError(f"Could not remap symbols {', '.join(map(repr, syms))}") 
     if isinstance(values, polars.Series):
         if ty == polars.Boolean:
             # force conversion to numpy (unpacked) bool
@@ -116,10 +128,10 @@ def _values_to_numpy(df: t.Union[polars.DataFrame, HasAtoms], values: AtomValues
     return numpy.broadcast_to(numpy.asarray(values, dtype), len(df))
 
 
-def _selection_to_expr(selection: t.Optional[AtomSelection] = None) -> polars.Expr:
+def _selection_to_expr(df: t.Union[polars.DataFrame, HasAtoms], selection: t.Optional[AtomSelection] = None) -> polars.Expr:
     if selection is None:
         return polars.lit(True, dtype=polars.Boolean)
-    return _values_to_expr(selection, ty=polars.Boolean)
+    return _values_to_expr(df, selection, ty=polars.Boolean)
 
 
 def _selection_to_numpy(df: t.Union[polars.DataFrame, HasAtoms], selection: t.Optional[AtomSelection]) -> NDArray[numpy.bool_]:
@@ -636,7 +648,7 @@ class HasAtoms(abc.ABC):
 
     def coords(self, selection: t.Optional[AtomSelection] = None) -> NDArray[numpy.float64]:
         """Return a `(N, 3)` ndarray of atom coordinates (dtype [`numpy.float64`][numpy.float64])."""
-        df = self if selection is None else self.filter(_selection_to_expr(selection))
+        df = self if selection is None else self.filter(_selection_to_expr(self, selection))
         return df.get_column('coords').to_numpy().astype(numpy.float64)
 
     def x(self) -> polars.Expr:
@@ -653,7 +665,7 @@ class HasAtoms(abc.ABC):
         if 'velocity' not in self:
             return None
 
-        df = self if selection is None else self.filter(_selection_to_expr(selection))
+        df = self if selection is None else self.filter(_selection_to_expr(self, selection))
         return df.get_column('velocity').to_numpy().astype(numpy.float64)
 
     def types(self) -> t.Optional[polars.Series]:
@@ -754,7 +766,7 @@ class HasAtoms(abc.ABC):
             return self
         if index is None:
             index = numpy.arange(len(self), dtype=numpy.int64)
-        return self.with_column(_values_to_expr(index, polars.Int64).alias('i'))
+        return self.with_column(_values_to_expr(self, index, polars.Int64).alias('i'))
 
     def with_wobble(self: HasAtomsT, wobble: t.Optional[AtomValues] = None) -> HasAtomsT:
         """
@@ -764,7 +776,7 @@ class HasAtoms(abc.ABC):
         if wobble is None and 'wobble' in self.columns:
             return self
         wobble = 0. if wobble is None else wobble
-        return self.with_column(_values_to_expr(wobble, polars.Float64).alias('wobble'))
+        return self.with_column(_values_to_expr(self, wobble, polars.Float64).alias('wobble'))
 
     def with_occupancy(self: HasAtomsT, frac_occupancy: t.Optional[AtomValues] = None) -> HasAtomsT:
         """
@@ -774,7 +786,7 @@ class HasAtoms(abc.ABC):
         if frac_occupancy is None and 'frac_occupancy' in self.columns:
             return self
         frac_occupancy = 1. if frac_occupancy is None else frac_occupancy
-        return self.with_column(_values_to_expr(frac_occupancy, polars.Float64).alias('frac_occupancy'))
+        return self.with_column(_values_to_expr(self, frac_occupancy, polars.Float64).alias('frac_occupancy'))
 
     def apply_wobble(self: HasAtomsT, rng: t.Union[numpy.random.Generator, int, None] = None) -> HasAtomsT:
         """
@@ -813,7 +825,7 @@ class HasAtoms(abc.ABC):
         For instance: ["Ag+", "Na", "H", "Ag"] => [3, 11, 1, 2]
         """
         if types is not None:
-            return self.with_columns(type=_values_to_expr(types, polars.Int32))
+            return self.with_columns(type=_values_to_expr(self, types, polars.Int32))
         if 'type' in self.columns:
             return self
 
@@ -837,7 +849,7 @@ class HasAtoms(abc.ABC):
         If `mass` is not specified, use the already existing masses or auto-assign them.
         """
         if mass is not None:
-            return self.with_column(_values_to_expr(mass, polars.Float32).alias('mass'))
+            return self.with_column(_values_to_expr(self, mass, polars.Float32).alias('mass'))
         if 'mass' in self.columns:
             return self
 
