@@ -234,3 +234,27 @@ def test_lmp_write_aln(s: StringIO, aln):
                    .rotate([0.125, 0.582, -1.20], 29. * numpy.pi/180.))
 
     cell.write_lmp(s)
+
+
+@check_equals_file('AlN_roundtrip.lmp', skip_lines=1)
+def test_lmp_roundtrip(s: StringIO):
+    path = OUTPUT_PATH / 'AlN_roundtrip.lmp'
+    lmp = LMP.from_file(path)
+    lmp.write(s)
+
+
+@check_parse_structure('labeled.lmp')
+def test_lmp_labeled(aln_ortho):
+    return AtomCell.from_ortho(Atoms({
+        'elem': [7, 13, 13, 7],
+        'type': [20, 10, 10, 20],
+        'symbol': ['N2', 'Al1', 'Al1', 'N2'],
+        'mass': [10., 5., 5., 10.],
+        'x': [1., 0., 0., 0.],
+        'y': [0., 1., 0., 0.],
+        'z': [1., 0., 0., 1.],
+        'v_x': [1., 0., 0., 0.],
+        'v_y': [0., 1., 0., 0.],
+        'v_z': [1., 0., 0., 1.],
+        'i': [4, 2, 1, 3],
+    }), aln_ortho, frame='local')

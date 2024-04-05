@@ -10,6 +10,7 @@ import typing as t
 
 import numpy
 from numpy.typing import NDArray
+import polars
 
 from .types import ParamSpec, Concatenate
 
@@ -145,7 +146,29 @@ def proc_seed(seed: t.Optional[object], entropy: object) -> t.Optional[NDArray[n
     return numpy.frombuffer(state.digest(), dtype=numpy.uint32)
 
 
+class CheckedJoinError(Exception):
+    def __init__(self, missing_keys: t.Sequence[t.Any]):
+        self.missing_keys: t.Tuple[t.Any, ...] = tuple(missing_keys)
+        super().__init__()
+
+    def __str__(self) -> str:
+        return f"Missing match for key(s): '{', '.join(map(repr, self.missing_keys))}'"
+
+
+def checked_left_join(lhs: polars.DataFrame, rhs: polars.DataFrame, on: t.Optional[str] = None, *,
+                      left_on: t.Optional[str] = None, right_on: t.Optional[str] = None) -> polars.DataFrame:
+    df = lhs.join(rhs, how='inner', on=on, left_on=left_on, right_on=right_on, validate='m:1')
+
+    if len(df) < len(lhs):
+        missing_rows = lhs.join(rhs, how='anti', on=on, left_on=left_on, right_on=right_on)
+        col = t.cast(str, left_on or on)
+        missing = missing_rows.select(polars.col(col).unique()).to_series()
+        raise CheckedJoinError(tuple(missing))
+
+    return df
+
+
 __all__ = [
     'open_file', 'open_file_binary', 'FileOrPath', 'BinaryFileOrPath',
-    'opt_classmethod', 'localtime', 'map_some', 'proc_seed',
+    'opt_classmethod', 'localtime', 'map_some', 'proc_seed', 'checked_left_join',
 ]

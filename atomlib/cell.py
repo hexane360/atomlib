@@ -381,7 +381,7 @@ class Cell(HasCell):
     def __init__(self, *,
         affine: t.Optional[AffineTransform3D] = None, ortho: t.Optional[LinearTransform3D] = None,
         cell_size: VecLike, cell_angle: t.Optional[VecLike] = None,
-        n_cells: t.Optional[VecLike] = None, pbc: t.Optional[VecLike]):
+        n_cells: t.Optional[VecLike] = None, pbc: t.Optional[VecLike] = None):
 
         object.__setattr__(self, '_affine', AffineTransform3D() if affine is None else affine)
         object.__setattr__(self, '_ortho', LinearTransform3D() if ortho is None else ortho)

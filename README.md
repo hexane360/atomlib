@@ -28,9 +28,9 @@ This means you can write your own code to utilize advanced format features even 
 | [Basic XYZ][xyz]       | .xyz    | :white_check_mark: | :white_check_mark: |       |
 | [Ext. XYZ][xyz]        | .exyz   | :white_check_mark: | :white_check_mark: | Arbitrary properties not implemented |
 | [Special XYZ][xyz]     | .sxyz   | :x:                | :x:                | To be implemented |
-| [LAMMPS Data][lmp]     | .lmp    | :x:                | :white_check_mark: |       |
+| [LAMMPS Data][lmp]     | .lmp    | :white_check_mark: | :white_check_mark: |       |
 | [Quantum Espresso][qe] | .qe     | :x:                | :white_check_mark: | pw.x format  |
-| [pyMultislicer][pyM]   | .mslice | :white_check_mark: | :white_check_mark: |       |
+| [pyMultislicer][pyM]   | .mslice | :white_check_mark: | :white_check_mark: | Currently XML format only |
 
 [atomsk]: https://atomsk.univ-lille.fr/
 [ase]: https://wiki.fysik.dtu.dk/ase/

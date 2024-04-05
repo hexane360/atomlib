@@ -13,7 +13,7 @@ from .xyz import XYZ, XYZFormat
 from .xsf import XSF
 from .cfg import CFG
 from .mslice import write_mslice, read_mslice
-from .lmp import write_lmp
+from .lmp import LMP
 from .qe import write_qe
 
 from ..atoms import Atoms, HasAtoms
@@ -73,9 +73,9 @@ def read_cif(f: t.Union[FileOrPath, CIF, CIFDataBlock], block: t.Union[int, str,
     for sym in cif.get_symmetry():
         sym_atoms.append(atoms.transform(sym))
 
-    s = '\n'.join(map(str, sym_atoms))
-    print(f"sym_atoms:\n{s}")
-    print(f"atoms: {atoms!s}")
+    #s = '\n'.join(map(str, sym_atoms))
+    #print(f"sym_atoms:\n{s}")
+    #print(f"atoms: {atoms!s}")
 
     if len(sym_atoms) > 0:
         atoms = Atoms.concat(sym_atoms)._wrap().deduplicate()
@@ -176,8 +176,26 @@ def read_cfg(f: t.Union[FileOrPath, CFG]) -> AtomCell:
 
 
 def write_cfg(atoms: t.Union[HasAtoms, CFG], f: FileOrPath):
+    """Write a structure to an AtomEye CFG file."""
     if not isinstance(atoms, CFG):
         atoms = CFG.from_atoms(atoms)
+    atoms.write(f)
+
+
+def read_lmp(f: t.Union[FileOrPath, LMP], type_map: t.Optional[t.Dict[int, t.Union[str, int]]] = None) -> AtomCell:
+    """Read a structure from a LAAMPS data file."""
+    if isinstance(f, LMP):
+        lmp = f
+    else:
+        lmp = LMP.from_file(f)
+
+    return lmp.get_atoms(type_map=type_map)
+
+
+def write_lmp(atoms: t.Union[HasAtoms, LMP], f: FileOrPath):
+    """Write a structure to a LAAMPS data file."""
+    if not isinstance(atoms, LMP):
+        atoms = LMP.from_atoms(atoms)
     atoms.write(f)
 
 
@@ -188,7 +206,7 @@ _READ_TABLE: t.Mapping[FileType, t.Optional[ReadFunc]] = {
     'xsf': read_xsf,
     'cfg': read_cfg,
     'mslice': read_mslice,
-    'lmp': None,
+    'lmp': read_lmp,
     'qe': None
 }
 
@@ -294,7 +312,7 @@ def write(atoms: HasAtoms, path: FileOrPath, ty: t.Optional[FileType] = None):
 
 
 __all__ = [
-    'CIF', 'XYZ', 'XSF', 'CFG',
+    'CIF', 'XYZ', 'XSF', 'CFG', 'LMP',
     'read', 'read_cif', 'read_xyz', 'read_xsf', 'read_cfg',
     'write', 'write_xyz', 'write_xsf', 'write_cfg', 'write_lmp', 'write_mslice', 'write_qe',
 ]

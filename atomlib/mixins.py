@@ -11,7 +11,7 @@ if t.TYPE_CHECKING:  # pragma: no cover
     from .atoms import HasAtomsT
     from .atomcell import HasAtomCell as _HasAtomCell
 
-    from .io import CIF, CIFDataBlock, XYZ, XYZFormat, XSF, CFG, FileType, FileOrPath
+    from .io import CIF, CIFDataBlock, XYZ, XYZFormat, XSF, CFG, LMP, FileType, FileOrPath
     from .io.mslice import MSliceFile, BinaryFileOrPath
 
 else:
@@ -91,6 +91,12 @@ class AtomsIOMixin(_HasAtoms, abc.ABC):
         """Read a structure from a CFG file."""
         from .io import read_cfg
         return _cast_atoms(read_cfg(f), cls)
+
+    @classmethod
+    def read_lmp(cls: t.Type[HasAtomsT], f: t.Union[FileOrPath, LMP], type_map: t.Optional[t.Dict[int, t.Union[str, int]]] = None) -> HasAtomsT:
+        """Read a structure from a LAAMPS data file."""
+        from .io import read_lmp
+        return _cast_atoms(read_lmp(f, type_map=type_map), cls)
 
     def write_cif(self, f: FileOrPath):
         from .io import write_cif
