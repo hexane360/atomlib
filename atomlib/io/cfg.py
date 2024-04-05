@@ -231,14 +231,11 @@ class CFGParser:
     def parse_atoms(self, n: int) -> polars.DataFrame:
         df = parse_whitespace_separated(self.buf, {
             'mass': polars.Float64, 'symbol': polars.Utf8,
-            'x': polars.Float64, 'y': polars.Float64, 'z': polars.Float64,
-            'v_x': polars.Float64, 'v_y': polars.Float64, 'v_z': polars.Float64,
+            'coords': polars.Array(polars.Float64, 3),
+            'velocity': polars.Array(polars.Float64, 3),
         })
         df = df.with_columns(get_elem(df['symbol'])).select(
-            'elem', 'symbol',
-            polars.concat_list('x', 'y', 'z').list.to_array(3).alias('coords'),
-            polars.concat_list('v_x', 'v_y', 'v_z').list.to_array(3).alias('velocity'),
-            'mass'
+            'elem', 'symbol', 'coords', 'velocity', 'mass'
         )
 
         if n != len(df):

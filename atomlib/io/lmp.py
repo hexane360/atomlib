@@ -75,8 +75,8 @@ class LMP:
 
                 atoms = parse_whitespace_separated(section.body, {
                     'i': polars.Int64, 'type': polars.Utf8,
-                    'x': polars.Float64, 'y': polars.Float64, 'z': polars.Float64,
-                }, start_line=start_line).select('i', 'type', polars.concat_list('x', 'y', 'z').alias('coords').list.to_array(3))
+                    'coords': polars.Array(polars.Float64, 3),
+                }, start_line=start_line)
                 atoms = _apply_type_labels(atoms, 'Atoms', labels)
             elif section.name == 'Atom Type Labels':
                 labels = parse_whitespace_separated(section.body, {'type': polars.Int32, 'symbol': polars.Utf8}, start_line=start_line)
@@ -85,8 +85,8 @@ class LMP:
                 masses = _apply_type_labels(masses, 'Masses', labels)
             elif section.name == 'Velocities':
                 velocities = parse_whitespace_separated(section.body, {
-                    'i': polars.Int64, 'x': polars.Float64, 'y': polars.Float64, 'z': polars.Float64
-                }, start_line=start_line).select('i', polars.concat_list('x', 'y', 'z').alias('velocity').list.to_array(3))
+                    'i': polars.Int64, 'velocity': polars.Array(polars.Float64, 3),
+                }, start_line=start_line)
 
         # now all 'type's should be in Int32
 

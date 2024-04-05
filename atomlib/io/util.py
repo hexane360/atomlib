@@ -5,6 +5,7 @@ from io import TextIOBase
 import typing as t
 
 import polars
+from polars.type_aliases import SchemaDict
 
 
 class LineBuffer:
@@ -81,7 +82,7 @@ class LineBuffer:
 
 
 def parse_whitespace_separated(
-    f: t.Union[t.Sequence[str], LineBuffer, TextIOBase], schema: t.Dict[str, t.Type[polars.DataType]], *,
+    f: t.Union[t.Sequence[str], LineBuffer, TextIOBase], schema: SchemaDict, *,
     n_rows: t.Optional[int] = None,
     start_line: int = 0,
     allow_extra_cols: bool = False,
@@ -115,23 +116,53 @@ def parse_whitespace_separated(
     )
 
 
+_ARRAY_ELEM_NAMES: t.Dict[str, str] = {
+    'coords': '',
+    'velocity': 'v',
+}
+
+
 def _parse_rows_whitespace_separated(
     it: t.Iterator[str], get_line: t.Callable[[int], str],
-    schema: t.Dict[str, t.Type[polars.DataType]], *,
+    schema: SchemaDict,
     start_line: int = 0,
     allow_extra_cols: bool = False,
     allow_initial_whitespace: bool = True,
     allow_comment: bool = True
 ) -> polars.DataFrame:
 
+    expanded_schema: t.Dict[str, t.Union[polars.DataType, t.Type[polars.DataType]]] = {}
+    exprs: t.List[polars.Expr] = []
+
+    for col, ty in schema.items():
+        if isinstance(ty, type) or not isinstance(ty, polars.Array):
+            expanded_schema[col] = ty
+            exprs.append(polars.col('s').struct.field(col))
+            continue
+
+        inner_ty = ty.inner
+        assert inner_ty is not None
+
+        elem_base_name = _ARRAY_ELEM_NAMES.get(col, col)
+        suffixes = ('x', 'y', 'z') if ty.width == 3 else range(ty.width)
+        elem_cols = [f"{elem_base_name}_{s}".lstrip('_') for s in suffixes]
+
+        expanded_schema.update({elem_col: inner_ty for elem_col in elem_cols})
+
+        exprs.append(polars.concat_list(
+            polars.col('s').struct.field(elem_col)
+            for elem_col in elem_cols
+        ).list.to_array(ty.width).alias(col))
+
     regex = "".join((
         "^",
         r"\s*" if allow_initial_whitespace else "",
-        r"\s+".join(rf"(?<{col}>\S+)" for col in schema.keys()),
+        r"\s+".join(rf"(?<{col}>\S+)" for col in expanded_schema.keys()),
         '' if allow_extra_cols else (r'\s*(?:#|$)' if allow_comment else r'\s*$')
     ))
 
-    df = polars.LazyFrame({'s': it}, schema={'s': polars.Utf8}).select(polars.col('s').str.extract_groups(regex)).unnest('s').collect()
+    df = polars.LazyFrame({'s': it}, schema={'s': polars.Utf8}).select(polars.col('s').str.extract_groups(regex)) \
+        .select(exprs).collect()
 
     if len(df.lazy().filter(polars.col(df.columns[0]).is_null()).first().collect()):
         # failed to match

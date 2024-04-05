@@ -32,9 +32,9 @@ _PROP_TYPE_MAP: t.Dict[str, t.Type[polars.DataType]] = {
 # map OVITO property names into our standard names
 # see: https://www.ovito.org/manual/reference/file_formats/input/xyz.html
 _PROP_NAME_MAP: t.Dict[str, str] = {
-    'pos': '',  # turns into 'x', 'y', 'z'
+    'pos': 'coords',
     'species': 'symbol', 'element': 'symbol',
-    'vel': 'v', 'velo': 'v',
+    'vel': 'velocity', 'velo': 'velocity',
     'atom_types': 'type',
     'id': 'i',
     'transparency': 'frac_occupancy',
@@ -105,7 +105,6 @@ class XYZ:
             schema = _get_columns_from_params(params)
 
             df = parse_whitespace_separated(f, schema, start_line=1)
-            df = df.with_columns(polars.concat_list('x', 'y', 'z').list.to_array(3).alias('coords')).drop('x', 'y', 'z')
 
             # map atomic numbers -> symbols (on columns which are Int8)
             df = df.with_columns(
@@ -176,8 +175,6 @@ class XYZ:
             warnings.warn(f"Warning: Invalid format for key 'pbc=\"{s}\"'")
         return None
 
-    
-
 
 def batched(iterable: t.Iterable[T], n: int) -> t.Iterator[t.Tuple[T, ...]]:
     if n < 1:
@@ -196,13 +193,11 @@ def _param_strings(params: t.Dict[str, str]) -> t.Iterator[str]:
         yield f"{k}={v}"
 
 
-def _get_columns_from_params(params: t.Optional[t.Dict[str, str]]) -> t.Dict[str, t.Type[polars.DataType]]:
+def _get_columns_from_params(params: t.Optional[t.Dict[str, str]]) -> t.Dict[str, t.Union[polars.DataType, t.Type[polars.DataType]]]:
     if params is None or (s := params.get('Properties')) is None:
         return {
             'symbol': polars.Utf8,
-            'x': polars.Float64,
-            'y': polars.Float64,
-            'z': polars.Float64,
+            'coords': polars.Array(polars.Float64, 3),
         }
 
     try:
@@ -219,21 +214,15 @@ def _get_columns_from_params(params: t.Optional[t.Dict[str, str]]) -> t.Dict[str
             name = _PROP_NAME_MAP.get(name, name)
             ty = _PROP_TYPE_MAP[ty.lower()]
 
-            if num == 1:
-                d[name] = ty
-                continue
+            d[name] = ty if num == 1 else polars.Array(ty, num)
 
-            suffixes = ('x', 'y', 'z') if num == 3 else range(num)
-            for c in suffixes:
-                d[f"{name}_{c}".lstrip('_')] = ty
-
-        if not all(c in d.keys() for c in ('symbol', 'x', 'y', 'z')):
+        if not all(c in d.keys() for c in ('symbol', 'coords')):
             raise ValueError("Properties string missing required columns.")
 
         return d
 
     except ValueError:
-        raise ValueError(f"Improperly formmated 'Properties' parameter: {s}")
+        raise ValueError(f"Improperly formatted 'Properties' parameter: {s}")
 
 
 class ExtXYZParser:
