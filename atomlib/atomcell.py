@@ -318,18 +318,14 @@ class HasAtomCell(HasAtoms, HasCell, abc.ABC):
         ...
 
     @_fwd_atoms_transform
-    def with_column(self: HasAtomCellT, column: IntoExpr,
-                    frame: t.Optional[CoordinateFrame] = None) -> HasAtomCellT:
-        """Return a copy of ``self`` with the given column added."""
-        ...
-
-    @_fwd_atoms_transform
     def with_columns(self: HasAtomCellT,
-                     exprs: t.Union[IntoExpr, t.Iterable[IntoExpr]],
+                     *exprs: t.Union[IntoExpr, t.Iterable[IntoExpr]],
                      frame: t.Optional[CoordinateFrame] = None,
                      **named_exprs: IntoExpr) -> HasAtomCellT:
         """Return a copy of ``self`` with the given columns added."""
         ...
+
+    with_column = with_columns
 
     @_fwd_atoms_get
     def get_column(self, name: str, *, frame: t.Optional[CoordinateFrame] = None) -> polars.Series:

@@ -254,16 +254,13 @@ class HasAtoms(abc.ABC):
         ...
 
     @_fwd_frame_map
-    def with_column(self, column: IntoExpr) -> polars.DataFrame:
-        """Return a copy of `self` with the given column added."""
-        return self._get_frame().with_columns((column,))
-
-    @_fwd_frame_map
     def with_columns(self,
                      *exprs: t.Union[IntoExpr, t.Iterable[IntoExpr]],
                      **named_exprs: IntoExpr) -> polars.DataFrame:
         """Return a copy of `self` with the given columns added."""
         return self._get_frame().with_columns(*exprs, **named_exprs)
+
+    with_column = with_columns
 
     @_fwd_frame_map
     def insert_column(self, index: int, column: polars.Series) -> polars.DataFrame:

@@ -5,10 +5,10 @@ Functions to create cells.
 """
 
 import logging
+import string
 import typing as t
 
 import numpy
-import polars
 
 from ..atomcell import Atoms, AtomCell, HasAtomCellT, IntoAtoms
 from ..transform import LinearTransform3D, AffineTransform3D
@@ -493,7 +493,7 @@ def stacking_sequence(layer: AtomCell, sequence: str, shift_vector: VecLike = (1
     Returns an `AtomCell` containing the stacked structure.
     """
 
-    layers = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"[:n_layers]
+    layers = string.ascii_uppercase[:n_layers]
 
     # TODO generalize this to arbitrary number of layers
     sequence = sequence.upper()
