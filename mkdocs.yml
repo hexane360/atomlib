@@ -13,7 +13,7 @@ nav:
     - using/coords.md
   - API:
     - api/index.md
-    - api/disloc.md
+    - api/defect.md
     - api/transform.md
     - api/types.md
     - api/util.md

@@ -40,6 +40,63 @@ CutType = t.Literal['shift', 'add', 'rm']
 """Cut plane to use when creating a (non-screw) dislocation."""
 
 
+def stacking_fault(atoms: HasAtomsT, pos: VecLike, shift: VecLike, plane: VecLike) -> HasAtomsT:
+    """
+    Add a stacking fault to the structure.
+
+    The fault plane will pass through the position `pos`, with normal `plane`.
+    Atoms above `plane` will be shifted by the vector `shift`.
+
+    If there is a component of `shift` parallel to `plane`, applying the shift
+    will create (or remove) volume. In this case, atoms are added (or removed)
+    accordingly. If `shift` $\\cdot$ `plane` is positive, atoms are added.
+
+    In general, adding a stacking fault will not preserve a cell's periodicity.
+    Please verify this for your usecase.
+
+    Parameters:
+
+     - `atoms`: Structure to add fault to
+     - `pos`: Position on fault plane
+     - `shift`: Vector to shift by
+     - `plane`: Normal to fault plane
+
+    Returns: Structure with a stacking fault added
+    """
+    pos = to_vec3(pos)
+    shift = to_vec3(shift)
+    plane = to_vec3(plane)
+    plane /= numpy.linalg.norm(plane)
+
+    coords = atoms.coords(frame='local')  # type: ignore
+
+    perp_dist = numpy.dot(coords - pos, plane)
+    atoms = atoms.with_columns(perp_dist=polars.Series(perp_dist)) \
+        .with_columns(branch=polars.col('perp_dist') > 0.)
+
+    d = numpy.dot(shift, plane)
+    if -d > 1e-8:
+        logging.info("Removing atoms.")
+        old_len = len(atoms)
+        atoms = atoms.filter(
+            (polars.col('perp_dist') < 0) | (polars.col('perp_dist') >= -d)
+        )
+        logging.info(f"Removed {old_len - len(atoms)} atoms")
+    if d > 1e-8:
+        logging.info("Duplicating atoms.")
+        duplicate = atoms.filter(
+            (polars.col('perp_dist') >= -d) & (polars.col('perp_dist') < 0)
+        ).with_columns(~polars.col('branch'))
+        logging.info(f"Duplicated {len(duplicate)} atoms")
+
+        atoms = atoms.with_atoms(Atoms.concat((atoms, duplicate)))
+
+    coords = atoms.coords(frame='local')
+    branch = atoms['branch'].to_numpy()
+    atoms = atoms.with_coords(coords + shift * branch[:, None], frame='local')
+    return atoms.with_atoms(Atoms(atoms.drop('perp_dist', 'branch')))
+
+
 def disloc_edge(atoms: HasAtomsT, center: VecLike, b: VecLike, t: VecLike, cut: t.Union[CutType, VecLike] = 'shift',
                 *, poisson: float = 0.25) -> HasAtomsT:
     r"""
@@ -315,14 +372,13 @@ def disloc_poly_z(atoms: HasAtomsT, b: VecLike, poly: ArrayLike, center: t.Optio
         n_remove = numpy.sum(remove, dtype=int)
         if n_remove:
             logging.info(f"Removing {n_remove} atoms")
-            frame = frame.filter(_selection_to_expr(~remove))
-
+            frame = frame.filter(polars.Series(~remove))
             duplicate = duplicate[~remove]
 
         n_duplicate = numpy.sum(duplicate, dtype=int)
         if n_duplicate:
             logging.info(f"Duplicating {n_duplicate} atoms")
-            frame = Atoms.concat((frame, frame.filter(duplicate)))
+            frame = Atoms.concat((frame, frame.filter(polars.Series(duplicate))))
 
             branch = numpy.ones(len(frame))
             branch[-n_duplicate:] = -1  # flip branch of duplicated atoms

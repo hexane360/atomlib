@@ -6,10 +6,10 @@ from .atomcell import AtomCell, HasAtomCell
 
 # pyright: reportImportCycles=false
 
-from . import io, visualize, make, disloc, transform
+from . import defect, io, visualize, make, transform
 
 __all__ = [
-    'io', 'visualize', 'make', 'disloc', 'transform',
+    'io', 'visualize', 'make', 'defect', 'transform',
     'Atoms', 'HasAtoms', 'AtomSelection',
     'Cell', 'HasCell', 'CoordinateFrame',
     'AtomCell', 'HasAtomCell',

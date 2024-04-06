@@ -643,7 +643,7 @@ class HasAtoms(abc.ABC):
 
     # property getters and setters
 
-    def coords(self, selection: t.Optional[AtomSelection] = None) -> NDArray[numpy.float64]:
+    def coords(self, selection: t.Optional[AtomSelection] = None, *, frame: t.Literal['local'] = 'local') -> NDArray[numpy.float64]:
         """Return a `(N, 3)` ndarray of atom coordinates (dtype [`numpy.float64`][numpy.float64])."""
         df = self if selection is None else self.filter(_selection_to_expr(self, selection))
         return df.get_column('coords').to_numpy().astype(numpy.float64)
@@ -877,7 +877,7 @@ class HasAtoms(abc.ABC):
         symbols = polars.Series('symbol', list(numpy.broadcast_to(symbols, len(self))), dtype=polars.Utf8)
         return self.with_columns((symbols, get_elem(symbols)))
 
-    def with_coords(self: HasAtomsT, pts: ArrayLike, selection: t.Optional[AtomSelection] = None) -> HasAtomsT:
+    def with_coords(self: HasAtomsT, pts: ArrayLike, selection: t.Optional[AtomSelection] = None, *, frame: t.Literal['local'] = 'local') -> HasAtomsT:
         """
         Return `self` replaced with the given atomic positions.
         """
