@@ -481,6 +481,7 @@ def stacking_sequence(layer: AtomCell, sequence: str, shift_vector: VecLike = (1
     Create an arbitrary stacking sequence from a single layer `layer`.
 
     Parameters:
+
      - `layer`: Layer to stack into a stacking sequence. Will be stacked along the c axis.
      - `sequence`: Stacking sequence. Each layer should be "A", "B", or "C" (in the common case
        where there are three layers). Example: `"ABCABC"`.

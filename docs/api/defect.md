@@ -1,3 +1,3 @@
-# `atomlib.disloc`
+# `atomlib.defect`
 
-::: atomlib.disloc
+::: atomlib.defect

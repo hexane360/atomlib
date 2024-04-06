@@ -54,14 +54,14 @@ def stacking_fault(atoms: HasAtomsT, pos: VecLike, shift: VecLike, plane: VecLik
     In general, adding a stacking fault will not preserve a cell's periodicity.
     Please verify this for your usecase.
 
-    Parameters:
+    Args:
+      atoms: Structure to add fault to
+      pos: Position on fault plane
+      shift: Vector to shift by
+      plane: Normal to fault plane
 
-     - `atoms`: Structure to add fault to
-     - `pos`: Position on fault plane
-     - `shift`: Vector to shift by
-     - `plane`: Normal to fault plane
-
-    Returns: Structure with a stacking fault added
+    Returns:
+      Structure with a stacking fault added
     """
     pos = to_vec3(pos)
     shift = to_vec3(shift)
@@ -127,6 +127,17 @@ def disloc_edge(atoms: HasAtomsT, center: VecLike, b: VecLike, t: VecLike, cut: 
     The dislocation is defined by the FS/RH convention: Performing one loop of positive sense
     relative to the tangent vector displaces the real crystal one `b` relative to a reference
     crystal.
+
+    Args:
+      atoms: Structure to add edge dislocation to
+      center: Position on dislocation line
+      b: Burgers vector of dislocation (FS/RH convention)
+      t: Tangent vector of dislocation
+      cut: Cut plane to create dislocation on
+      poisson: Poisson ratio of material
+
+    Returns:
+      Structure with an edge dislocation added
     """
 
     center = to_vec3(center)
@@ -234,6 +245,16 @@ def disloc_screw(atoms: HasAtomsT, center: VecLike, b: VecLike, cut: t.Optional[
     The dislocation is defined by the FS/RH convention: Performing one loop of positive sense
     relative to the tangent vector displaces the real crystal one `b` relative to a reference
     crystal.
+
+    Args:
+      atoms: Structure to add screw dislocation to
+      center: Position on dislocation line
+      b: Burgers vector of dislocation (FS/RH convention)
+      cut: Cut plane to create dislocation on
+      sign: Sign of screw dislocation (True means positive)
+
+    Returns:
+      Structure with a screw dislocation added
     """
 
     center = to_vec3(center)
@@ -277,11 +298,21 @@ def disloc_loop_z(atoms: HasAtomsT, center: VecLike, b: VecLike,
 
     The loop will have radius `loop_r`, be centered at `center`, and oriented along the z-axis.
 
-    The dislocation's sign is defined such that traveling upwards through the loop results in a displacement of `b`.
+    The dislocation's sign is defined such that travelling upwards through the loop results in a displacement of `b`.
     `poisson` is the material's poisson ratio, which affects the shape of dislocations with an edge component.
 
     Adding the loop creates (or removes) a volume of $\mathbf{b} \cdot \mathbf{n}A$, where $\mathbf{n}A$ is the loop's
     normal times its area. Consequently, this function adds or remove atoms to effect this volume change.
+
+    Args:
+      atoms: Structure to add dislocation loop to
+      center: Center of dislocation loop
+      b: Burgers vector of dislocation (defined so travelling upwards leads to a plastic displacment of `b`).
+      loop_r: Radius of dislocation loop
+      poisson: Poisson ratio of material
+
+    Returns:
+      Structure with a dislocation loop added
     """
 
     center = to_vec3(center)
@@ -329,6 +360,16 @@ def disloc_square_z(atoms: HasAtomsT, center: VecLike, b: VecLike,
 
     Adding the loop creates (or removes) a volume of $\mathbf{b} \cdot \mathbf{n}A$, where $\mathbf{n}A$ is the loop's
     normal times its area. Consequently, this function adds or remove atoms to effect this volume change.
+
+    Args:
+      atoms: Structure to add dislocation loop to
+      center: Center of dislocation loop
+      b: Burgers vector of dislocation (defined so travelling upwards leads to a plastic displacment of `b`).
+      loop_r: Radius (side length/2) of dislocation loop
+      poisson: Poisson ratio of material
+
+    Returns:
+      Structure with a dislocation loop added
     """
     poly = loop_r * numpy.array([(1, 1), (-1, 1), (-1, -1), (1, -1)])
     return disloc_poly_z(atoms, b, poly, center, poisson=poisson)
@@ -346,8 +387,18 @@ def disloc_poly_z(atoms: HasAtomsT, b: VecLike, poly: ArrayLike, center: t.Optio
     Adding the loop creates (or removes) a volume of $\mathbf{b} \cdot \mathbf{n}A$, where $\mathbf{n}A$ is the loop's
     normal times its area. Consequently, this function adds or remove atoms to effect this volume change.
 
-    Follows the solution in `Hirth, J. P. & Lothe, J. (1982). Theory of Dislocations. ISBN 0-89464-617-6
-    <https://www.google.com/books/edition/Theory_of_Dislocations/TAjwAAAAMAAJ>`_
+    Follows the solution in [Hirth, J. P. & Lothe, J. (1982). Theory of Dislocations. ISBN 0-89464-617-6
+    ](https://www.google.com/books/edition/Theory_of_Dislocations/TAjwAAAAMAAJ)
+
+    Args:
+      atoms: Structure to add dislocation loop to
+      b: Burgers vector of dislocation (defined so travelling upwards leads to a plastic displacment of `b`).
+      poly: 2D polygon defining dislocation line. It is placed in the plane `z=center[2]`.
+      center: Center of dislocation loop (defaults to zero, applying no displacement to the gven polygon).
+      poisson: Poisson ratio of material
+
+    Returns:
+      Structure with a dislocation loop added
     """
     center = to_vec3(center if center is not None else [0., 0., 0.])
     b_vec = to_vec3(b)
