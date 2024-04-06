@@ -329,11 +329,12 @@ class HasAtomCell(HasAtoms, HasCell, abc.ABC):
 
     @_fwd_atoms_get
     def get_column(self, name: str, *, frame: t.Optional[CoordinateFrame] = None) -> polars.Series:
-        """Get the specified column from `self`, raising [`polars.ColumnNotFoundError`][polars.ColumnNotFoundError] if it's not present."""
+        """Get the specified column from `self`, raising [`polars.ColumnNotFoundError`][polars.exceptions.ColumnNotFoundError] if it's not present."""
         ...
 
     @_fwd_atoms_get
     def get_columns(self, *, frame: t.Optional[CoordinateFrame] = None) -> t.List[polars.Series]:
+        """Get the specified columns from `self`, raising [`polars.ColumnNotFoundError`][polars.exceptions.ColumnNotFoundError] if it's not present."""
         ...
 
     @_fwd_atoms_get

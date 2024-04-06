@@ -3,7 +3,10 @@ Raw atoms collection
 
 This module defines [`Atoms`][atomlib.atoms.Atoms], which holds a collection of atoms
 with no cell or periodicity. [`Atoms`][atomlib.atoms.Atoms] is essentially a wrapper
-around [`polars.DataFrame`][polars.DataFrame].
+around a [`polars.DataFrame`][polars.DataFrame].
+
+[polars.DataFrame]: https://docs.pola.rs/py-polars/html/reference/dataframe/index.html
+[polars.Series]: https://docs.pola.rs/py-polars/html/reference/series/index.html
 """
 
 from __future__ import annotations
@@ -268,16 +271,17 @@ class HasAtoms(abc.ABC):
 
     @_fwd_frame(polars.DataFrame.get_column)
     def get_column(self, name: str) -> polars.Series:
-        """Get the specified column from `self`, raising [`polars.ColumnNotFoundError`][polars.ColumnNotFoundError] if it's not present."""
+        """Get the specified column from `self`, raising [`polars.ColumnNotFoundError`][polars.exceptions.ColumnNotFoundError] if it's not present."""
         ...
 
     @_fwd_frame(polars.DataFrame.get_columns)
     def get_columns(self) -> t.List[polars.Series]:
+        """Get the specified columns from `self`, raising [`polars.ColumnNotFoundError`][polars.exceptions.ColumnNotFoundError] if it's not present."""
         ...
 
     @_fwd_frame(polars.DataFrame.get_column_index)
     def get_column_index(self, name: str) -> int:
-        """Get the index of a column by name, raising [`polars.ColumnNotFoundError`][polars.ColumnNotFoundError] if it's not present."""
+        """Get the index of a column by name, raising [`polars.ColumnNotFoundError`][polars.exceptions.ColumnNotFoundError] if it's not present."""
         ...
 
     @_fwd_frame(polars.DataFrame.group_by)
@@ -666,11 +670,19 @@ class HasAtoms(abc.ABC):
         return df.get_column('velocity').to_numpy().astype(numpy.float64)
 
     def types(self) -> t.Optional[polars.Series]:
-        """Returns a [`Series`][polars.Series] of atom types (dtype [`polars.Int32`][polars.Int32])."""
+        """
+        Returns a [`Series`][polars.Series] of atom types (dtype [`polars.Int32`][polars.Int32]).
+
+        [polars.Series]: https://docs.pola.rs/py-polars/html/reference/series/index.html
+        """
         return self.try_get_column('type')
 
     def masses(self) -> t.Optional[polars.Series]:
-        """Returns a [`Series`][polars.Series] of atom masses (dtype [`polars.Float32`][polars.Float32])."""
+        """
+        Returns a [`Series`][polars.Series] of atom masses (dtype [`polars.Float32`][polars.Float32]).
+
+        [polars.Series]: https://docs.pola.rs/py-polars/html/reference/series/index.html
+        """
         return self.try_get_column('mass')
 
     @t.overload
@@ -756,7 +768,7 @@ class HasAtoms(abc.ABC):
 
     def with_index(self: HasAtomsT, index: t.Optional[AtomValues] = None) -> HasAtomsT:
         """
-        Returns `self` with a row index added in column 'i' (dtype polars.Int64).
+        Returns `self` with a row index added in column 'i' (dtype [`polars.Int64`][polars.Int64]).
         If `index` is not specified, defaults to an existing index or a new index.
         """
         if index is None and 'i' in self.columns:
@@ -767,7 +779,7 @@ class HasAtoms(abc.ABC):
 
     def with_wobble(self: HasAtomsT, wobble: t.Optional[AtomValues] = None) -> HasAtomsT:
         """
-        Return `self` with the given displacements in column 'wobble' (dtype polars.Float64).
+        Return `self` with the given displacements in column 'wobble' (dtype [`polars.Float64`][polars.Float64]).
         If `wobble` is not specified, defaults to the already-existing wobbles or 0.
         """
         if wobble is None and 'wobble' in self.columns:
@@ -819,7 +831,7 @@ class HasAtoms(abc.ABC):
 
         When auto-assigning, each symbol is given a unique value, case-sensitive.
         Values are assigned from lowest atomic number to highest.
-        For instance: ["Ag+", "Na", "H", "Ag"] => [3, 11, 1, 2]
+        For instance: `["Ag+", "Na", "H", "Ag"]` => `[3, 11, 1, 2]`
         """
         if types is not None:
             return self.with_columns(type=_values_to_expr(self, types, polars.Int32))
@@ -921,20 +933,24 @@ class HasAtoms(abc.ABC):
 class Atoms(AtomsIOMixin, HasAtoms):
     """
     A collection of atoms, absent any implied coordinate system.
-    Implemented as a wrapper around a Polars DataFrame.
+    Implemented as a wrapper around a [`polars.DataFrame`][polars.DataFrame].
 
     Must contain the following columns:
+
     - coords: array of [x, y, z] positions, float
     - elem: atomic number, int
     - symbol: atomic symbol (may contain charges)
 
     In addition, it commonly contains the following columns:
+
     - i: Initial atom number
     - wobble: Isotropic Debye-Waller mean-squared deviation (<u^2> = B*3/8pi^2, dimensions of [Length^2])
     - frac_occupancy: Fractional occupancy, [0., 1.]
     - mass: Atomic mass, in g/mol (approx. Da)
-    - vel: array of [x, y, z] velocities, float, dimensions of length/time
+    - velocity: array of [x, y, z] velocities, float, dimensions of length/time
     - type: Numeric atom type, as used by programs like LAMMPS
+
+    [polars.DataFrame]: https://docs.pola.rs/py-polars/html/reference/dataframe/index.html
     """
 
     def __init__(self, data: t.Optional[IntoAtoms] = None, columns: t.Optional[t.Sequence[str]] = None,

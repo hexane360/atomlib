@@ -58,7 +58,7 @@ class AtomsIOMixin(_HasAtoms, abc.ABC):
         """
         Read a structure from a file.
 
-        Currently, supported file types are 'cif', 'xyz', and 'xsf'.
+        Supported types can be found in the [io][atomlib.io] module.
         If no `ty` is specified, it is inferred from the file's extension.
         """
         from .io import read
@@ -152,7 +152,7 @@ class AtomCellIOMixin(_HasAtomCell, AtomsIOMixin):
         """
         Write a structure to an mslice file.
 
-        ``template`` may be a file, path, or ElementTree containing an existing mslice file.
+        `template` may be a file, path, or ElementTree containing an existing mslice file.
         Its structure will be modified to make the final output. If not specified, a default
         template will be used.
 

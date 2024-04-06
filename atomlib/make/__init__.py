@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 """
-Functions to create cells.
+Functions to create structures and cells.
 """
 
 import logging
@@ -26,11 +26,20 @@ CellType = t.Literal['conv', 'prim', 'ortho']
 def fcc(elem: ElemLike, a: Num, *, cell: CellType = 'conv', additional: t.Optional[IntoAtoms] = None) -> AtomCell:
     """
     Make a FCC lattice of the specified element, with the given cell.
-    If 'conv' (the default), return the conventional cell, four atoms with cubic cell symmetry.
-    If 'prim', return the primitive cell, a single atom with rhombohedral cell symmetry.
-    If 'ortho', return an orthogonal cell, two atoms in a cell of size [a/sqrt(2), a/sqrt(2), a].
+    If `cell='conv'` (the default), return the conventional cell, four atoms with cubic cell symmetry.
+    If `cell='prim'`, return the primitive cell, a single atom with rhombohedral cell symmetry.
+    If `cell='ortho'`, return an orthogonal cell, two atoms in a cell of size `[a/sqrt(2), a/sqrt(2), a]`.
 
-    If 'additional' is specified, those atoms will be added to the lattice (in fractional coordinates).
+    If `additional` is specified, those atoms will be added to the lattice (in fractional coordinates).
+
+    Args:
+      elem: Element to add (e.g. `'Al'` or `13`)
+      a: Lattice parameter (Angstrom)
+      cell: Cell type to return ('conv', 'prim', or 'ortho')
+      additional: Additional atoms to add to the structure.
+
+    Returns:
+      Periodic FCC unit cell
     """
 
     elems = [get_elem(elem)]
@@ -66,10 +75,24 @@ def fcc(elem: ElemLike, a: Num, *, cell: CellType = 'conv', additional: t.Option
 
 def wurtzite(elems: t.Union[str, t.Sequence[ElemLike]], a: Num, c: t.Optional[Num] = None,
              d: t.Optional[Num] = None, *, cell: CellType = 'conv') -> AtomCell:
-    """
+    r"""
     Create a wurzite lattice of the specified two elements, with the given cell.
     `a` and `c` are the hexagonal cell parameters. `d` is the fractional distance
     between the two sublattices.
+
+    If `cell='prim'` or `cell='conv'` (the default), return a hexagonal unit cell.
+    If `cell='ortho'`, return an orthogonal unit cell constructed from the hexagonal unit cell as
+    $\hat{\mathbf{a}} = \mathbf{a}$, $\hat{\mathbf{b}} = \mathbf{a} + 2 \mathbf{b}$, $\hat{\mathbf{c}} = \mathbf{c}$.
+
+    Args:
+      elems: Elements to add (e.g. `'AlN'` or `('Al', 'N')`)
+      a: Lattice parameter (Angstrom)
+      c: Vertical lattice parameter (Angstrom)
+      d: Vertical distance between the two sublattices (fractional)
+      cell: Cell type to return ('conv', 'prim', or 'ortho')
+
+    Returns:
+      Periodic wurtzite unit cell
     """
     if isinstance(elems, str):
         elems = get_elems(elems)
@@ -146,6 +169,15 @@ def rocksalt(elems: t.Union[str, t.Sequence[ElemLike]], a: Num, *,
              cell: CellType = 'conv') -> AtomCell:
     """
     Create a rock salt FCC structure AB. Returns the same cell types as `fcc`.
+
+    Args:
+      elems: Elements to add (e.g. `'NaCl'` or `('Na', 'Cl')`)
+      a: Lattice parameter (Angstrom)
+      cell: Cell type to return ('conv', 'prim', or 'ortho'). Returns
+            the same cell types as `fcc`.
+
+    Returns:
+      Periodic rocksalt unit cell
     """
     if isinstance(elems, str):
         elems = get_elems(elems)
@@ -185,7 +217,16 @@ def rocksalt(elems: t.Union[str, t.Sequence[ElemLike]], a: Num, *,
 def zincblende(elems: t.Union[str, t.Sequence[ElemLike]], a: Num, *,
                cell: CellType = 'conv') -> AtomCell:
     """
-    Create a zinc-blende FCC structure AB. Returns the same cell types as `fcc`.
+    Create a zinc-blende FCC structure AB.
+
+    Args:
+      elems: Elements to add (e.g. `'ZnS'` or `('Zn', 'S')`)
+      a: Lattice parameter (Angstrom)
+      cell: Cell type to return ('conv', 'prim', or 'ortho'). Returns
+            the same cell types as `fcc`.
+
+    Returns:
+      Periodic zinc-blende unit cell
     """
     if isinstance(elems, str):
         elems = get_elems(elems)
@@ -236,7 +277,18 @@ def diamond(elem: t.Optional[ElemLike], a: Num, *,
 def diamond(elem: t.Optional[ElemLike] = None, a: t.Optional[Num] = None, *,
             cell: CellType = 'conv') -> AtomCell:
     """
-    Create a diamond cubic structure. Returns the same cell types as `fcc`.
+    Create a diamond cubic FCC structure. `elem` and `a` can be left
+    unspecified to return a diamond structure. Otherwise, both
+    must be specified.
+
+    Args:
+      elem: Element to add (e.g. `'C'`)
+      a: Lattice parameter (Angstrom)
+      cell: Cell type to return ('conv', 'prim', or 'ortho'). Returns
+            the same cell types as `fcc`.
+
+    Returns:
+      Periodic diamond cubic unit cell
     """
     if elem is None:
         elems = (6, 6)
@@ -257,7 +309,16 @@ def diamond(elem: t.Optional[ElemLike] = None, a: t.Optional[Num] = None, *,
 def fluorite(elems: t.Union[str, t.Sequence[ElemLike]], a: Num, *,
              cell: CellType = 'conv') -> AtomCell:
     """
-    Create a fluorite FCC structure AB_2. Returns the same cell types as `fcc`.
+    Create a fluorite FCC structure $\\mathrm{AB_2}$. Returns the same cell types as `fcc`.
+
+    Args:
+      elems: Elements to add (e.g. `'CaF'` or `('Ca', 'F')`)
+      a: Lattice parameter (Angstrom)
+      cell: Cell type to return ('conv', 'prim', or 'ortho'). Returns
+            the same cell types as `fcc`.
+
+    Returns:
+      Periodic fluorite unit cell
     """
 
     if isinstance(elems, str):
@@ -312,10 +373,20 @@ def cesium_chloride(elems: t.Union[str, t.Sequence[ElemLike]] = 'CsCl', a: None 
 def cesium_chloride(elems: t.Union[str, t.Sequence[ElemLike]] = 'CsCl', a: t.Optional[Num] = None, *,
                     d: t.Optional[Num] = None, cell: CellType = 'conv') -> AtomCell:
     """
-    Create a CsCl structure AB.
+    Create a cesium chloride structure $\\mathrm{AB}$.
+    CsCl is simple cubic, so all cell types are the same.
 
-    May specify 'a' (lattice parameter) or 'd' (nearest-neighbor bond length).
-    All cell types are identical.
+    Only one of `a` (lattice parameter) or `d` (bond distance) needs to be specified.
+
+    Args:
+      elems: Elements to add (e.g. `'CsCl'` or `('Cs', 'Cl')`)
+      a: Lattice parameter (Angstrom)
+      d: Nearest-neighbor bond distance (Angstrom)
+      cell: Cell type to return ('conv', 'prim', or 'ortho').
+            All are identical for this structure
+
+    Returns:
+      Periodic cesium chloride unit cell
     """
     if isinstance(elems, str):
         elems = get_elems(elems)
@@ -348,16 +419,26 @@ def cesium_chloride(elems: t.Union[str, t.Sequence[ElemLike]] = 'CsCl', a: t.Opt
 def perovskite(elems: t.Union[str, t.Sequence[ElemLike]], cell_size: VecLike, *,
                cell: CellType = 'conv') -> AtomCell:
     """
-    Create a perovskite structure :math:`ABX_3`.
+    Create a perovskite structure $\\mathrm{ABX_3}$.
 
-    ``A`` is placed at the origin and ``B`` is placed at the cell center.
-    ``cell_size`` determines whether a cubic, tetragonal, or orthorhombic
-    structure is created. For instance, ``cell_size=3.`` returns a cubic
-    structure, while ``cell_size=[3., 5.]`` returns a tetragonal structure
-    ``a=3.``, ``c=5.``.
+    `A` is placed at the origin and `B` is placed at the cell center.
+    `cell_size` determines whether a cubic, tetragonal, or orthorhombic
+    structure is created. For instance, `cell_size=3.` returns a cubic
+    structure, while `cell_size=[3., 5.]` returns a tetragonal structure
+    `a=3`, `c=5`.
 
-    All cell types are the same for perovskite, so the ``cell`` parameter
+    All cell types are the same for perovskite, so the `cell` parameter
     has no effect.
+
+    Args:
+      elems: Elements to add (e.g. `'CaTiO'` or `('Ca', 'Ti', 'O')`)
+      cell_size: Lattice parameters (e.g. `3.0` (cubic), `[3.0, 5.0]`
+                 (tetragonal), or `[3.0, 4.0, 5.0]` (orthorhombic)).
+      cell: Cell type to return ('conv', 'prim', or 'ortho').
+            All are identical for this structure
+
+    Returns:
+      Periodic perovskite unit cell.
     """
     if isinstance(elems, str):
         elems = get_elems(elems)
@@ -365,7 +446,7 @@ def perovskite(elems: t.Union[str, t.Sequence[ElemLike]], cell_size: VecLike, *,
         elems = list(map(get_elem, elems))
 
     if len(elems) != 3:
-        raise ValueError("Expected two elements.")
+        raise ValueError("Expected three elements.")
 
     cell_size = numpy.atleast_1d(cell_size)
     if cell_size.squeeze().ndim > 1:
@@ -389,10 +470,17 @@ def perovskite(elems: t.Union[str, t.Sequence[ElemLike]], cell_size: VecLike, *,
 def random(cell: t.Union[Cell, VecLike], elem: ElemLike, density: float,
            seed: t.Optional[object] = None, **extra_cols: t.Any) -> AtomCell:
     """
-    Make a random arrangement of atoms inside ``cell`` (``Cell`` or ``cell_size``).
+    Make a random arrangement of atoms inside `cell`
+    ([`Cell`][atomlib.cell.Cell] or cell_size vector).
 
-    ``elem`` is the element to add.
-    ``density`` is the density (in g/cm^3) of atoms to add.
+    Args:
+      elem: Element to add (e.g. `'C'` or `6`)
+      density: Mean mass density to target (g/cm^3)
+      seed: Deterministic random seed to add (any object)
+      extra_cols: Extra parameters to add to each atom
+
+    Returns:
+      A random arrangement of atoms
     """
     if not isinstance(cell, Cell):
         cell = Cell.from_unit_cell(cell, pbc=[True, True, True])
@@ -415,15 +503,25 @@ def random(cell: t.Union[Cell, VecLike], elem: ElemLike, density: float,
 
 
 def slab(atoms: HasAtomCellT, zone: VecLike = (0., 0., 1.), horz: VecLike = (1., 0., 0.), *,
-         max_n=50, tol=0.001) -> HasAtomCellT:
+         max_n: int = 50, tol: float = 0.001) -> HasAtomCellT:
     """
-    Create an periodic orthogonal slab of the periodic cell ``atoms``.
+    Create an periodic orthogonal slab of the periodic cell `atoms`.
 
-    ``zone`` in the original crystal will point along the +z-axis,
-    and ``horz`` (minus the ``zone`` component) wil point along the +x-axis.
+    `zone` in the original crystal will point along the +z-axis,
+    and `horz` (minus the `zone` component) wil point along the +x-axis.
 
-    Finds a periodic orthogonal slab with less than ``tol`` amount of strain,
-    and no more than ``max_n`` cells on one side.
+    Finds a periodic orthogonal slab with less than `tol` amount of strain,
+    and no more than `max_n` cells on one side.
+
+    Args:
+      atoms: Input structure
+      zone: Zone to align with the +z-axis
+      horz: Zone to align with the +x-axis
+      max_n: Maximum number of unit cells to search
+      tol: Maximum strain tolerance
+
+    Returns:
+      A periodic, orthogonal cell
     """
 
     # align `zone` with the z-axis, and `horz` with the x-axis
@@ -480,18 +578,18 @@ def stacking_sequence(layer: AtomCell, sequence: str, shift_vector: VecLike = (1
     """
     Create an arbitrary stacking sequence from a single layer `layer`.
 
-    Parameters:
+    Args:
+      layer: Layer to stack into a stacking sequence. Will be stacked along the c axis.
+      sequence: Stacking sequence. Each layer should be "A", "B", or "C" (in the common case
+                where there are three layers). Example: `"ABCABC"`.
+      shift_vector: Shift to apply, in fractional coordinates. The shift between each layer
+                    will be `shift_vector/n_layers`. Typically an integer value, to
+                    preserve periodicity. Defaults to `[100]`.
+      n_layers: Number of layers which corresponds to a shift of a complete lattice vector.
+                Defaults to `3`, the case for FCC and HCP.
 
-     - `layer`: Layer to stack into a stacking sequence. Will be stacked along the c axis.
-     - `sequence`: Stacking sequence. Each layer should be "A", "B", or "C" (in the common case
-       where there are three layers). Example: `"ABCABC"`.
-     - `shift_vector`: Shift to apply, in fractional coordinates. The shift between each layer
-       will be `shift_vector/n_layers`. Typically an integer value, to preserve periodicity.
-       Defaults to `[100]`.
-     - `n_layers`: Number of layers which corresponds to a shift of a complete lattice vector.
-       Defaults to `3`, the case for FCC and HCP.
-
-    Returns an `AtomCell` containing the stacked structure.
+    Returns:
+     An [`AtomCell`][atomlib.atomcell.AtomCell] containing the stacked structure.
     """
 
     layers = string.ascii_uppercase[:n_layers]
