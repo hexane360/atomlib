@@ -426,6 +426,10 @@
       
         
       
+        
+      
+        
+      
     
     
     
@@ -469,6 +473,48 @@
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../atoms/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    atomlib.atoms
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../make/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    atomlib.make
+  </span>
+  
+
+      </a>
+    </li>
+  
+
               
             
               
@@ -1026,7 +1072,7 @@
 </span><span id="__span-0-58"><a id="__codelineno-0-58" name="__codelineno-0-58"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="__span-0-59"><a id="__codelineno-0-59" name="__codelineno-0-59"></a><span class="sd">        Read a structure from a file.</span>
 </span><span id="__span-0-60"><a id="__codelineno-0-60" name="__codelineno-0-60"></a>
-</span><span id="__span-0-61"><a id="__codelineno-0-61" name="__codelineno-0-61"></a><span class="sd">        Currently, supported file types are &#39;cif&#39;, &#39;xyz&#39;, and &#39;xsf&#39;.</span>
+</span><span id="__span-0-61"><a id="__codelineno-0-61" name="__codelineno-0-61"></a><span class="sd">        Supported types can be found in the [io][atomlib.io] module.</span>
 </span><span id="__span-0-62"><a id="__codelineno-0-62" name="__codelineno-0-62"></a><span class="sd">        If no `ty` is specified, it is inferred from the file&#39;s extension.</span>
 </span><span id="__span-0-63"><a id="__codelineno-0-63" name="__codelineno-0-63"></a><span class="sd">        &quot;&quot;&quot;</span>
 </span><span id="__span-0-64"><a id="__codelineno-0-64" name="__codelineno-0-64"></a>        <span class="kn">from</span> <span class="nn">.io</span> <span class="kn">import</span> <span class="n">read</span>
@@ -1136,7 +1182,7 @@
   <div class="doc doc-contents ">
   
       <p>Read a structure from a file.</p>
-<p>Currently, supported file types are 'cif', 'xyz', and 'xsf'.
+<p>Supported types can be found in the <a class="autorefs autorefs-internal" href="../io/#atomlib.io">io</a> module.
 If no <code>ty</code> is specified, it is inferred from the file's extension.</p>
 
           <details class="quote">
@@ -1155,7 +1201,7 @@ If no <code>ty</code> is specified, it is inferred from the file's extension.</p
 </span><span id="__span-0-58"><a id="__codelineno-0-58" name="__codelineno-0-58"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="__span-0-59"><a id="__codelineno-0-59" name="__codelineno-0-59"></a><span class="sd">    Read a structure from a file.</span>
 </span><span id="__span-0-60"><a id="__codelineno-0-60" name="__codelineno-0-60"></a>
-</span><span id="__span-0-61"><a id="__codelineno-0-61" name="__codelineno-0-61"></a><span class="sd">    Currently, supported file types are &#39;cif&#39;, &#39;xyz&#39;, and &#39;xsf&#39;.</span>
+</span><span id="__span-0-61"><a id="__codelineno-0-61" name="__codelineno-0-61"></a><span class="sd">    Supported types can be found in the [io][atomlib.io] module.</span>
 </span><span id="__span-0-62"><a id="__codelineno-0-62" name="__codelineno-0-62"></a><span class="sd">    If no `ty` is specified, it is inferred from the file&#39;s extension.</span>
 </span><span id="__span-0-63"><a id="__codelineno-0-63" name="__codelineno-0-63"></a><span class="sd">    &quot;&quot;&quot;</span>
 </span><span id="__span-0-64"><a id="__codelineno-0-64" name="__codelineno-0-64"></a>    <span class="kn">from</span> <span class="nn">.io</span> <span class="kn">import</span> <span class="n">read</span>
@@ -1599,7 +1645,7 @@ If no <code>ty</code> is specified, it is inferred from the path's extension.</p
 </span><span id="__span-0-152"><a id="__codelineno-0-152" name="__codelineno-0-152"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="__span-0-153"><a id="__codelineno-0-153" name="__codelineno-0-153"></a><span class="sd">        Write a structure to an mslice file.</span>
 </span><span id="__span-0-154"><a id="__codelineno-0-154" name="__codelineno-0-154"></a>
-</span><span id="__span-0-155"><a id="__codelineno-0-155" name="__codelineno-0-155"></a><span class="sd">        ``template`` may be a file, path, or ElementTree containing an existing mslice file.</span>
+</span><span id="__span-0-155"><a id="__codelineno-0-155" name="__codelineno-0-155"></a><span class="sd">        `template` may be a file, path, or ElementTree containing an existing mslice file.</span>
 </span><span id="__span-0-156"><a id="__codelineno-0-156" name="__codelineno-0-156"></a><span class="sd">        Its structure will be modified to make the final output. If not specified, a default</span>
 </span><span id="__span-0-157"><a id="__codelineno-0-157" name="__codelineno-0-157"></a><span class="sd">        template will be used.</span>
 </span><span id="__span-0-158"><a id="__codelineno-0-158" name="__codelineno-0-158"></a>
@@ -1648,7 +1694,7 @@ If no <code>ty</code> is specified, it is inferred from the path's extension.</p
   <div class="doc doc-contents ">
   
       <p>Read a structure from a file.</p>
-<p>Currently, supported file types are 'cif', 'xyz', and 'xsf'.
+<p>Supported types can be found in the <a class="autorefs autorefs-internal" href="../io/#atomlib.io">io</a> module.
 If no <code>ty</code> is specified, it is inferred from the file's extension.</p>
 
           <details class="quote">
@@ -1667,7 +1713,7 @@ If no <code>ty</code> is specified, it is inferred from the file's extension.</p
 </span><span id="__span-0-58"><a id="__codelineno-0-58" name="__codelineno-0-58"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="__span-0-59"><a id="__codelineno-0-59" name="__codelineno-0-59"></a><span class="sd">    Read a structure from a file.</span>
 </span><span id="__span-0-60"><a id="__codelineno-0-60" name="__codelineno-0-60"></a>
-</span><span id="__span-0-61"><a id="__codelineno-0-61" name="__codelineno-0-61"></a><span class="sd">    Currently, supported file types are &#39;cif&#39;, &#39;xyz&#39;, and &#39;xsf&#39;.</span>
+</span><span id="__span-0-61"><a id="__codelineno-0-61" name="__codelineno-0-61"></a><span class="sd">    Supported types can be found in the [io][atomlib.io] module.</span>
 </span><span id="__span-0-62"><a id="__codelineno-0-62" name="__codelineno-0-62"></a><span class="sd">    If no `ty` is specified, it is inferred from the file&#39;s extension.</span>
 </span><span id="__span-0-63"><a id="__codelineno-0-63" name="__codelineno-0-63"></a><span class="sd">    &quot;&quot;&quot;</span>
 </span><span id="__span-0-64"><a id="__codelineno-0-64" name="__codelineno-0-64"></a>    <span class="kn">from</span> <span class="nn">.io</span> <span class="kn">import</span> <span class="n">read</span>
@@ -2100,7 +2146,7 @@ template's properties are used.</p>
 </span><span id="__span-0-152"><a id="__codelineno-0-152" name="__codelineno-0-152"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="__span-0-153"><a id="__codelineno-0-153" name="__codelineno-0-153"></a><span class="sd">    Write a structure to an mslice file.</span>
 </span><span id="__span-0-154"><a id="__codelineno-0-154" name="__codelineno-0-154"></a>
-</span><span id="__span-0-155"><a id="__codelineno-0-155" name="__codelineno-0-155"></a><span class="sd">    ``template`` may be a file, path, or ElementTree containing an existing mslice file.</span>
+</span><span id="__span-0-155"><a id="__codelineno-0-155" name="__codelineno-0-155"></a><span class="sd">    `template` may be a file, path, or ElementTree containing an existing mslice file.</span>
 </span><span id="__span-0-156"><a id="__codelineno-0-156" name="__codelineno-0-156"></a><span class="sd">    Its structure will be modified to make the final output. If not specified, a default</span>
 </span><span id="__span-0-157"><a id="__codelineno-0-157" name="__codelineno-0-157"></a><span class="sd">    template will be used.</span>
 </span><span id="__span-0-158"><a id="__codelineno-0-158" name="__codelineno-0-158"></a>
