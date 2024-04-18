@@ -348,15 +348,23 @@ class AffineTransform3D(Transform3D):
         if isinstance(points, BBox3D):
             return points.from_pts(self.transform(points.corners()))
 
-        points = numpy.atleast_1d(points)
-        pts = numpy.concatenate((points, numpy.broadcast_to(1., (*points.shape[:-1], 1))), axis=-1)
-        # carefully handle inf and nan. this is probably slow
+        pts: NDArray[numpy.floating] = numpy.atleast_1d(points).astype(self.inner.dtype)
+        pts = numpy.concatenate((points, numpy.broadcast_to(1., (*pts.shape[:-1], 1))), axis=-1)
+
+        # carefully handle inf and nan
         isnan = numpy.bitwise_or.reduce(numpy.isnan(pts), axis=-1)
+
         with numpy.errstate(invalid='ignore'):
-            prod = self.inner * pts[..., None, :]
+            out = pts @ self.inner.T
+            isinf = numpy.isnan(out[..., 0]) & ~isnan
+
+            prod = numpy.multiply(self.inner, pts[isinf, None, :])
+
+        # inf * 0 = 0
         prod[numpy.isnan(prod)] = 0.
-        prod[isnan, :] = numpy.nan
-        return prod.sum(axis=-1)[..., :3]
+        out[isinf] = numpy.sum(prod, axis=-1)
+
+        return out[..., :3]
 
     __call__ = transform
 
@@ -745,17 +753,24 @@ class LinearTransform3D(AffineTransform3D):
         if isinstance(points, BBox3D):
             return points.from_pts(self.transform(points.corners()))
 
-        points = numpy.atleast_1d(points)
-        if points.shape[-1] != 3:
+        pts: NDArray[numpy.floating] = numpy.atleast_1d(points).astype(self.inner.dtype)
+        if pts.shape[-1] != 3:
             raise ValueError(f"{self.__class__} works on 3d points only.")
 
-        # carefully handle inf and nan. this is probably slow
-        isnan = numpy.bitwise_or.reduce(numpy.isnan(points), axis=-1)
+        # carefully handle inf and nan
+        isnan = numpy.bitwise_or.reduce(numpy.isnan(pts), axis=-1)
+
         with numpy.errstate(invalid='ignore'):
-            prod = self.inner * points[..., None, :]
+            out = pts @ self.inner.T
+            isinf = numpy.isnan(out[..., 0]) & ~isnan
+
+            prod = numpy.multiply(self.inner, pts[isinf, None, :])
+
+        # inf * 0 = 0
         prod[numpy.isnan(prod)] = 0.
-        prod[isnan, :] = numpy.nan
-        return prod.sum(axis=-1)
+        out[isinf] = numpy.sum(prod, axis=-1)
+
+        return out
 
     @t.overload
     def __matmul__(self, other: Transform3DT) -> Transform3DT:

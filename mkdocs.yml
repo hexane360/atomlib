@@ -78,10 +78,15 @@ plugins:
             - https://arrow.apache.org/docs/objects.inv
             - https://pola-rs.github.io/polars/py-polars/html/objects.inv
           options:
+            heading_level: 2
+            docstring_section_style: "spacy"
+            separate_signature: true
+            show_signature_annotations: true
+            signature_crossrefs: true
             show_if_no_docstring: true
             show_root_heading: false
             members_order: source
-            filters: ["!^_", "!^__(all|repr|str)__$", "!^(Transform3D|Num)?[TUKVP](_co(ntra)?)?$", "!^.*Self$"]
+            filters: ["!^_", "!^__(all|repr|str)__$", "!^(HasAtoms|Transform3D|Num)?[TUKVP](_co(ntra)?)?$", "!^.*Self$"]
             inherited_members: true
   - mike:
       version_selector: true

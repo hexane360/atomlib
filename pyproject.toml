@@ -52,6 +52,7 @@ docs = [
     "mkdocstrings[python]==0.22.0",
     "markdown-include==0.8.1",
     "mike==1.1.2",
+    "black>=24.3.0",
 ]
 
 [project.urls]
