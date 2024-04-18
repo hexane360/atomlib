@@ -14,7 +14,7 @@ import polars
 
 from .atomcell import VecLike, to_vec3
 from .transform import AffineTransform3D, LinearTransform3D
-from .atoms import Atoms, HasAtomsT, _selection_to_expr
+from .atoms import Atoms, HasAtomsT
 from .vec import norm, dot, perp, split_arr, polygon_solid_angle, polygon_winding
 
 

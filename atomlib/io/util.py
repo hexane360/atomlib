@@ -5,7 +5,7 @@ from io import TextIOBase
 import typing as t
 
 import polars
-from polars.type_aliases import SchemaDict
+from polars.type_aliases import SchemaDict, PolarsDataType
 
 
 class LineBuffer:
@@ -131,7 +131,7 @@ def _parse_rows_whitespace_separated(
     allow_comment: bool = True
 ) -> polars.DataFrame:
 
-    expanded_schema: t.Dict[str, t.Union[polars.DataType, t.Type[polars.DataType]]] = {}
+    expanded_schema: t.Dict[str, PolarsDataType] = {}
     exprs: t.List[polars.Expr] = []
 
     for col, ty in schema.items():
