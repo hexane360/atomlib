@@ -54,7 +54,7 @@ ScalarT = t.TypeVar('ScalarT', bound=numpy.generic)
 
 
 @t.overload
-def to_vec3(v: VecLike, dtype: None = None) -> NDArray[numpy.float_]:
+def to_vec3(v: VecLike, dtype: None = None) -> NDArray[numpy.float64]:
     ...
 
 @t.overload
@@ -67,7 +67,7 @@ def to_vec3(v: VecLike, dtype: t.Optional[t.Type[numpy.generic]] = None) -> NDAr
     """
 
     try:
-        v = numpy.broadcast_to(v, (3,)).astype(dtype or numpy.float_)
+        v = numpy.broadcast_to(v, (3,)).astype(dtype or numpy.float64)
     except (ValueError, TypeError):
         raise TypeError("Expected a vector of 3 elements.") from None
     return v

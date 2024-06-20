@@ -434,7 +434,7 @@ class AffineTransform3D(Transform3D):
 class LinearTransform3D(AffineTransform3D):
     def __init__(self, array: t.Optional[ArrayLike] = None):
         if array is None:
-            array = numpy.eye(3, dtype=numpy.float_)
+            array = numpy.eye(3, dtype=numpy.float64)
         self.inner = numpy.broadcast_to(array, (3, 3))
 
     @property
@@ -514,11 +514,11 @@ class LinearTransform3D(AffineTransform3D):
         Can be called as a classmethod or instance method.
         """
         if isinstance(a, t.Sized):
-            v = numpy.array(numpy.broadcast_to(a, 3), dtype=numpy.float_)
+            v = numpy.array(numpy.broadcast_to(a, 3), dtype=numpy.float64)
             if b is not None or c is not None:
                 raise ValueError("mirror() must be passed a sequence or three numbers.")
         else:
-            v = numpy.array([a, b, c], dtype=numpy.float_)
+            v = numpy.array([a, b, c], dtype=numpy.float64)
         v /= numpy.linalg.norm(v)
         mirror = numpy.eye(3) - 2 * numpy.outer(v, v)
         return LinearTransform3D(mirror @ self.inner)
@@ -550,7 +550,7 @@ class LinearTransform3D(AffineTransform3D):
         Can be called as a classmethod or instance method.
         """
         theta = float(theta)
-        v = numpy.array(numpy.broadcast_to(v, (3,)), dtype=numpy.float_)
+        v = numpy.array(numpy.broadcast_to(v, (3,)), dtype=numpy.float64)
         l = numpy.linalg.norm(v)
         if numpy.isclose(l, 0.):
             if numpy.isclose(theta, 0.):
@@ -562,7 +562,7 @@ class LinearTransform3D(AffineTransform3D):
         # Rodrigues rotation formula
         w = numpy.array([[  0., -v[2],  v[1]],
                          [ v[2],   0., -v[0]],
-                         [-v[1], v[0],   0.]], dtype=numpy.float_)
+                         [-v[1], v[0],   0.]], dtype=numpy.float64)
         # I + sin(t) W + (1 - cos(t)) W^2 = I + sin(t) W + 2*sin^2(t/2) W^2
         a = numpy.eye(3) + numpy.sin(theta) * w + 2 * (numpy.sin(theta / 2)**2) * w @ w
         return LinearTransform3D(a @ self.inner)
@@ -576,13 +576,13 @@ class LinearTransform3D(AffineTransform3D):
 
         Can be called as a classmethod or instance method.
         """
-        angles = numpy.array([x, y, z], dtype=numpy.float_)
+        angles = numpy.array([x, y, z], dtype=numpy.float64)
         c, s = numpy.cos(angles), numpy.sin(angles)
         a = numpy.array([
             [c[1]*c[2], s[0]*s[1]*c[2] - c[0]*s[2], c[0]*s[1]*c[2] + s[0]*s[2]],
             [c[1]*s[2], s[0]*s[1]*s[2] + c[0]*c[2], c[0]*s[1]*s[2] - s[0]*c[2]],
             [-s[1],     s[0]*c[1],                  c[0]*c[1]],
-        ], dtype=numpy.float_)
+        ], dtype=numpy.float64)
         return LinearTransform3D(a @ self.inner)
 
     @opt_classmethod

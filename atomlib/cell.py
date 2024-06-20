@@ -91,12 +91,12 @@ class HasCell:
         return ortho.T @ ortho
 
     @property
-    def cell_size(self) -> NDArray[numpy.float_]:
+    def cell_size(self) -> NDArray[numpy.float64]:
         """Unit cell size."""
         return self.get_cell()._cell_size
 
     @property
-    def cell_angle(self) -> NDArray[numpy.float_]:
+    def cell_angle(self) -> NDArray[numpy.float64]:
         """Unit cell angles, in radians."""
         return self.get_cell()._cell_angle
 
@@ -111,7 +111,7 @@ class HasCell:
         return self.get_cell()._pbc
 
     @property
-    def ortho_size(self) -> NDArray[numpy.float_]:
+    def ortho_size(self) -> NDArray[numpy.float64]:
         """
         Return size of orthogonal unit cell.
 
@@ -120,7 +120,7 @@ class HasCell:
         return self.cell_size * numpy.diag(self.ortho.inner)
 
     @property
-    def box_size(self) -> NDArray[numpy.float_]:
+    def box_size(self) -> NDArray[numpy.float64]:
         """
         Return size of the cell box.
 
@@ -369,11 +369,11 @@ class Cell(HasCell):
     Orthogonalization transformation. Skews but does not scale the crystal axes to cartesian axes.
     """
 
-    _cell_size: NDArray[numpy.float_]
+    _cell_size: NDArray[numpy.float64]
     """Unit cell size."""
-    _cell_angle: NDArray[numpy.float_] = field(default_factory=lambda: numpy.full(3, numpy.pi/2.))
+    _cell_angle: NDArray[numpy.float64] = field(default_factory=lambda: numpy.full(3, numpy.pi/2.))
     """Unit cell angles, in radians."""
-    _n_cells: NDArray[numpy.int_] = field(default_factory=lambda: numpy.ones(3, numpy.int_))
+    _n_cells: NDArray[numpy.int64] = field(default_factory=lambda: numpy.ones(3, numpy.int64))
     """Number of unit cells."""
     _pbc: NDArray[numpy.bool_] = field(default_factory=lambda: numpy.ones(3, numpy.bool_))
     """Flags indicating the presence of periodic boundary conditions along each axis."""
@@ -387,7 +387,7 @@ class Cell(HasCell):
         object.__setattr__(self, '_ortho', LinearTransform3D() if ortho is None else ortho)
         object.__setattr__(self, '_cell_size', to_vec3(cell_size))
         object.__setattr__(self, '_cell_angle', numpy.full(3, numpy.pi/2.) if cell_angle is None else to_vec3(cell_angle))
-        object.__setattr__(self, '_n_cells', numpy.ones(3, numpy.int_) if n_cells is None else to_vec3(n_cells, numpy.int_))
+        object.__setattr__(self, '_n_cells', numpy.ones(3, numpy.int_) if n_cells is None else to_vec3(n_cells, numpy.int64))
         object.__setattr__(self, '_pbc', numpy.ones(3, numpy.bool_) if pbc is None else to_vec3(pbc, numpy.bool_))
 
     @staticmethod

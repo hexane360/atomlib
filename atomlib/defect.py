@@ -18,7 +18,7 @@ from .atoms import Atoms, HasAtomsT
 from .vec import norm, dot, perp, split_arr, polygon_solid_angle, polygon_winding
 
 
-def ellip_pi(n: NDArray[numpy.float_], m: NDArray[numpy.float_]) -> NDArray[numpy.float_]:
+def ellip_pi(n: NDArray[numpy.float64], m: NDArray[numpy.float64]) -> NDArray[numpy.float64]:
     """
     Complete elliptic integral of the third kind, $\\Pi(n | m)$.
 
@@ -267,7 +267,7 @@ def disloc_screw(atoms: HasAtomsT, center: VecLike, b: VecLike, cut: t.Optional[
             cut = to_vec3([1., 0., 0.])
         else:
             # otherwise find plane by rotating around 111
-            cut = cast(NDArray[numpy.float_], LinearTransform3D.rotate([1., 1., 1.], 2*numpy.pi/3).transform(t))
+            cut = cast(NDArray[numpy.float64], LinearTransform3D.rotate([1., 1., 1.], 2*numpy.pi/3).transform(t))
     else:
         cut = to_vec3(cut)
         cut /= norm(cut)
@@ -408,7 +408,7 @@ def disloc_poly_z(atoms: HasAtomsT, b: VecLike, poly: ArrayLike, center: t.Optio
         raise ValueError(f"Expected a 2d polygon. Instead got shape {poly.shape}")
 
     frame = atoms.get_atoms('local')
-    coords: NDArray[numpy.float_] = frame.coords() - center
+    coords: NDArray[numpy.float64] = frame.coords() - center
 
     branch = None
     d = numpy.dot(b_vec, [0, 0, 1])
@@ -441,8 +441,8 @@ def disloc_poly_z(atoms: HasAtomsT, b: VecLike, poly: ArrayLike, center: t.Optio
     return atoms.with_atoms(frame.with_coords(coords + disp + center), 'local')
 
 
-def _poly_disp_z(pts: NDArray[numpy.float_], b_vec: NDArray[numpy.float_], poly: NDArray[numpy.float_], *,
-                 poisson: float = 0.25, branch: t.Optional[numpy.ndarray] = None) -> NDArray[numpy.float_]:
+def _poly_disp_z(pts: NDArray[numpy.float64], b_vec: NDArray[numpy.float64], poly: NDArray[numpy.float64], *,
+                 poisson: float = 0.25, branch: t.Optional[numpy.ndarray] = None) -> NDArray[numpy.float64]:
 
     if branch is None:
         branch = numpy.array(1.)
@@ -458,7 +458,7 @@ def _poly_disp_z(pts: NDArray[numpy.float_], b_vec: NDArray[numpy.float_], poly:
     e2 = numpy.cross(eta, r)
     e2 /= numpy.linalg.norm(e2, axis=-1, keepdims=True)
 
-    def _disp(r: NDArray[numpy.float_]) -> NDArray[numpy.float_]:
+    def _disp(r: NDArray[numpy.float64]) -> NDArray[numpy.float64]:
         r_norm = numpy.linalg.norm(r, axis=-1, keepdims=True)
         disps = (1-2*poisson)*numpy.cross(b_vec, eta) * numpy.log(r_norm + dot(r, eta)) - dot(b_vec, e2) * numpy.cross(r / r_norm, e2)
         return numpy.sum(disps, axis=-2)
@@ -466,7 +466,7 @@ def _poly_disp_z(pts: NDArray[numpy.float_], b_vec: NDArray[numpy.float_], poly:
     return b_vec * omega[:, None] / (4*numpy.pi) + 1/(8*numpy.pi*(1-poisson)) * (_disp(r_n) - _disp(r))
 
 
-def _loop_disp_z(pts: NDArray[numpy.float_], b_vec: numpy.ndarray, loop_r: float, *,
+def _loop_disp_z(pts: NDArray[numpy.float64], b_vec: numpy.ndarray, loop_r: float, *,
                  poisson: float = 0.25, branch: t.Optional[numpy.ndarray] = None) -> numpy.ndarray:
     from scipy.special import ellipk, ellipe
 

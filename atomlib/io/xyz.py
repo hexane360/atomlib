@@ -148,7 +148,7 @@ class XYZ:
                 ).strip() + '\n' for row in self.atoms.select(('symbol', 'coords')).rows()
             )
 
-    def cell_matrix(self) -> t.Optional[NDArray[numpy.float_]]:
+    def cell_matrix(self) -> t.Optional[NDArray[numpy.float64]]:
         if (s := self.params.get('Lattice')) is None:
             return None
 
@@ -156,7 +156,7 @@ class XYZ:
             items = list(map(float, s.split()))
             if not len(items) == 9:
                 raise ValueError("Invalid length")
-            return numpy.array(items, dtype=numpy.float_).reshape((3, 3)).T
+            return numpy.array(items, dtype=numpy.float64).reshape((3, 3)).T
         except ValueError:
             warnings.warn(f"Warning: Invalid format for key 'Lattice=\"{s}\"'")
         return None

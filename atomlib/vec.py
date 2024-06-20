@@ -48,7 +48,7 @@ def split_arr(a: NDArray[ScalarT], axis: int = 0) -> t.Iterator[NDArray[ScalarT]
 
 
 def polygon_solid_angle(poly: ArrayLike, pts: t.Optional[ArrayLike] = None,
-                        winding: t.Optional[ArrayLike] = None) -> NDArray[numpy.float_]:
+                        winding: t.Optional[ArrayLike] = None) -> NDArray[numpy.float64]:
     """
     Return the signed solid angle of the polygon ``poly`` in the xy plane, as viewed from ``pts``.
 
@@ -57,8 +57,8 @@ def polygon_solid_angle(poly: ArrayLike, pts: t.Optional[ArrayLike] = None,
 
     Returns a ndarray of shape ``broadcast(poly.shape[:-2], pts.shape[:-1])``
     """
-    poly = numpy.atleast_2d(poly).astype(numpy.float_)
-    pts = (numpy.array([0., 0., 0.]) if pts is None else numpy.atleast_1d(pts)).astype(numpy.float_)
+    poly = numpy.atleast_2d(poly).astype(numpy.float64)
+    pts = (numpy.array([0., 0., 0.]) if pts is None else numpy.atleast_1d(pts)).astype(numpy.float64)
 
     if poly.shape[-1] == 3:
         raise ValueError("Only 2d polygons are supported.")
@@ -79,7 +79,7 @@ def polygon_solid_angle(poly: ArrayLike, pts: t.Optional[ArrayLike] = None,
     # normalize polygon points to unit sphere
     numpy.divide(poly, numpy.linalg.norm(poly, axis=-1, keepdims=True), out=poly)
 
-    def _dot(v1: NDArray[numpy.float_], v2: NDArray[numpy.float_]) -> NDArray[numpy.float_]:
+    def _dot(v1: NDArray[numpy.float64], v2: NDArray[numpy.float64]) -> NDArray[numpy.float64]:
         return numpy.add.reduce(v1 * v2, axis=-1)
 
     # next and previous points in polygon
@@ -95,7 +95,7 @@ def polygon_solid_angle(poly: ArrayLike, pts: t.Optional[ArrayLike] = None,
     return angle - 2*numpy.pi*winding
 
 
-def polygon_winding(poly: ArrayLike, pt: t.Optional[ArrayLike] = None) -> NDArray[numpy.int_]:
+def polygon_winding(poly: ArrayLike, pt: t.Optional[ArrayLike] = None) -> NDArray[numpy.int64]:
     """
     Return the winding number of the given 2d polygon ``poly`` around the point ``pt``.
     If ``pt`` is not specified, return the polygon's total winding number (turning number).
@@ -105,7 +105,7 @@ def polygon_winding(poly: ArrayLike, pt: t.Optional[ArrayLike] = None) -> NDArra
     poly = numpy.atleast_2d(poly)
     if poly.dtype == object:
         raise ValueError("Ragged arrays not supported.")
-    poly = poly.astype(numpy.float_)
+    poly = poly.astype(numpy.float64)
 
     if pt is None:
         # return polygon's total winding number (turning number)
@@ -120,7 +120,7 @@ def polygon_winding(poly: ArrayLike, pt: t.Optional[ArrayLike] = None) -> NDArra
                     numpy.isclose(poly[..., 1], 0., atol=1e-10))
         poly = poly[~zero_pts]
 
-    pt = numpy.atleast_1d(pt)[..., None, :].astype(numpy.float_)
+    pt = numpy.atleast_1d(pt)[..., None, :].astype(numpy.float64)
 
     # shift the polygon's origin to `pt`.
     poly = poly - pt
@@ -135,7 +135,7 @@ def polygon_winding(poly: ArrayLike, pt: t.Optional[ArrayLike] = None) -> NDArra
     down_crossing = (y > 0) & (yn <= 0) & (x_pos < 0)
 
     # reduce and return
-    return numpy.sum(up_crossing, axis=-1) - numpy.sum(down_crossing, axis=-1)
+    return (numpy.sum(up_crossing, axis=-1) - numpy.sum(down_crossing, axis=-1)).astype(numpy.int64)
 
 
 WindingRule = t.Literal['nonzero', 'evenodd', 'positive', 'negative']
@@ -174,7 +174,7 @@ def in_polygon(poly: numpy.ndarray, pt: t.Optional[numpy.ndarray] = None, *,
                      "'nonzero', 'evenodd', 'positive', or 'negative'.")
 
 
-def reduce_vec(arr: ArrayLike, max_denom: int = 10000) -> NDArray[numpy.int_]:
+def reduce_vec(arr: ArrayLike, max_denom: int = 10000) -> NDArray[numpy.int64]:
     """
     Reduce a crystallographic vector (int or float) to lowest common terms.
     Example: reduce_vec([3, 3, 3]) = [1, 1, 1]

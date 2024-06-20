@@ -108,7 +108,7 @@ class AtomPatch3D(PathPatch3D):
 
 def get_zone(atoms: HasAtoms, zone: t.Optional[VecLike] = None,
              plane: t.Optional[VecLike] = None,
-             default: t.Optional[VecLike] = None) -> NDArray[numpy.float_]:
+             default: t.Optional[VecLike] = None) -> NDArray[numpy.float64]:
     if zone is not None and plane is not None:
         raise ValueError("'zone' and 'plane' can't both be specified.")
     if plane is not None:
@@ -117,13 +117,13 @@ def get_zone(atoms: HasAtoms, zone: t.Optional[VecLike] = None,
             raise NotImplementedError()
         zone = plane
     if zone is not None:
-        return numpy.broadcast_to(zone, 3)
+        return numpy.broadcast_to(zone, 3).astype(numpy.float64)
     if default is not None:
-        return numpy.broadcast_to(default, 3)
-    return numpy.array([0., 0., 1.])
+        return numpy.broadcast_to(default, 3).astype(numpy.float64)
+    return numpy.array([0., 0., 1.], dtype=numpy.float64)
 
 
-def get_plot_radii(atoms: HasAtoms, min_r: t.Optional[float] = 1.0, style: AtomStyle = 'small') -> NDArray[numpy.float_]:
+def get_plot_radii(atoms: HasAtoms, min_r: t.Optional[float] = 1.0, style: AtomStyle = 'small') -> NDArray[numpy.float64]:
     radii = get_radius(atoms['elem']).to_numpy()
     if style == 'small':
         radii = radii * 0.6
