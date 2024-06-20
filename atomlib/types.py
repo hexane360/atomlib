@@ -30,6 +30,15 @@ else:
     """Re-export of [`typing.TypeAlias`][typing.TypeAlias]"""
 
 
+if sys.version_info < (3, 11):
+    import typing_extensions
+    Self = typing_extensions.Self
+    """Re-export of [`typing.Self`][typing.Self]"""
+else:
+    Self = t.Self
+    """Re-export of [`typing.Self`][typing.Self]"""
+
+
 Vec3 = NDArray[numpy.floating[t.Any]]
 """3D float vector, of shape (3,)."""
 

@@ -29,7 +29,7 @@ import polars.interchange.dataframe
 import polars.testing
 import polars.type_aliases
 
-from .types import to_vec3, VecLike, ParamSpec, Concatenate, TypeAlias
+from .types import to_vec3, VecLike, ParamSpec, Concatenate, TypeAlias, Self
 from .bbox import BBox3D
 from .elem import get_elem, get_sym, get_mass
 from .transform import Transform3D, IntoTransform3D, AffineTransform3D
@@ -162,8 +162,8 @@ def _fwd_frame_map(
 
 def _fwd_frame(
     impl_f: t.Callable[Concatenate[polars.DataFrame, P], T]
-) -> t.Callable[[t.Callable[Concatenate[HasAtomsT, P], t.Any]], t.Callable[Concatenate[HasAtomsT, P], T]]:
-    def inner(f: t.Callable[Concatenate[HasAtomsT, P], t.Any]) -> t.Callable[Concatenate[HasAtomsT, P], T]:
+) -> t.Callable[[t.Callable[Concatenate[t.Any, P], T]], t.Callable[Concatenate[HasAtoms, P], T]]:
+    def inner(f: t.Callable[Concatenate[HasAtoms, P], T]) -> t.Callable[Concatenate[HasAtoms, P], T]:
         @wraps(f)
         def wrapper(self: HasAtoms, *args: P.args, **kwargs: P.kwargs) -> T:
             return impl_f(self._get_frame(), *args, **kwargs)
@@ -198,7 +198,7 @@ class HasAtoms(abc.ABC):
         ...
 
     @abc.abstractmethod
-    def with_atoms(self: HasAtomsT, atoms: HasAtoms, frame: t.Literal['local'] = 'local') -> HasAtomsT:
+    def with_atoms(self, atoms: HasAtoms, frame: t.Literal['local'] = 'local') -> Self:
         """
         Return a copy of self with the inner [`Atoms`][atomlib.atoms.Atoms] replaced.
 
@@ -229,7 +229,7 @@ class HasAtoms(abc.ABC):
 
     @property
     @_fwd_frame(lambda df: df.columns)
-    def columns(self) -> t.Sequence[str]:
+    def columns(self) -> t.List[str]:
         """
         Return the column names in `self`.
 
@@ -240,7 +240,7 @@ class HasAtoms(abc.ABC):
 
     @property
     @_fwd_frame(lambda df: df.dtypes)
-    def dtypes(self) -> t.Sequence[polars.DataType]:
+    def dtypes(self) -> t.List[polars.DataType]:
         """
         Return the datatypes in `self`.
 
@@ -335,10 +335,10 @@ class HasAtoms(abc.ABC):
     # row-wise operations
 
     def filter(
-        self: HasAtomsT,
+        self,
         *predicates: t.Union[None, IntoExprColumn, t.Iterable[IntoExprColumn], bool, t.List[bool], numpy.ndarray],
         **constraints: t.Any,
-    ) -> HasAtomsT:
+    ) -> Self:
         """Filter `self`, removing rows which evaluate to `False`."""
         # TODO clean up
         preds_not_none: t.Tuple[t.Union[IntoExprColumn, t.Iterable[IntoExprColumn], bool, t.List[bool], numpy.ndarray], ...]
@@ -430,22 +430,22 @@ class HasAtoms(abc.ABC):
 
     @t.overload
     def partition_by(
-        self: HasAtomsT, by: t.Union[str, t.Sequence[str]], *more_by: str,
+        self, by: t.Union[str, t.Sequence[str]], *more_by: str,
         maintain_order: bool = True, include_key: bool = True, as_dict: t.Literal[False] = False
-    ) -> t.List[HasAtomsT]:
+    ) -> t.List[Self]:
         ...
 
     @t.overload
     def partition_by(
-        self: HasAtomsT, by: t.Union[str, t.Sequence[str]], *more_by: str,
+        self, by: t.Union[str, t.Sequence[str]], *more_by: str,
         maintain_order: bool = True, include_key: bool = True, as_dict: t.Literal[True] = ...
-    ) -> t.Dict[t.Any, HasAtomsT]:
+    ) -> t.Dict[t.Any, Self]:
         ...
 
     def partition_by(
-        self: HasAtomsT, by: t.Union[str, t.Sequence[str]], *more_by: str,
+        self, by: t.Union[str, t.Sequence[str]], *more_by: str,
         maintain_order: bool = True, include_key: bool = True, as_dict: bool = False
-    ) -> t.Union[t.List[HasAtomsT], t.Dict[t.Any, HasAtomsT]]:
+    ) -> t.Union[t.List[Self], t.Dict[t.Any, Self]]:
         """
         Group by the given columns and partition into separate dataframes.
 
@@ -467,7 +467,7 @@ class HasAtoms(abc.ABC):
         self,
         *exprs: t.Union[IntoExpr, t.Iterable[IntoExpr]],
         **named_exprs: IntoExpr,
-    ):
+    ) -> polars.DataFrame:
         """
         Select `exprs` from `self`, and return as a [`polars.DataFrame`][polars.DataFrame].
 
@@ -487,10 +487,10 @@ class HasAtoms(abc.ABC):
         return _select_schema(self, schema)
 
     def select_props(
-        self: HasAtomsT,
+        self,
         *exprs: t.Union[IntoExpr, t.Iterable[IntoExpr]],
         **named_exprs: IntoExpr
-    ) -> HasAtomsT:
+    ) -> Self:
         """
         Select `exprs` from `self`, while keeping required columns.
 
@@ -546,10 +546,10 @@ class HasAtoms(abc.ABC):
         """Return whether `self` contains the given column."""
         ...
 
-    def __add__(self: HasAtomsT, other: IntoAtoms) -> HasAtomsT:
+    def __add__(self, other: IntoAtoms) -> HasAtoms:
         return self.__class__.concat((self, other), how='inner')
 
-    def __radd__(self: HasAtomsT, other: IntoAtoms) -> HasAtomsT:
+    def __radd__(self, other: IntoAtoms) -> HasAtoms:
         return self.__class__.concat((other, self), how='inner')
 
     def __getitem__(self, column: str) -> polars.Series:
@@ -572,7 +572,8 @@ class HasAtoms(abc.ABC):
 
     bbox = bbox_atoms
 
-    def transform_atoms(self: HasAtomsT, transform: IntoTransform3D, selection: t.Optional[AtomSelection] = None, *, transform_velocities: bool = False) -> HasAtomsT:
+    def transform_atoms(self, transform: IntoTransform3D, selection: t.Optional[AtomSelection] = None, *,
+                        transform_velocities: bool = False) -> Self:
         """
         Transform the atoms in `self` by `transform`.
         If `selection` is given, only transform the atoms in `selection`.
@@ -587,7 +588,7 @@ class HasAtoms(abc.ABC):
 
     transform = transform_atoms
 
-    def round_near_zero(self: HasAtomsT, tol: float = 1e-14) -> HasAtomsT:
+    def round_near_zero(self, tol: float = 1e-14) -> Self:
         """
         Round atom position values near zero to zero.
         """
@@ -596,9 +597,9 @@ class HasAtoms(abc.ABC):
             for col in range(3)
         ).list.to_array(3))
 
-    def crop(self: HasAtomsT, x_min: float = -numpy.inf, x_max: float = numpy.inf,
+    def crop(self, x_min: float = -numpy.inf, x_max: float = numpy.inf,
              y_min: float = -numpy.inf, y_max: float = numpy.inf,
-             z_min: float = -numpy.inf, z_max: float = numpy.inf) -> HasAtomsT:
+             z_min: float = -numpy.inf, z_max: float = numpy.inf) -> Self:
         """
         Crop, removing all atoms outside of the specified region, inclusive.
         """
@@ -611,12 +612,12 @@ class HasAtoms(abc.ABC):
 
     crop_atoms = crop
 
-    def _wrap(self: HasAtomsT, eps: float = 1e-5) -> HasAtomsT:
+    def _wrap(self, eps: float = 1e-5) -> Self:
         coords = (self.coords() + eps) % 1. - eps
         return self.with_coords(coords)
 
-    def deduplicate(self: HasAtomsT, tol: float = 1e-3, subset: t.Iterable[str] = ('x', 'y', 'z', 'symbol'),
-                    keep: UniqueKeepStrategy = 'first', maintain_order: bool = True) -> HasAtomsT:
+    def deduplicate(self, tol: float = 1e-3, subset: t.Iterable[str] = ('x', 'y', 'z', 'symbol'),
+                    keep: UniqueKeepStrategy = 'first', maintain_order: bool = True) -> Self:
         """
         De-duplicate atoms in `self`. Atoms of the same `symbol` that are closer than `tolerance`
         to each other (by Euclidian distance) will be removed, leaving only the atom specified by
@@ -722,22 +723,22 @@ class HasAtoms(abc.ABC):
         return self.try_get_column('mass')
 
     @t.overload
-    def add_atom(self: HasAtomsT, elem: t.Union[int, str], x: ArrayLike, /, *,
+    def add_atom(self, elem: t.Union[int, str], x: ArrayLike, /, *,
                  y: None = None, z: None = None,
-                 **kwargs: t.Any) -> HasAtomsT:
+                 **kwargs: t.Any) -> Self:
         ...
 
     @t.overload
-    def add_atom(self: HasAtomsT, elem: t.Union[int, str], /,
+    def add_atom(self, elem: t.Union[int, str], /,
                  x: float, y: float, z: float,
-                 **kwargs: t.Any) -> HasAtomsT:
+                 **kwargs: t.Any) -> Self:
         ...
 
-    def add_atom(self: HasAtomsT, elem: t.Union[int, str], /,
+    def add_atom(self, elem: t.Union[int, str], /,
                  x: t.Union[ArrayLike, float],
                  y: t.Optional[float] = None,
                  z: t.Optional[float] = None,
-                 **kwargs: t.Any) -> HasAtomsT:
+                 **kwargs: t.Any) -> Self:
         """
         Return a copy of `self` with an extra atom.
 
@@ -802,7 +803,7 @@ class HasAtoms(abc.ABC):
 
         return selection
 
-    def with_index(self: HasAtomsT, index: t.Optional[AtomValues] = None) -> HasAtomsT:
+    def with_index(self, index: t.Optional[AtomValues] = None) -> Self:
         """
         Returns `self` with a row index added in column 'i' (dtype [`polars.Int64`][polars.datatypes.Int64]).
         If `index` is not specified, defaults to an existing index or a new index.
@@ -813,7 +814,7 @@ class HasAtoms(abc.ABC):
             index = numpy.arange(len(self), dtype=numpy.int64)
         return self.with_column(_values_to_expr(self, index, polars.Int64).alias('i'))
 
-    def with_wobble(self: HasAtomsT, wobble: t.Optional[AtomValues] = None) -> HasAtomsT:
+    def with_wobble(self, wobble: t.Optional[AtomValues] = None) -> Self:
         """
         Return `self` with the given displacements in column 'wobble' (dtype [`polars.Float64`][polars.datatypes.Float64]).
         If `wobble` is not specified, defaults to the already-existing wobbles or 0.
@@ -823,7 +824,7 @@ class HasAtoms(abc.ABC):
         wobble = 0. if wobble is None else wobble
         return self.with_column(_values_to_expr(self, wobble, polars.Float64).alias('wobble'))
 
-    def with_occupancy(self: HasAtomsT, frac_occupancy: t.Optional[AtomValues] = None) -> HasAtomsT:
+    def with_occupancy(self, frac_occupancy: t.Optional[AtomValues] = None) -> Self:
         """
         Return self with the given fractional occupancies (dtype [`polars.Float64`][polars.datatypes.Float64]).
         If `frac_occupancy` is not specified, defaults to the already-existing occupancies or 1.
@@ -833,7 +834,7 @@ class HasAtoms(abc.ABC):
         frac_occupancy = 1. if frac_occupancy is None else frac_occupancy
         return self.with_column(_values_to_expr(self, frac_occupancy, polars.Float64).alias('frac_occupancy'))
 
-    def apply_wobble(self: HasAtomsT, rng: t.Union[numpy.random.Generator, int, None] = None) -> HasAtomsT:
+    def apply_wobble(self, rng: t.Union[numpy.random.Generator, int, None] = None) -> Self:
         """
         Displace the atoms in `self` by the amount in the `wobble` column.
         `wobble` is interpretated as a mean-squared displacement, which is distributed
@@ -848,7 +849,7 @@ class HasAtoms(abc.ABC):
         coords += stddev[:, None] * rng.standard_normal(coords.shape)
         return self.with_coords(coords)
 
-    def apply_occupancy(self: HasAtomsT, rng: t.Union[numpy.random.Generator, int, None] = None) -> HasAtomsT:
+    def apply_occupancy(self, rng: t.Union[numpy.random.Generator, int, None] = None) -> Self:
         """
         For each atom in `self`, use its `frac_occupancy` to randomly decide whether to remove it.
         """
@@ -860,7 +861,7 @@ class HasAtoms(abc.ABC):
         choice = rng.binomial(1, frac).astype(numpy.bool_)
         return self.filter(polars.lit(choice))
 
-    def with_type(self: HasAtomsT, types: t.Optional[AtomValues] = None) -> HasAtomsT:
+    def with_type(self, types: t.Optional[AtomValues] = None) -> Self:
         """
         Return `self` with the given atom types in column 'type'.
         If `types` is not specified, use the already existing types or auto-assign them.
@@ -888,7 +889,7 @@ class HasAtoms(abc.ABC):
         assert (new.get_column('type') == 0).sum() == 0
         return new
 
-    def with_mass(self: HasAtomsT, mass: t.Optional[ArrayLike] = None) -> HasAtomsT:
+    def with_mass(self, mass: t.Optional[ArrayLike] = None) -> Self:
         """
         Return `self` with the given atom masses in column `'mass'`.
         If `mass` is not specified, use the already existing masses or auto-assign them.
@@ -911,7 +912,7 @@ class HasAtoms(abc.ABC):
         assert (new.get_column('mass').abs() < 1e-10).sum() == 0
         return new
 
-    def with_symbol(self: HasAtomsT, symbols: ArrayLike, selection: t.Optional[AtomSelection] = None) -> HasAtomsT:
+    def with_symbol(self, symbols: ArrayLike, selection: t.Optional[AtomSelection] = None) -> Self:
         """
         Return `self` with the given atomic symbols.
         """
@@ -925,7 +926,7 @@ class HasAtoms(abc.ABC):
         symbols = polars.Series('symbol', list(numpy.broadcast_to(symbols, len(self))), dtype=polars.Utf8)
         return self.with_columns((symbols, get_elem(symbols)))
 
-    def with_coords(self: HasAtomsT, pts: ArrayLike, selection: t.Optional[AtomSelection] = None, *, frame: t.Literal['local'] = 'local') -> HasAtomsT:
+    def with_coords(self, pts: ArrayLike, selection: t.Optional[AtomSelection] = None, *, frame: t.Literal['local'] = 'local') -> Self:
         """
         Return `self` replaced with the given atomic positions.
         """
@@ -940,8 +941,8 @@ class HasAtoms(abc.ABC):
         pts = numpy.broadcast_to(pts, (len(self), 3))
         return self.with_columns(polars.Series('coords', pts, polars.Array(polars.Float64, 3)))
 
-    def with_velocity(self: HasAtomsT, pts: t.Optional[ArrayLike] = None,
-                      selection: t.Optional[AtomSelection] = None) -> HasAtomsT:
+    def with_velocity(self, pts: t.Optional[ArrayLike] = None,
+                      selection: t.Optional[AtomSelection] = None) -> Self:
         """
         Return `self` replaced with the given atomic velocities.
         If `pts` is not specified, use the already existing velocities or zero.

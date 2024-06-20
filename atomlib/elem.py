@@ -128,7 +128,7 @@ def get_sym(elem: t.Union[int, polars.Series]):
             _ = [_get_sym(t.cast(int, e)) for e in elem.to_list() if e is not None]
             raise
 
-    return _get_sym(t.cast(int, elem))
+    return _get_sym(elem)
 
 
 @t.overload

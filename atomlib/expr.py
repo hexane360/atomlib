@@ -12,6 +12,8 @@ import typing as t
 import numpy
 
 V = t.TypeVar('V')
+V2 = t.TypeVar('V2')
+T = t.TypeVar('T')
 T_co = t.TypeVar('T_co', covariant=True)
 
 WSPACE_RE = re.compile(r"\s+")
@@ -255,14 +257,14 @@ class Parser(t.Generic[T_co, V]):
     """Regex matching operators, brackets, and whitespace"""
 
     @t.overload
-    def __init__(self: Parser[str, V], ops: t.Sequence[Op[V]],
+    def __init__(self: Parser[str, V2], ops: t.Sequence[Op[V2]],
                  parse_scalar: t.Optional[t.Callable[[str], str]] = None,
                  groups: t.Optional[t.Sequence[t.Tuple[str, str]]] = None):
         ...
 
     @t.overload
-    def __init__(self: Parser[T_co, V], ops: t.Sequence[Op[V]],
-                 parse_scalar: t.Callable[[str], T_co],
+    def __init__(self: Parser[T, V2], ops: t.Sequence[Op[V2]],
+                 parse_scalar: t.Callable[[str], T],
                  groups: t.Optional[t.Sequence[t.Tuple[str, str]]] = None):
         ...
 
