@@ -430,6 +430,8 @@
       
         
       
+        
+      
     
     
     
@@ -487,6 +489,27 @@
   
   <span class="md-ellipsis">
     atomlib.atoms
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../atomcell/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    atomlib.atomcell
   </span>
   
 
@@ -1910,14 +1933,16 @@
 
 
 <h2 id="atomlib.expr.WSPACE_RE" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">WSPACE_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">s+&#39;</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-attribute-name">WSPACE_RE</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
   </span>
 
 </h2>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">WSPACE_RE</span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-external" title="re.compile" href="https://docs.python.org/3/library/re.html#re.compile">compile</a></span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">s+&#39;</span><span class="p">)</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -1929,14 +1954,23 @@
 
 
 <h2 id="atomlib.expr.NUMERIC_OPS" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">NUMERIC_OPS</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">Op</span><span class="p">[</span><span class="n">SupportsNum</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[</span><span class="n">BinaryOrUnaryOp</span><span class="p">([</span><span class="s1">&#39;-&#39;</span><span class="p">],</span> <span class="n">sub</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="n">BinaryOp</span><span class="p">([</span><span class="s1">&#39;+&#39;</span><span class="p">],</span> <span class="n">operator</span><span class="o">.</span><span class="n">add</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="n">BinaryOp</span><span class="p">([</span><span class="s1">&#39;*&#39;</span><span class="p">],</span> <span class="n">operator</span><span class="o">.</span><span class="n">mul</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span> <span class="n">BinaryOp</span><span class="p">([</span><span class="s1">&#39;/&#39;</span><span class="p">],</span> <span class="n">operator</span><span class="o">.</span><span class="n">truediv</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span> <span class="n">BinaryOp</span><span class="p">([</span><span class="s1">&#39;//&#39;</span><span class="p">],</span> <span class="n">operator</span><span class="o">.</span><span class="n">floordiv</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span> <span class="n">BinaryOp</span><span class="p">([</span><span class="s1">&#39;^&#39;</span><span class="p">,</span> <span class="s1">&#39;**&#39;</span><span class="p">],</span> <span class="n">operator</span><span class="o">.</span><span class="n">pow</span><span class="p">,</span> <span class="mi">7</span><span class="p">)]</span></code>
+          <span class="doc doc-object-name doc-attribute-name">NUMERIC_OPS</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
   </span>
 
 </h2>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">NUMERIC_OPS</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Sequence" href="https://docs.python.org/3/library/typing.html#typing.Sequence">Sequence</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.Op" href="#atomlib.expr.Op">Op</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.SupportsNum" href="#atomlib.expr.SupportsNum">SupportsNum</a></span><span class="p">]]</span> <span class="o">=</span> <span class="p">[</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.BinaryOrUnaryOp" href="#atomlib.expr.BinaryOrUnaryOp">BinaryOrUnaryOp</a></span><span class="p">([</span><span class="s2">&quot;-&quot;</span><span class="p">],</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.sub" href="#atomlib.expr.sub">sub</a></span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.BinaryOp" href="#atomlib.expr.BinaryOp">BinaryOp</a></span><span class="p">([</span><span class="s2">&quot;+&quot;</span><span class="p">],</span> <span class="n"><a class="autorefs autorefs-external" title="operator.add" href="https://docs.python.org/3/library/operator.html#operator.add">add</a></span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.BinaryOp" href="#atomlib.expr.BinaryOp">BinaryOp</a></span><span class="p">([</span><span class="s2">&quot;*&quot;</span><span class="p">],</span> <span class="n"><a class="autorefs autorefs-external" title="operator.mul" href="https://docs.python.org/3/library/operator.html#operator.mul">mul</a></span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.BinaryOp" href="#atomlib.expr.BinaryOp">BinaryOp</a></span><span class="p">([</span><span class="s2">&quot;/&quot;</span><span class="p">],</span> <span class="n"><a class="autorefs autorefs-external" title="operator.truediv" href="https://docs.python.org/3/library/operator.html#operator.truediv">truediv</a></span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.BinaryOp" href="#atomlib.expr.BinaryOp">BinaryOp</a></span><span class="p">([</span><span class="s2">&quot;//&quot;</span><span class="p">],</span> <span class="n"><a class="autorefs autorefs-external" title="operator.floordiv" href="https://docs.python.org/3/library/operator.html#operator.floordiv">floordiv</a></span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.BinaryOp" href="#atomlib.expr.BinaryOp">BinaryOp</a></span><span class="p">([</span><span class="s2">&quot;^&quot;</span><span class="p">,</span> <span class="s2">&quot;**&quot;</span><span class="p">],</span> <span class="n"><a class="autorefs autorefs-external" title="operator.pow" href="https://docs.python.org/3/library/operator.html#operator.pow">pow</a></span><span class="p">,</span> <span class="mi">7</span><span class="p">),</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="p">]</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -1948,14 +1982,16 @@
 
 
 <h2 id="atomlib.expr.NUMERIC_PARSER" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">NUMERIC_PARSER</span> <span class="o">=</span> <span class="n">Parser</span><span class="p">(</span><span class="n">NUMERIC_OPS</span><span class="p">,</span> <span class="n">parse_numeric</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-attribute-name">NUMERIC_PARSER</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
   </span>
 
 </h2>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">NUMERIC_PARSER</span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.Parser" href="#atomlib.expr.Parser">Parser</a></span><span class="p">(</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.NUMERIC_OPS" href="#atomlib.expr.NUMERIC_OPS">NUMERIC_OPS</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.parse_numeric" href="#atomlib.expr.parse_numeric">parse_numeric</a></span><span class="p">)</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -1967,14 +2003,23 @@
 
 
 <h2 id="atomlib.expr.BOOLEAN_OPS" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">BOOLEAN_OPS</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">Op</span><span class="p">[</span><span class="n">SupportsBool</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[</span><span class="n">BinaryOp</span><span class="p">([</span><span class="s1">&#39;=&#39;</span><span class="p">,</span> <span class="s1">&#39;==&#39;</span><span class="p">],</span> <span class="n">operator</span><span class="o">.</span><span class="n">eq</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">BinaryOp</span><span class="p">([</span><span class="s1">&#39;!=&#39;</span><span class="p">,</span> <span class="s1">&#39;&lt;&gt;&#39;</span><span class="p">],</span> <span class="n">operator</span><span class="o">.</span><span class="n">ne</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">BinaryOp</span><span class="p">([</span><span class="s1">&#39;|&#39;</span><span class="p">,</span> <span class="s1">&#39;||&#39;</span><span class="p">],</span> <span class="n">operator</span><span class="o">.</span><span class="n">or_</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="n">BinaryOp</span><span class="p">([</span><span class="s1">&#39;&amp;&#39;</span><span class="p">,</span> <span class="s1">&#39;&amp;&amp;&#39;</span><span class="p">],</span> <span class="n">operator</span><span class="o">.</span><span class="n">and_</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="n">BinaryOp</span><span class="p">([</span><span class="s1">&#39;^&#39;</span><span class="p">],</span> <span class="n">operator</span><span class="o">.</span><span class="n">xor</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span> <span class="n">UnaryOp</span><span class="p">([</span><span class="s1">&#39;!&#39;</span><span class="p">,</span> <span class="s1">&#39;~&#39;</span><span class="p">],</span> <span class="n">operator</span><span class="o">.</span><span class="n">invert</span><span class="p">)]</span></code>
+          <span class="doc doc-object-name doc-attribute-name">BOOLEAN_OPS</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
   </span>
 
 </h2>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">BOOLEAN_OPS</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Sequence" href="https://docs.python.org/3/library/typing.html#typing.Sequence">Sequence</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.Op" href="#atomlib.expr.Op">Op</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.SupportsBool" href="#atomlib.expr.SupportsBool">SupportsBool</a></span><span class="p">]]</span> <span class="o">=</span> <span class="p">[</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.BinaryOp" href="#atomlib.expr.BinaryOp">BinaryOp</a></span><span class="p">([</span><span class="s2">&quot;=&quot;</span><span class="p">,</span> <span class="s2">&quot;==&quot;</span><span class="p">],</span> <span class="n"><a class="autorefs autorefs-external" title="operator.eq" href="https://docs.python.org/3/library/operator.html#operator.eq">eq</a></span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.BinaryOp" href="#atomlib.expr.BinaryOp">BinaryOp</a></span><span class="p">([</span><span class="s2">&quot;!=&quot;</span><span class="p">,</span> <span class="s2">&quot;&lt;&gt;&quot;</span><span class="p">],</span> <span class="n"><a class="autorefs autorefs-external" title="operator.ne" href="https://docs.python.org/3/library/operator.html#operator.ne">ne</a></span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.BinaryOp" href="#atomlib.expr.BinaryOp">BinaryOp</a></span><span class="p">([</span><span class="s2">&quot;|&quot;</span><span class="p">,</span> <span class="s2">&quot;||&quot;</span><span class="p">],</span> <span class="n"><a class="autorefs autorefs-external" title="operator.or_" href="https://docs.python.org/3/library/operator.html#operator.or_">or_</a></span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.BinaryOp" href="#atomlib.expr.BinaryOp">BinaryOp</a></span><span class="p">([</span><span class="s2">&quot;&amp;&quot;</span><span class="p">,</span> <span class="s2">&quot;&amp;&amp;&quot;</span><span class="p">],</span> <span class="n"><a class="autorefs autorefs-external" title="operator.and_" href="https://docs.python.org/3/library/operator.html#operator.and_">and_</a></span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.BinaryOp" href="#atomlib.expr.BinaryOp">BinaryOp</a></span><span class="p">([</span><span class="s2">&quot;^&quot;</span><span class="p">],</span> <span class="n"><a class="autorefs autorefs-external" title="operator.xor" href="https://docs.python.org/3/library/operator.html#operator.xor">xor</a></span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.UnaryOp" href="#atomlib.expr.UnaryOp">UnaryOp</a></span><span class="p">([</span><span class="s2">&quot;!&quot;</span><span class="p">,</span> <span class="s2">&quot;~&quot;</span><span class="p">],</span> <span class="n"><a class="autorefs autorefs-external" title="operator.invert" href="https://docs.python.org/3/library/operator.html#operator.invert">invert</a></span><span class="p">),</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="p">]</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -1986,14 +2031,16 @@
 
 
 <h2 id="atomlib.expr.BOOLEAN_PARSER" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">BOOLEAN_PARSER</span> <span class="o">=</span> <span class="n">Parser</span><span class="p">(</span><span class="n">BOOLEAN_OPS</span><span class="p">,</span> <span class="n">parse_boolean</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-attribute-name">BOOLEAN_PARSER</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
   </span>
 
 </h2>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">BOOLEAN_PARSER</span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.Parser" href="#atomlib.expr.Parser">Parser</a></span><span class="p">(</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.BOOLEAN_OPS" href="#atomlib.expr.BOOLEAN_OPS">BOOLEAN_OPS</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.parse_boolean" href="#atomlib.expr.parse_boolean">parse_boolean</a></span><span class="p">)</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -2007,14 +2054,20 @@
 
 
 <h2 id="atomlib.expr.VECTOR_OPS" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">VECTOR_OPS</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">Op</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[</span><span class="o">*</span><span class="n">t</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">Op</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span> <span class="n">op</span><span class="p">)</span> <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">NUMERIC_OPS</span><span class="p">,</span> <span class="n">NaryOp</span><span class="p">([</span><span class="s1">&#39;,&#39;</span><span class="p">],</span> <span class="n">call</span><span class="o">=</span><span class="n">stack</span><span class="p">,</span> <span class="n">precedence</span><span class="o">=</span><span class="mi">3</span><span class="p">)]</span></code>
+          <span class="doc doc-object-name doc-attribute-name">VECTOR_OPS</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
   </span>
 
 </h2>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">VECTOR_OPS</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Sequence" href="https://docs.python.org/3/library/typing.html#typing.Sequence">Sequence</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.Op" href="#atomlib.expr.Op">Op</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" title="numpy.ndarray" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray">ndarray</a></span><span class="p">]]</span> <span class="o">=</span> <span class="p">[</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="o">*</span><span class="n"><a class="autorefs autorefs-external" title="typing.cast" href="https://docs.python.org/3/library/typing.html#typing.cast">cast</a></span><span class="p">(</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.Op" href="#atomlib.expr.Op">Op</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" title="numpy.ndarray" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray">ndarray</a></span><span class="p">],</span> <span class="n">op</span><span class="p">)</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.NUMERIC_OPS" href="#atomlib.expr.NUMERIC_OPS">NUMERIC_OPS</a></span><span class="p">,</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.NaryOp" href="#atomlib.expr.NaryOp">NaryOp</a></span><span class="p">([</span><span class="s2">&quot;,&quot;</span><span class="p">],</span> <span class="n">call</span><span class="o">=</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.stack" href="#atomlib.expr.stack">stack</a></span><span class="p">,</span> <span class="n">precedence</span><span class="o">=</span><span class="mi">3</span><span class="p">),</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="p">]</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -2026,14 +2079,18 @@
 
 
 <h2 id="atomlib.expr.VECTOR_PARSER" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">VECTOR_PARSER</span> <span class="o">=</span> <span class="n">Parser</span><span class="p">(</span><span class="n">VECTOR_OPS</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">parse_numeric</span><span class="p">(</span><span class="n">v</span><span class="p">)))</span></code>
+          <span class="doc doc-object-name doc-attribute-name">VECTOR_PARSER</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
   </span>
 
 </h2>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">VECTOR_PARSER</span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.Parser" href="#atomlib.expr.Parser">Parser</a></span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.VECTOR_OPS" href="#atomlib.expr.VECTOR_OPS">VECTOR_OPS</a></span><span class="p">,</span> <span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="numpy.array" href="https://numpy.org/doc/stable/reference/generated/numpy.array.html#numpy.array">array</a></span><span class="p">(</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.parse_numeric" href="#atomlib.expr.parse_numeric">parse_numeric</a></span><span class="p">(</span><span class="n">v</span><span class="p">))</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="p">)</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -2046,7 +2103,7 @@
 
 
 <h2 id="atomlib.expr.VariadicCallable" class="doc doc-heading">
-          <code>VariadicCallable</code>
+          <span class="doc doc-object-name doc-class-name">VariadicCallable</span>
 
 
 </h2>
@@ -2093,7 +2150,7 @@
 
 
 <h2 id="atomlib.expr.Op" class="doc doc-heading">
-          <code>Op</code>
+          <span class="doc doc-object-name doc-class-name">Op</span>
 
   
   <span class="doc doc-labels">
@@ -2145,14 +2202,16 @@
 
 
 <h3 id="atomlib.expr.Op.aliases" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">aliases</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span></code>
+          <span class="doc doc-object-name doc-attribute-name">aliases</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">aliases</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.List" href="https://docs.python.org/3/library/typing.html#typing.List">List</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">]</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -2164,7 +2223,8 @@
 
 
 <h3 id="atomlib.expr.Op.call" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">call</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Callable</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="nb">repr</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-attribute-name">call</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
@@ -2172,7 +2232,8 @@
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">call</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Callable" href="https://docs.python.org/3/library/typing.html#typing.Callable">Callable</a></span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-external" title="dataclasses.field" href="https://docs.python.org/3/library/dataclasses.html#dataclasses.field">field</a></span><span class="p">(</span><span class="nb">repr</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -2184,7 +2245,8 @@
 
 
 <h3 id="atomlib.expr.Op.requires_whitespace" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">requires_whitespace</span><span class="p">:</span> <span class="nb">bool</span></code>
+          <span class="doc doc-object-name doc-attribute-name">requires_whitespace</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
@@ -2192,7 +2254,8 @@
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">requires_whitespace</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -2215,7 +2278,7 @@
 
 
 <h2 id="atomlib.expr.NaryOp" class="doc doc-heading">
-          <code>NaryOp</code>
+          <span class="doc doc-object-name doc-class-name">NaryOp</span>
 
   
   <span class="doc doc-labels">
@@ -2279,14 +2342,16 @@
 
 
 <h3 id="atomlib.expr.NaryOp.aliases" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">aliases</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span></code>
+          <span class="doc doc-object-name doc-attribute-name">aliases</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">aliases</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.List" href="https://docs.python.org/3/library/typing.html#typing.List">List</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">]</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -2298,7 +2363,8 @@
 
 
 <h3 id="atomlib.expr.NaryOp.call" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">call</span><span class="p">:</span> <span class="n">VariadicCallable</span><span class="p">[</span><span class="n">V</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="nb">repr</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-attribute-name">call</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
@@ -2306,7 +2372,8 @@
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">call</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.VariadicCallable" href="#atomlib.expr.VariadicCallable">VariadicCallable</a></span><span class="p">[</span><span class="n"><span title="atomlib.expr.V">V</span></span><span class="p">]</span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-external" title="dataclasses.field" href="https://docs.python.org/3/library/dataclasses.html#dataclasses.field">field</a></span><span class="p">(</span><span class="nb">repr</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -2318,7 +2385,8 @@
 
 
 <h3 id="atomlib.expr.NaryOp.precedence" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">precedence</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span></code>
+          <span class="doc doc-object-name doc-attribute-name">precedence</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
@@ -2326,7 +2394,8 @@
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">precedence</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span> <span class="o">=</span> <span class="mi">5</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -2338,7 +2407,8 @@
 
 
 <h3 id="atomlib.expr.NaryOp.requires_whitespace" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">requires_whitespace</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></code>
+          <span class="doc doc-object-name doc-attribute-name">requires_whitespace</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
@@ -2346,7 +2416,8 @@
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">requires_whitespace</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></span> <span class="o">=</span> <span class="kc">False</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -2361,10 +2432,12 @@
 
 
 <h3 id="atomlib.expr.NaryOp.precedes" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">precedes</span><span class="p">(</span><span class="n">other</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">precedes</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">precedes</span><span class="p">(</span><span class="n">other</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3/library/typing.html#typing.Union">Union</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.BinaryOp" href="#atomlib.expr.BinaryOp">BinaryOp</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.NaryOp" href="#atomlib.expr.NaryOp">NaryOp</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -2401,7 +2474,7 @@
 
 
 <h2 id="atomlib.expr.BinaryOp" class="doc doc-heading">
-          <code>BinaryOp</code>
+          <span class="doc doc-object-name doc-class-name">BinaryOp</span>
 
   
   <span class="doc doc-labels">
@@ -2475,14 +2548,16 @@
 
 
 <h3 id="atomlib.expr.BinaryOp.aliases" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">aliases</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span></code>
+          <span class="doc doc-object-name doc-attribute-name">aliases</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">aliases</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.List" href="https://docs.python.org/3/library/typing.html#typing.List">List</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">]</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -2494,7 +2569,8 @@
 
 
 <h3 id="atomlib.expr.BinaryOp.call" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">call</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">V</span><span class="p">,</span> <span class="n">V</span><span class="p">],</span> <span class="n">V</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="nb">repr</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-attribute-name">call</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
@@ -2502,7 +2578,8 @@
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">call</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Callable" href="https://docs.python.org/3/library/typing.html#typing.Callable">Callable</a></span><span class="p">[[</span><span class="n"><span title="atomlib.expr.V">V</span></span><span class="p">,</span> <span class="n"><span title="atomlib.expr.V">V</span></span><span class="p">],</span> <span class="n"><span title="atomlib.expr.V">V</span></span><span class="p">]</span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-external" title="dataclasses.field" href="https://docs.python.org/3/library/dataclasses.html#dataclasses.field">field</a></span><span class="p">(</span><span class="nb">repr</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -2514,7 +2591,8 @@
 
 
 <h3 id="atomlib.expr.BinaryOp.precedence" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">precedence</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span></code>
+          <span class="doc doc-object-name doc-attribute-name">precedence</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
@@ -2522,7 +2600,8 @@
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">precedence</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span> <span class="o">=</span> <span class="mi">5</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -2534,7 +2613,8 @@
 
 
 <h3 id="atomlib.expr.BinaryOp.right_assoc" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">right_assoc</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></code>
+          <span class="doc doc-object-name doc-attribute-name">right_assoc</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
@@ -2542,7 +2622,8 @@
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">right_assoc</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></span> <span class="o">=</span> <span class="kc">False</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -2554,7 +2635,8 @@
 
 
 <h3 id="atomlib.expr.BinaryOp.requires_whitespace" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">requires_whitespace</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></code>
+          <span class="doc doc-object-name doc-attribute-name">requires_whitespace</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
@@ -2562,7 +2644,8 @@
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">requires_whitespace</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></span> <span class="o">=</span> <span class="kc">False</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -2577,10 +2660,12 @@
 
 
 <h3 id="atomlib.expr.BinaryOp.precedes" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">precedes</span><span class="p">(</span><span class="n">other</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">precedes</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">precedes</span><span class="p">(</span><span class="n">other</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3/library/typing.html#typing.Union">Union</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.BinaryOp" href="#atomlib.expr.BinaryOp">BinaryOp</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.NaryOp" href="#atomlib.expr.NaryOp">NaryOp</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -2628,7 +2713,7 @@ Handles a tie using the associativity of self.</p>
 
 
 <h2 id="atomlib.expr.UnaryOp" class="doc doc-heading">
-          <code>UnaryOp</code>
+          <span class="doc doc-object-name doc-class-name">UnaryOp</span>
 
   
   <span class="doc doc-labels">
@@ -2676,14 +2761,16 @@ Handles a tie using the associativity of self.</p>
 
 
 <h3 id="atomlib.expr.UnaryOp.aliases" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">aliases</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span></code>
+          <span class="doc doc-object-name doc-attribute-name">aliases</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">aliases</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.List" href="https://docs.python.org/3/library/typing.html#typing.List">List</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">]</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -2695,7 +2782,8 @@ Handles a tie using the associativity of self.</p>
 
 
 <h3 id="atomlib.expr.UnaryOp.call" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">call</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">V</span><span class="p">],</span> <span class="n">V</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="nb">repr</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-attribute-name">call</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
@@ -2703,7 +2791,8 @@ Handles a tie using the associativity of self.</p>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">call</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Callable" href="https://docs.python.org/3/library/typing.html#typing.Callable">Callable</a></span><span class="p">[[</span><span class="n"><span title="atomlib.expr.V">V</span></span><span class="p">],</span> <span class="n"><span title="atomlib.expr.V">V</span></span><span class="p">]</span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-external" title="dataclasses.field" href="https://docs.python.org/3/library/dataclasses.html#dataclasses.field">field</a></span><span class="p">(</span><span class="nb">repr</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -2715,7 +2804,8 @@ Handles a tie using the associativity of self.</p>
 
 
 <h3 id="atomlib.expr.UnaryOp.requires_whitespace" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">requires_whitespace</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></code>
+          <span class="doc doc-object-name doc-attribute-name">requires_whitespace</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
@@ -2723,7 +2813,8 @@ Handles a tie using the associativity of self.</p>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">requires_whitespace</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></span> <span class="o">=</span> <span class="kc">False</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -2746,7 +2837,7 @@ Handles a tie using the associativity of self.</p>
 
 
 <h2 id="atomlib.expr.BinaryOrUnaryOp" class="doc doc-heading">
-          <code>BinaryOrUnaryOp</code>
+          <span class="doc doc-object-name doc-class-name">BinaryOrUnaryOp</span>
 
   
   <span class="doc doc-labels">
@@ -2792,14 +2883,16 @@ Handles a tie using the associativity of self.</p>
 
 
 <h3 id="atomlib.expr.BinaryOrUnaryOp.aliases" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">aliases</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span></code>
+          <span class="doc doc-object-name doc-attribute-name">aliases</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">aliases</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.List" href="https://docs.python.org/3/library/typing.html#typing.List">List</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">]</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -2811,7 +2904,8 @@ Handles a tie using the associativity of self.</p>
 
 
 <h3 id="atomlib.expr.BinaryOrUnaryOp.requires_whitespace" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">requires_whitespace</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></code>
+          <span class="doc doc-object-name doc-attribute-name">requires_whitespace</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
@@ -2819,7 +2913,8 @@ Handles a tie using the associativity of self.</p>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">requires_whitespace</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></span> <span class="o">=</span> <span class="kc">False</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -2831,7 +2926,8 @@ Handles a tie using the associativity of self.</p>
 
 
 <h3 id="atomlib.expr.BinaryOrUnaryOp.precedence" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">precedence</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span></code>
+          <span class="doc doc-object-name doc-attribute-name">precedence</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
@@ -2839,7 +2935,8 @@ Handles a tie using the associativity of self.</p>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">precedence</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span> <span class="o">=</span> <span class="mi">5</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -2851,7 +2948,8 @@ Handles a tie using the associativity of self.</p>
 
 
 <h3 id="atomlib.expr.BinaryOrUnaryOp.right_assoc" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">right_assoc</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></code>
+          <span class="doc doc-object-name doc-attribute-name">right_assoc</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
@@ -2859,7 +2957,8 @@ Handles a tie using the associativity of self.</p>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">right_assoc</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></span> <span class="o">=</span> <span class="kc">False</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -2871,7 +2970,8 @@ Handles a tie using the associativity of self.</p>
 
 
 <h3 id="atomlib.expr.BinaryOrUnaryOp.call" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">call</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">V</span><span class="p">,</span> <span class="n">t</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">V</span><span class="p">]],</span> <span class="n">V</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="nb">repr</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-attribute-name">call</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
@@ -2879,7 +2979,8 @@ Handles a tie using the associativity of self.</p>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">call</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Callable" href="https://docs.python.org/3/library/typing.html#typing.Callable">Callable</a></span><span class="p">[[</span><span class="n"><span title="atomlib.expr.V">V</span></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><span title="atomlib.expr.V">V</span></span><span class="p">]],</span> <span class="n"><span title="atomlib.expr.V">V</span></span><span class="p">]</span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-external" title="dataclasses.field" href="https://docs.python.org/3/library/dataclasses.html#dataclasses.field">field</a></span><span class="p">(</span><span class="nb">repr</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -2894,10 +2995,12 @@ Handles a tie using the associativity of self.</p>
 
 
 <h3 id="atomlib.expr.BinaryOrUnaryOp.precedes" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">precedes</span><span class="p">(</span><span class="n">other</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">precedes</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">precedes</span><span class="p">(</span><span class="n">other</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3/library/typing.html#typing.Union">Union</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.BinaryOp" href="#atomlib.expr.BinaryOp">BinaryOp</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.NaryOp" href="#atomlib.expr.NaryOp">NaryOp</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -2945,7 +3048,7 @@ Handles a tie using the associativity of self.</p>
 
 
 <h2 id="atomlib.expr.Token" class="doc doc-heading">
-          <code>Token</code>
+          <span class="doc doc-object-name doc-class-name">Token</span>
 
   
   <span class="doc doc-labels">
@@ -2995,14 +3098,16 @@ Handles a tie using the associativity of self.</p>
 
 
 <h3 id="atomlib.expr.Token.raw" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">raw</span><span class="p">:</span> <span class="nb">str</span></code>
+          <span class="doc doc-object-name doc-attribute-name">raw</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">raw</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -3014,14 +3119,16 @@ Handles a tie using the associativity of self.</p>
 
 
 <h3 id="atomlib.expr.Token.line" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">line</span><span class="p">:</span> <span class="nb">int</span></code>
+          <span class="doc doc-object-name doc-attribute-name">line</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">line</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -3033,14 +3140,16 @@ Handles a tie using the associativity of self.</p>
 
 
 <h3 id="atomlib.expr.Token.span" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">span</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span></code>
+          <span class="doc doc-object-name doc-attribute-name">span</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">span</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Tuple" href="https://docs.python.org/3/library/typing.html#typing.Tuple">Tuple</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span><span class="p">]</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -3063,7 +3172,7 @@ Handles a tie using the associativity of self.</p>
 
 
 <h2 id="atomlib.expr.OpToken" class="doc doc-heading">
-          <code>OpToken</code>
+          <span class="doc doc-object-name doc-class-name">OpToken</span>
 
   
   <span class="doc doc-labels">
@@ -3103,14 +3212,16 @@ Handles a tie using the associativity of self.</p>
 
 
 <h3 id="atomlib.expr.OpToken.raw" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">raw</span><span class="p">:</span> <span class="nb">str</span></code>
+          <span class="doc doc-object-name doc-attribute-name">raw</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">raw</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -3122,14 +3233,16 @@ Handles a tie using the associativity of self.</p>
 
 
 <h3 id="atomlib.expr.OpToken.line" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">line</span><span class="p">:</span> <span class="nb">int</span></code>
+          <span class="doc doc-object-name doc-attribute-name">line</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">line</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -3141,14 +3254,16 @@ Handles a tie using the associativity of self.</p>
 
 
 <h3 id="atomlib.expr.OpToken.span" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">span</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span></code>
+          <span class="doc doc-object-name doc-attribute-name">span</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">span</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Tuple" href="https://docs.python.org/3/library/typing.html#typing.Tuple">Tuple</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span><span class="p">]</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -3160,14 +3275,16 @@ Handles a tie using the associativity of self.</p>
 
 
 <h3 id="atomlib.expr.OpToken.op" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">op</span><span class="p">:</span> <span class="n">Op</span><span class="p">[</span><span class="n">V</span><span class="p">]</span></code>
+          <span class="doc doc-object-name doc-attribute-name">op</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">op</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.Op" href="#atomlib.expr.Op">Op</a></span><span class="p">[</span><span class="n"><span title="atomlib.expr.V">V</span></span><span class="p">]</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -3190,7 +3307,7 @@ Handles a tie using the associativity of self.</p>
 
 
 <h2 id="atomlib.expr.GroupOpenToken" class="doc doc-heading">
-          <code>GroupOpenToken</code>
+          <span class="doc doc-object-name doc-class-name">GroupOpenToken</span>
 
   
   <span class="doc doc-labels">
@@ -3230,14 +3347,16 @@ Handles a tie using the associativity of self.</p>
 
 
 <h3 id="atomlib.expr.GroupOpenToken.raw" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">raw</span><span class="p">:</span> <span class="nb">str</span></code>
+          <span class="doc doc-object-name doc-attribute-name">raw</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">raw</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -3249,14 +3368,16 @@ Handles a tie using the associativity of self.</p>
 
 
 <h3 id="atomlib.expr.GroupOpenToken.line" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">line</span><span class="p">:</span> <span class="nb">int</span></code>
+          <span class="doc doc-object-name doc-attribute-name">line</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">line</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -3268,14 +3389,16 @@ Handles a tie using the associativity of self.</p>
 
 
 <h3 id="atomlib.expr.GroupOpenToken.span" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">span</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span></code>
+          <span class="doc doc-object-name doc-attribute-name">span</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">span</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Tuple" href="https://docs.python.org/3/library/typing.html#typing.Tuple">Tuple</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span><span class="p">]</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -3298,7 +3421,7 @@ Handles a tie using the associativity of self.</p>
 
 
 <h2 id="atomlib.expr.GroupCloseToken" class="doc doc-heading">
-          <code>GroupCloseToken</code>
+          <span class="doc doc-object-name doc-class-name">GroupCloseToken</span>
 
   
   <span class="doc doc-labels">
@@ -3338,14 +3461,16 @@ Handles a tie using the associativity of self.</p>
 
 
 <h3 id="atomlib.expr.GroupCloseToken.raw" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">raw</span><span class="p">:</span> <span class="nb">str</span></code>
+          <span class="doc doc-object-name doc-attribute-name">raw</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">raw</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -3357,14 +3482,16 @@ Handles a tie using the associativity of self.</p>
 
 
 <h3 id="atomlib.expr.GroupCloseToken.line" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">line</span><span class="p">:</span> <span class="nb">int</span></code>
+          <span class="doc doc-object-name doc-attribute-name">line</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">line</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -3376,14 +3503,16 @@ Handles a tie using the associativity of self.</p>
 
 
 <h3 id="atomlib.expr.GroupCloseToken.span" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">span</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span></code>
+          <span class="doc doc-object-name doc-attribute-name">span</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">span</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Tuple" href="https://docs.python.org/3/library/typing.html#typing.Tuple">Tuple</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span><span class="p">]</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -3406,7 +3535,7 @@ Handles a tie using the associativity of self.</p>
 
 
 <h2 id="atomlib.expr.WhitespaceToken" class="doc doc-heading">
-          <code>WhitespaceToken</code>
+          <span class="doc doc-object-name doc-class-name">WhitespaceToken</span>
 
   
   <span class="doc doc-labels">
@@ -3439,7 +3568,7 @@ Handles a tie using the associativity of self.</p>
 
 
 <h2 id="atomlib.expr.ValueToken" class="doc doc-heading">
-          <code>ValueToken</code>
+          <span class="doc doc-object-name doc-class-name">ValueToken</span>
 
   
   <span class="doc doc-labels">
@@ -3479,14 +3608,16 @@ Handles a tie using the associativity of self.</p>
 
 
 <h3 id="atomlib.expr.ValueToken.raw" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">raw</span><span class="p">:</span> <span class="nb">str</span></code>
+          <span class="doc doc-object-name doc-attribute-name">raw</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">raw</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -3498,14 +3629,16 @@ Handles a tie using the associativity of self.</p>
 
 
 <h3 id="atomlib.expr.ValueToken.line" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">line</span><span class="p">:</span> <span class="nb">int</span></code>
+          <span class="doc doc-object-name doc-attribute-name">line</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">line</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -3517,14 +3650,16 @@ Handles a tie using the associativity of self.</p>
 
 
 <h3 id="atomlib.expr.ValueToken.span" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">span</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span></code>
+          <span class="doc doc-object-name doc-attribute-name">span</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">span</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Tuple" href="https://docs.python.org/3/library/typing.html#typing.Tuple">Tuple</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span><span class="p">]</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -3536,14 +3671,16 @@ Handles a tie using the associativity of self.</p>
 
 
 <h3 id="atomlib.expr.ValueToken.val" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">val</span><span class="p">:</span> <span class="n">T_co</span></code>
+          <span class="doc doc-object-name doc-attribute-name">val</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">val</span><span class="p">:</span> <span class="n"><span title="atomlib.expr.T_co">T_co</span></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -3566,7 +3703,7 @@ Handles a tie using the associativity of self.</p>
 
 
 <h2 id="atomlib.expr.Expr" class="doc doc-heading">
-          <code>Expr</code>
+          <span class="doc doc-object-name doc-class-name">Expr</span>
 
 
 </h2>
@@ -3631,14 +3768,16 @@ Handles a tie using the associativity of self.</p>
 
 
 <h3 id="atomlib.expr.Expr.eval" class="doc doc-heading">
-          <code class="highlight language-python"><span class="nb">eval</span><span class="p">(</span><span class="n">map_f</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">eval</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nb">eval</span><span class="p">(</span><span class="nf">map_f</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Callable" href="https://docs.python.org/3/library/typing.html#typing.Callable">Callable</a></span><span class="p">[[</span><span class="n"><span title="atomlib.expr.T_co">T_co</span></span><span class="p">],</span> <span class="n"><span title="atomlib.expr.V">V</span></span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n"><span title="atomlib.expr.V">V</span></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -3661,14 +3800,21 @@ Handles a tie using the associativity of self.</p>
 
 
 <h3 id="atomlib.expr.Expr.format" class="doc doc-heading">
-          <code class="highlight language-python"><span class="nb">format</span><span class="p">(</span><span class="n">format_scalar</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">format_op</span><span class="o">=</span><span class="nb">str</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">format</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nb">format</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="nf">format_scalar</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Callable" href="https://docs.python.org/3/library/typing.html#typing.Callable">Callable</a></span><span class="p">[</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>        <span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.ValueToken" href="#atomlib.expr.ValueToken">ValueToken</a></span><span class="p">[</span><span class="n"><span title="atomlib.expr.T_co">T_co</span></span><span class="p">,</span> <span class="n"><span title="atomlib.expr.V">V</span></span><span class="p">]],</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">,</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">format_op</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Callable" href="https://docs.python.org/3/library/typing.html#typing.Callable">Callable</a></span><span class="p">[[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.OpToken" href="#atomlib.expr.OpToken">OpToken</a></span><span class="p">[</span><span class="n"><span title="atomlib.expr.T_co">T_co</span></span><span class="p">,</span> <span class="n"><span title="atomlib.expr.V">V</span></span><span class="p">]],</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">,</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -3703,7 +3849,7 @@ Handles a tie using the associativity of self.</p>
 
 
 <h2 id="atomlib.expr.UnaryExpr" class="doc doc-heading">
-          <code>UnaryExpr</code>
+          <span class="doc doc-object-name doc-class-name">UnaryExpr</span>
 
   
   <span class="doc doc-labels">
@@ -3775,14 +3921,16 @@ Handles a tie using the associativity of self.</p>
 
 
 <h3 id="atomlib.expr.UnaryExpr.op_token" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">op_token</span><span class="p">:</span> <span class="n">OpToken</span><span class="p">[</span><span class="n">T_co</span><span class="p">,</span> <span class="n">V</span><span class="p">]</span></code>
+          <span class="doc doc-object-name doc-attribute-name">op_token</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">op_token</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.OpToken" href="#atomlib.expr.OpToken">OpToken</a></span><span class="p">[</span><span class="n"><span title="atomlib.expr.T_co">T_co</span></span><span class="p">,</span> <span class="n"><span title="atomlib.expr.V">V</span></span><span class="p">]</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -3794,7 +3942,8 @@ Handles a tie using the associativity of self.</p>
 
 
 <h3 id="atomlib.expr.UnaryExpr.op" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">op</span><span class="p">:</span> <span class="n">UnaryOp</span><span class="p">[</span><span class="n">V</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-attribute-name">op</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
@@ -3802,7 +3951,8 @@ Handles a tie using the associativity of self.</p>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">op</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.UnaryOp" href="#atomlib.expr.UnaryOp">UnaryOp</a></span><span class="p">[</span><span class="n"><span title="atomlib.expr.V">V</span></span><span class="p">]</span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-external" title="dataclasses.field" href="https://docs.python.org/3/library/dataclasses.html#dataclasses.field">field</a></span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -3814,14 +3964,16 @@ Handles a tie using the associativity of self.</p>
 
 
 <h3 id="atomlib.expr.UnaryExpr.inner" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">inner</span><span class="p">:</span> <span class="n">Expr</span><span class="p">[</span><span class="n">T_co</span><span class="p">,</span> <span class="n">V</span><span class="p">]</span></code>
+          <span class="doc doc-object-name doc-attribute-name">inner</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">inner</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.Expr" href="#atomlib.expr.Expr">Expr</a></span><span class="p">[</span><span class="n"><span title="atomlib.expr.T_co">T_co</span></span><span class="p">,</span> <span class="n"><span title="atomlib.expr.V">V</span></span><span class="p">]</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -3833,7 +3985,8 @@ Handles a tie using the associativity of self.</p>
 
 
 <h3 id="atomlib.expr.UnaryExpr.lspace" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">lspace</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span></code>
+          <span class="doc doc-object-name doc-attribute-name">lspace</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
@@ -3841,7 +3994,8 @@ Handles a tie using the associativity of self.</p>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">lspace</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -3856,10 +4010,12 @@ Handles a tie using the associativity of self.</p>
 
 
 <h3 id="atomlib.expr.UnaryExpr.eval" class="doc doc-heading">
-          <code class="highlight language-python"><span class="nb">eval</span><span class="p">(</span><span class="n">map_f</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">eval</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nb">eval</span><span class="p">(</span><span class="nf">map_f</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Callable" href="https://docs.python.org/3/library/typing.html#typing.Callable">Callable</a></span><span class="p">[[</span><span class="n"><span title="atomlib.expr.T_co">T_co</span></span><span class="p">],</span> <span class="n"><span title="atomlib.expr.V">V</span></span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n"><span title="atomlib.expr.V">V</span></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -3880,10 +4036,17 @@ Handles a tie using the associativity of self.</p>
 
 
 <h3 id="atomlib.expr.UnaryExpr.format" class="doc doc-heading">
-          <code class="highlight language-python"><span class="nb">format</span><span class="p">(</span><span class="n">format_scalar</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">format_op</span><span class="o">=</span><span class="nb">str</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">format</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nb">format</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="nf">format_scalar</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Callable" href="https://docs.python.org/3/library/typing.html#typing.Callable">Callable</a></span><span class="p">[</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>        <span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.ValueToken" href="#atomlib.expr.ValueToken">ValueToken</a></span><span class="p">[</span><span class="n"><span title="atomlib.expr.T_co">T_co</span></span><span class="p">,</span> <span class="n"><span title="atomlib.expr.V">V</span></span><span class="p">]],</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">,</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">format_op</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Callable" href="https://docs.python.org/3/library/typing.html#typing.Callable">Callable</a></span><span class="p">[[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.OpToken" href="#atomlib.expr.OpToken">OpToken</a></span><span class="p">[</span><span class="n"><span title="atomlib.expr.T_co">T_co</span></span><span class="p">,</span> <span class="n"><span title="atomlib.expr.V">V</span></span><span class="p">]],</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">,</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -3916,7 +4079,7 @@ Handles a tie using the associativity of self.</p>
 
 
 <h2 id="atomlib.expr.BinaryExpr" class="doc doc-heading">
-          <code>BinaryExpr</code>
+          <span class="doc doc-object-name doc-class-name">BinaryExpr</span>
 
   
   <span class="doc doc-labels">
@@ -3988,14 +4151,16 @@ Handles a tie using the associativity of self.</p>
 
 
 <h3 id="atomlib.expr.BinaryExpr.op_token" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">op_token</span><span class="p">:</span> <span class="n">OpToken</span><span class="p">[</span><span class="n">T_co</span><span class="p">,</span> <span class="n">V</span><span class="p">]</span></code>
+          <span class="doc doc-object-name doc-attribute-name">op_token</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">op_token</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.OpToken" href="#atomlib.expr.OpToken">OpToken</a></span><span class="p">[</span><span class="n"><span title="atomlib.expr.T_co">T_co</span></span><span class="p">,</span> <span class="n"><span title="atomlib.expr.V">V</span></span><span class="p">]</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -4007,7 +4172,8 @@ Handles a tie using the associativity of self.</p>
 
 
 <h3 id="atomlib.expr.BinaryExpr.op" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">op</span><span class="p">:</span> <span class="n">BinaryOp</span><span class="p">[</span><span class="n">V</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-attribute-name">op</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
@@ -4015,7 +4181,8 @@ Handles a tie using the associativity of self.</p>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">op</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.BinaryOp" href="#atomlib.expr.BinaryOp">BinaryOp</a></span><span class="p">[</span><span class="n"><span title="atomlib.expr.V">V</span></span><span class="p">]</span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-external" title="dataclasses.field" href="https://docs.python.org/3/library/dataclasses.html#dataclasses.field">field</a></span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -4027,14 +4194,16 @@ Handles a tie using the associativity of self.</p>
 
 
 <h3 id="atomlib.expr.BinaryExpr.lhs" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">lhs</span><span class="p">:</span> <span class="n">Expr</span><span class="p">[</span><span class="n">T_co</span><span class="p">,</span> <span class="n">V</span><span class="p">]</span></code>
+          <span class="doc doc-object-name doc-attribute-name">lhs</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">lhs</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.Expr" href="#atomlib.expr.Expr">Expr</a></span><span class="p">[</span><span class="n"><span title="atomlib.expr.T_co">T_co</span></span><span class="p">,</span> <span class="n"><span title="atomlib.expr.V">V</span></span><span class="p">]</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -4046,14 +4215,16 @@ Handles a tie using the associativity of self.</p>
 
 
 <h3 id="atomlib.expr.BinaryExpr.rhs" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">rhs</span><span class="p">:</span> <span class="n">Expr</span><span class="p">[</span><span class="n">T_co</span><span class="p">,</span> <span class="n">V</span><span class="p">]</span></code>
+          <span class="doc doc-object-name doc-attribute-name">rhs</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">rhs</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.Expr" href="#atomlib.expr.Expr">Expr</a></span><span class="p">[</span><span class="n"><span title="atomlib.expr.T_co">T_co</span></span><span class="p">,</span> <span class="n"><span title="atomlib.expr.V">V</span></span><span class="p">]</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -4068,10 +4239,12 @@ Handles a tie using the associativity of self.</p>
 
 
 <h3 id="atomlib.expr.BinaryExpr.eval" class="doc doc-heading">
-          <code class="highlight language-python"><span class="nb">eval</span><span class="p">(</span><span class="n">map_f</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">eval</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nb">eval</span><span class="p">(</span><span class="nf">map_f</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Callable" href="https://docs.python.org/3/library/typing.html#typing.Callable">Callable</a></span><span class="p">[[</span><span class="n"><span title="atomlib.expr.T_co">T_co</span></span><span class="p">],</span> <span class="n"><span title="atomlib.expr.V">V</span></span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n"><span title="atomlib.expr.V">V</span></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -4092,10 +4265,17 @@ Handles a tie using the associativity of self.</p>
 
 
 <h3 id="atomlib.expr.BinaryExpr.format" class="doc doc-heading">
-          <code class="highlight language-python"><span class="nb">format</span><span class="p">(</span><span class="n">format_scalar</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">format_op</span><span class="o">=</span><span class="nb">str</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">format</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nb">format</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="nf">format_scalar</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Callable" href="https://docs.python.org/3/library/typing.html#typing.Callable">Callable</a></span><span class="p">[</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>        <span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.ValueToken" href="#atomlib.expr.ValueToken">ValueToken</a></span><span class="p">[</span><span class="n"><span title="atomlib.expr.T_co">T_co</span></span><span class="p">,</span> <span class="n"><span title="atomlib.expr.V">V</span></span><span class="p">]],</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">,</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">format_op</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Callable" href="https://docs.python.org/3/library/typing.html#typing.Callable">Callable</a></span><span class="p">[[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.OpToken" href="#atomlib.expr.OpToken">OpToken</a></span><span class="p">[</span><span class="n"><span title="atomlib.expr.T_co">T_co</span></span><span class="p">,</span> <span class="n"><span title="atomlib.expr.V">V</span></span><span class="p">]],</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">,</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -4128,7 +4308,7 @@ Handles a tie using the associativity of self.</p>
 
 
 <h2 id="atomlib.expr.NaryExpr" class="doc doc-heading">
-          <code>NaryExpr</code>
+          <span class="doc doc-object-name doc-class-name">NaryExpr</span>
 
   
   <span class="doc doc-labels">
@@ -4216,14 +4396,16 @@ Handles a tie using the associativity of self.</p>
 
 
 <h3 id="atomlib.expr.NaryExpr.op_tokens" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">op_tokens</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">OpToken</span><span class="p">[</span><span class="n">T_co</span><span class="p">,</span> <span class="n">V</span><span class="p">]]</span></code>
+          <span class="doc doc-object-name doc-attribute-name">op_tokens</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">op_tokens</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Sequence" href="https://docs.python.org/3/library/typing.html#typing.Sequence">Sequence</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.OpToken" href="#atomlib.expr.OpToken">OpToken</a></span><span class="p">[</span><span class="n"><span title="atomlib.expr.T_co">T_co</span></span><span class="p">,</span> <span class="n"><span title="atomlib.expr.V">V</span></span><span class="p">]]</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -4235,7 +4417,8 @@ Handles a tie using the associativity of self.</p>
 
 
 <h3 id="atomlib.expr.NaryExpr.op" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">op</span><span class="p">:</span> <span class="n">NaryOp</span><span class="p">[</span><span class="n">V</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-attribute-name">op</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
@@ -4243,7 +4426,8 @@ Handles a tie using the associativity of self.</p>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">op</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.NaryOp" href="#atomlib.expr.NaryOp">NaryOp</a></span><span class="p">[</span><span class="n"><span title="atomlib.expr.V">V</span></span><span class="p">]</span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-external" title="dataclasses.field" href="https://docs.python.org/3/library/dataclasses.html#dataclasses.field">field</a></span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -4255,14 +4439,16 @@ Handles a tie using the associativity of self.</p>
 
 
 <h3 id="atomlib.expr.NaryExpr.args" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">args</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">Expr</span><span class="p">[</span><span class="n">T_co</span><span class="p">,</span> <span class="n">V</span><span class="p">]]</span></code>
+          <span class="doc doc-object-name doc-attribute-name">args</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">args</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Sequence" href="https://docs.python.org/3/library/typing.html#typing.Sequence">Sequence</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.Expr" href="#atomlib.expr.Expr">Expr</a></span><span class="p">[</span><span class="n"><span title="atomlib.expr.T_co">T_co</span></span><span class="p">,</span> <span class="n"><span title="atomlib.expr.V">V</span></span><span class="p">]]</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -4274,7 +4460,8 @@ Handles a tie using the associativity of self.</p>
 
 
 <h3 id="atomlib.expr.NaryExpr.rspace" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">rspace</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span></code>
+          <span class="doc doc-object-name doc-attribute-name">rspace</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
@@ -4282,7 +4469,8 @@ Handles a tie using the associativity of self.</p>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">rspace</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -4297,10 +4485,12 @@ Handles a tie using the associativity of self.</p>
 
 
 <h3 id="atomlib.expr.NaryExpr.eval" class="doc doc-heading">
-          <code class="highlight language-python"><span class="nb">eval</span><span class="p">(</span><span class="n">map_f</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">eval</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nb">eval</span><span class="p">(</span><span class="nf">map_f</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Callable" href="https://docs.python.org/3/library/typing.html#typing.Callable">Callable</a></span><span class="p">[[</span><span class="n"><span title="atomlib.expr.T_co">T_co</span></span><span class="p">],</span> <span class="n"><span title="atomlib.expr.V">V</span></span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n"><span title="atomlib.expr.V">V</span></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -4321,10 +4511,17 @@ Handles a tie using the associativity of self.</p>
 
 
 <h3 id="atomlib.expr.NaryExpr.format" class="doc doc-heading">
-          <code class="highlight language-python"><span class="nb">format</span><span class="p">(</span><span class="n">format_scalar</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">format_op</span><span class="o">=</span><span class="nb">str</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">format</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nb">format</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="nf">format_scalar</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Callable" href="https://docs.python.org/3/library/typing.html#typing.Callable">Callable</a></span><span class="p">[</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>        <span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.ValueToken" href="#atomlib.expr.ValueToken">ValueToken</a></span><span class="p">[</span><span class="n"><span title="atomlib.expr.T_co">T_co</span></span><span class="p">,</span> <span class="n"><span title="atomlib.expr.V">V</span></span><span class="p">]],</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">,</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">format_op</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Callable" href="https://docs.python.org/3/library/typing.html#typing.Callable">Callable</a></span><span class="p">[[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.OpToken" href="#atomlib.expr.OpToken">OpToken</a></span><span class="p">[</span><span class="n"><span title="atomlib.expr.T_co">T_co</span></span><span class="p">,</span> <span class="n"><span title="atomlib.expr.V">V</span></span><span class="p">]],</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">,</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -4363,7 +4560,7 @@ Handles a tie using the associativity of self.</p>
 
 
 <h2 id="atomlib.expr.GroupExpr" class="doc doc-heading">
-          <code>GroupExpr</code>
+          <span class="doc doc-object-name doc-class-name">GroupExpr</span>
 
   
   <span class="doc doc-labels">
@@ -4427,14 +4624,16 @@ Handles a tie using the associativity of self.</p>
 
 
 <h3 id="atomlib.expr.GroupExpr.open" class="doc doc-heading">
-          <code class="highlight language-python"><span class="nb">open</span><span class="p">:</span> <span class="n">GroupOpenToken</span></code>
+          <span class="doc doc-object-name doc-attribute-name">open</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nb">open</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.GroupOpenToken" href="#atomlib.expr.GroupOpenToken">GroupOpenToken</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -4446,14 +4645,16 @@ Handles a tie using the associativity of self.</p>
 
 
 <h3 id="atomlib.expr.GroupExpr.inner" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">inner</span><span class="p">:</span> <span class="n">Expr</span><span class="p">[</span><span class="n">T_co</span><span class="p">,</span> <span class="n">V</span><span class="p">]</span></code>
+          <span class="doc doc-object-name doc-attribute-name">inner</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">inner</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.Expr" href="#atomlib.expr.Expr">Expr</a></span><span class="p">[</span><span class="n"><span title="atomlib.expr.T_co">T_co</span></span><span class="p">,</span> <span class="n"><span title="atomlib.expr.V">V</span></span><span class="p">]</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -4465,14 +4666,16 @@ Handles a tie using the associativity of self.</p>
 
 
 <h3 id="atomlib.expr.GroupExpr.close" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">close</span><span class="p">:</span> <span class="n">GroupCloseToken</span></code>
+          <span class="doc doc-object-name doc-attribute-name">close</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">close</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.GroupCloseToken" href="#atomlib.expr.GroupCloseToken">GroupCloseToken</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -4484,7 +4687,8 @@ Handles a tie using the associativity of self.</p>
 
 
 <h3 id="atomlib.expr.GroupExpr.lspace" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">lspace</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span></code>
+          <span class="doc doc-object-name doc-attribute-name">lspace</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
@@ -4492,7 +4696,8 @@ Handles a tie using the associativity of self.</p>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">lspace</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -4504,7 +4709,8 @@ Handles a tie using the associativity of self.</p>
 
 
 <h3 id="atomlib.expr.GroupExpr.rspace" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">rspace</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span></code>
+          <span class="doc doc-object-name doc-attribute-name">rspace</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
@@ -4512,7 +4718,8 @@ Handles a tie using the associativity of self.</p>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">rspace</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -4527,10 +4734,12 @@ Handles a tie using the associativity of self.</p>
 
 
 <h3 id="atomlib.expr.GroupExpr.eval" class="doc doc-heading">
-          <code class="highlight language-python"><span class="nb">eval</span><span class="p">(</span><span class="n">map_f</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">eval</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nb">eval</span><span class="p">(</span><span class="nf">map_f</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Callable" href="https://docs.python.org/3/library/typing.html#typing.Callable">Callable</a></span><span class="p">[[</span><span class="n"><span title="atomlib.expr.T_co">T_co</span></span><span class="p">],</span> <span class="n"><span title="atomlib.expr.V">V</span></span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n"><span title="atomlib.expr.V">V</span></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -4551,10 +4760,17 @@ Handles a tie using the associativity of self.</p>
 
 
 <h3 id="atomlib.expr.GroupExpr.format" class="doc doc-heading">
-          <code class="highlight language-python"><span class="nb">format</span><span class="p">(</span><span class="n">format_scalar</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">format_op</span><span class="o">=</span><span class="nb">str</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">format</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nb">format</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="nf">format_scalar</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Callable" href="https://docs.python.org/3/library/typing.html#typing.Callable">Callable</a></span><span class="p">[</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>        <span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.ValueToken" href="#atomlib.expr.ValueToken">ValueToken</a></span><span class="p">[</span><span class="n"><span title="atomlib.expr.T_co">T_co</span></span><span class="p">,</span> <span class="n"><span title="atomlib.expr.V">V</span></span><span class="p">]],</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">,</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">format_op</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Callable" href="https://docs.python.org/3/library/typing.html#typing.Callable">Callable</a></span><span class="p">[[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.OpToken" href="#atomlib.expr.OpToken">OpToken</a></span><span class="p">[</span><span class="n"><span title="atomlib.expr.T_co">T_co</span></span><span class="p">,</span> <span class="n"><span title="atomlib.expr.V">V</span></span><span class="p">]],</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">,</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -4587,7 +4803,7 @@ Handles a tie using the associativity of self.</p>
 
 
 <h2 id="atomlib.expr.ValueExpr" class="doc doc-heading">
-          <code>ValueExpr</code>
+          <span class="doc doc-object-name doc-class-name">ValueExpr</span>
 
   
   <span class="doc doc-labels">
@@ -4647,14 +4863,16 @@ Handles a tie using the associativity of self.</p>
 
 
 <h3 id="atomlib.expr.ValueExpr.token" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">token</span><span class="p">:</span> <span class="n">ValueToken</span><span class="p">[</span><span class="n">T_co</span><span class="p">,</span> <span class="n">V</span><span class="p">]</span></code>
+          <span class="doc doc-object-name doc-attribute-name">token</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">token</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.ValueToken" href="#atomlib.expr.ValueToken">ValueToken</a></span><span class="p">[</span><span class="n"><span title="atomlib.expr.T_co">T_co</span></span><span class="p">,</span> <span class="n"><span title="atomlib.expr.V">V</span></span><span class="p">]</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -4666,7 +4884,8 @@ Handles a tie using the associativity of self.</p>
 
 
 <h3 id="atomlib.expr.ValueExpr.lspace" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">lspace</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span></code>
+          <span class="doc doc-object-name doc-attribute-name">lspace</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
@@ -4674,7 +4893,8 @@ Handles a tie using the associativity of self.</p>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">lspace</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -4686,7 +4906,8 @@ Handles a tie using the associativity of self.</p>
 
 
 <h3 id="atomlib.expr.ValueExpr.rspace" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">rspace</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span></code>
+          <span class="doc doc-object-name doc-attribute-name">rspace</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
@@ -4694,7 +4915,8 @@ Handles a tie using the associativity of self.</p>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">rspace</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -4709,10 +4931,12 @@ Handles a tie using the associativity of self.</p>
 
 
 <h3 id="atomlib.expr.ValueExpr.eval" class="doc doc-heading">
-          <code class="highlight language-python"><span class="nb">eval</span><span class="p">(</span><span class="n">map_f</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">eval</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nb">eval</span><span class="p">(</span><span class="nf">map_f</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Callable" href="https://docs.python.org/3/library/typing.html#typing.Callable">Callable</a></span><span class="p">[[</span><span class="n"><span title="atomlib.expr.T_co">T_co</span></span><span class="p">],</span> <span class="n"><span title="atomlib.expr.V">V</span></span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n"><span title="atomlib.expr.V">V</span></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -4733,10 +4957,17 @@ Handles a tie using the associativity of self.</p>
 
 
 <h3 id="atomlib.expr.ValueExpr.format" class="doc doc-heading">
-          <code class="highlight language-python"><span class="nb">format</span><span class="p">(</span><span class="n">format_scalar</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">format_op</span><span class="o">=</span><span class="nb">str</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">format</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nb">format</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="nf">format_scalar</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Callable" href="https://docs.python.org/3/library/typing.html#typing.Callable">Callable</a></span><span class="p">[</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>        <span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.ValueToken" href="#atomlib.expr.ValueToken">ValueToken</a></span><span class="p">[</span><span class="n"><span title="atomlib.expr.T_co">T_co</span></span><span class="p">,</span> <span class="n"><span title="atomlib.expr.V">V</span></span><span class="p">]],</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">,</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">format_op</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Callable" href="https://docs.python.org/3/library/typing.html#typing.Callable">Callable</a></span><span class="p">[[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.OpToken" href="#atomlib.expr.OpToken">OpToken</a></span><span class="p">[</span><span class="n"><span title="atomlib.expr.T_co">T_co</span></span><span class="p">,</span> <span class="n"><span title="atomlib.expr.V">V</span></span><span class="p">]],</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">,</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -4769,7 +5000,7 @@ Handles a tie using the associativity of self.</p>
 
 
 <h2 id="atomlib.expr.Parser" class="doc doc-heading">
-          <code>Parser</code>
+          <span class="doc doc-object-name doc-class-name">Parser</span>
 
   
   <span class="doc doc-labels">
@@ -4957,14 +5188,16 @@ Handles a tie using the associativity of self.</p>
 
 
 <h3 id="atomlib.expr.Parser.parse_scalar" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">parse_scalar</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="n">T_co</span><span class="p">]</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="n">T_co</span><span class="p">],</span> <span class="n">parse_scalar</span> <span class="ow">or</span> <span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="n">s</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-attribute-name">parse_scalar</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">parse_scalar</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Callable" href="https://docs.python.org/3/library/typing.html#typing.Callable">Callable</a></span><span class="p">[[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">],</span> <span class="n"><span title="atomlib.expr.T_co">T_co</span></span><span class="p">]</span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-external" title="typing.cast" href="https://docs.python.org/3/library/typing.html#typing.cast">cast</a></span><span class="p">(</span><span class="n"><a class="autorefs autorefs-external" title="typing.Callable" href="https://docs.python.org/3/library/typing.html#typing.Callable">Callable</a></span><span class="p">[[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">],</span> <span class="n"><span title="atomlib.expr.T_co">T_co</span></span><span class="p">],</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.Parser.parse_scalar" href="#atomlib.expr.Parser.parse_scalar">parse_scalar</a></span> <span class="ow">or</span> <span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="n">s</span><span class="p">)</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -4976,14 +5209,16 @@ Handles a tie using the associativity of self.</p>
 
 
 <h3 id="atomlib.expr.Parser.group_open" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">group_open</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span></code>
+          <span class="doc doc-object-name doc-attribute-name">group_open</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">group_open</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Dict" href="https://docs.python.org/3/library/typing.html#typing.Dict">Dict</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -4995,14 +5230,16 @@ Handles a tie using the associativity of self.</p>
 
 
 <h3 id="atomlib.expr.Parser.group_close" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">group_close</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span></code>
+          <span class="doc doc-object-name doc-attribute-name">group_close</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">group_close</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Dict" href="https://docs.python.org/3/library/typing.html#typing.Dict">Dict</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -5014,14 +5251,16 @@ Handles a tie using the associativity of self.</p>
 
 
 <h3 id="atomlib.expr.Parser.ops" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">ops</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Op</span><span class="p">[</span><span class="n">V</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">vfor</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="ow">in</span> <span class="n">match_list</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">}</span></code>
+          <span class="doc doc-object-name doc-attribute-name">ops</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">ops</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Dict" href="https://docs.python.org/3/library/typing.html#typing.Dict">Dict</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.Op" href="#atomlib.expr.Op">Op</a></span><span class="p">[</span><span class="n"><span title="atomlib.expr.V">V</span></span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">_Wfor</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="ow">in</span> <span class="n">match_list</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">}</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -5033,7 +5272,8 @@ Handles a tie using the associativity of self.</p>
 
 
 <h3 id="atomlib.expr.Parser.token_re" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">token_re</span><span class="p">:</span> <span class="n">re</span><span class="o">.</span><span class="n">Pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;(\s+|</span><span class="si">{</span><span class="n">op_alternation</span><span class="si">}</span><span class="s1">)&#39;</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-attribute-name">token_re</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
@@ -5041,7 +5281,8 @@ Handles a tie using the associativity of self.</p>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">token_re</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="re.Pattern" href="https://docs.python.org/3/library/re.html#re.Pattern">Pattern</a></span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-external" title="re.compile" href="https://docs.python.org/3/library/re.html#re.compile">compile</a></span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;(\s+|</span><span class="si">{</span><span class="n">op_alternation</span><span class="si">}</span><span class="s1">)&#39;</span><span class="p">)</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -5058,10 +5299,12 @@ Handles a tie using the associativity of self.</p>
 
 
 <h3 id="atomlib.expr.Parser.parse" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">parse</span><span class="p">(</span><span class="n">reader</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">parse</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">parse</span><span class="p">(</span><span class="n">reader</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="io.TextIOBase" href="https://docs.python.org/3/library/io.html#io.TextIOBase">TextIOBase</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.Expr" href="#atomlib.expr.Expr">Expr</a></span><span class="p">[</span><span class="n"><span title="atomlib.expr.T_co">T_co</span></span><span class="p">,</span> <span class="n"><span title="atomlib.expr.V">V</span></span><span class="p">]</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -5098,7 +5341,7 @@ Handles a tie using the associativity of self.</p>
 
 
 <h2 id="atomlib.expr.ParseState" class="doc doc-heading">
-          <code>ParseState</code>
+          <span class="doc doc-object-name doc-class-name">ParseState</span>
 
 
 </h2>
@@ -5476,14 +5719,16 @@ Handles a tie using the associativity of self.</p>
 
 
 <h3 id="atomlib.expr.ParseState.parser" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">parser</span><span class="p">:</span> <span class="n">Parser</span><span class="p">[</span><span class="n">T_co</span><span class="p">,</span> <span class="n">V</span><span class="p">]</span> <span class="o">=</span> <span class="n">parser</span></code>
+          <span class="doc doc-object-name doc-attribute-name">parser</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">parser</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.Parser" href="#atomlib.expr.Parser">Parser</a></span><span class="p">[</span><span class="n"><span title="atomlib.expr.T_co">T_co</span></span><span class="p">,</span> <span class="n"><span title="atomlib.expr.V">V</span></span><span class="p">]</span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.ParseState.parser" href="#atomlib.expr.ParseState.parser">parser</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -5495,14 +5740,16 @@ Handles a tie using the associativity of self.</p>
 
 
 <h3 id="atomlib.expr.ParseState.line" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">line</span> <span class="o">=</span> <span class="mi">0</span></code>
+          <span class="doc doc-object-name doc-attribute-name">line</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">line</span> <span class="o">=</span> <span class="mi">0</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -5514,14 +5761,16 @@ Handles a tie using the associativity of self.</p>
 
 
 <h3 id="atomlib.expr.ParseState.char" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">char</span> <span class="o">=</span> <span class="mi">1</span></code>
+          <span class="doc doc-object-name doc-attribute-name">char</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">char</span> <span class="o">=</span> <span class="mi">1</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -5536,10 +5785,12 @@ Handles a tie using the associativity of self.</p>
 
 
 <h3 id="atomlib.expr.ParseState.empty" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">empty</span><span class="p">()</span></code>
+          <span class="doc doc-object-name doc-function-name">empty</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">empty</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -5560,10 +5811,12 @@ Handles a tie using the associativity of self.</p>
 
 
 <h3 id="atomlib.expr.ParseState.peek" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">peek</span><span class="p">()</span></code>
+          <span class="doc doc-object-name doc-function-name">peek</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">peek</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.Token" href="#atomlib.expr.Token">Token</a></span><span class="p">[</span><span class="n"><span title="atomlib.expr.T_co">T_co</span></span><span class="p">,</span> <span class="n"><span title="atomlib.expr.V">V</span></span><span class="p">]]</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -5586,10 +5839,12 @@ Handles a tie using the associativity of self.</p>
 
 
 <h3 id="atomlib.expr.ParseState.collect_wspace" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">collect_wspace</span><span class="p">()</span></code>
+          <span class="doc doc-object-name doc-function-name">collect_wspace</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">collect_wspace</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -5624,10 +5879,14 @@ Handles a tie using the associativity of self.</p>
 
 
 <h3 id="atomlib.expr.ParseState.make_token" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">make_token</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">line</span><span class="p">,</span> <span class="n">span</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">make_token</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">make_token</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">s</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">,</span> <span class="n">line</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span><span class="p">,</span> <span class="n">span</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Tuple" href="https://docs.python.org/3/library/typing.html#typing.Tuple">Tuple</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span><span class="p">]</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.Token" href="#atomlib.expr.Token">Token</a></span><span class="p">[</span><span class="n"><span title="atomlib.expr.T_co">T_co</span></span><span class="p">,</span> <span class="n"><span title="atomlib.expr.V">V</span></span><span class="p">]</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -5672,10 +5931,12 @@ Handles a tie using the associativity of self.</p>
 
 
 <h3 id="atomlib.expr.ParseState.next" class="doc doc-heading">
-          <code class="highlight language-python"><span class="nb">next</span><span class="p">()</span></code>
+          <span class="doc doc-object-name doc-function-name">next</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nb">next</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nf"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.Token" href="#atomlib.expr.Token">Token</a></span><span class="p">[</span><span class="n"><span title="atomlib.expr.T_co">T_co</span></span><span class="p">,</span> <span class="n"><span title="atomlib.expr.V">V</span></span><span class="p">]]</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -5702,10 +5963,12 @@ Handles a tie using the associativity of self.</p>
 
 
 <h3 id="atomlib.expr.ParseState.parse_expr" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">parse_expr</span><span class="p">()</span></code>
+          <span class="doc doc-object-name doc-function-name">parse_expr</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">parse_expr</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.Expr" href="#atomlib.expr.Expr">Expr</a></span><span class="p">[</span><span class="n"><span title="atomlib.expr.T_co">T_co</span></span><span class="p">,</span> <span class="n"><span title="atomlib.expr.V">V</span></span><span class="p">]</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -5738,10 +6001,14 @@ Handles a tie using the associativity of self.</p>
 
 
 <h3 id="atomlib.expr.ParseState.parse_nary" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">parse_nary</span><span class="p">(</span><span class="n">lhs</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">parse_nary</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">parse_nary</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">lhs</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.Expr" href="#atomlib.expr.Expr">Expr</a></span><span class="p">[</span><span class="n"><span title="atomlib.expr.T_co">T_co</span></span><span class="p">,</span> <span class="n"><span title="atomlib.expr.V">V</span></span><span class="p">],</span> <span class="n">level</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.Expr" href="#atomlib.expr.Expr">Expr</a></span><span class="p">[</span><span class="n"><span title="atomlib.expr.T_co">T_co</span></span><span class="p">,</span> <span class="n"><span title="atomlib.expr.V">V</span></span><span class="p">]</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -5848,10 +6115,12 @@ Handles a tie using the associativity of self.</p>
 
 
 <h3 id="atomlib.expr.ParseState.parse_primary" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">parse_primary</span><span class="p">()</span></code>
+          <span class="doc doc-object-name doc-function-name">parse_primary</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">parse_primary</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.Expr" href="#atomlib.expr.Expr">Expr</a></span><span class="p">[</span><span class="n"><span title="atomlib.expr.T_co">T_co</span></span><span class="p">,</span> <span class="n"><span title="atomlib.expr.V">V</span></span><span class="p">]</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -5960,7 +6229,7 @@ Handles a tie using the associativity of self.</p>
 
 
 <h2 id="atomlib.expr.SupportsBool" class="doc doc-heading">
-          <code>SupportsBool</code>
+          <span class="doc doc-object-name doc-class-name">SupportsBool</span>
 
 
 </h2>
@@ -6025,7 +6294,7 @@ Handles a tie using the associativity of self.</p>
 
 
 <h2 id="atomlib.expr.SupportsNum" class="doc doc-heading">
-          <code>SupportsNum</code>
+          <span class="doc doc-object-name doc-class-name">SupportsNum</span>
 
 
 </h2>
@@ -6122,10 +6391,14 @@ Handles a tie using the associativity of self.</p>
 
 
 <h2 id="atomlib.expr.interleave" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">interleave</span><span class="p">(</span><span class="n">l1</span><span class="p">,</span> <span class="n">l2</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">interleave</span>
+
 
 </h2>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">interleave</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">l1</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Iterable" href="https://docs.python.org/3/library/typing.html#typing.Iterable">Iterable</a></span><span class="p">[</span><span class="n"><span title="atomlib.expr.T_co">T_co</span></span><span class="p">],</span> <span class="n">l2</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Iterable" href="https://docs.python.org/3/library/typing.html#typing.Iterable">Iterable</a></span><span class="p">[</span><span class="n"><span title="atomlib.expr.T_co">T_co</span></span><span class="p">]</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Iterator" href="https://docs.python.org/3/library/typing.html#typing.Iterator">Iterator</a></span><span class="p">[</span><span class="n"><span title="atomlib.expr.T_co">T_co</span></span><span class="p">]</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -6152,10 +6425,12 @@ Handles a tie using the associativity of self.</p>
 
 
 <h2 id="atomlib.expr.parse_numeric" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">parse_numeric</span><span class="p">(</span><span class="n">s</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">parse_numeric</span>
+
 
 </h2>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">parse_numeric</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3/library/typing.html#typing.Union">Union</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></span><span class="p">]</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -6184,10 +6459,12 @@ Handles a tie using the associativity of self.</p>
 
 
 <h2 id="atomlib.expr.sub" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">sub</span><span class="p">(</span><span class="n">lhs</span><span class="p">,</span> <span class="n">rhs</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">sub</span>
+
 
 </h2>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">sub</span><span class="p">(</span><span class="n">lhs</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.SupportsNum" href="#atomlib.expr.SupportsNum">SupportsNum</a></span><span class="p">,</span> <span class="n">rhs</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.SupportsNum" href="#atomlib.expr.SupportsNum">SupportsNum</a></span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -6212,10 +6489,12 @@ Handles a tie using the associativity of self.</p>
 
 
 <h2 id="atomlib.expr.add" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">add</span><span class="p">(</span><span class="n">lhs</span><span class="p">,</span> <span class="n">rhs</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">add</span>
+
 
 </h2>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">add</span><span class="p">(</span><span class="n">lhs</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.SupportsNum" href="#atomlib.expr.SupportsNum">SupportsNum</a></span><span class="p">,</span> <span class="n">rhs</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.SupportsNum" href="#atomlib.expr.SupportsNum">SupportsNum</a></span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -6240,10 +6519,12 @@ Handles a tie using the associativity of self.</p>
 
 
 <h2 id="atomlib.expr.parse_boolean" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">parse_boolean</span><span class="p">(</span><span class="n">s</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">parse_boolean</span>
+
 
 </h2>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">parse_boolean</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -6272,10 +6553,12 @@ Handles a tie using the associativity of self.</p>
 
 
 <h2 id="atomlib.expr.stack" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">stack</span><span class="p">(</span><span class="o">*</span><span class="n">vs</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">stack</span>
+
 
 </h2>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">stack</span><span class="p">(</span><span class="o">*</span><span class="n">vs</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="numpy.ndarray" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray">ndarray</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" title="numpy.ndarray" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray">ndarray</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 

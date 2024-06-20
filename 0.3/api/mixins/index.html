@@ -430,6 +430,8 @@
       
         
       
+        
+      
     
     
     
@@ -487,6 +489,27 @@
   
   <span class="md-ellipsis">
     atomlib.atoms
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../atomcell/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    atomlib.atomcell
   </span>
   
 
@@ -951,7 +974,7 @@
 
 
 <h2 id="atomlib.mixins.AtomsIOMixin" class="doc doc-heading">
-          <code>AtomsIOMixin</code>
+          <span class="doc doc-object-name doc-class-name">AtomsIOMixin</span>
 
 
 </h2>
@@ -1170,14 +1193,18 @@
 
 
 <h3 id="atomlib.mixins.AtomsIOMixin.read" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">read</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">ty</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">read</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-classmethod"><code>classmethod</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">read</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">path</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.io.FileOrPath" href="../util/#atomlib.util.FileOrPath">FileOrPath</a></span><span class="p">,</span> <span class="n">ty</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><span title="atomlib.io.FileType">FileType</span></span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="atomlib.atoms.HasAtomsT">HasAtomsT</span></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -1218,14 +1245,19 @@ If no <code>ty</code> is specified, it is inferred from the file's extension.</p
 
 
 <h3 id="atomlib.mixins.AtomsIOMixin.read_cif" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">read_cif</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">read_cif</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-classmethod"><code>classmethod</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">read_cif</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">f</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3/library/typing.html#typing.Union">Union</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.io.FileOrPath" href="../util/#atomlib.util.FileOrPath">FileOrPath</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.io.CIF" href="../io/#atomlib.io.CIF">CIF</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.io.CIFDataBlock" href="../io/cif/#atomlib.io.cif.CIFDataBlock">CIFDataBlock</a></span><span class="p">],</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">block</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3/library/typing.html#typing.Union">Union</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="atomlib.atoms.HasAtomsT">HasAtomsT</span></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -1263,14 +1295,16 @@ If no <code>ty</code> is specified, it is inferred from the file's extension.</p
 
 
 <h3 id="atomlib.mixins.AtomsIOMixin.read_xyz" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">read_xyz</span><span class="p">(</span><span class="n">f</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">read_xyz</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-classmethod"><code>classmethod</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">read_xyz</span><span class="p">(</span><span class="n">f</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3/library/typing.html#typing.Union">Union</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.io.FileOrPath" href="../util/#atomlib.util.FileOrPath">FileOrPath</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.io.XYZ" href="../io/#atomlib.io.XYZ">XYZ</a></span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n"><span title="atomlib.atoms.HasAtomsT">HasAtomsT</span></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -1299,14 +1333,16 @@ If no <code>ty</code> is specified, it is inferred from the file's extension.</p
 
 
 <h3 id="atomlib.mixins.AtomsIOMixin.read_xsf" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">read_xsf</span><span class="p">(</span><span class="n">f</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">read_xsf</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-classmethod"><code>classmethod</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">read_xsf</span><span class="p">(</span><span class="n">f</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3/library/typing.html#typing.Union">Union</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.io.FileOrPath" href="../util/#atomlib.util.FileOrPath">FileOrPath</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.io.XSF" href="../io/#atomlib.io.XSF">XSF</a></span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n"><span title="atomlib.atoms.HasAtomsT">HasAtomsT</span></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -1335,14 +1371,16 @@ If no <code>ty</code> is specified, it is inferred from the file's extension.</p
 
 
 <h3 id="atomlib.mixins.AtomsIOMixin.read_cfg" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">read_cfg</span><span class="p">(</span><span class="n">f</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">read_cfg</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-classmethod"><code>classmethod</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">read_cfg</span><span class="p">(</span><span class="n">f</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3/library/typing.html#typing.Union">Union</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.io.FileOrPath" href="../util/#atomlib.util.FileOrPath">FileOrPath</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.io.CFG" href="../io/#atomlib.io.CFG">CFG</a></span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n"><span title="atomlib.atoms.HasAtomsT">HasAtomsT</span></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -1371,14 +1409,19 @@ If no <code>ty</code> is specified, it is inferred from the file's extension.</p
 
 
 <h3 id="atomlib.mixins.AtomsIOMixin.read_lmp" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">read_lmp</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">type_map</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">read_lmp</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-classmethod"><code>classmethod</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">read_lmp</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">f</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3/library/typing.html#typing.Union">Union</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.io.FileOrPath" href="../util/#atomlib.util.FileOrPath">FileOrPath</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.io.LMP" href="../io/#atomlib.io.LMP">LMP</a></span><span class="p">],</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">type_map</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" title="typing.Dict" href="https://docs.python.org/3/library/typing.html#typing.Dict">Dict</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3/library/typing.html#typing.Union">Union</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="atomlib.atoms.HasAtomsT">HasAtomsT</span></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -1407,10 +1450,12 @@ If no <code>ty</code> is specified, it is inferred from the file's extension.</p
 
 
 <h3 id="atomlib.mixins.AtomsIOMixin.write_cif" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">write_cif</span><span class="p">(</span><span class="n">f</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">write_cif</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">write_cif</span><span class="p">(</span><span class="n">f</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.io.FileOrPath" href="../util/#atomlib.util.FileOrPath">FileOrPath</a></span><span class="p">)</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -1433,10 +1478,12 @@ If no <code>ty</code> is specified, it is inferred from the file's extension.</p
 
 
 <h3 id="atomlib.mixins.AtomsIOMixin.write_xyz" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">write_xyz</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;exyz&#39;</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">write_xyz</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">write_xyz</span><span class="p">(</span><span class="n">f</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.io.FileOrPath" href="../util/#atomlib.util.FileOrPath">FileOrPath</a></span><span class="p">,</span> <span class="n">fmt</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.io.XYZFormat" href="../io/xyz/#atomlib.io.xyz.XYZFormat">XYZFormat</a></span> <span class="o">=</span> <span class="s1">&#39;exyz&#39;</span><span class="p">)</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -1459,10 +1506,12 @@ If no <code>ty</code> is specified, it is inferred from the file's extension.</p
 
 
 <h3 id="atomlib.mixins.AtomsIOMixin.write_xsf" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">write_xsf</span><span class="p">(</span><span class="n">f</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">write_xsf</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">write_xsf</span><span class="p">(</span><span class="n">f</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.io.FileOrPath" href="../util/#atomlib.util.FileOrPath">FileOrPath</a></span><span class="p">)</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -1485,10 +1534,12 @@ If no <code>ty</code> is specified, it is inferred from the file's extension.</p
 
 
 <h3 id="atomlib.mixins.AtomsIOMixin.write_cfg" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">write_cfg</span><span class="p">(</span><span class="n">f</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">write_cfg</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">write_cfg</span><span class="p">(</span><span class="n">f</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.io.FileOrPath" href="../util/#atomlib.util.FileOrPath">FileOrPath</a></span><span class="p">)</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -1511,10 +1562,12 @@ If no <code>ty</code> is specified, it is inferred from the file's extension.</p
 
 
 <h3 id="atomlib.mixins.AtomsIOMixin.write_lmp" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">write_lmp</span><span class="p">(</span><span class="n">f</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">write_lmp</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">write_lmp</span><span class="p">(</span><span class="n">f</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.io.FileOrPath" href="../util/#atomlib.util.FileOrPath">FileOrPath</a></span><span class="p">)</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -1537,10 +1590,12 @@ If no <code>ty</code> is specified, it is inferred from the file's extension.</p
 
 
 <h3 id="atomlib.mixins.AtomsIOMixin.write" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">write</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">ty</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">write</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">write</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.io.FileOrPath" href="../util/#atomlib.util.FileOrPath">FileOrPath</a></span><span class="p">,</span> <span class="n">ty</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><span title="atomlib.io.FileType">FileType</span></span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -1587,7 +1642,7 @@ If no <code>ty</code> is specified, it is inferred from the path's extension.</p
 
 
 <h2 id="atomlib.mixins.AtomCellIOMixin" class="doc doc-heading">
-          <code>AtomCellIOMixin</code>
+          <span class="doc doc-object-name doc-class-name">AtomCellIOMixin</span>
 
 
 </h2>
@@ -1682,14 +1737,18 @@ If no <code>ty</code> is specified, it is inferred from the path's extension.</p
 
 
 <h3 id="atomlib.mixins.AtomCellIOMixin.read" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">read</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">ty</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">read</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-classmethod"><code>classmethod</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">read</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">path</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.io.FileOrPath" href="../util/#atomlib.util.FileOrPath">FileOrPath</a></span><span class="p">,</span> <span class="n">ty</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><span title="atomlib.io.FileType">FileType</span></span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="atomlib.atoms.HasAtomsT">HasAtomsT</span></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -1730,14 +1789,19 @@ If no <code>ty</code> is specified, it is inferred from the file's extension.</p
 
 
 <h3 id="atomlib.mixins.AtomCellIOMixin.read_cif" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">read_cif</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">read_cif</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-classmethod"><code>classmethod</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">read_cif</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">f</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3/library/typing.html#typing.Union">Union</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.io.FileOrPath" href="../util/#atomlib.util.FileOrPath">FileOrPath</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.io.CIF" href="../io/#atomlib.io.CIF">CIF</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.io.CIFDataBlock" href="../io/cif/#atomlib.io.cif.CIFDataBlock">CIFDataBlock</a></span><span class="p">],</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">block</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3/library/typing.html#typing.Union">Union</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="atomlib.atoms.HasAtomsT">HasAtomsT</span></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -1775,14 +1839,16 @@ If no <code>ty</code> is specified, it is inferred from the file's extension.</p
 
 
 <h3 id="atomlib.mixins.AtomCellIOMixin.read_xyz" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">read_xyz</span><span class="p">(</span><span class="n">f</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">read_xyz</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-classmethod"><code>classmethod</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">read_xyz</span><span class="p">(</span><span class="n">f</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3/library/typing.html#typing.Union">Union</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.io.FileOrPath" href="../util/#atomlib.util.FileOrPath">FileOrPath</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.io.XYZ" href="../io/#atomlib.io.XYZ">XYZ</a></span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n"><span title="atomlib.atoms.HasAtomsT">HasAtomsT</span></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -1811,14 +1877,16 @@ If no <code>ty</code> is specified, it is inferred from the file's extension.</p
 
 
 <h3 id="atomlib.mixins.AtomCellIOMixin.read_xsf" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">read_xsf</span><span class="p">(</span><span class="n">f</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">read_xsf</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-classmethod"><code>classmethod</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">read_xsf</span><span class="p">(</span><span class="n">f</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3/library/typing.html#typing.Union">Union</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.io.FileOrPath" href="../util/#atomlib.util.FileOrPath">FileOrPath</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.io.XSF" href="../io/#atomlib.io.XSF">XSF</a></span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n"><span title="atomlib.atoms.HasAtomsT">HasAtomsT</span></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -1847,14 +1915,16 @@ If no <code>ty</code> is specified, it is inferred from the file's extension.</p
 
 
 <h3 id="atomlib.mixins.AtomCellIOMixin.read_cfg" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">read_cfg</span><span class="p">(</span><span class="n">f</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">read_cfg</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-classmethod"><code>classmethod</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">read_cfg</span><span class="p">(</span><span class="n">f</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3/library/typing.html#typing.Union">Union</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.io.FileOrPath" href="../util/#atomlib.util.FileOrPath">FileOrPath</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.io.CFG" href="../io/#atomlib.io.CFG">CFG</a></span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n"><span title="atomlib.atoms.HasAtomsT">HasAtomsT</span></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -1883,14 +1953,19 @@ If no <code>ty</code> is specified, it is inferred from the file's extension.</p
 
 
 <h3 id="atomlib.mixins.AtomCellIOMixin.read_lmp" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">read_lmp</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">type_map</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">read_lmp</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-classmethod"><code>classmethod</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">read_lmp</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">f</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3/library/typing.html#typing.Union">Union</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.io.FileOrPath" href="../util/#atomlib.util.FileOrPath">FileOrPath</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.io.LMP" href="../io/#atomlib.io.LMP">LMP</a></span><span class="p">],</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">type_map</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" title="typing.Dict" href="https://docs.python.org/3/library/typing.html#typing.Dict">Dict</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3/library/typing.html#typing.Union">Union</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="atomlib.atoms.HasAtomsT">HasAtomsT</span></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -1919,10 +1994,12 @@ If no <code>ty</code> is specified, it is inferred from the file's extension.</p
 
 
 <h3 id="atomlib.mixins.AtomCellIOMixin.write_cif" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">write_cif</span><span class="p">(</span><span class="n">f</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">write_cif</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">write_cif</span><span class="p">(</span><span class="n">f</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.io.FileOrPath" href="../util/#atomlib.util.FileOrPath">FileOrPath</a></span><span class="p">)</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -1945,10 +2022,12 @@ If no <code>ty</code> is specified, it is inferred from the file's extension.</p
 
 
 <h3 id="atomlib.mixins.AtomCellIOMixin.write_xyz" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">write_xyz</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;exyz&#39;</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">write_xyz</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">write_xyz</span><span class="p">(</span><span class="n">f</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.io.FileOrPath" href="../util/#atomlib.util.FileOrPath">FileOrPath</a></span><span class="p">,</span> <span class="n">fmt</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.io.XYZFormat" href="../io/xyz/#atomlib.io.xyz.XYZFormat">XYZFormat</a></span> <span class="o">=</span> <span class="s1">&#39;exyz&#39;</span><span class="p">)</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -1971,10 +2050,12 @@ If no <code>ty</code> is specified, it is inferred from the file's extension.</p
 
 
 <h3 id="atomlib.mixins.AtomCellIOMixin.write_xsf" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">write_xsf</span><span class="p">(</span><span class="n">f</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">write_xsf</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">write_xsf</span><span class="p">(</span><span class="n">f</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.io.FileOrPath" href="../util/#atomlib.util.FileOrPath">FileOrPath</a></span><span class="p">)</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -1997,10 +2078,12 @@ If no <code>ty</code> is specified, it is inferred from the file's extension.</p
 
 
 <h3 id="atomlib.mixins.AtomCellIOMixin.write_cfg" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">write_cfg</span><span class="p">(</span><span class="n">f</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">write_cfg</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">write_cfg</span><span class="p">(</span><span class="n">f</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.io.FileOrPath" href="../util/#atomlib.util.FileOrPath">FileOrPath</a></span><span class="p">)</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -2023,10 +2106,12 @@ If no <code>ty</code> is specified, it is inferred from the file's extension.</p
 
 
 <h3 id="atomlib.mixins.AtomCellIOMixin.write_lmp" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">write_lmp</span><span class="p">(</span><span class="n">f</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">write_lmp</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">write_lmp</span><span class="p">(</span><span class="n">f</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.io.FileOrPath" href="../util/#atomlib.util.FileOrPath">FileOrPath</a></span><span class="p">)</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -2049,10 +2134,12 @@ If no <code>ty</code> is specified, it is inferred from the file's extension.</p
 
 
 <h3 id="atomlib.mixins.AtomCellIOMixin.write" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">write</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">ty</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">write</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">write</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.io.FileOrPath" href="../util/#atomlib.util.FileOrPath">FileOrPath</a></span><span class="p">,</span> <span class="n">ty</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><span title="atomlib.io.FileType">FileType</span></span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -2091,10 +2178,26 @@ If no <code>ty</code> is specified, it is inferred from the path's extension.</p
 
 
 <h3 id="atomlib.mixins.AtomCellIOMixin.write_mslice" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">write_mslice</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">template</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">slice_thickness</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">scan_points</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">scan_extent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">noise_sigma</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">conv_angle</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">energy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">defocus</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tilt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tds</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">n_cells</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">write_mslice</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">write_mslice</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">f</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.io.mslice.BinaryFileOrPath" href="../util/#atomlib.util.BinaryFileOrPath">BinaryFileOrPath</a></span><span class="p">,</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">template</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.io.mslice.MSliceFile" href="../io/mslice/#atomlib.io.mslice.MSliceFile">MSliceFile</a></span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="o">*</span><span class="p">,</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">slice_thickness</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="n">scan_points</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" title="numpy.typing.ArrayLike" href="https://numpy.org/doc/stable/reference/typing.html#numpy.typing.ArrayLike">ArrayLike</a></span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="n">scan_extent</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" title="numpy.typing.ArrayLike" href="https://numpy.org/doc/stable/reference/typing.html#numpy.typing.ArrayLike">ArrayLike</a></span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="n">noise_sigma</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    <span class="n">conv_angle</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    <span class="n">energy</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>    <span class="n">defocus</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    <span class="n">tilt</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" title="typing.Tuple" href="https://docs.python.org/3/library/typing.html#typing.Tuple">Tuple</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>    <span class="n">tds</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>    <span class="n">n_cells</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" title="numpy.typing.ArrayLike" href="https://numpy.org/doc/stable/reference/typing.html#numpy.typing.ArrayLike">ArrayLike</a></span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="p">)</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -2170,10 +2273,15 @@ template's properties are used.</p>
 
 
 <h3 id="atomlib.mixins.AtomCellIOMixin.write_qe" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">write_qe</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">pseudo</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">write_qe</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">write_qe</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">f</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.io.FileOrPath" href="../util/#atomlib.util.FileOrPath">FileOrPath</a></span><span class="p">,</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">pseudo</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" title="typing.Mapping" href="https://docs.python.org/3/library/typing.html#typing.Mapping">Mapping</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="p">)</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 

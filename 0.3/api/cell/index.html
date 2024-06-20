@@ -430,6 +430,8 @@
       
         
       
+        
+      
     
     
     
@@ -487,6 +489,27 @@
   
   <span class="md-ellipsis">
     atomlib.atoms
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../atomcell/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    atomlib.atomcell
   </span>
   
 
@@ -647,15 +670,6 @@
   <a href="#atomlib.cell.CoordinateFrame" class="md-nav__link">
     <span class="md-ellipsis">
       CoordinateFrame
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#atomlib.cell.HasCellT" class="md-nav__link">
-    <span class="md-ellipsis">
-      HasCellT
     </span>
   </a>
   
@@ -1261,14 +1275,26 @@ their associated coordinate frames.</p>
 
 
 <h2 id="atomlib.cell.CoordinateFrame" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">CoordinateFrame</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">Literal</span><span class="p">[</span><span class="s1">&#39;cell&#39;</span><span class="p">,</span> <span class="s1">&#39;cell_frac&#39;</span><span class="p">,</span> <span class="s1">&#39;cell_box&#39;</span><span class="p">,</span> <span class="s1">&#39;ortho&#39;</span><span class="p">,</span> <span class="s1">&#39;ortho_frac&#39;</span><span class="p">,</span> <span class="s1">&#39;ortho_box&#39;</span><span class="p">,</span> <span class="s1">&#39;linear&#39;</span><span class="p">,</span> <span class="s1">&#39;local&#39;</span><span class="p">,</span> <span class="s1">&#39;global&#39;</span><span class="p">]</span></code>
+          <span class="doc doc-object-name doc-attribute-name">CoordinateFrame</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
   </span>
 
 </h2>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">CoordinateFrame</span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Literal" href="https://docs.python.org/3/library/typing.html#typing.Literal">Literal</a></span><span class="p">[</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="s2">&quot;cell&quot;</span><span class="p">,</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="s2">&quot;cell_frac&quot;</span><span class="p">,</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="s2">&quot;cell_box&quot;</span><span class="p">,</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="s2">&quot;ortho&quot;</span><span class="p">,</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="s2">&quot;ortho_frac&quot;</span><span class="p">,</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="s2">&quot;ortho_box&quot;</span><span class="p">,</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="s2">&quot;linear&quot;</span><span class="p">,</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    <span class="s2">&quot;local&quot;</span><span class="p">,</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    <span class="s2">&quot;global&quot;</span><span class="p">,</span>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="p">]</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -1290,32 +1316,13 @@ or the example notebook at <code>examples/coords.ipynb</code>.</p>
 
 </div>
 
-<div class="doc doc-object doc-attribute">
-
-
-
-<h2 id="atomlib.cell.HasCellT" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">HasCellT</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s1">&#39;HasCellT&#39;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s1">&#39;HasCell&#39;</span><span class="p">)</span></code>
-  
-  <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
-  </span>
-
-</h2>
-
-
-  <div class="doc doc-contents ">
-  </div>
-
-</div>
-
 
 <div class="doc doc-object doc-class">
 
 
 
 <h2 id="atomlib.cell.HasCell" class="doc doc-heading">
-          <code>HasCell</code>
+          <span class="doc doc-object-name doc-class-name">HasCell</span>
 
 
 </h2>
@@ -1654,12 +1661,12 @@ or the example notebook at <code>examples/coords.ipynb</code>.</p>
 </span><span id="__span-0-91"><a id="__codelineno-0-91" name="__codelineno-0-91"></a>        <span class="k">return</span> <span class="n">ortho</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">ortho</span>
 </span><span id="__span-0-92"><a id="__codelineno-0-92" name="__codelineno-0-92"></a>
 </span><span id="__span-0-93"><a id="__codelineno-0-93" name="__codelineno-0-93"></a>    <span class="nd">@property</span>
-</span><span id="__span-0-94"><a id="__codelineno-0-94" name="__codelineno-0-94"></a>    <span class="k">def</span> <span class="nf">cell_size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">float_</span><span class="p">]:</span>
+</span><span id="__span-0-94"><a id="__codelineno-0-94" name="__codelineno-0-94"></a>    <span class="k">def</span> <span class="nf">cell_size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">float64</span><span class="p">]:</span>
 </span><span id="__span-0-95"><a id="__codelineno-0-95" name="__codelineno-0-95"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Unit cell size.&quot;&quot;&quot;</span>
 </span><span id="__span-0-96"><a id="__codelineno-0-96" name="__codelineno-0-96"></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_cell</span><span class="p">()</span><span class="o">.</span><span class="n">_cell_size</span>
 </span><span id="__span-0-97"><a id="__codelineno-0-97" name="__codelineno-0-97"></a>
 </span><span id="__span-0-98"><a id="__codelineno-0-98" name="__codelineno-0-98"></a>    <span class="nd">@property</span>
-</span><span id="__span-0-99"><a id="__codelineno-0-99" name="__codelineno-0-99"></a>    <span class="k">def</span> <span class="nf">cell_angle</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">float_</span><span class="p">]:</span>
+</span><span id="__span-0-99"><a id="__codelineno-0-99" name="__codelineno-0-99"></a>    <span class="k">def</span> <span class="nf">cell_angle</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">float64</span><span class="p">]:</span>
 </span><span id="__span-0-100"><a id="__codelineno-0-100" name="__codelineno-0-100"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Unit cell angles, in radians.&quot;&quot;&quot;</span>
 </span><span id="__span-0-101"><a id="__codelineno-0-101" name="__codelineno-0-101"></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_cell</span><span class="p">()</span><span class="o">.</span><span class="n">_cell_angle</span>
 </span><span id="__span-0-102"><a id="__codelineno-0-102" name="__codelineno-0-102"></a>
@@ -1674,7 +1681,7 @@ or the example notebook at <code>examples/coords.ipynb</code>.</p>
 </span><span id="__span-0-111"><a id="__codelineno-0-111" name="__codelineno-0-111"></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_cell</span><span class="p">()</span><span class="o">.</span><span class="n">_pbc</span>
 </span><span id="__span-0-112"><a id="__codelineno-0-112" name="__codelineno-0-112"></a>
 </span><span id="__span-0-113"><a id="__codelineno-0-113" name="__codelineno-0-113"></a>    <span class="nd">@property</span>
-</span><span id="__span-0-114"><a id="__codelineno-0-114" name="__codelineno-0-114"></a>    <span class="k">def</span> <span class="nf">ortho_size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">float_</span><span class="p">]:</span>
+</span><span id="__span-0-114"><a id="__codelineno-0-114" name="__codelineno-0-114"></a>    <span class="k">def</span> <span class="nf">ortho_size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">float64</span><span class="p">]:</span>
 </span><span id="__span-0-115"><a id="__codelineno-0-115" name="__codelineno-0-115"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="__span-0-116"><a id="__codelineno-0-116" name="__codelineno-0-116"></a><span class="sd">        Return size of orthogonal unit cell.</span>
 </span><span id="__span-0-117"><a id="__codelineno-0-117" name="__codelineno-0-117"></a>
@@ -1683,7 +1690,7 @@ or the example notebook at <code>examples/coords.ipynb</code>.</p>
 </span><span id="__span-0-120"><a id="__codelineno-0-120" name="__codelineno-0-120"></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cell_size</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ortho</span><span class="o">.</span><span class="n">inner</span><span class="p">)</span>
 </span><span id="__span-0-121"><a id="__codelineno-0-121" name="__codelineno-0-121"></a>
 </span><span id="__span-0-122"><a id="__codelineno-0-122" name="__codelineno-0-122"></a>    <span class="nd">@property</span>
-</span><span id="__span-0-123"><a id="__codelineno-0-123" name="__codelineno-0-123"></a>    <span class="k">def</span> <span class="nf">box_size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">float_</span><span class="p">]:</span>
+</span><span id="__span-0-123"><a id="__codelineno-0-123" name="__codelineno-0-123"></a>    <span class="k">def</span> <span class="nf">box_size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">float64</span><span class="p">]:</span>
 </span><span id="__span-0-124"><a id="__codelineno-0-124" name="__codelineno-0-124"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="__span-0-125"><a id="__codelineno-0-125" name="__codelineno-0-125"></a><span class="sd">        Return size of the cell box.</span>
 </span><span id="__span-0-126"><a id="__codelineno-0-126" name="__codelineno-0-126"></a>
@@ -1917,14 +1924,16 @@ or the example notebook at <code>examples/coords.ipynb</code>.</p>
 
 
 <h3 id="atomlib.cell.HasCell.affine" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">affine</span><span class="p">:</span> <span class="n">AffineTransform3D</span></code>
+          <span class="doc doc-object-name doc-attribute-name">affine</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">affine</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.transform.AffineTransform3D" href="../transform/#atomlib.transform.AffineTransform3D">AffineTransform3D</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -1939,14 +1948,16 @@ including rotation away from the standard crystal orientation.</p>
 
 
 <h3 id="atomlib.cell.HasCell.ortho" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">ortho</span><span class="p">:</span> <span class="n">LinearTransform3D</span></code>
+          <span class="doc doc-object-name doc-attribute-name">ortho</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">ortho</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.transform.LinearTransform3D" href="../transform/#atomlib.transform.LinearTransform3D">LinearTransform3D</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -1960,14 +1971,16 @@ including rotation away from the standard crystal orientation.</p>
 
 
 <h3 id="atomlib.cell.HasCell.metric" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">metric</span><span class="p">:</span> <span class="n">LinearTransform3D</span></code>
+          <span class="doc doc-object-name doc-attribute-name">metric</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">metric</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.transform.LinearTransform3D" href="../transform/#atomlib.transform.LinearTransform3D">LinearTransform3D</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -1983,14 +1996,16 @@ including rotation away from the standard crystal orientation.</p>
 
 
 <h3 id="atomlib.cell.HasCell.cell_size" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">cell_size</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">float_</span><span class="p">]</span></code>
+          <span class="doc doc-object-name doc-attribute-name">cell_size</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">cell_size</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="numpy.typing.NDArray" href="https://numpy.org/doc/stable/reference/typing.html#numpy.typing.NDArray">NDArray</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" title="numpy.float64" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.float64">float64</a></span><span class="p">]</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -2004,14 +2019,16 @@ including rotation away from the standard crystal orientation.</p>
 
 
 <h3 id="atomlib.cell.HasCell.cell_angle" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">cell_angle</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">float_</span><span class="p">]</span></code>
+          <span class="doc doc-object-name doc-attribute-name">cell_angle</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">cell_angle</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="numpy.typing.NDArray" href="https://numpy.org/doc/stable/reference/typing.html#numpy.typing.NDArray">NDArray</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" title="numpy.float64" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.float64">float64</a></span><span class="p">]</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -2025,14 +2042,16 @@ including rotation away from the standard crystal orientation.</p>
 
 
 <h3 id="atomlib.cell.HasCell.n_cells" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">n_cells</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">int_</span><span class="p">]</span></code>
+          <span class="doc doc-object-name doc-attribute-name">n_cells</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">n_cells</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="numpy.typing.NDArray" href="https://numpy.org/doc/stable/reference/typing.html#numpy.typing.NDArray">NDArray</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" title="numpy.int_" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.int_">int_</a></span><span class="p">]</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -2046,14 +2065,16 @@ including rotation away from the standard crystal orientation.</p>
 
 
 <h3 id="atomlib.cell.HasCell.pbc" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">pbc</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">bool_</span><span class="p">]</span></code>
+          <span class="doc doc-object-name doc-attribute-name">pbc</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">pbc</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="numpy.typing.NDArray" href="https://numpy.org/doc/stable/reference/typing.html#numpy.typing.NDArray">NDArray</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" title="numpy.bool_" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.bool_">bool_</a></span><span class="p">]</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -2067,14 +2088,16 @@ including rotation away from the standard crystal orientation.</p>
 
 
 <h3 id="atomlib.cell.HasCell.ortho_size" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">ortho_size</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">float_</span><span class="p">]</span></code>
+          <span class="doc doc-object-name doc-attribute-name">ortho_size</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">ortho_size</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="numpy.typing.NDArray" href="https://numpy.org/doc/stable/reference/typing.html#numpy.typing.NDArray">NDArray</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" title="numpy.float64" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.float64">float64</a></span><span class="p">]</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -2089,14 +2112,16 @@ including rotation away from the standard crystal orientation.</p>
 
 
 <h3 id="atomlib.cell.HasCell.box_size" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">box_size</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">float_</span><span class="p">]</span></code>
+          <span class="doc doc-object-name doc-attribute-name">box_size</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">box_size</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="numpy.typing.NDArray" href="https://numpy.org/doc/stable/reference/typing.html#numpy.typing.NDArray">NDArray</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" title="numpy.float64" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.float64">float64</a></span><span class="p">]</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -2111,7 +2136,8 @@ including rotation away from the standard crystal orientation.</p>
 
 
 <h3 id="atomlib.cell.HasCell.bbox" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">bbox</span> <span class="o">=</span> <span class="n">bbox_cell</span></code>
+          <span class="doc doc-object-name doc-attribute-name">bbox</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
@@ -2119,7 +2145,8 @@ including rotation away from the standard crystal orientation.</p>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">bbox</span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.cell.HasCell.bbox_cell" href="#atomlib.cell.HasCell.bbox_cell">bbox_cell</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -2134,14 +2161,16 @@ including rotation away from the standard crystal orientation.</p>
 
 
 <h3 id="atomlib.cell.HasCell.get_cell" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">get_cell</span><span class="p">()</span></code>
+          <span class="doc doc-object-name doc-function-name">get_cell</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">get_cell</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.cell.Cell" href="#atomlib.cell.Cell">Cell</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -2168,14 +2197,16 @@ including rotation away from the standard crystal orientation.</p>
 
 
 <h3 id="atomlib.cell.HasCell.with_cell" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">with_cell</span><span class="p">(</span><span class="n">cell</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">with_cell</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">with_cell</span><span class="p">(</span><span class="n">cell</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.cell.Cell" href="#atomlib.cell.Cell">Cell</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="atomlib.cell.HasCellT">HasCellT</span></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -2202,10 +2233,15 @@ including rotation away from the standard crystal orientation.</p>
 
 
 <h3 id="atomlib.cell.HasCell.get_transform" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">get_transform</span><span class="p">(</span><span class="n">frame_to</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">frame_from</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">get_transform</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">get_transform</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">frame_to</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.cell.CoordinateFrame" href="#atomlib.cell.CoordinateFrame">CoordinateFrame</a></span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">frame_from</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.cell.CoordinateFrame" href="#atomlib.cell.CoordinateFrame">CoordinateFrame</a></span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.transform.AffineTransform3D" href="../transform/#atomlib.transform.AffineTransform3D">AffineTransform3D</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -2245,10 +2281,12 @@ In the one-argument form, get the transform from local coordinates to 'frame'.</
 
 
 <h3 id="atomlib.cell.HasCell.corners" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">corners</span><span class="p">(</span><span class="n">frame</span><span class="o">=</span><span class="s1">&#39;local&#39;</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">corners</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">corners</span><span class="p">(</span><span class="n">frame</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.cell.CoordinateFrame" href="#atomlib.cell.CoordinateFrame">CoordinateFrame</a></span> <span class="o">=</span> <span class="s1">&#39;local&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" title="numpy.ndarray" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray">ndarray</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -2271,10 +2309,12 @@ In the one-argument form, get the transform from local coordinates to 'frame'.</
 
 
 <h3 id="atomlib.cell.HasCell.bbox_cell" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">bbox_cell</span><span class="p">(</span><span class="n">frame</span><span class="o">=</span><span class="s1">&#39;local&#39;</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">bbox_cell</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">bbox_cell</span><span class="p">(</span><span class="n">frame</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.cell.CoordinateFrame" href="#atomlib.cell.CoordinateFrame">CoordinateFrame</a></span> <span class="o">=</span> <span class="s1">&#39;local&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.bbox.BBox3D" href="../bbox/#atomlib.bbox.BBox3D">BBox3D</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -2299,10 +2339,12 @@ In the one-argument form, get the transform from local coordinates to 'frame'.</
 
 
 <h3 id="atomlib.cell.HasCell.is_orthogonal" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">is_orthogonal</span><span class="p">(</span><span class="n">tol</span><span class="o">=</span><span class="mf">1e-08</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">is_orthogonal</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">is_orthogonal</span><span class="p">(</span><span class="n">tol</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></span> <span class="o">=</span> <span class="mf">1e-08</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -2327,10 +2369,12 @@ In the one-argument form, get the transform from local coordinates to 'frame'.</
 
 
 <h3 id="atomlib.cell.HasCell.is_orthogonal_in_local" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">is_orthogonal_in_local</span><span class="p">(</span><span class="n">tol</span><span class="o">=</span><span class="mf">1e-08</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">is_orthogonal_in_local</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">is_orthogonal_in_local</span><span class="p">(</span><span class="n">tol</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></span> <span class="o">=</span> <span class="mf">1e-08</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -2371,10 +2415,12 @@ In the one-argument form, get the transform from local coordinates to 'frame'.</
 
 
 <h3 id="atomlib.cell.HasCell.to_ortho" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">to_ortho</span><span class="p">()</span></code>
+          <span class="doc doc-object-name doc-function-name">to_ortho</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">to_ortho</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.transform.AffineTransform3D" href="../transform/#atomlib.transform.AffineTransform3D">AffineTransform3D</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -2395,10 +2441,15 @@ In the one-argument form, get the transform from local coordinates to 'frame'.</
 
 
 <h3 id="atomlib.cell.HasCell.transform_cell" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">transform_cell</span><span class="p">(</span><span class="n">transform</span><span class="p">,</span> <span class="n">frame</span><span class="o">=</span><span class="s1">&#39;local&#39;</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">transform_cell</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">transform_cell</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">transform</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.transform.AffineTransform3D" href="../transform/#atomlib.transform.AffineTransform3D">AffineTransform3D</a></span><span class="p">,</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">frame</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.cell.CoordinateFrame" href="#atomlib.cell.CoordinateFrame">CoordinateFrame</a></span> <span class="o">=</span> <span class="s2">&quot;local&quot;</span><span class="p">,</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="atomlib.cell.HasCellT">HasCellT</span></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -2456,10 +2507,12 @@ while skew and scaling is applied to the orthogonalization matrix/cell_size.</p>
 
 
 <h3 id="atomlib.cell.HasCell.strain_orthogonal" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">strain_orthogonal</span><span class="p">()</span></code>
+          <span class="doc doc-object-name doc-function-name">strain_orthogonal</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">strain_orthogonal</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n"><span title="atomlib.cell.HasCellT">HasCellT</span></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -2508,10 +2561,12 @@ For small displacements, no hydrostatic strain is applied (volume is conserved).
 
 
 <h3 id="atomlib.cell.HasCell.repeat" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">repeat</span><span class="p">(</span><span class="n">n</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">repeat</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">repeat</span><span class="p">(</span><span class="n">n</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3/library/typing.html#typing.Union">Union</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.types.VecLike" href="../types/#atomlib.types.VecLike">VecLike</a></span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n"><span title="atomlib.cell.HasCellT">HasCellT</span></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -2556,10 +2611,12 @@ For small displacements, no hydrostatic strain is applied (volume is conserved).
 
 
 <h3 id="atomlib.cell.HasCell.explode" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">explode</span><span class="p">()</span></code>
+          <span class="doc doc-object-name doc-function-name">explode</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">explode</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n"><span title="atomlib.cell.HasCellT">HasCellT</span></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -2596,10 +2653,12 @@ For small displacements, no hydrostatic strain is applied (volume is conserved).
 
 
 <h3 id="atomlib.cell.HasCell.explode_z" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">explode_z</span><span class="p">()</span></code>
+          <span class="doc doc-object-name doc-function-name">explode_z</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">explode_z</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n"><span title="atomlib.cell.HasCellT">HasCellT</span></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -2638,10 +2697,21 @@ For small displacements, no hydrostatic strain is applied (volume is conserved).
 
 
 <h3 id="atomlib.cell.HasCell.crop" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">crop</span><span class="p">(</span><span class="n">x_min</span><span class="o">=-</span><span class="n">numpy</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">x_max</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">y_min</span><span class="o">=-</span><span class="n">numpy</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">y_max</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">z_min</span><span class="o">=-</span><span class="n">numpy</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">z_max</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">frame</span><span class="o">=</span><span class="s1">&#39;local&#39;</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">crop</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">crop</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">x_min</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></span> <span class="o">=</span> <span class="o">-</span><span class="n">numpy</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">x_max</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">y_min</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></span> <span class="o">=</span> <span class="o">-</span><span class="n">numpy</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">y_max</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="n">z_min</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></span> <span class="o">=</span> <span class="o">-</span><span class="n">numpy</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="n">z_max</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="o">*</span><span class="p">,</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    <span class="n">frame</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.cell.CoordinateFrame" href="#atomlib.cell.CoordinateFrame">CoordinateFrame</a></span> <span class="o">=</span> <span class="s2">&quot;local&quot;</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="atomlib.cell.HasCellT">HasCellT</span></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -2718,10 +2788,16 @@ function implicity <code>explode</code>s the cell as well.</p>
 
 
 <h3 id="atomlib.cell.HasCell.change_transform" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">change_transform</span><span class="p">(</span><span class="n">transform</span><span class="p">,</span> <span class="n">frame_to</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">frame_from</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">change_transform</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">change_transform</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">transform</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.transform.Transform3D" href="../transform/#atomlib.transform.Transform3D">Transform3D</a></span><span class="p">,</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">frame_to</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.cell.CoordinateFrame" href="#atomlib.cell.CoordinateFrame">CoordinateFrame</a></span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">frame_from</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.cell.CoordinateFrame" href="#atomlib.cell.CoordinateFrame">CoordinateFrame</a></span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.transform.Transform3D" href="../transform/#atomlib.transform.Transform3D">Transform3D</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -2756,10 +2832,12 @@ function implicity <code>explode</code>s the cell as well.</p>
 
 
 <h3 id="atomlib.cell.HasCell.assert_equal" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">assert_equal</span><span class="p">(</span><span class="n">other</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">assert_equal</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">assert_equal</span><span class="p">(</span><span class="n">other</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3/library/typing.html#typing.Any">Any</a></span><span class="p">)</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -2798,7 +2876,7 @@ function implicity <code>explode</code>s the cell as well.</p>
 
 
 <h2 id="atomlib.cell.Cell" class="doc doc-heading">
-          <code>Cell</code>
+          <span class="doc doc-object-name doc-class-name">Cell</span>
 
   
   <span class="doc doc-labels">
@@ -2959,11 +3037,11 @@ transformations to the local coordinate system, which atoms are stored in.</p>
 </span><span id="__span-0-369"><a id="__codelineno-0-369" name="__codelineno-0-369"></a><span class="sd">    Orthogonalization transformation. Skews but does not scale the crystal axes to cartesian axes.</span>
 </span><span id="__span-0-370"><a id="__codelineno-0-370" name="__codelineno-0-370"></a><span class="sd">    &quot;&quot;&quot;</span>
 </span><span id="__span-0-371"><a id="__codelineno-0-371" name="__codelineno-0-371"></a>
-</span><span id="__span-0-372"><a id="__codelineno-0-372" name="__codelineno-0-372"></a>    <span class="n">_cell_size</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">float_</span><span class="p">]</span>
+</span><span id="__span-0-372"><a id="__codelineno-0-372" name="__codelineno-0-372"></a>    <span class="n">_cell_size</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">float64</span><span class="p">]</span>
 </span><span id="__span-0-373"><a id="__codelineno-0-373" name="__codelineno-0-373"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Unit cell size.&quot;&quot;&quot;</span>
-</span><span id="__span-0-374"><a id="__codelineno-0-374" name="__codelineno-0-374"></a>    <span class="n">_cell_angle</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">float_</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mf">2.</span><span class="p">))</span>
+</span><span id="__span-0-374"><a id="__codelineno-0-374" name="__codelineno-0-374"></a>    <span class="n">_cell_angle</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">float64</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mf">2.</span><span class="p">))</span>
 </span><span id="__span-0-375"><a id="__codelineno-0-375" name="__codelineno-0-375"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Unit cell angles, in radians.&quot;&quot;&quot;</span>
-</span><span id="__span-0-376"><a id="__codelineno-0-376" name="__codelineno-0-376"></a>    <span class="n">_n_cells</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">int_</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">int_</span><span class="p">))</span>
+</span><span id="__span-0-376"><a id="__codelineno-0-376" name="__codelineno-0-376"></a>    <span class="n">_n_cells</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">int64</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">int64</span><span class="p">))</span>
 </span><span id="__span-0-377"><a id="__codelineno-0-377" name="__codelineno-0-377"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Number of unit cells.&quot;&quot;&quot;</span>
 </span><span id="__span-0-378"><a id="__codelineno-0-378" name="__codelineno-0-378"></a>    <span class="n">_pbc</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">bool_</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">bool_</span><span class="p">))</span>
 </span><span id="__span-0-379"><a id="__codelineno-0-379" name="__codelineno-0-379"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Flags indicating the presence of periodic boundary conditions along each axis.&quot;&quot;&quot;</span>
@@ -2977,7 +3055,7 @@ transformations to the local coordinate system, which atoms are stored in.</p>
 </span><span id="__span-0-387"><a id="__codelineno-0-387" name="__codelineno-0-387"></a>        <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_ortho&#39;</span><span class="p">,</span> <span class="n">LinearTransform3D</span><span class="p">()</span> <span class="k">if</span> <span class="n">ortho</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">ortho</span><span class="p">)</span>
 </span><span id="__span-0-388"><a id="__codelineno-0-388" name="__codelineno-0-388"></a>        <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_cell_size&#39;</span><span class="p">,</span> <span class="n">to_vec3</span><span class="p">(</span><span class="n">cell_size</span><span class="p">))</span>
 </span><span id="__span-0-389"><a id="__codelineno-0-389" name="__codelineno-0-389"></a>        <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_cell_angle&#39;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mf">2.</span><span class="p">)</span> <span class="k">if</span> <span class="n">cell_angle</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">to_vec3</span><span class="p">(</span><span class="n">cell_angle</span><span class="p">))</span>
-</span><span id="__span-0-390"><a id="__codelineno-0-390" name="__codelineno-0-390"></a>        <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_n_cells&#39;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">int_</span><span class="p">)</span> <span class="k">if</span> <span class="n">n_cells</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">to_vec3</span><span class="p">(</span><span class="n">n_cells</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">int_</span><span class="p">))</span>
+</span><span id="__span-0-390"><a id="__codelineno-0-390" name="__codelineno-0-390"></a>        <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_n_cells&#39;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">int_</span><span class="p">)</span> <span class="k">if</span> <span class="n">n_cells</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">to_vec3</span><span class="p">(</span><span class="n">n_cells</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">int64</span><span class="p">))</span>
 </span><span id="__span-0-391"><a id="__codelineno-0-391" name="__codelineno-0-391"></a>        <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_pbc&#39;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">bool_</span><span class="p">)</span> <span class="k">if</span> <span class="n">pbc</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">to_vec3</span><span class="p">(</span><span class="n">pbc</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">bool_</span><span class="p">))</span>
 </span><span id="__span-0-392"><a id="__codelineno-0-392" name="__codelineno-0-392"></a>
 </span><span id="__span-0-393"><a id="__codelineno-0-393" name="__codelineno-0-393"></a>    <span class="nd">@staticmethod</span>
@@ -3051,14 +3129,16 @@ transformations to the local coordinate system, which atoms are stored in.</p>
 
 
 <h3 id="atomlib.cell.Cell.affine" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">affine</span><span class="p">:</span> <span class="n">AffineTransform3D</span></code>
+          <span class="doc doc-object-name doc-attribute-name">affine</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">affine</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.transform.AffineTransform3D" href="../transform/#atomlib.transform.AffineTransform3D">AffineTransform3D</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -3073,14 +3153,16 @@ including rotation away from the standard crystal orientation.</p>
 
 
 <h3 id="atomlib.cell.Cell.ortho" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">ortho</span><span class="p">:</span> <span class="n">LinearTransform3D</span></code>
+          <span class="doc doc-object-name doc-attribute-name">ortho</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">ortho</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.transform.LinearTransform3D" href="../transform/#atomlib.transform.LinearTransform3D">LinearTransform3D</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -3094,14 +3176,16 @@ including rotation away from the standard crystal orientation.</p>
 
 
 <h3 id="atomlib.cell.Cell.metric" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">metric</span><span class="p">:</span> <span class="n">LinearTransform3D</span></code>
+          <span class="doc doc-object-name doc-attribute-name">metric</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">metric</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.transform.LinearTransform3D" href="../transform/#atomlib.transform.LinearTransform3D">LinearTransform3D</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -3117,14 +3201,16 @@ including rotation away from the standard crystal orientation.</p>
 
 
 <h3 id="atomlib.cell.Cell.cell_size" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">cell_size</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">float_</span><span class="p">]</span></code>
+          <span class="doc doc-object-name doc-attribute-name">cell_size</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">cell_size</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="numpy.typing.NDArray" href="https://numpy.org/doc/stable/reference/typing.html#numpy.typing.NDArray">NDArray</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" title="numpy.float64" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.float64">float64</a></span><span class="p">]</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -3138,14 +3224,16 @@ including rotation away from the standard crystal orientation.</p>
 
 
 <h3 id="atomlib.cell.Cell.cell_angle" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">cell_angle</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">float_</span><span class="p">]</span></code>
+          <span class="doc doc-object-name doc-attribute-name">cell_angle</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">cell_angle</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="numpy.typing.NDArray" href="https://numpy.org/doc/stable/reference/typing.html#numpy.typing.NDArray">NDArray</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" title="numpy.float64" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.float64">float64</a></span><span class="p">]</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -3159,14 +3247,16 @@ including rotation away from the standard crystal orientation.</p>
 
 
 <h3 id="atomlib.cell.Cell.n_cells" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">n_cells</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">int_</span><span class="p">]</span></code>
+          <span class="doc doc-object-name doc-attribute-name">n_cells</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">n_cells</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="numpy.typing.NDArray" href="https://numpy.org/doc/stable/reference/typing.html#numpy.typing.NDArray">NDArray</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" title="numpy.int_" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.int_">int_</a></span><span class="p">]</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -3180,14 +3270,16 @@ including rotation away from the standard crystal orientation.</p>
 
 
 <h3 id="atomlib.cell.Cell.pbc" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">pbc</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">bool_</span><span class="p">]</span></code>
+          <span class="doc doc-object-name doc-attribute-name">pbc</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">pbc</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="numpy.typing.NDArray" href="https://numpy.org/doc/stable/reference/typing.html#numpy.typing.NDArray">NDArray</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" title="numpy.bool_" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.bool_">bool_</a></span><span class="p">]</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -3201,14 +3293,16 @@ including rotation away from the standard crystal orientation.</p>
 
 
 <h3 id="atomlib.cell.Cell.ortho_size" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">ortho_size</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">float_</span><span class="p">]</span></code>
+          <span class="doc doc-object-name doc-attribute-name">ortho_size</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">ortho_size</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="numpy.typing.NDArray" href="https://numpy.org/doc/stable/reference/typing.html#numpy.typing.NDArray">NDArray</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" title="numpy.float64" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.float64">float64</a></span><span class="p">]</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -3223,14 +3317,16 @@ including rotation away from the standard crystal orientation.</p>
 
 
 <h3 id="atomlib.cell.Cell.box_size" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">box_size</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">float_</span><span class="p">]</span></code>
+          <span class="doc doc-object-name doc-attribute-name">box_size</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">box_size</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="numpy.typing.NDArray" href="https://numpy.org/doc/stable/reference/typing.html#numpy.typing.NDArray">NDArray</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" title="numpy.float64" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.float64">float64</a></span><span class="p">]</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -3245,7 +3341,8 @@ including rotation away from the standard crystal orientation.</p>
 
 
 <h3 id="atomlib.cell.Cell.bbox" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">bbox</span> <span class="o">=</span> <span class="n">bbox_cell</span></code>
+          <span class="doc doc-object-name doc-attribute-name">bbox</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
@@ -3253,7 +3350,8 @@ including rotation away from the standard crystal orientation.</p>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">bbox</span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.cell.HasCell.bbox_cell" href="#atomlib.cell.HasCell.bbox_cell">bbox_cell</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -3268,10 +3366,15 @@ including rotation away from the standard crystal orientation.</p>
 
 
 <h3 id="atomlib.cell.Cell.get_transform" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">get_transform</span><span class="p">(</span><span class="n">frame_to</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">frame_from</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">get_transform</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">get_transform</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">frame_to</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.cell.CoordinateFrame" href="#atomlib.cell.CoordinateFrame">CoordinateFrame</a></span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">frame_from</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.cell.CoordinateFrame" href="#atomlib.cell.CoordinateFrame">CoordinateFrame</a></span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.transform.AffineTransform3D" href="../transform/#atomlib.transform.AffineTransform3D">AffineTransform3D</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -3311,10 +3414,12 @@ In the one-argument form, get the transform from local coordinates to 'frame'.</
 
 
 <h3 id="atomlib.cell.Cell.corners" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">corners</span><span class="p">(</span><span class="n">frame</span><span class="o">=</span><span class="s1">&#39;local&#39;</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">corners</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">corners</span><span class="p">(</span><span class="n">frame</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.cell.CoordinateFrame" href="#atomlib.cell.CoordinateFrame">CoordinateFrame</a></span> <span class="o">=</span> <span class="s1">&#39;local&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" title="numpy.ndarray" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray">ndarray</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -3337,10 +3442,12 @@ In the one-argument form, get the transform from local coordinates to 'frame'.</
 
 
 <h3 id="atomlib.cell.Cell.bbox_cell" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">bbox_cell</span><span class="p">(</span><span class="n">frame</span><span class="o">=</span><span class="s1">&#39;local&#39;</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">bbox_cell</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">bbox_cell</span><span class="p">(</span><span class="n">frame</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.cell.CoordinateFrame" href="#atomlib.cell.CoordinateFrame">CoordinateFrame</a></span> <span class="o">=</span> <span class="s1">&#39;local&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.bbox.BBox3D" href="../bbox/#atomlib.bbox.BBox3D">BBox3D</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -3365,10 +3472,12 @@ In the one-argument form, get the transform from local coordinates to 'frame'.</
 
 
 <h3 id="atomlib.cell.Cell.is_orthogonal" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">is_orthogonal</span><span class="p">(</span><span class="n">tol</span><span class="o">=</span><span class="mf">1e-08</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">is_orthogonal</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">is_orthogonal</span><span class="p">(</span><span class="n">tol</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></span> <span class="o">=</span> <span class="mf">1e-08</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -3393,10 +3502,12 @@ In the one-argument form, get the transform from local coordinates to 'frame'.</
 
 
 <h3 id="atomlib.cell.Cell.is_orthogonal_in_local" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">is_orthogonal_in_local</span><span class="p">(</span><span class="n">tol</span><span class="o">=</span><span class="mf">1e-08</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">is_orthogonal_in_local</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">is_orthogonal_in_local</span><span class="p">(</span><span class="n">tol</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></span> <span class="o">=</span> <span class="mf">1e-08</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -3437,10 +3548,12 @@ In the one-argument form, get the transform from local coordinates to 'frame'.</
 
 
 <h3 id="atomlib.cell.Cell.to_ortho" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">to_ortho</span><span class="p">()</span></code>
+          <span class="doc doc-object-name doc-function-name">to_ortho</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">to_ortho</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.transform.AffineTransform3D" href="../transform/#atomlib.transform.AffineTransform3D">AffineTransform3D</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -3461,10 +3574,15 @@ In the one-argument form, get the transform from local coordinates to 'frame'.</
 
 
 <h3 id="atomlib.cell.Cell.transform_cell" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">transform_cell</span><span class="p">(</span><span class="n">transform</span><span class="p">,</span> <span class="n">frame</span><span class="o">=</span><span class="s1">&#39;local&#39;</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">transform_cell</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">transform_cell</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">transform</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.transform.AffineTransform3D" href="../transform/#atomlib.transform.AffineTransform3D">AffineTransform3D</a></span><span class="p">,</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">frame</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.cell.CoordinateFrame" href="#atomlib.cell.CoordinateFrame">CoordinateFrame</a></span> <span class="o">=</span> <span class="s2">&quot;local&quot;</span><span class="p">,</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="atomlib.cell.HasCellT">HasCellT</span></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -3522,10 +3640,12 @@ while skew and scaling is applied to the orthogonalization matrix/cell_size.</p>
 
 
 <h3 id="atomlib.cell.Cell.strain_orthogonal" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">strain_orthogonal</span><span class="p">()</span></code>
+          <span class="doc doc-object-name doc-function-name">strain_orthogonal</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">strain_orthogonal</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n"><span title="atomlib.cell.HasCellT">HasCellT</span></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -3574,10 +3694,12 @@ For small displacements, no hydrostatic strain is applied (volume is conserved).
 
 
 <h3 id="atomlib.cell.Cell.repeat" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">repeat</span><span class="p">(</span><span class="n">n</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">repeat</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">repeat</span><span class="p">(</span><span class="n">n</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3/library/typing.html#typing.Union">Union</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.types.VecLike" href="../types/#atomlib.types.VecLike">VecLike</a></span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n"><span title="atomlib.cell.HasCellT">HasCellT</span></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -3622,10 +3744,12 @@ For small displacements, no hydrostatic strain is applied (volume is conserved).
 
 
 <h3 id="atomlib.cell.Cell.explode" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">explode</span><span class="p">()</span></code>
+          <span class="doc doc-object-name doc-function-name">explode</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">explode</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n"><span title="atomlib.cell.HasCellT">HasCellT</span></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -3662,10 +3786,12 @@ For small displacements, no hydrostatic strain is applied (volume is conserved).
 
 
 <h3 id="atomlib.cell.Cell.explode_z" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">explode_z</span><span class="p">()</span></code>
+          <span class="doc doc-object-name doc-function-name">explode_z</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">explode_z</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n"><span title="atomlib.cell.HasCellT">HasCellT</span></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -3704,10 +3830,21 @@ For small displacements, no hydrostatic strain is applied (volume is conserved).
 
 
 <h3 id="atomlib.cell.Cell.crop" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">crop</span><span class="p">(</span><span class="n">x_min</span><span class="o">=-</span><span class="n">numpy</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">x_max</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">y_min</span><span class="o">=-</span><span class="n">numpy</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">y_max</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">z_min</span><span class="o">=-</span><span class="n">numpy</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">z_max</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">frame</span><span class="o">=</span><span class="s1">&#39;local&#39;</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">crop</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">crop</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">x_min</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></span> <span class="o">=</span> <span class="o">-</span><span class="n">numpy</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">x_max</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">y_min</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></span> <span class="o">=</span> <span class="o">-</span><span class="n">numpy</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">y_max</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="n">z_min</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></span> <span class="o">=</span> <span class="o">-</span><span class="n">numpy</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="n">z_max</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="o">*</span><span class="p">,</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    <span class="n">frame</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.cell.CoordinateFrame" href="#atomlib.cell.CoordinateFrame">CoordinateFrame</a></span> <span class="o">=</span> <span class="s2">&quot;local&quot;</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="atomlib.cell.HasCellT">HasCellT</span></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -3784,10 +3921,16 @@ function implicity <code>explode</code>s the cell as well.</p>
 
 
 <h3 id="atomlib.cell.Cell.change_transform" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">change_transform</span><span class="p">(</span><span class="n">transform</span><span class="p">,</span> <span class="n">frame_to</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">frame_from</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">change_transform</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">change_transform</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">transform</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.transform.Transform3D" href="../transform/#atomlib.transform.Transform3D">Transform3D</a></span><span class="p">,</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">frame_to</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.cell.CoordinateFrame" href="#atomlib.cell.CoordinateFrame">CoordinateFrame</a></span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">frame_from</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.cell.CoordinateFrame" href="#atomlib.cell.CoordinateFrame">CoordinateFrame</a></span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.transform.Transform3D" href="../transform/#atomlib.transform.Transform3D">Transform3D</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -3822,10 +3965,12 @@ function implicity <code>explode</code>s the cell as well.</p>
 
 
 <h3 id="atomlib.cell.Cell.assert_equal" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">assert_equal</span><span class="p">(</span><span class="n">other</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">assert_equal</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">assert_equal</span><span class="p">(</span><span class="n">other</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3/library/typing.html#typing.Any">Any</a></span><span class="p">)</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -3856,10 +4001,12 @@ function implicity <code>explode</code>s the cell as well.</p>
 
 
 <h3 id="atomlib.cell.Cell.get_cell" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">get_cell</span><span class="p">()</span></code>
+          <span class="doc doc-object-name doc-function-name">get_cell</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">get_cell</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.cell.Cell" href="#atomlib.cell.Cell">Cell</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -3880,10 +4027,12 @@ function implicity <code>explode</code>s the cell as well.</p>
 
 
 <h3 id="atomlib.cell.Cell.with_cell" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">with_cell</span><span class="p">(</span><span class="n">cell</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">with_cell</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">with_cell</span><span class="p">(</span><span class="n">cell</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.cell.Cell" href="#atomlib.cell.Cell">Cell</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.cell.Cell" href="#atomlib.cell.Cell">Cell</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -3904,14 +4053,21 @@ function implicity <code>explode</code>s the cell as well.</p>
 
 
 <h3 id="atomlib.cell.Cell.from_unit_cell" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">from_unit_cell</span><span class="p">(</span><span class="n">cell_size</span><span class="p">,</span> <span class="n">cell_angle</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">n_cells</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pbc</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">from_unit_cell</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-staticmethod"><code>staticmethod</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">from_unit_cell</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">cell_size</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.types.VecLike" href="../types/#atomlib.types.VecLike">VecLike</a></span><span class="p">,</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">cell_angle</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.types.VecLike" href="../types/#atomlib.types.VecLike">VecLike</a></span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">n_cells</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.types.VecLike" href="../types/#atomlib.types.VecLike">VecLike</a></span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">pbc</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.types.VecLike" href="../types/#atomlib.types.VecLike">VecLike</a></span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="p">)</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -3948,14 +4104,20 @@ function implicity <code>explode</code>s the cell as well.</p>
 
 
 <h3 id="atomlib.cell.Cell.from_ortho" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">from_ortho</span><span class="p">(</span><span class="n">ortho</span><span class="p">,</span> <span class="n">n_cells</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pbc</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">from_ortho</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-staticmethod"><code>staticmethod</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">from_ortho</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">ortho</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.transform.AffineTransform3D" href="../transform/#atomlib.transform.AffineTransform3D">AffineTransform3D</a></span><span class="p">,</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">n_cells</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.types.VecLike" href="../types/#atomlib.types.VecLike">VecLike</a></span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">pbc</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.types.VecLike" href="../types/#atomlib.types.VecLike">VecLike</a></span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="p">)</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -4028,10 +4190,14 @@ function implicity <code>explode</code>s the cell as well.</p>
 
 
 <h2 id="atomlib.cell.cell_to_ortho" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">cell_to_ortho</span><span class="p">(</span><span class="n">cell_size</span><span class="p">,</span> <span class="n">cell_angle</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">cell_to_ortho</span>
+
 
 </h2>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">cell_to_ortho</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">cell_size</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.types.VecLike" href="../types/#atomlib.types.VecLike">VecLike</a></span><span class="p">,</span> <span class="n">cell_angle</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.types.VecLike" href="../types/#atomlib.types.VecLike">VecLike</a></span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.transform.LinearTransform3D" href="../transform/#atomlib.transform.LinearTransform3D">LinearTransform3D</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -4097,10 +4263,14 @@ function implicity <code>explode</code>s the cell as well.</p>
 
 
 <h2 id="atomlib.cell.ortho_to_cell" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">ortho_to_cell</span><span class="p">(</span><span class="n">ortho</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">ortho_to_cell</span>
+
 
 </h2>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">ortho_to_cell</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">ortho</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.transform.LinearTransform3D" href="../transform/#atomlib.transform.LinearTransform3D">LinearTransform3D</a></span><span class="p">,</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Tuple" href="https://docs.python.org/3/library/typing.html#typing.Tuple">Tuple</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.types.Vec3" href="../types/#atomlib.types.Vec3">Vec3</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.types.Vec3" href="../types/#atomlib.types.Vec3">Vec3</a></span><span class="p">]</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -4149,10 +4319,16 @@ function implicity <code>explode</code>s the cell as well.</p>
 
 
 <h2 id="atomlib.cell.plane_to_zone" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">plane_to_zone</span><span class="p">(</span><span class="n">metric</span><span class="p">,</span> <span class="n">plane</span><span class="p">,</span> <span class="n">reduce</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">plane_to_zone</span>
+
 
 </h2>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">plane_to_zone</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">metric</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.transform.LinearTransform3D" href="../transform/#atomlib.transform.LinearTransform3D">LinearTransform3D</a></span><span class="p">,</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">plane</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.types.VecLike" href="../types/#atomlib.types.VecLike">VecLike</a></span><span class="p">,</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">reduce</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.types.Vec3" href="../types/#atomlib.types.Vec3">Vec3</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -4219,10 +4395,16 @@ return a unit vector.</p>
 
 
 <h2 id="atomlib.cell.zone_to_plane" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">zone_to_plane</span><span class="p">(</span><span class="n">metric</span><span class="p">,</span> <span class="n">zone</span><span class="p">,</span> <span class="n">reduce</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">zone_to_plane</span>
+
 
 </h2>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">zone_to_plane</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">metric</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.transform.LinearTransform3D" href="../transform/#atomlib.transform.LinearTransform3D">LinearTransform3D</a></span><span class="p">,</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">zone</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.types.VecLike" href="../types/#atomlib.types.VecLike">VecLike</a></span><span class="p">,</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">reduce</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.types.Vec3" href="../types/#atomlib.types.Vec3">Vec3</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   

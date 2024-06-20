@@ -430,6 +430,8 @@
       
         
       
+        
+      
     
     
     
@@ -487,6 +489,27 @@
   
   <span class="md-ellipsis">
     atomlib.atoms
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../atomcell/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    atomlib.atomcell
   </span>
   
 
@@ -916,14 +939,18 @@
 
 
 <h2 id="atomlib.io.xsf.Periodicity" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">Periodicity</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">Literal</span><span class="p">[</span><span class="s1">&#39;crystal&#39;</span><span class="p">,</span> <span class="s1">&#39;slab&#39;</span><span class="p">,</span> <span class="s1">&#39;polymer&#39;</span><span class="p">,</span> <span class="s1">&#39;molecule&#39;</span><span class="p">]</span></code>
+          <span class="doc doc-object-name doc-attribute-name">Periodicity</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
   </span>
 
 </h2>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">Periodicity</span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Literal" href="https://docs.python.org/3/library/typing.html#typing.Literal">Literal</a></span><span class="p">[</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="s2">&quot;crystal&quot;</span><span class="p">,</span> <span class="s2">&quot;slab&quot;</span><span class="p">,</span> <span class="s2">&quot;polymer&quot;</span><span class="p">,</span> <span class="s2">&quot;molecule&quot;</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="p">]</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -936,7 +963,7 @@
 
 
 <h2 id="atomlib.io.xsf.XSF" class="doc doc-heading">
-          <code>XSF</code>
+          <span class="doc doc-object-name doc-class-name">XSF</span>
 
   
   <span class="doc doc-labels">
@@ -1150,7 +1177,8 @@
 
 
 <h3 id="atomlib.io.xsf.XSF.periodicity" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">periodicity</span><span class="p">:</span> <span class="n">Periodicity</span> <span class="o">=</span> <span class="s1">&#39;crystal&#39;</span></code>
+          <span class="doc doc-object-name doc-attribute-name">periodicity</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
@@ -1158,7 +1186,8 @@
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">periodicity</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.io.xsf.Periodicity" href="#atomlib.io.xsf.Periodicity">Periodicity</a></span> <span class="o">=</span> <span class="s1">&#39;crystal&#39;</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -1170,7 +1199,8 @@
 
 
 <h3 id="atomlib.io.xsf.XSF.primitive_cell" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">primitive_cell</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">LinearTransform3D</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></code>
+          <span class="doc doc-object-name doc-attribute-name">primitive_cell</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
@@ -1178,7 +1208,8 @@
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">primitive_cell</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.transform.LinearTransform3D" href="../../transform/#atomlib.transform.LinearTransform3D">LinearTransform3D</a></span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -1190,7 +1221,8 @@
 
 
 <h3 id="atomlib.io.xsf.XSF.conventional_cell" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">conventional_cell</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">LinearTransform3D</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></code>
+          <span class="doc doc-object-name doc-attribute-name">conventional_cell</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
@@ -1198,7 +1230,8 @@
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">conventional_cell</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.transform.LinearTransform3D" href="../../transform/#atomlib.transform.LinearTransform3D">LinearTransform3D</a></span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -1210,7 +1243,8 @@
 
 
 <h3 id="atomlib.io.xsf.XSF.prim_coords" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">prim_coords</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">polars</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></code>
+          <span class="doc doc-object-name doc-attribute-name">prim_coords</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
@@ -1218,7 +1252,8 @@
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">prim_coords</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><span title="polars.DataFrame">DataFrame</span></span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -1230,7 +1265,8 @@
 
 
 <h3 id="atomlib.io.xsf.XSF.conv_coords" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">conv_coords</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">polars</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></code>
+          <span class="doc doc-object-name doc-attribute-name">conv_coords</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
@@ -1238,7 +1274,8 @@
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">conv_coords</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><span title="polars.DataFrame">DataFrame</span></span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -1250,7 +1287,8 @@
 
 
 <h3 id="atomlib.io.xsf.XSF.atoms" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">atoms</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">polars</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></code>
+          <span class="doc doc-object-name doc-attribute-name">atoms</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
@@ -1258,7 +1296,8 @@
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">atoms</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><span title="polars.DataFrame">DataFrame</span></span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -1273,10 +1312,12 @@
 
 
 <h3 id="atomlib.io.xsf.XSF.get_atoms" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">get_atoms</span><span class="p">()</span></code>
+          <span class="doc doc-object-name doc-function-name">get_atoms</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">get_atoms</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n"><span title="polars.DataFrame">DataFrame</span></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -1309,10 +1350,12 @@
 
 
 <h3 id="atomlib.io.xsf.XSF.get_pbc" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">get_pbc</span><span class="p">()</span></code>
+          <span class="doc doc-object-name doc-function-name">get_pbc</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">get_pbc</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" title="numpy.typing.NDArray" href="https://numpy.org/doc/stable/reference/typing.html#numpy.typing.NDArray">NDArray</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" title="numpy.bool_" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.bool_">bool_</a></span><span class="p">]</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -1333,14 +1376,16 @@
 
 
 <h3 id="atomlib.io.xsf.XSF.from_cell" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">from_cell</span><span class="p">(</span><span class="n">cell</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">from_cell</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-staticmethod"><code>staticmethod</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">from_cell</span><span class="p">(</span><span class="n">cell</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.atomcell.HasAtomCell" href="../../atomcell/#atomlib.atomcell.HasAtomCell">HasAtomCell</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.io.xsf.XSF" href="#atomlib.io.xsf.XSF">XSF</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -1375,14 +1420,16 @@
 
 
 <h3 id="atomlib.io.xsf.XSF.from_atoms" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">from_atoms</span><span class="p">(</span><span class="n">atoms</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">from_atoms</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-staticmethod"><code>staticmethod</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">from_atoms</span><span class="p">(</span><span class="n">atoms</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.atoms.HasAtoms" href="../../atoms/#atomlib.atoms.HasAtoms">HasAtoms</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.io.xsf.XSF" href="#atomlib.io.xsf.XSF">XSF</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -1411,14 +1458,16 @@
 
 
 <h3 id="atomlib.io.xsf.XSF.from_file" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">from_file</span><span class="p">(</span><span class="n">file</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">from_file</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-staticmethod"><code>staticmethod</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">from_file</span><span class="p">(</span><span class="n">file</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.util.FileOrPath" href="../../util/#atomlib.util.FileOrPath">FileOrPath</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.io.xsf.XSF" href="#atomlib.io.xsf.XSF">XSF</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -1445,10 +1494,12 @@
 
 
 <h3 id="atomlib.io.xsf.XSF.write" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">write</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">write</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">write</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.util.FileOrPath" href="../../util/#atomlib.util.FileOrPath">FileOrPath</a></span><span class="p">)</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -1517,7 +1568,7 @@
 
 
 <h2 id="atomlib.io.xsf.XSFParser" class="doc doc-heading">
-          <code>XSFParser</code>
+          <span class="doc doc-object-name doc-class-name">XSFParser</span>
 
 
 </h2>
@@ -1849,14 +1900,16 @@
 
 
 <h3 id="atomlib.io.xsf.XSFParser.lineno" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">lineno</span> <span class="o">=</span> <span class="mi">0</span></code>
+          <span class="doc doc-object-name doc-attribute-name">lineno</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">lineno</span> <span class="o">=</span> <span class="mi">0</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -1871,10 +1924,12 @@
 
 
 <h3 id="atomlib.io.xsf.XSFParser.skip_line" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">skip_line</span><span class="p">(</span><span class="n">line</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">skip_line</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">skip_line</span><span class="p">(</span><span class="n">line</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -1895,10 +1950,12 @@
 
 
 <h3 id="atomlib.io.xsf.XSFParser.peek_line" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">peek_line</span><span class="p">()</span></code>
+          <span class="doc doc-object-name doc-function-name">peek_line</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">peek_line</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">]</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -1931,10 +1988,12 @@
 
 
 <h3 id="atomlib.io.xsf.XSFParser.next_line" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">next_line</span><span class="p">()</span></code>
+          <span class="doc doc-object-name doc-function-name">next_line</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">next_line</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">]</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -1959,10 +2018,14 @@
 
 
 <h3 id="atomlib.io.xsf.XSFParser.parse_atoms" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">parse_atoms</span><span class="p">(</span><span class="n">expected_length</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">parse_atoms</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">parse_atoms</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">expected_length</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="polars.DataFrame">DataFrame</span></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -2067,10 +2130,12 @@
 
 
 <h3 id="atomlib.io.xsf.XSFParser.parse_coords" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">parse_coords</span><span class="p">()</span></code>
+          <span class="doc doc-object-name doc-function-name">parse_coords</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">parse_coords</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n"><span title="polars.DataFrame">DataFrame</span></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -2113,10 +2178,12 @@
 
 
 <h3 id="atomlib.io.xsf.XSFParser.parse_lattice" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">parse_lattice</span><span class="p">()</span></code>
+          <span class="doc doc-object-name doc-function-name">parse_lattice</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">parse_lattice</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.transform.LinearTransform3D" href="../../transform/#atomlib.transform.LinearTransform3D">LinearTransform3D</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -2167,10 +2234,12 @@
 
 
 <h3 id="atomlib.io.xsf.XSFParser.eat_sandwich" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">eat_sandwich</span><span class="p">(</span><span class="n">keyword</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">eat_sandwich</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">eat_sandwich</span><span class="p">(</span><span class="n">keyword</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">)</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -2217,10 +2286,12 @@
 
 
 <h3 id="atomlib.io.xsf.XSFParser.parse" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">parse</span><span class="p">()</span></code>
+          <span class="doc doc-object-name doc-function-name">parse</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">parse</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.io.xsf.XSF" href="#atomlib.io.xsf.XSF">XSF</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 

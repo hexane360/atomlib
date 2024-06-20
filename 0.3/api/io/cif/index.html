@@ -430,6 +430,8 @@
       
         
       
+        
+      
     
     
     
@@ -487,6 +489,27 @@
   
   <span class="md-ellipsis">
     atomlib.atoms
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../atomcell/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    atomlib.atomcell
   </span>
   
 
@@ -1105,14 +1128,16 @@
 
 
 <h2 id="atomlib.io.cif.Value" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">Value</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span></code>
+          <span class="doc doc-object-name doc-attribute-name">Value</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
   </span>
 
 </h2>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">Value</span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3/library/typing.html#typing.Union">Union</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -1124,14 +1149,24 @@
 
 
 <h2 id="atomlib.io.cif.SYMMETRY_PARSER" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">SYMMETRY_PARSER</span><span class="p">:</span> <span class="n">Parser</span><span class="p">[</span><span class="n">SymmetryVec</span><span class="p">,</span> <span class="n">SymmetryVec</span><span class="p">]</span> <span class="o">=</span> <span class="n">Parser</span><span class="p">([</span><span class="n">BinaryOrUnaryOp</span><span class="p">([</span><span class="s1">&#39;-&#39;</span><span class="p">],</span> <span class="n">sub</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="n">BinaryOrUnaryOp</span><span class="p">([</span><span class="s1">&#39;+&#39;</span><span class="p">],</span> <span class="n">add</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="n">BinaryOp</span><span class="p">([</span><span class="s1">&#39;*&#39;</span><span class="p">],</span> <span class="n">operator</span><span class="o">.</span><span class="n">mul</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span> <span class="n">BinaryOp</span><span class="p">([</span><span class="s1">&#39;/&#39;</span><span class="p">],</span> <span class="n">operator</span><span class="o">.</span><span class="n">truediv</span><span class="p">,</span> <span class="mi">6</span><span class="p">)],</span> <span class="n">SymmetryVec</span><span class="o">.</span><span class="n">parse</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-attribute-name">SYMMETRY_PARSER</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
   </span>
 
 </h2>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">SYMMETRY_PARSER</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.Parser" href="../../expr/#atomlib.expr.Parser">Parser</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.io.cif.SymmetryVec" href="#atomlib.io.cif.SymmetryVec">SymmetryVec</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.io.cif.SymmetryVec" href="#atomlib.io.cif.SymmetryVec">SymmetryVec</a></span><span class="p">]</span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.Parser" href="../../expr/#atomlib.expr.Parser">Parser</a></span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="p">[</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>        <span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.BinaryOrUnaryOp" href="../../expr/#atomlib.expr.BinaryOrUnaryOp">BinaryOrUnaryOp</a></span><span class="p">([</span><span class="s2">&quot;-&quot;</span><span class="p">],</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.sub" href="../../expr/#atomlib.expr.sub">sub</a></span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>        <span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.BinaryOrUnaryOp" href="../../expr/#atomlib.expr.BinaryOrUnaryOp">BinaryOrUnaryOp</a></span><span class="p">([</span><span class="s2">&quot;+&quot;</span><span class="p">],</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.add" href="../../expr/#atomlib.expr.add">add</a></span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>        <span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.BinaryOp" href="../../expr/#atomlib.expr.BinaryOp">BinaryOp</a></span><span class="p">([</span><span class="s2">&quot;*&quot;</span><span class="p">],</span> <span class="n"><a class="autorefs autorefs-external" title="operator.mul" href="https://docs.python.org/3/library/operator.html#operator.mul">mul</a></span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>        <span class="n"><a class="autorefs autorefs-internal" title="atomlib.expr.BinaryOp" href="../../expr/#atomlib.expr.BinaryOp">BinaryOp</a></span><span class="p">([</span><span class="s2">&quot;/&quot;</span><span class="p">],</span> <span class="n"><a class="autorefs autorefs-external" title="operator.truediv" href="https://docs.python.org/3/library/operator.html#operator.truediv">truediv</a></span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="p">],</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="n"><a class="autorefs autorefs-internal" title="atomlib.io.cif.SymmetryVec.parse" href="#atomlib.io.cif.SymmetryVec.parse">parse</a></span><span class="p">,</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="p">)</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -1144,7 +1179,7 @@
 
 
 <h2 id="atomlib.io.cif.CIF" class="doc doc-heading">
-          <code>CIF</code>
+          <span class="doc doc-object-name doc-class-name">CIF</span>
 
   
   <span class="doc doc-labels">
@@ -1238,14 +1273,16 @@
 
 
 <h3 id="atomlib.io.cif.CIF.data_blocks" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">data_blocks</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Tuple</span><span class="p">[</span><span class="n">CIFDataBlock</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span></code>
+          <span class="doc doc-object-name doc-attribute-name">data_blocks</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">data_blocks</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Tuple" href="https://docs.python.org/3/library/typing.html#typing.Tuple">Tuple</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.io.cif.CIFDataBlock" href="#atomlib.io.cif.CIFDataBlock">CIFDataBlock</a></span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -1260,14 +1297,16 @@
 
 
 <h3 id="atomlib.io.cif.CIF.from_file" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">from_file</span><span class="p">(</span><span class="n">file</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">from_file</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-staticmethod"><code>staticmethod</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">from_file</span><span class="p">(</span><span class="n">file</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.util.FileOrPath" href="../../util/#atomlib.util.FileOrPath">FileOrPath</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.io.cif.CIF" href="#atomlib.io.cif.CIF">CIF</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -1290,10 +1329,12 @@
 
 
 <h3 id="atomlib.io.cif.CIF.get_block" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">get_block</span><span class="p">(</span><span class="n">block</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">get_block</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">get_block</span><span class="p">(</span><span class="n">block</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3/library/typing.html#typing.Union">Union</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.io.cif.CIFDataBlock" href="#atomlib.io.cif.CIFDataBlock">CIFDataBlock</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -1324,10 +1365,12 @@
 
 
 <h3 id="atomlib.io.cif.CIF.write" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">write</span><span class="p">(</span><span class="n">file</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">write</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">write</span><span class="p">(</span><span class="n">file</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.util.FileOrPath" href="../../util/#atomlib.util.FileOrPath">FileOrPath</a></span><span class="p">)</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -1364,7 +1407,7 @@
 
 
 <h2 id="atomlib.io.cif.CIFDataBlock" class="doc doc-heading">
-          <code>CIFDataBlock</code>
+          <span class="doc doc-object-name doc-class-name">CIFDataBlock</span>
 
   
   <span class="doc doc-labels">
@@ -1782,14 +1825,16 @@
 
 
 <h3 id="atomlib.io.cif.CIFDataBlock.name" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">name</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span></code>
+          <span class="doc doc-object-name doc-attribute-name">name</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">name</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">]</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -1801,14 +1846,16 @@
 
 
 <h3 id="atomlib.io.cif.CIFDataBlock.data" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">data</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Tuple</span><span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Value</span><span class="p">],</span> <span class="n">CIFTable</span><span class="p">],</span> <span class="o">...</span><span class="p">]</span></code>
+          <span class="doc doc-object-name doc-attribute-name">data</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">data</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Tuple" href="https://docs.python.org/3/library/typing.html#typing.Tuple">Tuple</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3/library/typing.html#typing.Union">Union</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" title="typing.Tuple" href="https://docs.python.org/3/library/typing.html#typing.Tuple">Tuple</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.io.cif.Value" href="#atomlib.io.cif.Value">Value</a></span><span class="p">],</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.io.cif.CIFTable" href="#atomlib.io.cif.CIFTable">CIFTable</a></span><span class="p">],</span> <span class="o">...</span><span class="p">]</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -1820,7 +1867,8 @@
 
 
 <h3 id="atomlib.io.cif.CIFDataBlock.data_dict" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">data_dict</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">t</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">Value</span><span class="p">],</span> <span class="n">Value</span><span class="p">]]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-attribute-name">data_dict</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
@@ -1828,7 +1876,10 @@
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">data_dict</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Dict" href="https://docs.python.org/3/library/typing.html#typing.Dict">Dict</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3/library/typing.html#typing.Union">Union</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" title="typing.List" href="https://docs.python.org/3/library/typing.html#typing.List">List</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.io.cif.Value" href="#atomlib.io.cif.Value">Value</a></span><span class="p">],</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.io.cif.Value" href="#atomlib.io.cif.Value">Value</a></span><span class="p">]]</span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-external" title="dataclasses.field" href="https://docs.python.org/3/library/dataclasses.html#dataclasses.field">field</a></span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">init</span><span class="o">=</span><span class="kc">False</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="p">)</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -1843,14 +1894,16 @@
 
 
 <h3 id="atomlib.io.cif.CIFDataBlock.from_file" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">from_file</span><span class="p">(</span><span class="n">file</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">from_file</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-staticmethod"><code>staticmethod</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">from_file</span><span class="p">(</span><span class="n">file</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.util.FileOrPath" href="../../util/#atomlib.util.FileOrPath">FileOrPath</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Iterator" href="https://docs.python.org/3/library/typing.html#typing.Iterator">Iterator</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.io.cif.CIFDataBlock" href="#atomlib.io.cif.CIFDataBlock">CIFDataBlock</a></span><span class="p">]</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -1875,14 +1928,16 @@
 
 
 <h3 id="atomlib.io.cif.CIFDataBlock.from_atoms" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">from_atoms</span><span class="p">(</span><span class="n">atoms</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">from_atoms</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-staticmethod"><code>staticmethod</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">from_atoms</span><span class="p">(</span><span class="n">atoms</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.atoms.HasAtoms" href="../../atoms/#atomlib.atoms.HasAtoms">HasAtoms</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.io.cif.CIFDataBlock" href="#atomlib.io.cif.CIFDataBlock">CIFDataBlock</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -1943,14 +1998,16 @@
 
 
 <h3 id="atomlib.io.cif.CIFDataBlock.from_atomcell" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">from_atomcell</span><span class="p">(</span><span class="n">atomcell</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">from_atomcell</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-staticmethod"><code>staticmethod</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">from_atomcell</span><span class="p">(</span><span class="n">atomcell</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.atomcell.HasAtomCell" href="../../atomcell/#atomlib.atomcell.HasAtomCell">HasAtomCell</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.io.cif.CIFDataBlock" href="#atomlib.io.cif.CIFDataBlock">CIFDataBlock</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -2051,10 +2108,12 @@
 
 
 <h3 id="atomlib.io.cif.CIFDataBlock.write" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">write</span><span class="p">(</span><span class="n">file</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">write</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">write</span><span class="p">(</span><span class="n">file</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.util.FileOrPath" href="../../util/#atomlib.util.FileOrPath">FileOrPath</a></span><span class="p">)</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -2077,10 +2136,19 @@
 
 
 <h3 id="atomlib.io.cif.CIFDataBlock.stack_tags" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">stack_tags</span><span class="p">(</span><span class="o">*</span><span class="n">tags</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">stack_tags</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">stack_tags</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="o">*</span><span class="n">tags</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">,</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">dtype</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3/library/typing.html#typing.Union">Union</a></span><span class="p">[</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>        <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-external" title="numpy.dtype" href="https://numpy.org/doc/stable/reference/generated/numpy.dtype.html#numpy.dtype">dtype</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Iterable" href="https://docs.python.org/3/library/typing.html#typing.Iterable">Iterable</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3/library/typing.html#typing.Union">Union</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-external" title="numpy.dtype" href="https://numpy.org/doc/stable/reference/generated/numpy.dtype.html#numpy.dtype">dtype</a></span><span class="p">]],</span> <span class="kc">None</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="n">rename</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" title="typing.Iterable" href="https://docs.python.org/3/library/typing.html#typing.Iterable">Iterable</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="n">required</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3/library/typing.html#typing.Union">Union</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Iterable" href="https://docs.python.org/3/library/typing.html#typing.Iterable">Iterable</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></span><span class="p">]]</span> <span class="o">=</span> <span class="kc">True</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="polars.DataFrame">DataFrame</span></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -2173,10 +2241,12 @@
 
 
 <h3 id="atomlib.io.cif.CIFDataBlock.cell_size" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">cell_size</span><span class="p">()</span></code>
+          <span class="doc doc-object-name doc-function-name">cell_size</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">cell_size</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" title="typing.Tuple" href="https://docs.python.org/3/library/typing.html#typing.Tuple">Tuple</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></span><span class="p">]]</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -2213,10 +2283,12 @@
 
 
 <h3 id="atomlib.io.cif.CIFDataBlock.cell_angle" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">cell_angle</span><span class="p">()</span></code>
+          <span class="doc doc-object-name doc-function-name">cell_angle</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">cell_angle</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" title="typing.Tuple" href="https://docs.python.org/3/library/typing.html#typing.Tuple">Tuple</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></span><span class="p">]]</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -2253,10 +2325,12 @@
 
 
 <h3 id="atomlib.io.cif.CIFDataBlock.get_symmetry" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">get_symmetry</span><span class="p">()</span></code>
+          <span class="doc doc-object-name doc-function-name">get_symmetry</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">get_symmetry</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Iterator" href="https://docs.python.org/3/library/typing.html#typing.Iterator">Iterator</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.transform.AffineTransform3D" href="../../transform/#atomlib.transform.AffineTransform3D">AffineTransform3D</a></span><span class="p">]</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -2301,7 +2375,7 @@
 
 
 <h2 id="atomlib.io.cif.CIFTable" class="doc doc-heading">
-          <code>CIFTable</code>
+          <span class="doc doc-object-name doc-class-name">CIFTable</span>
 
   
   <span class="doc doc-labels">
@@ -2359,14 +2433,16 @@
 
 
 <h3 id="atomlib.io.cif.CIFTable.data" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">data</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">t</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">Value</span><span class="p">]]</span></code>
+          <span class="doc doc-object-name doc-attribute-name">data</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">data</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Dict" href="https://docs.python.org/3/library/typing.html#typing.Dict">Dict</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-external" title="typing.List" href="https://docs.python.org/3/library/typing.html#typing.List">List</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.io.cif.Value" href="#atomlib.io.cif.Value">Value</a></span><span class="p">]]</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -2389,7 +2465,7 @@
 
 
 <h2 id="atomlib.io.cif.SymmetryVec" class="doc doc-heading">
-          <code>SymmetryVec</code>
+          <span class="doc doc-object-name doc-class-name">SymmetryVec</span>
 
 
 </h2>
@@ -2511,14 +2587,16 @@
 
 
 <h3 id="atomlib.io.cif.SymmetryVec.inner" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">inner</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">floating</span><span class="p">]]</span> <span class="o">=</span> <span class="n">val</span></code>
+          <span class="doc doc-object-name doc-attribute-name">inner</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">inner</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3/library/typing.html#typing.Union">Union</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-external" title="numpy.typing.NDArray" href="https://numpy.org/doc/stable/reference/typing.html#numpy.typing.NDArray">NDArray</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" title="numpy.floating" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.floating">floating</a></span><span class="p">]]</span> <span class="o">=</span> <span class="n">val</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -2533,14 +2611,16 @@
 
 
 <h3 id="atomlib.io.cif.SymmetryVec.parse" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">parse</span><span class="p">(</span><span class="n">s</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">parse</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-classmethod"><code>classmethod</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">parse</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.io.cif.SymmetryVec" href="#atomlib.io.cif.SymmetryVec">SymmetryVec</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -2571,10 +2651,12 @@
 
 
 <h3 id="atomlib.io.cif.SymmetryVec.is_scalar" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">is_scalar</span><span class="p">()</span></code>
+          <span class="doc doc-object-name doc-function-name">is_scalar</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">is_scalar</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -2595,10 +2677,12 @@
 
 
 <h3 id="atomlib.io.cif.SymmetryVec.to_vec" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">to_vec</span><span class="p">()</span></code>
+          <span class="doc doc-object-name doc-function-name">to_vec</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">to_vec</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" title="numpy.typing.NDArray" href="https://numpy.org/doc/stable/reference/typing.html#numpy.typing.NDArray">NDArray</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" title="numpy.floating" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.floating">floating</a></span><span class="p">]</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -2635,7 +2719,7 @@
 
 
 <h2 id="atomlib.io.cif.CifReader" class="doc doc-heading">
-          <code>CifReader</code>
+          <span class="doc doc-object-name doc-class-name">CifReader</span>
 
 
 </h2>
@@ -3093,14 +3177,16 @@
 
 
 <h3 id="atomlib.io.cif.CifReader.line" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">line</span> <span class="o">=</span> <span class="mi">0</span></code>
+          <span class="doc doc-object-name doc-attribute-name">line</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
   </span>
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">line</span> <span class="o">=</span> <span class="mi">0</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -3115,10 +3201,12 @@
 
 
 <h3 id="atomlib.io.cif.CifReader.parse" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">parse</span><span class="p">()</span></code>
+          <span class="doc doc-object-name doc-function-name">parse</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">parse</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Iterator" href="https://docs.python.org/3/library/typing.html#typing.Iterator">Iterator</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.io.cif.CIFDataBlock" href="#atomlib.io.cif.CIFDataBlock">CIFDataBlock</a></span><span class="p">]</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -3165,10 +3253,12 @@
 
 
 <h3 id="atomlib.io.cif.CifReader.after_eol" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">after_eol</span><span class="p">()</span></code>
+          <span class="doc doc-object-name doc-function-name">after_eol</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">after_eol</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -3200,10 +3290,12 @@ by the next peek() or next()) is after a newline.</p>
 
 
 <h3 id="atomlib.io.cif.CifReader.peek_line" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">peek_line</span><span class="p">()</span></code>
+          <span class="doc doc-object-name doc-function-name">peek_line</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">peek_line</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">]</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -3226,10 +3318,12 @@ by the next peek() or next()) is after a newline.</p>
 
 
 <h3 id="atomlib.io.cif.CifReader.next_line" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">next_line</span><span class="p">()</span></code>
+          <span class="doc doc-object-name doc-function-name">next_line</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">next_line</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">]</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -3254,10 +3348,12 @@ by the next peek() or next()) is after a newline.</p>
 
 
 <h3 id="atomlib.io.cif.CifReader.next_until" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">next_until</span><span class="p">(</span><span class="n">marker</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">next_until</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">next_until</span><span class="p">(</span><span class="n">marker</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">]</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -3315,10 +3411,12 @@ by the next peek() or next()) is after a newline.</p>
 
 
 <h3 id="atomlib.io.cif.CifReader.peek_word" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">peek_word</span><span class="p">()</span></code>
+          <span class="doc doc-object-name doc-function-name">peek_word</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">peek_word</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">]</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -3363,10 +3461,12 @@ by the next peek() or next()) is after a newline.</p>
 
 
 <h3 id="atomlib.io.cif.CifReader.next_word" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">next_word</span><span class="p">()</span></code>
+          <span class="doc doc-object-name doc-function-name">next_word</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">next_word</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">]</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -3409,10 +3509,12 @@ by the next peek() or next()) is after a newline.</p>
 
 
 <h3 id="atomlib.io.cif.CifReader.parse_bare" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">parse_bare</span><span class="p">()</span></code>
+          <span class="doc doc-object-name doc-function-name">parse_bare</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">parse_bare</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3/library/typing.html#typing.Union">Union</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">]</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -3449,10 +3551,12 @@ by the next peek() or next()) is after a newline.</p>
 
 
 <h3 id="atomlib.io.cif.CifReader.parse_datablock" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">parse_datablock</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">parse_datablock</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">parse_datablock</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.io.cif.CIFDataBlock" href="#atomlib.io.cif.CIFDataBlock">CIFDataBlock</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -3513,10 +3617,12 @@ by the next peek() or next()) is after a newline.</p>
 
 
 <h3 id="atomlib.io.cif.CifReader.eat_saveframe" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">eat_saveframe</span><span class="p">()</span></code>
+          <span class="doc doc-object-name doc-function-name">eat_saveframe</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">eat_saveframe</span><span class="p">()</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -3549,10 +3655,12 @@ by the next peek() or next()) is after a newline.</p>
 
 
 <h3 id="atomlib.io.cif.CifReader.parse_loop" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">parse_loop</span><span class="p">()</span></code>
+          <span class="doc doc-object-name doc-function-name">parse_loop</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">parse_loop</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.io.cif.CIFTable" href="#atomlib.io.cif.CIFTable">CIFTable</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -3627,10 +3735,12 @@ by the next peek() or next()) is after a newline.</p>
 
 
 <h3 id="atomlib.io.cif.CifReader.parse_value" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">parse_value</span><span class="p">()</span></code>
+          <span class="doc doc-object-name doc-function-name">parse_value</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">parse_value</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.io.cif.Value" href="#atomlib.io.cif.Value">Value</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -3677,10 +3787,12 @@ by the next peek() or next()) is after a newline.</p>
 
 
 <h3 id="atomlib.io.cif.CifReader.parse_text_field" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">parse_text_field</span><span class="p">()</span></code>
+          <span class="doc doc-object-name doc-function-name">parse_text_field</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">parse_text_field</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -3723,10 +3835,12 @@ by the next peek() or next()) is after a newline.</p>
 
 
 <h3 id="atomlib.io.cif.CifReader.parse_quoted" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">parse_quoted</span><span class="p">()</span></code>
+          <span class="doc doc-object-name doc-function-name">parse_quoted</span>
+
 
 </h3>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">parse_quoted</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -3777,10 +3891,12 @@ by the next peek() or next()) is after a newline.</p>
 
 
 <h2 id="atomlib.io.cif.parse_symmetry" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">parse_symmetry</span><span class="p">(</span><span class="n">s</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">parse_symmetry</span>
+
 
 </h2>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">parse_symmetry</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.transform.AffineTransform3D" href="../../transform/#atomlib.transform.AffineTransform3D">AffineTransform3D</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 

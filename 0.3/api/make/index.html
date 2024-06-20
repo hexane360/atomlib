@@ -9,7 +9,7 @@
       
       
       
-        <link rel="prev" href="../atoms/">
+        <link rel="prev" href="../atomcell/">
       
       
         <link rel="next" href="../defect/">
@@ -438,6 +438,8 @@
       
         
       
+        
+      
     
     
     
@@ -493,6 +495,27 @@
   
   <span class="md-ellipsis">
     atomlib.atoms
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../atomcell/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    atomlib.atomcell
   </span>
   
 
@@ -600,15 +623,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#atomlib.make.rocksalt" class="md-nav__link">
-    <span class="md-ellipsis">
-      rocksalt
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#atomlib.make.zincblende" class="md-nav__link">
     <span class="md-ellipsis">
       zincblende
@@ -666,15 +680,6 @@
   <a href="#atomlib.make.slab" class="md-nav__link">
     <span class="md-ellipsis">
       slab
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#atomlib.make.stacking_sequence" class="md-nav__link">
-    <span class="md-ellipsis">
-      stacking_sequence
     </span>
   </a>
   
@@ -852,15 +857,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#atomlib.make.rocksalt" class="md-nav__link">
-    <span class="md-ellipsis">
-      rocksalt
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#atomlib.make.zincblende" class="md-nav__link">
     <span class="md-ellipsis">
       zincblende
@@ -923,15 +919,6 @@
   
 </li>
       
-        <li class="md-nav__item">
-  <a href="#atomlib.make.stacking_sequence" class="md-nav__link">
-    <span class="md-ellipsis">
-      stacking_sequence
-    </span>
-  </a>
-  
-</li>
-      
     </ul>
   
 </nav>
@@ -975,14 +962,16 @@
 
 
 <h2 id="atomlib.make.CellType" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">CellType</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">Literal</span><span class="p">[</span><span class="s1">&#39;conv&#39;</span><span class="p">,</span> <span class="s1">&#39;prim&#39;</span><span class="p">,</span> <span class="s1">&#39;ortho&#39;</span><span class="p">]</span></code>
+          <span class="doc doc-object-name doc-attribute-name">CellType</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
   </span>
 
 </h2>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">CellType</span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Literal" href="https://docs.python.org/3/library/typing.html#typing.Literal">Literal</a></span><span class="p">[</span><span class="s1">&#39;conv&#39;</span><span class="p">,</span> <span class="s1">&#39;prim&#39;</span><span class="p">,</span> <span class="s1">&#39;ortho&#39;</span><span class="p">]</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   </div>
@@ -997,10 +986,18 @@
 
 
 <h2 id="atomlib.make.fcc" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">fcc</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">cell</span><span class="o">=</span><span class="s1">&#39;conv&#39;</span><span class="p">,</span> <span class="n">additional</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">fcc</span>
+
 
 </h2>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">fcc</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">elem</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.types.ElemLike" href="../types/#atomlib.types.ElemLike">ElemLike</a></span><span class="p">,</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">a</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.types.Num" href="../types/#atomlib.types.Num">Num</a></span><span class="p">,</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="o">*</span><span class="p">,</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">cell</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.make.CellType" href="#atomlib.make.CellType">CellType</a></span> <span class="o">=</span> <span class="s2">&quot;conv&quot;</span><span class="p">,</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="n">additional</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.atomcell.IntoAtoms" href="../atoms/#atomlib.atoms.IntoAtoms">IntoAtoms</a></span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.atomcell.AtomCell" href="../atomcell/#atomlib.atomcell.AtomCell">AtomCell</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -1012,71 +1009,76 @@ If <code>cell='ortho'</code>, return an orthogonal cell, two atoms in a cell of 
 
 
 
-  <p><strong>Parameters:</strong></p>
   <table>
     <thead>
       <tr>
-        <th>Name</th>
-        <th>Type</th>
-        <th>Description</th>
-        <th>Default</th>
+        <th><b>PARAMETER</b></th>
+        <th><b> DESCRIPTION</b></th>
       </tr>
     </thead>
     <tbody>
         <tr>
           <td><code>elem</code></td>
-          <td>
-                <code><a class="autorefs autorefs-internal" title="atomlib.types.ElemLike" href="../types/#atomlib.types.ElemLike">ElemLike</a></code>
-          </td>
-          <td>
+          <td class="doc-param-details">
             <div class="doc-md-description">
               <p>Element to add (e.g. <code>'Al'</code> or <code>13</code>)</p>
             </div>
-          </td>
-          <td>
-              <em>required</em>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-internal" title="atomlib.types.ElemLike" href="../types/#atomlib.types.ElemLike">ElemLike</a></code>
+                </span>
+            </p>
           </td>
         </tr>
         <tr>
           <td><code>a</code></td>
-          <td>
-                <code><a class="autorefs autorefs-internal" title="atomlib.types.Num" href="../types/#atomlib.types.Num">Num</a></code>
-          </td>
-          <td>
+          <td class="doc-param-details">
             <div class="doc-md-description">
               <p>Lattice parameter (Angstrom)</p>
             </div>
-          </td>
-          <td>
-              <em>required</em>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-internal" title="atomlib.types.Num" href="../types/#atomlib.types.Num">Num</a></code>
+                </span>
+            </p>
           </td>
         </tr>
         <tr>
           <td><code>cell</code></td>
-          <td>
-                <code><a class="autorefs autorefs-internal" title="atomlib.make.CellType" href="#atomlib.make.CellType">CellType</a></code>
-          </td>
-          <td>
+          <td class="doc-param-details">
             <div class="doc-md-description">
               <p>Cell type to return ('conv', 'prim', or 'ortho')</p>
             </div>
-          </td>
-          <td>
-                <code>&#39;conv&#39;</code>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-internal" title="atomlib.make.CellType" href="#atomlib.make.CellType">CellType</a></code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>&#39;conv&#39;</code>
+                </span>
+            </p>
           </td>
         </tr>
         <tr>
           <td><code>additional</code></td>
-          <td>
-                <code><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-internal" title="atomlib.atomcell.IntoAtoms" href="../atoms/#atomlib.atoms.IntoAtoms">IntoAtoms</a>]</code>
-          </td>
-          <td>
+          <td class="doc-param-details">
             <div class="doc-md-description">
               <p>Additional atoms to add to the structure.</p>
             </div>
-          </td>
-          <td>
-                <code>None</code>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-internal" title="atomlib.atomcell.IntoAtoms" href="../atoms/#atomlib.atoms.IntoAtoms">IntoAtoms</a>]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>None</code>
+                </span>
+            </p>
           </td>
         </tr>
     </tbody>
@@ -1084,20 +1086,21 @@ If <code>cell='ortho'</code>, return an orthogonal cell, two atoms in a cell of 
 
 
 
-  <p><strong>Returns:</strong></p>
   <table>
     <thead>
       <tr>
-        <th>Type</th>
-        <th>Description</th>
+        <th><b>RETURNS</b></th>
+        <th><b>DESCRIPTION</b></th>
       </tr>
     </thead>
     <tbody>
         <tr>
           <td>
-                <code><a class="autorefs autorefs-internal" title="atomlib.atomcell.AtomCell" href="../atomcell/#atomlib.atomcell.AtomCell">AtomCell</a></code>
+              <span class="doc-returns-annotation">
+                  <code><a class="autorefs autorefs-internal" title="atomlib.atomcell.AtomCell" href="../atomcell/#atomlib.atomcell.AtomCell">AtomCell</a></code>
+              </span>
           </td>
-          <td>
+          <td class="doc-returns-details">
             <div class="doc-md-description">
               <p>Periodic FCC unit cell</p>
             </div>
@@ -1215,10 +1218,19 @@ If <code>cell='ortho'</code>, return an orthogonal cell, two atoms in a cell of 
 
 
 <h2 id="atomlib.make.wurtzite" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">wurtzite</span><span class="p">(</span><span class="n">elems</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">cell</span><span class="o">=</span><span class="s1">&#39;conv&#39;</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">wurtzite</span>
+
 
 </h2>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">wurtzite</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">elems</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3/library/typing.html#typing.Union">Union</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Sequence" href="https://docs.python.org/3/library/typing.html#typing.Sequence">Sequence</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.types.ElemLike" href="../types/#atomlib.types.ElemLike">ElemLike</a></span><span class="p">]],</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">a</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.types.Num" href="../types/#atomlib.types.Num">Num</a></span><span class="p">,</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">c</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.types.Num" href="../types/#atomlib.types.Num">Num</a></span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">d</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.types.Num" href="../types/#atomlib.types.Num">Num</a></span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="o">*</span><span class="p">,</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="n">cell</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.make.CellType" href="#atomlib.make.CellType">CellType</a></span> <span class="o">=</span> <span class="s2">&quot;conv&quot;</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.atomcell.AtomCell" href="../atomcell/#atomlib.atomcell.AtomCell">AtomCell</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -1231,85 +1243,94 @@ If <code>cell='ortho'</code>, return an orthogonal unit cell constructed from th
 
 
 
-  <p><strong>Parameters:</strong></p>
   <table>
     <thead>
       <tr>
-        <th>Name</th>
-        <th>Type</th>
-        <th>Description</th>
-        <th>Default</th>
+        <th><b>PARAMETER</b></th>
+        <th><b> DESCRIPTION</b></th>
       </tr>
     </thead>
     <tbody>
         <tr>
           <td><code>elems</code></td>
-          <td>
-                <code><a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3/library/typing.html#typing.Union">Union</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" title="typing.Sequence" href="https://docs.python.org/3/library/typing.html#typing.Sequence">Sequence</a>[<a class="autorefs autorefs-internal" title="atomlib.types.ElemLike" href="../types/#atomlib.types.ElemLike">ElemLike</a>]]</code>
-          </td>
-          <td>
+          <td class="doc-param-details">
             <div class="doc-md-description">
               <p>Elements to add (e.g. <code>'AlN'</code> or <code>('Al', 'N')</code>)</p>
             </div>
-          </td>
-          <td>
-              <em>required</em>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3/library/typing.html#typing.Union">Union</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" title="typing.Sequence" href="https://docs.python.org/3/library/typing.html#typing.Sequence">Sequence</a>[<a class="autorefs autorefs-internal" title="atomlib.types.ElemLike" href="../types/#atomlib.types.ElemLike">ElemLike</a>]]</code>
+                </span>
+            </p>
           </td>
         </tr>
         <tr>
           <td><code>a</code></td>
-          <td>
-                <code><a class="autorefs autorefs-internal" title="atomlib.types.Num" href="../types/#atomlib.types.Num">Num</a></code>
-          </td>
-          <td>
+          <td class="doc-param-details">
             <div class="doc-md-description">
               <p>Lattice parameter (Angstrom)</p>
             </div>
-          </td>
-          <td>
-              <em>required</em>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-internal" title="atomlib.types.Num" href="../types/#atomlib.types.Num">Num</a></code>
+                </span>
+            </p>
           </td>
         </tr>
         <tr>
           <td><code>c</code></td>
-          <td>
-                <code><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-internal" title="atomlib.types.Num" href="../types/#atomlib.types.Num">Num</a>]</code>
-          </td>
-          <td>
+          <td class="doc-param-details">
             <div class="doc-md-description">
               <p>Vertical lattice parameter (Angstrom)</p>
             </div>
-          </td>
-          <td>
-                <code>None</code>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-internal" title="atomlib.types.Num" href="../types/#atomlib.types.Num">Num</a>]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>None</code>
+                </span>
+            </p>
           </td>
         </tr>
         <tr>
           <td><code>d</code></td>
-          <td>
-                <code><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-internal" title="atomlib.types.Num" href="../types/#atomlib.types.Num">Num</a>]</code>
-          </td>
-          <td>
+          <td class="doc-param-details">
             <div class="doc-md-description">
               <p>Vertical distance between the two sublattices (fractional)</p>
             </div>
-          </td>
-          <td>
-                <code>None</code>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-internal" title="atomlib.types.Num" href="../types/#atomlib.types.Num">Num</a>]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>None</code>
+                </span>
+            </p>
           </td>
         </tr>
         <tr>
           <td><code>cell</code></td>
-          <td>
-                <code><a class="autorefs autorefs-internal" title="atomlib.make.CellType" href="#atomlib.make.CellType">CellType</a></code>
-          </td>
-          <td>
+          <td class="doc-param-details">
             <div class="doc-md-description">
               <p>Cell type to return ('conv', 'prim', or 'ortho')</p>
             </div>
-          </td>
-          <td>
-                <code>&#39;conv&#39;</code>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-internal" title="atomlib.make.CellType" href="#atomlib.make.CellType">CellType</a></code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>&#39;conv&#39;</code>
+                </span>
+            </p>
           </td>
         </tr>
     </tbody>
@@ -1317,20 +1338,21 @@ If <code>cell='ortho'</code>, return an orthogonal unit cell constructed from th
 
 
 
-  <p><strong>Returns:</strong></p>
   <table>
     <thead>
       <tr>
-        <th>Type</th>
-        <th>Description</th>
+        <th><b>RETURNS</b></th>
+        <th><b>DESCRIPTION</b></th>
       </tr>
     </thead>
     <tbody>
         <tr>
           <td>
-                <code><a class="autorefs autorefs-internal" title="atomlib.atomcell.AtomCell" href="../atomcell/#atomlib.atomcell.AtomCell">AtomCell</a></code>
+              <span class="doc-returns-annotation">
+                  <code><a class="autorefs autorefs-internal" title="atomlib.atomcell.AtomCell" href="../atomcell/#atomlib.atomcell.AtomCell">AtomCell</a></code>
+              </span>
           </td>
-          <td>
+          <td class="doc-returns-details">
             <div class="doc-md-description">
               <p>Periodic wurtzite unit cell</p>
             </div>
@@ -1462,10 +1484,18 @@ If <code>cell='ortho'</code>, return an orthogonal unit cell constructed from th
 
 
 <h2 id="atomlib.make.graphite" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">graphite</span><span class="p">(</span><span class="n">elem</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">cell</span><span class="o">=</span><span class="s1">&#39;conv&#39;</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">graphite</span>
+
 
 </h2>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">graphite</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">elem</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3/library/typing.html#typing.Union">Union</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.types.ElemLike" href="../types/#atomlib.types.ElemLike">ElemLike</a></span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">a</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.types.Num" href="../types/#atomlib.types.Num">Num</a></span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">c</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.types.Num" href="../types/#atomlib.types.Num">Num</a></span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="o">*</span><span class="p">,</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="n">cell</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.make.CellType" href="#atomlib.make.CellType">CellType</a></span> <span class="o">=</span> <span class="s2">&quot;conv&quot;</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="p">)</span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
 
@@ -1547,210 +1577,18 @@ If <code>cell='ortho'</code>, return an orthogonal unit cell constructed from th
 
 
 
-<h2 id="atomlib.make.rocksalt" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">rocksalt</span><span class="p">(</span><span class="n">elems</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">cell</span><span class="o">=</span><span class="s1">&#39;conv&#39;</span><span class="p">)</span></code>
-
-</h2>
-
-
-  <div class="doc doc-contents ">
-  
-      <p>Create a rock salt FCC structure AB. Returns the same cell types as <code>fcc</code>.</p>
-
-
-
-  <p><strong>Parameters:</strong></p>
-  <table>
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Type</th>
-        <th>Description</th>
-        <th>Default</th>
-      </tr>
-    </thead>
-    <tbody>
-        <tr>
-          <td><code>elems</code></td>
-          <td>
-                <code><a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3/library/typing.html#typing.Union">Union</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" title="typing.Sequence" href="https://docs.python.org/3/library/typing.html#typing.Sequence">Sequence</a>[<a class="autorefs autorefs-internal" title="atomlib.types.ElemLike" href="../types/#atomlib.types.ElemLike">ElemLike</a>]]</code>
-          </td>
-          <td>
-            <div class="doc-md-description">
-              <p>Elements to add (e.g. <code>'NaCl'</code> or <code>('Na', 'Cl')</code>)</p>
-            </div>
-          </td>
-          <td>
-              <em>required</em>
-          </td>
-        </tr>
-        <tr>
-          <td><code>a</code></td>
-          <td>
-                <code><a class="autorefs autorefs-internal" title="atomlib.types.Num" href="../types/#atomlib.types.Num">Num</a></code>
-          </td>
-          <td>
-            <div class="doc-md-description">
-              <p>Lattice parameter (Angstrom)</p>
-            </div>
-          </td>
-          <td>
-              <em>required</em>
-          </td>
-        </tr>
-        <tr>
-          <td><code>cell</code></td>
-          <td>
-                <code><a class="autorefs autorefs-internal" title="atomlib.make.CellType" href="#atomlib.make.CellType">CellType</a></code>
-          </td>
-          <td>
-            <div class="doc-md-description">
-              <p>Cell type to return ('conv', 'prim', or 'ortho'). Returns
-    the same cell types as <code>fcc</code>.</p>
-            </div>
-          </td>
-          <td>
-                <code>&#39;conv&#39;</code>
-          </td>
-        </tr>
-    </tbody>
-  </table>
-
-
-
-  <p><strong>Returns:</strong></p>
-  <table>
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-        <tr>
-          <td>
-                <code><a class="autorefs autorefs-internal" title="atomlib.atomcell.AtomCell" href="../atomcell/#atomlib.atomcell.AtomCell">AtomCell</a></code>
-          </td>
-          <td>
-            <div class="doc-md-description">
-              <p>Periodic rocksalt unit cell</p>
-            </div>
-          </td>
-        </tr>
-    </tbody>
-  </table>
-
-          <details class="quote">
-            <summary>Source code in <code>atomlib/make/__init__.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-168">168</a></span>
-<span class="normal"><a href="#__codelineno-0-169">169</a></span>
-<span class="normal"><a href="#__codelineno-0-170">170</a></span>
-<span class="normal"><a href="#__codelineno-0-171">171</a></span>
-<span class="normal"><a href="#__codelineno-0-172">172</a></span>
-<span class="normal"><a href="#__codelineno-0-173">173</a></span>
-<span class="normal"><a href="#__codelineno-0-174">174</a></span>
-<span class="normal"><a href="#__codelineno-0-175">175</a></span>
-<span class="normal"><a href="#__codelineno-0-176">176</a></span>
-<span class="normal"><a href="#__codelineno-0-177">177</a></span>
-<span class="normal"><a href="#__codelineno-0-178">178</a></span>
-<span class="normal"><a href="#__codelineno-0-179">179</a></span>
-<span class="normal"><a href="#__codelineno-0-180">180</a></span>
-<span class="normal"><a href="#__codelineno-0-181">181</a></span>
-<span class="normal"><a href="#__codelineno-0-182">182</a></span>
-<span class="normal"><a href="#__codelineno-0-183">183</a></span>
-<span class="normal"><a href="#__codelineno-0-184">184</a></span>
-<span class="normal"><a href="#__codelineno-0-185">185</a></span>
-<span class="normal"><a href="#__codelineno-0-186">186</a></span>
-<span class="normal"><a href="#__codelineno-0-187">187</a></span>
-<span class="normal"><a href="#__codelineno-0-188">188</a></span>
-<span class="normal"><a href="#__codelineno-0-189">189</a></span>
-<span class="normal"><a href="#__codelineno-0-190">190</a></span>
-<span class="normal"><a href="#__codelineno-0-191">191</a></span>
-<span class="normal"><a href="#__codelineno-0-192">192</a></span>
-<span class="normal"><a href="#__codelineno-0-193">193</a></span>
-<span class="normal"><a href="#__codelineno-0-194">194</a></span>
-<span class="normal"><a href="#__codelineno-0-195">195</a></span>
-<span class="normal"><a href="#__codelineno-0-196">196</a></span>
-<span class="normal"><a href="#__codelineno-0-197">197</a></span>
-<span class="normal"><a href="#__codelineno-0-198">198</a></span>
-<span class="normal"><a href="#__codelineno-0-199">199</a></span>
-<span class="normal"><a href="#__codelineno-0-200">200</a></span>
-<span class="normal"><a href="#__codelineno-0-201">201</a></span>
-<span class="normal"><a href="#__codelineno-0-202">202</a></span>
-<span class="normal"><a href="#__codelineno-0-203">203</a></span>
-<span class="normal"><a href="#__codelineno-0-204">204</a></span>
-<span class="normal"><a href="#__codelineno-0-205">205</a></span>
-<span class="normal"><a href="#__codelineno-0-206">206</a></span>
-<span class="normal"><a href="#__codelineno-0-207">207</a></span>
-<span class="normal"><a href="#__codelineno-0-208">208</a></span>
-<span class="normal"><a href="#__codelineno-0-209">209</a></span>
-<span class="normal"><a href="#__codelineno-0-210">210</a></span>
-<span class="normal"><a href="#__codelineno-0-211">211</a></span>
-<span class="normal"><a href="#__codelineno-0-212">212</a></span>
-<span class="normal"><a href="#__codelineno-0-213">213</a></span>
-<span class="normal"><a href="#__codelineno-0-214">214</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-168"><a id="__codelineno-0-168" name="__codelineno-0-168"></a><span class="k">def</span> <span class="nf">rocksalt</span><span class="p">(</span><span class="n">elems</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">t</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">ElemLike</span><span class="p">]],</span> <span class="n">a</span><span class="p">:</span> <span class="n">Num</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span>
-</span><span id="__span-0-169"><a id="__codelineno-0-169" name="__codelineno-0-169"></a>             <span class="n">cell</span><span class="p">:</span> <span class="n">CellType</span> <span class="o">=</span> <span class="s1">&#39;conv&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AtomCell</span><span class="p">:</span>
-</span><span id="__span-0-170"><a id="__codelineno-0-170" name="__codelineno-0-170"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="__span-0-171"><a id="__codelineno-0-171" name="__codelineno-0-171"></a><span class="sd">    Create a rock salt FCC structure AB. Returns the same cell types as `fcc`.</span>
-</span><span id="__span-0-172"><a id="__codelineno-0-172" name="__codelineno-0-172"></a>
-</span><span id="__span-0-173"><a id="__codelineno-0-173" name="__codelineno-0-173"></a><span class="sd">    Args:</span>
-</span><span id="__span-0-174"><a id="__codelineno-0-174" name="__codelineno-0-174"></a><span class="sd">      elems: Elements to add (e.g. `&#39;NaCl&#39;` or `(&#39;Na&#39;, &#39;Cl&#39;)`)</span>
-</span><span id="__span-0-175"><a id="__codelineno-0-175" name="__codelineno-0-175"></a><span class="sd">      a: Lattice parameter (Angstrom)</span>
-</span><span id="__span-0-176"><a id="__codelineno-0-176" name="__codelineno-0-176"></a><span class="sd">      cell: Cell type to return (&#39;conv&#39;, &#39;prim&#39;, or &#39;ortho&#39;). Returns</span>
-</span><span id="__span-0-177"><a id="__codelineno-0-177" name="__codelineno-0-177"></a><span class="sd">            the same cell types as `fcc`.</span>
-</span><span id="__span-0-178"><a id="__codelineno-0-178" name="__codelineno-0-178"></a>
-</span><span id="__span-0-179"><a id="__codelineno-0-179" name="__codelineno-0-179"></a><span class="sd">    Returns:</span>
-</span><span id="__span-0-180"><a id="__codelineno-0-180" name="__codelineno-0-180"></a><span class="sd">      Periodic rocksalt unit cell</span>
-</span><span id="__span-0-181"><a id="__codelineno-0-181" name="__codelineno-0-181"></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="__span-0-182"><a id="__codelineno-0-182" name="__codelineno-0-182"></a>    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">elems</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-</span><span id="__span-0-183"><a id="__codelineno-0-183" name="__codelineno-0-183"></a>        <span class="n">elems</span> <span class="o">=</span> <span class="n">get_elems</span><span class="p">(</span><span class="n">elems</span><span class="p">)</span>
-</span><span id="__span-0-184"><a id="__codelineno-0-184" name="__codelineno-0-184"></a>    <span class="k">else</span><span class="p">:</span>
-</span><span id="__span-0-185"><a id="__codelineno-0-185" name="__codelineno-0-185"></a>        <span class="n">elems</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">get_elem</span><span class="p">,</span> <span class="n">elems</span><span class="p">))</span>
-</span><span id="__span-0-186"><a id="__codelineno-0-186" name="__codelineno-0-186"></a>
-</span><span id="__span-0-187"><a id="__codelineno-0-187" name="__codelineno-0-187"></a>    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">elems</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
-</span><span id="__span-0-188"><a id="__codelineno-0-188" name="__codelineno-0-188"></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Expected two elements.&quot;</span><span class="p">)</span>
-</span><span id="__span-0-189"><a id="__codelineno-0-189" name="__codelineno-0-189"></a>
-</span><span id="__span-0-190"><a id="__codelineno-0-190" name="__codelineno-0-190"></a>    <span class="k">if</span> <span class="n">cell</span> <span class="o">==</span> <span class="s1">&#39;prim&#39;</span><span class="p">:</span>
-</span><span id="__span-0-191"><a id="__codelineno-0-191" name="__codelineno-0-191"></a>        <span class="n">additional</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">t</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-</span><span id="__span-0-192"><a id="__codelineno-0-192" name="__codelineno-0-192"></a>            <span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="p">[</span><span class="o">-</span><span class="mf">0.5</span><span class="p">],</span>
-</span><span id="__span-0-193"><a id="__codelineno-0-193" name="__codelineno-0-193"></a>            <span class="s1">&#39;y&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">],</span>
-</span><span id="__span-0-194"><a id="__codelineno-0-194" name="__codelineno-0-194"></a>            <span class="s1">&#39;z&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">],</span>
-</span><span id="__span-0-195"><a id="__codelineno-0-195" name="__codelineno-0-195"></a>            <span class="s1">&#39;elem&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">elems</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span>
-</span><span id="__span-0-196"><a id="__codelineno-0-196" name="__codelineno-0-196"></a>        <span class="p">}</span>
-</span><span id="__span-0-197"><a id="__codelineno-0-197" name="__codelineno-0-197"></a>    <span class="k">elif</span> <span class="n">cell</span> <span class="o">==</span> <span class="s1">&#39;ortho&#39;</span><span class="p">:</span>
-</span><span id="__span-0-198"><a id="__codelineno-0-198" name="__codelineno-0-198"></a>        <span class="n">additional</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">t</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-</span><span id="__span-0-199"><a id="__codelineno-0-199" name="__codelineno-0-199"></a>            <span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span>
-</span><span id="__span-0-200"><a id="__codelineno-0-200" name="__codelineno-0-200"></a>            <span class="s1">&#39;y&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span>
-</span><span id="__span-0-201"><a id="__codelineno-0-201" name="__codelineno-0-201"></a>            <span class="s1">&#39;z&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">],</span>
-</span><span id="__span-0-202"><a id="__codelineno-0-202" name="__codelineno-0-202"></a>            <span class="s1">&#39;elem&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">elems</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span>
-</span><span id="__span-0-203"><a id="__codelineno-0-203" name="__codelineno-0-203"></a>        <span class="p">}</span>
-</span><span id="__span-0-204"><a id="__codelineno-0-204" name="__codelineno-0-204"></a>    <span class="k">elif</span> <span class="n">cell</span> <span class="o">==</span> <span class="s1">&#39;conv&#39;</span><span class="p">:</span>
-</span><span id="__span-0-205"><a id="__codelineno-0-205" name="__codelineno-0-205"></a>        <span class="n">additional</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">t</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-</span><span id="__span-0-206"><a id="__codelineno-0-206" name="__codelineno-0-206"></a>            <span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">],</span>
-</span><span id="__span-0-207"><a id="__codelineno-0-207" name="__codelineno-0-207"></a>            <span class="s1">&#39;y&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">],</span>
-</span><span id="__span-0-208"><a id="__codelineno-0-208" name="__codelineno-0-208"></a>            <span class="s1">&#39;z&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">],</span>
-</span><span id="__span-0-209"><a id="__codelineno-0-209" name="__codelineno-0-209"></a>            <span class="s1">&#39;elem&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">elems</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="o">*</span> <span class="mi">4</span><span class="p">,</span>
-</span><span id="__span-0-210"><a id="__codelineno-0-210" name="__codelineno-0-210"></a>        <span class="p">}</span>
-</span><span id="__span-0-211"><a id="__codelineno-0-211" name="__codelineno-0-211"></a>    <span class="k">else</span><span class="p">:</span>
-</span><span id="__span-0-212"><a id="__codelineno-0-212" name="__codelineno-0-212"></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown cell type &#39;</span><span class="si">{</span><span class="n">cell</span><span class="si">}</span><span class="s2">&#39;. Expected &#39;conv&#39;, &#39;prim&#39;, or &#39;ortho&#39;.&quot;</span><span class="p">)</span>
-</span><span id="__span-0-213"><a id="__codelineno-0-213" name="__codelineno-0-213"></a>
-</span><span id="__span-0-214"><a id="__codelineno-0-214" name="__codelineno-0-214"></a>    <span class="k">return</span> <span class="n">fcc</span><span class="p">(</span><span class="n">elems</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">a</span><span class="p">,</span> <span class="n">cell</span><span class="o">=</span><span class="n">cell</span><span class="p">,</span> <span class="n">additional</span><span class="o">=</span><span class="n">additional</span><span class="p">)</span>
-</span></code></pre></div></td></tr></table></div>
-          </details>
-  </div>
-
-</div>
-
-
-<div class="doc doc-object doc-function">
-
-
-
 <h2 id="atomlib.make.zincblende" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">zincblende</span><span class="p">(</span><span class="n">elems</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">cell</span><span class="o">=</span><span class="s1">&#39;conv&#39;</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">zincblende</span>
+
 
 </h2>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">zincblende</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">elems</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3/library/typing.html#typing.Union">Union</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Sequence" href="https://docs.python.org/3/library/typing.html#typing.Sequence">Sequence</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.types.ElemLike" href="../types/#atomlib.types.ElemLike">ElemLike</a></span><span class="p">]],</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">a</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.types.Num" href="../types/#atomlib.types.Num">Num</a></span><span class="p">,</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="o">*</span><span class="p">,</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">cell</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.make.CellType" href="#atomlib.make.CellType">CellType</a></span> <span class="o">=</span> <span class="s2">&quot;conv&quot;</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.atomcell.AtomCell" href="../atomcell/#atomlib.atomcell.AtomCell">AtomCell</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -1758,58 +1596,59 @@ If <code>cell='ortho'</code>, return an orthogonal unit cell constructed from th
 
 
 
-  <p><strong>Parameters:</strong></p>
   <table>
     <thead>
       <tr>
-        <th>Name</th>
-        <th>Type</th>
-        <th>Description</th>
-        <th>Default</th>
+        <th><b>PARAMETER</b></th>
+        <th><b> DESCRIPTION</b></th>
       </tr>
     </thead>
     <tbody>
         <tr>
           <td><code>elems</code></td>
-          <td>
-                <code><a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3/library/typing.html#typing.Union">Union</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" title="typing.Sequence" href="https://docs.python.org/3/library/typing.html#typing.Sequence">Sequence</a>[<a class="autorefs autorefs-internal" title="atomlib.types.ElemLike" href="../types/#atomlib.types.ElemLike">ElemLike</a>]]</code>
-          </td>
-          <td>
+          <td class="doc-param-details">
             <div class="doc-md-description">
               <p>Elements to add (e.g. <code>'ZnS'</code> or <code>('Zn', 'S')</code>)</p>
             </div>
-          </td>
-          <td>
-              <em>required</em>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3/library/typing.html#typing.Union">Union</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" title="typing.Sequence" href="https://docs.python.org/3/library/typing.html#typing.Sequence">Sequence</a>[<a class="autorefs autorefs-internal" title="atomlib.types.ElemLike" href="../types/#atomlib.types.ElemLike">ElemLike</a>]]</code>
+                </span>
+            </p>
           </td>
         </tr>
         <tr>
           <td><code>a</code></td>
-          <td>
-                <code><a class="autorefs autorefs-internal" title="atomlib.types.Num" href="../types/#atomlib.types.Num">Num</a></code>
-          </td>
-          <td>
+          <td class="doc-param-details">
             <div class="doc-md-description">
               <p>Lattice parameter (Angstrom)</p>
             </div>
-          </td>
-          <td>
-              <em>required</em>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-internal" title="atomlib.types.Num" href="../types/#atomlib.types.Num">Num</a></code>
+                </span>
+            </p>
           </td>
         </tr>
         <tr>
           <td><code>cell</code></td>
-          <td>
-                <code><a class="autorefs autorefs-internal" title="atomlib.make.CellType" href="#atomlib.make.CellType">CellType</a></code>
-          </td>
-          <td>
+          <td class="doc-param-details">
             <div class="doc-md-description">
               <p>Cell type to return ('conv', 'prim', or 'ortho'). Returns
     the same cell types as <code>fcc</code>.</p>
             </div>
-          </td>
-          <td>
-                <code>&#39;conv&#39;</code>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-internal" title="atomlib.make.CellType" href="#atomlib.make.CellType">CellType</a></code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>&#39;conv&#39;</code>
+                </span>
+            </p>
           </td>
         </tr>
     </tbody>
@@ -1817,20 +1656,21 @@ If <code>cell='ortho'</code>, return an orthogonal unit cell constructed from th
 
 
 
-  <p><strong>Returns:</strong></p>
   <table>
     <thead>
       <tr>
-        <th>Type</th>
-        <th>Description</th>
+        <th><b>RETURNS</b></th>
+        <th><b>DESCRIPTION</b></th>
       </tr>
     </thead>
     <tbody>
         <tr>
           <td>
-                <code><a class="autorefs autorefs-internal" title="atomlib.atomcell.AtomCell" href="../atomcell/#atomlib.atomcell.AtomCell">AtomCell</a></code>
+              <span class="doc-returns-annotation">
+                  <code><a class="autorefs autorefs-internal" title="atomlib.atomcell.AtomCell" href="../atomcell/#atomlib.atomcell.AtomCell">AtomCell</a></code>
+              </span>
           </td>
-          <td>
+          <td class="doc-returns-details">
             <div class="doc-md-description">
               <p>Periodic zinc-blende unit cell</p>
             </div>
@@ -1948,10 +1788,17 @@ If <code>cell='ortho'</code>, return an orthogonal unit cell constructed from th
 
 
 <h2 id="atomlib.make.diamond" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">diamond</span><span class="p">(</span><span class="n">elem</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">cell</span><span class="o">=</span><span class="s1">&#39;conv&#39;</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">diamond</span>
+
 
 </h2>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">diamond</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">elem</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.types.ElemLike" href="../types/#atomlib.types.ElemLike">ElemLike</a></span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">a</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.types.Num" href="../types/#atomlib.types.Num">Num</a></span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="o">*</span><span class="p">,</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">cell</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.make.CellType" href="#atomlib.make.CellType">CellType</a></span> <span class="o">=</span> <span class="s2">&quot;conv&quot;</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.atomcell.AtomCell" href="../atomcell/#atomlib.atomcell.AtomCell">AtomCell</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -1961,58 +1808,67 @@ must be specified.</p>
 
 
 
-  <p><strong>Parameters:</strong></p>
   <table>
     <thead>
       <tr>
-        <th>Name</th>
-        <th>Type</th>
-        <th>Description</th>
-        <th>Default</th>
+        <th><b>PARAMETER</b></th>
+        <th><b> DESCRIPTION</b></th>
       </tr>
     </thead>
     <tbody>
         <tr>
           <td><code>elem</code></td>
-          <td>
-                <code><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-internal" title="atomlib.types.ElemLike" href="../types/#atomlib.types.ElemLike">ElemLike</a>]</code>
-          </td>
-          <td>
+          <td class="doc-param-details">
             <div class="doc-md-description">
               <p>Element to add (e.g. <code>'C'</code>)</p>
             </div>
-          </td>
-          <td>
-                <code>None</code>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-internal" title="atomlib.types.ElemLike" href="../types/#atomlib.types.ElemLike">ElemLike</a>]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>None</code>
+                </span>
+            </p>
           </td>
         </tr>
         <tr>
           <td><code>a</code></td>
-          <td>
-                <code><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-internal" title="atomlib.types.Num" href="../types/#atomlib.types.Num">Num</a>]</code>
-          </td>
-          <td>
+          <td class="doc-param-details">
             <div class="doc-md-description">
               <p>Lattice parameter (Angstrom)</p>
             </div>
-          </td>
-          <td>
-                <code>None</code>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-internal" title="atomlib.types.Num" href="../types/#atomlib.types.Num">Num</a>]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>None</code>
+                </span>
+            </p>
           </td>
         </tr>
         <tr>
           <td><code>cell</code></td>
-          <td>
-                <code><a class="autorefs autorefs-internal" title="atomlib.make.CellType" href="#atomlib.make.CellType">CellType</a></code>
-          </td>
-          <td>
+          <td class="doc-param-details">
             <div class="doc-md-description">
               <p>Cell type to return ('conv', 'prim', or 'ortho'). Returns
     the same cell types as <code>fcc</code>.</p>
             </div>
-          </td>
-          <td>
-                <code>&#39;conv&#39;</code>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-internal" title="atomlib.make.CellType" href="#atomlib.make.CellType">CellType</a></code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>&#39;conv&#39;</code>
+                </span>
+            </p>
           </td>
         </tr>
     </tbody>
@@ -2020,20 +1876,21 @@ must be specified.</p>
 
 
 
-  <p><strong>Returns:</strong></p>
   <table>
     <thead>
       <tr>
-        <th>Type</th>
-        <th>Description</th>
+        <th><b>RETURNS</b></th>
+        <th><b>DESCRIPTION</b></th>
       </tr>
     </thead>
     <tbody>
         <tr>
           <td>
-                <code><a class="autorefs autorefs-internal" title="atomlib.atomcell.AtomCell" href="../atomcell/#atomlib.atomcell.AtomCell">AtomCell</a></code>
+              <span class="doc-returns-annotation">
+                  <code><a class="autorefs autorefs-internal" title="atomlib.atomcell.AtomCell" href="../atomcell/#atomlib.atomcell.AtomCell">AtomCell</a></code>
+              </span>
           </td>
-          <td>
+          <td class="doc-returns-details">
             <div class="doc-md-description">
               <p>Periodic diamond cubic unit cell</p>
             </div>
@@ -2115,10 +1972,17 @@ must be specified.</p>
 
 
 <h2 id="atomlib.make.fluorite" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">fluorite</span><span class="p">(</span><span class="n">elems</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">cell</span><span class="o">=</span><span class="s1">&#39;conv&#39;</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">fluorite</span>
+
 
 </h2>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">fluorite</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">elems</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3/library/typing.html#typing.Union">Union</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Sequence" href="https://docs.python.org/3/library/typing.html#typing.Sequence">Sequence</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.types.ElemLike" href="../types/#atomlib.types.ElemLike">ElemLike</a></span><span class="p">]],</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">a</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.types.Num" href="../types/#atomlib.types.Num">Num</a></span><span class="p">,</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="o">*</span><span class="p">,</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">cell</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.make.CellType" href="#atomlib.make.CellType">CellType</a></span> <span class="o">=</span> <span class="s2">&quot;conv&quot;</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.atomcell.AtomCell" href="../atomcell/#atomlib.atomcell.AtomCell">AtomCell</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -2126,58 +1990,59 @@ must be specified.</p>
 
 
 
-  <p><strong>Parameters:</strong></p>
   <table>
     <thead>
       <tr>
-        <th>Name</th>
-        <th>Type</th>
-        <th>Description</th>
-        <th>Default</th>
+        <th><b>PARAMETER</b></th>
+        <th><b> DESCRIPTION</b></th>
       </tr>
     </thead>
     <tbody>
         <tr>
           <td><code>elems</code></td>
-          <td>
-                <code><a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3/library/typing.html#typing.Union">Union</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" title="typing.Sequence" href="https://docs.python.org/3/library/typing.html#typing.Sequence">Sequence</a>[<a class="autorefs autorefs-internal" title="atomlib.types.ElemLike" href="../types/#atomlib.types.ElemLike">ElemLike</a>]]</code>
-          </td>
-          <td>
+          <td class="doc-param-details">
             <div class="doc-md-description">
               <p>Elements to add (e.g. <code>'CaF'</code> or <code>('Ca', 'F')</code>)</p>
             </div>
-          </td>
-          <td>
-              <em>required</em>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3/library/typing.html#typing.Union">Union</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" title="typing.Sequence" href="https://docs.python.org/3/library/typing.html#typing.Sequence">Sequence</a>[<a class="autorefs autorefs-internal" title="atomlib.types.ElemLike" href="../types/#atomlib.types.ElemLike">ElemLike</a>]]</code>
+                </span>
+            </p>
           </td>
         </tr>
         <tr>
           <td><code>a</code></td>
-          <td>
-                <code><a class="autorefs autorefs-internal" title="atomlib.types.Num" href="../types/#atomlib.types.Num">Num</a></code>
-          </td>
-          <td>
+          <td class="doc-param-details">
             <div class="doc-md-description">
               <p>Lattice parameter (Angstrom)</p>
             </div>
-          </td>
-          <td>
-              <em>required</em>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-internal" title="atomlib.types.Num" href="../types/#atomlib.types.Num">Num</a></code>
+                </span>
+            </p>
           </td>
         </tr>
         <tr>
           <td><code>cell</code></td>
-          <td>
-                <code><a class="autorefs autorefs-internal" title="atomlib.make.CellType" href="#atomlib.make.CellType">CellType</a></code>
-          </td>
-          <td>
+          <td class="doc-param-details">
             <div class="doc-md-description">
               <p>Cell type to return ('conv', 'prim', or 'ortho'). Returns
     the same cell types as <code>fcc</code>.</p>
             </div>
-          </td>
-          <td>
-                <code>&#39;conv&#39;</code>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-internal" title="atomlib.make.CellType" href="#atomlib.make.CellType">CellType</a></code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>&#39;conv&#39;</code>
+                </span>
+            </p>
           </td>
         </tr>
     </tbody>
@@ -2185,20 +2050,21 @@ must be specified.</p>
 
 
 
-  <p><strong>Returns:</strong></p>
   <table>
     <thead>
       <tr>
-        <th>Type</th>
-        <th>Description</th>
+        <th><b>RETURNS</b></th>
+        <th><b>DESCRIPTION</b></th>
       </tr>
     </thead>
     <tbody>
         <tr>
           <td>
-                <code><a class="autorefs autorefs-internal" title="atomlib.atomcell.AtomCell" href="../atomcell/#atomlib.atomcell.AtomCell">AtomCell</a></code>
+              <span class="doc-returns-annotation">
+                  <code><a class="autorefs autorefs-internal" title="atomlib.atomcell.AtomCell" href="../atomcell/#atomlib.atomcell.AtomCell">AtomCell</a></code>
+              </span>
           </td>
-          <td>
+          <td class="doc-returns-details">
             <div class="doc-md-description">
               <p>Periodic fluorite unit cell</p>
             </div>
@@ -2314,10 +2180,18 @@ must be specified.</p>
 
 
 <h2 id="atomlib.make.cesium_chloride" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">cesium_chloride</span><span class="p">(</span><span class="n">elems</span><span class="o">=</span><span class="s1">&#39;CsCl&#39;</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cell</span><span class="o">=</span><span class="s1">&#39;conv&#39;</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">cesium_chloride</span>
+
 
 </h2>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">cesium_chloride</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">elems</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3/library/typing.html#typing.Union">Union</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Sequence" href="https://docs.python.org/3/library/typing.html#typing.Sequence">Sequence</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.types.ElemLike" href="../types/#atomlib.types.ElemLike">ElemLike</a></span><span class="p">]]</span> <span class="o">=</span> <span class="s2">&quot;CsCl&quot;</span><span class="p">,</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">a</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.types.Num" href="../types/#atomlib.types.Num">Num</a></span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="o">*</span><span class="p">,</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">d</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.types.Num" href="../types/#atomlib.types.Num">Num</a></span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="n">cell</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.make.CellType" href="#atomlib.make.CellType">CellType</a></span> <span class="o">=</span> <span class="s2">&quot;conv&quot;</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.atomcell.AtomCell" href="../atomcell/#atomlib.atomcell.AtomCell">AtomCell</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -2327,72 +2201,85 @@ CsCl is simple cubic, so all cell types are the same.</p>
 
 
 
-  <p><strong>Parameters:</strong></p>
   <table>
     <thead>
       <tr>
-        <th>Name</th>
-        <th>Type</th>
-        <th>Description</th>
-        <th>Default</th>
+        <th><b>PARAMETER</b></th>
+        <th><b> DESCRIPTION</b></th>
       </tr>
     </thead>
     <tbody>
         <tr>
           <td><code>elems</code></td>
-          <td>
-                <code><a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3/library/typing.html#typing.Union">Union</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" title="typing.Sequence" href="https://docs.python.org/3/library/typing.html#typing.Sequence">Sequence</a>[<a class="autorefs autorefs-internal" title="atomlib.types.ElemLike" href="../types/#atomlib.types.ElemLike">ElemLike</a>]]</code>
-          </td>
-          <td>
+          <td class="doc-param-details">
             <div class="doc-md-description">
               <p>Elements to add (e.g. <code>'CsCl'</code> or <code>('Cs', 'Cl')</code>)</p>
             </div>
-          </td>
-          <td>
-                <code>&#39;CsCl&#39;</code>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3/library/typing.html#typing.Union">Union</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" title="typing.Sequence" href="https://docs.python.org/3/library/typing.html#typing.Sequence">Sequence</a>[<a class="autorefs autorefs-internal" title="atomlib.types.ElemLike" href="../types/#atomlib.types.ElemLike">ElemLike</a>]]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>&#39;CsCl&#39;</code>
+                </span>
+            </p>
           </td>
         </tr>
         <tr>
           <td><code>a</code></td>
-          <td>
-                <code><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-internal" title="atomlib.types.Num" href="../types/#atomlib.types.Num">Num</a>]</code>
-          </td>
-          <td>
+          <td class="doc-param-details">
             <div class="doc-md-description">
               <p>Lattice parameter (Angstrom)</p>
             </div>
-          </td>
-          <td>
-                <code>None</code>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-internal" title="atomlib.types.Num" href="../types/#atomlib.types.Num">Num</a>]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>None</code>
+                </span>
+            </p>
           </td>
         </tr>
         <tr>
           <td><code>d</code></td>
-          <td>
-                <code><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-internal" title="atomlib.types.Num" href="../types/#atomlib.types.Num">Num</a>]</code>
-          </td>
-          <td>
+          <td class="doc-param-details">
             <div class="doc-md-description">
               <p>Nearest-neighbor bond distance (Angstrom)</p>
             </div>
-          </td>
-          <td>
-                <code>None</code>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-internal" title="atomlib.types.Num" href="../types/#atomlib.types.Num">Num</a>]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>None</code>
+                </span>
+            </p>
           </td>
         </tr>
         <tr>
           <td><code>cell</code></td>
-          <td>
-                <code><a class="autorefs autorefs-internal" title="atomlib.make.CellType" href="#atomlib.make.CellType">CellType</a></code>
-          </td>
-          <td>
+          <td class="doc-param-details">
             <div class="doc-md-description">
               <p>Cell type to return ('conv', 'prim', or 'ortho').
     All are identical for this structure</p>
             </div>
-          </td>
-          <td>
-                <code>&#39;conv&#39;</code>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-internal" title="atomlib.make.CellType" href="#atomlib.make.CellType">CellType</a></code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>&#39;conv&#39;</code>
+                </span>
+            </p>
           </td>
         </tr>
     </tbody>
@@ -2400,20 +2287,21 @@ CsCl is simple cubic, so all cell types are the same.</p>
 
 
 
-  <p><strong>Returns:</strong></p>
   <table>
     <thead>
       <tr>
-        <th>Type</th>
-        <th>Description</th>
+        <th><b>RETURNS</b></th>
+        <th><b>DESCRIPTION</b></th>
       </tr>
     </thead>
     <tbody>
         <tr>
           <td>
-                <code><a class="autorefs autorefs-internal" title="atomlib.atomcell.AtomCell" href="../atomcell/#atomlib.atomcell.AtomCell">AtomCell</a></code>
+              <span class="doc-returns-annotation">
+                  <code><a class="autorefs autorefs-internal" title="atomlib.atomcell.AtomCell" href="../atomcell/#atomlib.atomcell.AtomCell">AtomCell</a></code>
+              </span>
           </td>
-          <td>
+          <td class="doc-returns-details">
             <div class="doc-md-description">
               <p>Periodic cesium chloride unit cell</p>
             </div>
@@ -2523,10 +2411,17 @@ CsCl is simple cubic, so all cell types are the same.</p>
 
 
 <h2 id="atomlib.make.perovskite" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">perovskite</span><span class="p">(</span><span class="n">elems</span><span class="p">,</span> <span class="n">cell_size</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">cell</span><span class="o">=</span><span class="s1">&#39;conv&#39;</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">perovskite</span>
+
 
 </h2>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">perovskite</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">elems</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3/library/typing.html#typing.Union">Union</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Sequence" href="https://docs.python.org/3/library/typing.html#typing.Sequence">Sequence</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.types.ElemLike" href="../types/#atomlib.types.ElemLike">ElemLike</a></span><span class="p">]],</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">cell_size</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.types.VecLike" href="../types/#atomlib.types.VecLike">VecLike</a></span><span class="p">,</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="o">*</span><span class="p">,</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">cell</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.make.CellType" href="#atomlib.make.CellType">CellType</a></span> <span class="o">=</span> <span class="s2">&quot;conv&quot;</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.atomcell.AtomCell" href="../atomcell/#atomlib.atomcell.AtomCell">AtomCell</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -2541,59 +2436,60 @@ has no effect.</p>
 
 
 
-  <p><strong>Parameters:</strong></p>
   <table>
     <thead>
       <tr>
-        <th>Name</th>
-        <th>Type</th>
-        <th>Description</th>
-        <th>Default</th>
+        <th><b>PARAMETER</b></th>
+        <th><b> DESCRIPTION</b></th>
       </tr>
     </thead>
     <tbody>
         <tr>
           <td><code>elems</code></td>
-          <td>
-                <code><a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3/library/typing.html#typing.Union">Union</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" title="typing.Sequence" href="https://docs.python.org/3/library/typing.html#typing.Sequence">Sequence</a>[<a class="autorefs autorefs-internal" title="atomlib.types.ElemLike" href="../types/#atomlib.types.ElemLike">ElemLike</a>]]</code>
-          </td>
-          <td>
+          <td class="doc-param-details">
             <div class="doc-md-description">
               <p>Elements to add (e.g. <code>'CaTiO'</code> or <code>('Ca', 'Ti', 'O')</code>)</p>
             </div>
-          </td>
-          <td>
-              <em>required</em>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3/library/typing.html#typing.Union">Union</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" title="typing.Sequence" href="https://docs.python.org/3/library/typing.html#typing.Sequence">Sequence</a>[<a class="autorefs autorefs-internal" title="atomlib.types.ElemLike" href="../types/#atomlib.types.ElemLike">ElemLike</a>]]</code>
+                </span>
+            </p>
           </td>
         </tr>
         <tr>
           <td><code>cell_size</code></td>
-          <td>
-                <code><a class="autorefs autorefs-internal" title="atomlib.types.VecLike" href="../types/#atomlib.types.VecLike">VecLike</a></code>
-          </td>
-          <td>
+          <td class="doc-param-details">
             <div class="doc-md-description">
               <p>Lattice parameters (e.g. <code>3.0</code> (cubic), <code>[3.0, 5.0]</code>
          (tetragonal), or <code>[3.0, 4.0, 5.0]</code> (orthorhombic)).</p>
             </div>
-          </td>
-          <td>
-              <em>required</em>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-internal" title="atomlib.types.VecLike" href="../types/#atomlib.types.VecLike">VecLike</a></code>
+                </span>
+            </p>
           </td>
         </tr>
         <tr>
           <td><code>cell</code></td>
-          <td>
-                <code><a class="autorefs autorefs-internal" title="atomlib.make.CellType" href="#atomlib.make.CellType">CellType</a></code>
-          </td>
-          <td>
+          <td class="doc-param-details">
             <div class="doc-md-description">
               <p>Cell type to return ('conv', 'prim', or 'ortho').
     All are identical for this structure</p>
             </div>
-          </td>
-          <td>
-                <code>&#39;conv&#39;</code>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-internal" title="atomlib.make.CellType" href="#atomlib.make.CellType">CellType</a></code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>&#39;conv&#39;</code>
+                </span>
+            </p>
           </td>
         </tr>
     </tbody>
@@ -2601,20 +2497,21 @@ has no effect.</p>
 
 
 
-  <p><strong>Returns:</strong></p>
   <table>
     <thead>
       <tr>
-        <th>Type</th>
-        <th>Description</th>
+        <th><b>RETURNS</b></th>
+        <th><b>DESCRIPTION</b></th>
       </tr>
     </thead>
     <tbody>
         <tr>
           <td>
-                <code><a class="autorefs autorefs-internal" title="atomlib.atomcell.AtomCell" href="../atomcell/#atomlib.atomcell.AtomCell">AtomCell</a></code>
+              <span class="doc-returns-annotation">
+                  <code><a class="autorefs autorefs-internal" title="atomlib.atomcell.AtomCell" href="../atomcell/#atomlib.atomcell.AtomCell">AtomCell</a></code>
+              </span>
           </td>
-          <td>
+          <td class="doc-returns-details">
             <div class="doc-md-description">
               <p>Periodic perovskite unit cell.</p>
             </div>
@@ -2734,10 +2631,18 @@ has no effect.</p>
 
 
 <h2 id="atomlib.make.random" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">random</span><span class="p">(</span><span class="n">cell</span><span class="p">,</span> <span class="n">elem</span><span class="p">,</span> <span class="n">density</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">extra_cols</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">random</span>
+
 
 </h2>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">random</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">cell</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3/library/typing.html#typing.Union">Union</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.cell.Cell" href="../cell/#atomlib.cell.Cell">Cell</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.types.VecLike" href="../types/#atomlib.types.VecLike">VecLike</a></span><span class="p">],</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">elem</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.types.ElemLike" href="../types/#atomlib.types.ElemLike">ElemLike</a></span><span class="p">,</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">density</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></span><span class="p">,</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">seed</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#object">object</a></span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="o">**</span><span class="n">extra_cols</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3/library/typing.html#typing.Any">Any</a></span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.atomcell.AtomCell" href="../atomcell/#atomlib.atomcell.AtomCell">AtomCell</a></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -2746,71 +2651,76 @@ has no effect.</p>
 
 
 
-  <p><strong>Parameters:</strong></p>
   <table>
     <thead>
       <tr>
-        <th>Name</th>
-        <th>Type</th>
-        <th>Description</th>
-        <th>Default</th>
+        <th><b>PARAMETER</b></th>
+        <th><b> DESCRIPTION</b></th>
       </tr>
     </thead>
     <tbody>
         <tr>
           <td><code>elem</code></td>
-          <td>
-                <code><a class="autorefs autorefs-internal" title="atomlib.types.ElemLike" href="../types/#atomlib.types.ElemLike">ElemLike</a></code>
-          </td>
-          <td>
+          <td class="doc-param-details">
             <div class="doc-md-description">
               <p>Element to add (e.g. <code>'C'</code> or <code>6</code>)</p>
             </div>
-          </td>
-          <td>
-              <em>required</em>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-internal" title="atomlib.types.ElemLike" href="../types/#atomlib.types.ElemLike">ElemLike</a></code>
+                </span>
+            </p>
           </td>
         </tr>
         <tr>
           <td><code>density</code></td>
-          <td>
-                <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></code>
-          </td>
-          <td>
+          <td class="doc-param-details">
             <div class="doc-md-description">
               <p>Mean mass density to target (g/cm^3)</p>
             </div>
-          </td>
-          <td>
-              <em>required</em>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></code>
+                </span>
+            </p>
           </td>
         </tr>
         <tr>
           <td><code>seed</code></td>
-          <td>
-                <code><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#object">object</a>]</code>
-          </td>
-          <td>
+          <td class="doc-param-details">
             <div class="doc-md-description">
               <p>Deterministic random seed to add (any object)</p>
             </div>
-          </td>
-          <td>
-                <code>None</code>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#object">object</a>]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>None</code>
+                </span>
+            </p>
           </td>
         </tr>
         <tr>
           <td><code>extra_cols</code></td>
-          <td>
-                <code><a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3/library/typing.html#typing.Any">Any</a></code>
-          </td>
-          <td>
+          <td class="doc-param-details">
             <div class="doc-md-description">
               <p>Extra parameters to add to each atom</p>
             </div>
-          </td>
-          <td>
-                <code>{}</code>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3/library/typing.html#typing.Any">Any</a></code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>{}</code>
+                </span>
+            </p>
           </td>
         </tr>
     </tbody>
@@ -2818,20 +2728,21 @@ has no effect.</p>
 
 
 
-  <p><strong>Returns:</strong></p>
   <table>
     <thead>
       <tr>
-        <th>Type</th>
-        <th>Description</th>
+        <th><b>RETURNS</b></th>
+        <th><b>DESCRIPTION</b></th>
       </tr>
     </thead>
     <tbody>
         <tr>
           <td>
-                <code><a class="autorefs autorefs-internal" title="atomlib.atomcell.AtomCell" href="../atomcell/#atomlib.atomcell.AtomCell">AtomCell</a></code>
+              <span class="doc-returns-annotation">
+                  <code><a class="autorefs autorefs-internal" title="atomlib.atomcell.AtomCell" href="../atomcell/#atomlib.atomcell.AtomCell">AtomCell</a></code>
+              </span>
           </td>
-          <td>
+          <td class="doc-returns-details">
             <div class="doc-md-description">
               <p>A random arrangement of atoms</p>
             </div>
@@ -2919,10 +2830,19 @@ has no effect.</p>
 
 
 <h2 id="atomlib.make.slab" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">slab</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span> <span class="n">zone</span><span class="o">=</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span> <span class="n">horz</span><span class="o">=</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="o">*</span><span class="p">,</span> <span class="n">max_n</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">0.001</span><span class="p">)</span></code>
+          <span class="doc doc-object-name doc-function-name">slab</span>
+
 
 </h2>
-
+<div class="doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">slab</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">atoms</span><span class="p">:</span> <span class="n"><span title="atomlib.atomcell.HasAtomCellT">HasAtomCellT</span></span><span class="p">,</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">zone</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.types.VecLike" href="../types/#atomlib.types.VecLike">VecLike</a></span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">horz</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.types.VecLike" href="../types/#atomlib.types.VecLike">VecLike</a></span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="o">*</span><span class="p">,</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="n">max_n</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span> <span class="o">=</span> <span class="mi">50</span><span class="p">,</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="n">tol</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></span> <span class="o">=</span> <span class="mf">0.001</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="atomlib.atomcell.HasAtomCellT">HasAtomCellT</span></span>
+</span></code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -2934,85 +2854,98 @@ and no more than <code>max_n</code> cells on one side.</p>
 
 
 
-  <p><strong>Parameters:</strong></p>
   <table>
     <thead>
       <tr>
-        <th>Name</th>
-        <th>Type</th>
-        <th>Description</th>
-        <th>Default</th>
+        <th><b>PARAMETER</b></th>
+        <th><b> DESCRIPTION</b></th>
       </tr>
     </thead>
     <tbody>
         <tr>
           <td><code>atoms</code></td>
-          <td>
-                <code><a class="autorefs autorefs-internal" title="atomlib.atomcell.HasAtomCellT" href="../atomcell/#atomlib.atomcell.HasAtomCellT">HasAtomCellT</a></code>
-          </td>
-          <td>
+          <td class="doc-param-details">
             <div class="doc-md-description">
               <p>Input structure</p>
             </div>
-          </td>
-          <td>
-              <em>required</em>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><span title="atomlib.atomcell.HasAtomCellT">HasAtomCellT</span></code>
+                </span>
+            </p>
           </td>
         </tr>
         <tr>
           <td><code>zone</code></td>
-          <td>
-                <code><a class="autorefs autorefs-internal" title="atomlib.types.VecLike" href="../types/#atomlib.types.VecLike">VecLike</a></code>
-          </td>
-          <td>
+          <td class="doc-param-details">
             <div class="doc-md-description">
               <p>Zone to align with the +z-axis</p>
             </div>
-          </td>
-          <td>
-                <code>(0.0, 0.0, 1.0)</code>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-internal" title="atomlib.types.VecLike" href="../types/#atomlib.types.VecLike">VecLike</a></code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>(0.0, 0.0, 1.0)</code>
+                </span>
+            </p>
           </td>
         </tr>
         <tr>
           <td><code>horz</code></td>
-          <td>
-                <code><a class="autorefs autorefs-internal" title="atomlib.types.VecLike" href="../types/#atomlib.types.VecLike">VecLike</a></code>
-          </td>
-          <td>
+          <td class="doc-param-details">
             <div class="doc-md-description">
               <p>Zone to align with the +x-axis</p>
             </div>
-          </td>
-          <td>
-                <code>(1.0, 0.0, 0.0)</code>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-internal" title="atomlib.types.VecLike" href="../types/#atomlib.types.VecLike">VecLike</a></code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>(1.0, 0.0, 0.0)</code>
+                </span>
+            </p>
           </td>
         </tr>
         <tr>
           <td><code>max_n</code></td>
-          <td>
-                <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></code>
-          </td>
-          <td>
+          <td class="doc-param-details">
             <div class="doc-md-description">
               <p>Maximum number of unit cells to search</p>
             </div>
-          </td>
-          <td>
-                <code>50</code>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>50</code>
+                </span>
+            </p>
           </td>
         </tr>
         <tr>
           <td><code>tol</code></td>
-          <td>
-                <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></code>
-          </td>
-          <td>
+          <td class="doc-param-details">
             <div class="doc-md-description">
               <p>Maximum strain tolerance</p>
             </div>
-          </td>
-          <td>
-                <code>0.001</code>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>0.001</code>
+                </span>
+            </p>
           </td>
         </tr>
     </tbody>
@@ -3020,20 +2953,21 @@ and no more than <code>max_n</code> cells on one side.</p>
 
 
 
-  <p><strong>Returns:</strong></p>
   <table>
     <thead>
       <tr>
-        <th>Type</th>
-        <th>Description</th>
+        <th><b>RETURNS</b></th>
+        <th><b>DESCRIPTION</b></th>
       </tr>
     </thead>
     <tbody>
         <tr>
           <td>
-                <code><a class="autorefs autorefs-internal" title="atomlib.atomcell.HasAtomCellT" href="../atomcell/#atomlib.atomcell.HasAtomCellT">HasAtomCellT</a></code>
+              <span class="doc-returns-annotation">
+                  <code><span title="atomlib.atomcell.HasAtomCellT">HasAtomCellT</span></code>
+              </span>
           </td>
-          <td>
+          <td class="doc-returns-details">
             <div class="doc-md-description">
               <p>A periodic, orthogonal cell</p>
             </div>
@@ -3181,208 +3115,6 @@ and no more than <code>max_n</code> cells on one side.</p>
 </span><span id="__span-0-571"><a id="__codelineno-0-571" name="__codelineno-0-571"></a>    <span class="n">raw_atoms</span> <span class="o">=</span> <span class="n">raw_atoms</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">cell</span><span class="o">.</span><span class="n">get_transform</span><span class="p">(</span><span class="s1">&#39;cell&#39;</span><span class="p">,</span> <span class="s1">&#39;local&#39;</span><span class="p">))</span>
 </span><span id="__span-0-572"><a id="__codelineno-0-572" name="__codelineno-0-572"></a>    <span class="n">cell</span> <span class="o">=</span> <span class="n">cell</span><span class="o">.</span><span class="n">strain_orthogonal</span><span class="p">()</span>
 </span><span id="__span-0-573"><a id="__codelineno-0-573" name="__codelineno-0-573"></a>    <span class="k">return</span> <span class="n">atoms</span><span class="o">.</span><span class="n">with_cell</span><span class="p">(</span><span class="n">cell</span><span class="p">)</span><span class="o">.</span><span class="n">with_atoms</span><span class="p">(</span><span class="n">raw_atoms</span><span class="p">,</span> <span class="s1">&#39;cell&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">crop_to_box</span><span class="p">()</span>
-</span></code></pre></div></td></tr></table></div>
-          </details>
-  </div>
-
-</div>
-
-
-<div class="doc doc-object doc-function">
-
-
-
-<h2 id="atomlib.make.stacking_sequence" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">stacking_sequence</span><span class="p">(</span><span class="n">layer</span><span class="p">,</span> <span class="n">sequence</span><span class="p">,</span> <span class="n">shift_vector</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="o">*</span><span class="p">,</span> <span class="n">n_layers</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span></code>
-
-</h2>
-
-
-  <div class="doc doc-contents ">
-  
-      <p>Create an arbitrary stacking sequence from a single layer <code>layer</code>.</p>
-
-
-
-  <p><strong>Parameters:</strong></p>
-  <table>
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Type</th>
-        <th>Description</th>
-        <th>Default</th>
-      </tr>
-    </thead>
-    <tbody>
-        <tr>
-          <td><code>layer</code></td>
-          <td>
-                <code><a class="autorefs autorefs-internal" title="atomlib.atomcell.AtomCell" href="../atomcell/#atomlib.atomcell.AtomCell">AtomCell</a></code>
-          </td>
-          <td>
-            <div class="doc-md-description">
-              <p>Layer to stack into a stacking sequence. Will be stacked along the c axis.</p>
-            </div>
-          </td>
-          <td>
-              <em>required</em>
-          </td>
-        </tr>
-        <tr>
-          <td><code>sequence</code></td>
-          <td>
-                <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></code>
-          </td>
-          <td>
-            <div class="doc-md-description">
-              <p>Stacking sequence. Each layer should be "A", "B", or "C" (in the common case
-        where there are three layers). Example: <code>"ABCABC"</code>.</p>
-            </div>
-          </td>
-          <td>
-              <em>required</em>
-          </td>
-        </tr>
-        <tr>
-          <td><code>shift_vector</code></td>
-          <td>
-                <code><a class="autorefs autorefs-internal" title="atomlib.types.VecLike" href="../types/#atomlib.types.VecLike">VecLike</a></code>
-          </td>
-          <td>
-            <div class="doc-md-description">
-              <p>Shift to apply, in fractional coordinates. The shift between each layer
-            will be <code>shift_vector/n_layers</code>. Typically an integer value, to
-            preserve periodicity. Defaults to <code>[100]</code>.</p>
-            </div>
-          </td>
-          <td>
-                <code>(1, 0, 0)</code>
-          </td>
-        </tr>
-        <tr>
-          <td><code>n_layers</code></td>
-          <td>
-                <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></code>
-          </td>
-          <td>
-            <div class="doc-md-description">
-              <p>Number of layers which corresponds to a shift of a complete lattice vector.
-        Defaults to <code>3</code>, the case for FCC and HCP.</p>
-            </div>
-          </td>
-          <td>
-                <code>3</code>
-          </td>
-        </tr>
-    </tbody>
-  </table>
-
-
-
-  <p><strong>Returns:</strong></p>
-  <table>
-    <thead>
-      <tr>
-        <th>Type</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-        <tr>
-          <td>
-                <code><a class="autorefs autorefs-internal" title="atomlib.atomcell.AtomCell" href="../atomcell/#atomlib.atomcell.AtomCell">AtomCell</a></code>
-          </td>
-          <td>
-            <div class="doc-md-description">
-              <p>An <a class="autorefs autorefs-internal" href="../atomcell/#atomlib.atomcell.AtomCell"><code>AtomCell</code></a> containing the stacked structure.</p>
-            </div>
-          </td>
-        </tr>
-    </tbody>
-  </table>
-
-          <details class="quote">
-            <summary>Source code in <code>atomlib/make/__init__.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-576">576</a></span>
-<span class="normal"><a href="#__codelineno-0-577">577</a></span>
-<span class="normal"><a href="#__codelineno-0-578">578</a></span>
-<span class="normal"><a href="#__codelineno-0-579">579</a></span>
-<span class="normal"><a href="#__codelineno-0-580">580</a></span>
-<span class="normal"><a href="#__codelineno-0-581">581</a></span>
-<span class="normal"><a href="#__codelineno-0-582">582</a></span>
-<span class="normal"><a href="#__codelineno-0-583">583</a></span>
-<span class="normal"><a href="#__codelineno-0-584">584</a></span>
-<span class="normal"><a href="#__codelineno-0-585">585</a></span>
-<span class="normal"><a href="#__codelineno-0-586">586</a></span>
-<span class="normal"><a href="#__codelineno-0-587">587</a></span>
-<span class="normal"><a href="#__codelineno-0-588">588</a></span>
-<span class="normal"><a href="#__codelineno-0-589">589</a></span>
-<span class="normal"><a href="#__codelineno-0-590">590</a></span>
-<span class="normal"><a href="#__codelineno-0-591">591</a></span>
-<span class="normal"><a href="#__codelineno-0-592">592</a></span>
-<span class="normal"><a href="#__codelineno-0-593">593</a></span>
-<span class="normal"><a href="#__codelineno-0-594">594</a></span>
-<span class="normal"><a href="#__codelineno-0-595">595</a></span>
-<span class="normal"><a href="#__codelineno-0-596">596</a></span>
-<span class="normal"><a href="#__codelineno-0-597">597</a></span>
-<span class="normal"><a href="#__codelineno-0-598">598</a></span>
-<span class="normal"><a href="#__codelineno-0-599">599</a></span>
-<span class="normal"><a href="#__codelineno-0-600">600</a></span>
-<span class="normal"><a href="#__codelineno-0-601">601</a></span>
-<span class="normal"><a href="#__codelineno-0-602">602</a></span>
-<span class="normal"><a href="#__codelineno-0-603">603</a></span>
-<span class="normal"><a href="#__codelineno-0-604">604</a></span>
-<span class="normal"><a href="#__codelineno-0-605">605</a></span>
-<span class="normal"><a href="#__codelineno-0-606">606</a></span>
-<span class="normal"><a href="#__codelineno-0-607">607</a></span>
-<span class="normal"><a href="#__codelineno-0-608">608</a></span>
-<span class="normal"><a href="#__codelineno-0-609">609</a></span>
-<span class="normal"><a href="#__codelineno-0-610">610</a></span>
-<span class="normal"><a href="#__codelineno-0-611">611</a></span>
-<span class="normal"><a href="#__codelineno-0-612">612</a></span>
-<span class="normal"><a href="#__codelineno-0-613">613</a></span>
-<span class="normal"><a href="#__codelineno-0-614">614</a></span>
-<span class="normal"><a href="#__codelineno-0-615">615</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-576"><a id="__codelineno-0-576" name="__codelineno-0-576"></a><span class="k">def</span> <span class="nf">stacking_sequence</span><span class="p">(</span><span class="n">layer</span><span class="p">:</span> <span class="n">AtomCell</span><span class="p">,</span> <span class="n">sequence</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">shift_vector</span><span class="p">:</span> <span class="n">VecLike</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="o">*</span><span class="p">,</span>
-</span><span id="__span-0-577"><a id="__codelineno-0-577" name="__codelineno-0-577"></a>                      <span class="n">n_layers</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AtomCell</span><span class="p">:</span>
-</span><span id="__span-0-578"><a id="__codelineno-0-578" name="__codelineno-0-578"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="__span-0-579"><a id="__codelineno-0-579" name="__codelineno-0-579"></a><span class="sd">    Create an arbitrary stacking sequence from a single layer `layer`.</span>
-</span><span id="__span-0-580"><a id="__codelineno-0-580" name="__codelineno-0-580"></a>
-</span><span id="__span-0-581"><a id="__codelineno-0-581" name="__codelineno-0-581"></a><span class="sd">    Args:</span>
-</span><span id="__span-0-582"><a id="__codelineno-0-582" name="__codelineno-0-582"></a><span class="sd">      layer: Layer to stack into a stacking sequence. Will be stacked along the c axis.</span>
-</span><span id="__span-0-583"><a id="__codelineno-0-583" name="__codelineno-0-583"></a><span class="sd">      sequence: Stacking sequence. Each layer should be &quot;A&quot;, &quot;B&quot;, or &quot;C&quot; (in the common case</span>
-</span><span id="__span-0-584"><a id="__codelineno-0-584" name="__codelineno-0-584"></a><span class="sd">                where there are three layers). Example: `&quot;ABCABC&quot;`.</span>
-</span><span id="__span-0-585"><a id="__codelineno-0-585" name="__codelineno-0-585"></a><span class="sd">      shift_vector: Shift to apply, in fractional coordinates. The shift between each layer</span>
-</span><span id="__span-0-586"><a id="__codelineno-0-586" name="__codelineno-0-586"></a><span class="sd">                    will be `shift_vector/n_layers`. Typically an integer value, to</span>
-</span><span id="__span-0-587"><a id="__codelineno-0-587" name="__codelineno-0-587"></a><span class="sd">                    preserve periodicity. Defaults to `[100]`.</span>
-</span><span id="__span-0-588"><a id="__codelineno-0-588" name="__codelineno-0-588"></a><span class="sd">      n_layers: Number of layers which corresponds to a shift of a complete lattice vector.</span>
-</span><span id="__span-0-589"><a id="__codelineno-0-589" name="__codelineno-0-589"></a><span class="sd">                Defaults to `3`, the case for FCC and HCP.</span>
-</span><span id="__span-0-590"><a id="__codelineno-0-590" name="__codelineno-0-590"></a>
-</span><span id="__span-0-591"><a id="__codelineno-0-591" name="__codelineno-0-591"></a><span class="sd">    Returns:</span>
-</span><span id="__span-0-592"><a id="__codelineno-0-592" name="__codelineno-0-592"></a><span class="sd">     An [`AtomCell`][atomlib.atomcell.AtomCell] containing the stacked structure.</span>
-</span><span id="__span-0-593"><a id="__codelineno-0-593" name="__codelineno-0-593"></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="__span-0-594"><a id="__codelineno-0-594" name="__codelineno-0-594"></a>
-</span><span id="__span-0-595"><a id="__codelineno-0-595" name="__codelineno-0-595"></a>    <span class="n">layers</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">ascii_uppercase</span><span class="p">[:</span><span class="n">n_layers</span><span class="p">]</span>
-</span><span id="__span-0-596"><a id="__codelineno-0-596" name="__codelineno-0-596"></a>
-</span><span id="__span-0-597"><a id="__codelineno-0-597" name="__codelineno-0-597"></a>    <span class="c1"># TODO generalize this to arbitrary number of layers</span>
-</span><span id="__span-0-598"><a id="__codelineno-0-598" name="__codelineno-0-598"></a>    <span class="n">sequence</span> <span class="o">=</span> <span class="n">sequence</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
-</span><span id="__span-0-599"><a id="__codelineno-0-599" name="__codelineno-0-599"></a>    <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">s</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">layers</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">sequence</span><span class="p">):</span>
-</span><span id="__span-0-600"><a id="__codelineno-0-600" name="__codelineno-0-600"></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid sequence &#39;</span><span class="si">{</span><span class="n">sequence</span><span class="si">}</span><span class="s2">&#39;. Expected values in &#39;</span><span class="si">{</span><span class="n">layers</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
-</span><span id="__span-0-601"><a id="__codelineno-0-601" name="__codelineno-0-601"></a>
-</span><span id="__span-0-602"><a id="__codelineno-0-602" name="__codelineno-0-602"></a>    <span class="c1"># c vector to shift along</span>
-</span><span id="__span-0-603"><a id="__codelineno-0-603" name="__codelineno-0-603"></a>    <span class="n">c_vec</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">to_ortho</span><span class="p">()</span><span class="o">.</span><span class="n">transform_vec</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
-</span><span id="__span-0-604"><a id="__codelineno-0-604" name="__codelineno-0-604"></a>    <span class="c1"># new cell is original cell tiled by the number of layers</span>
-</span><span id="__span-0-605"><a id="__codelineno-0-605" name="__codelineno-0-605"></a>    <span class="n">cell</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">get_cell</span><span class="p">()</span><span class="o">.</span><span class="n">repeat</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">sequence</span><span class="p">)])</span>
-</span><span id="__span-0-606"><a id="__codelineno-0-606" name="__codelineno-0-606"></a>
-</span><span id="__span-0-607"><a id="__codelineno-0-607" name="__codelineno-0-607"></a>    <span class="c1"># convert shift_vector to local coordinates</span>
-</span><span id="__span-0-608"><a id="__codelineno-0-608" name="__codelineno-0-608"></a>    <span class="n">shift_vector</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">get_cell</span><span class="p">()</span><span class="o">.</span><span class="n">get_transform</span><span class="p">(</span><span class="s1">&#39;local&#39;</span><span class="p">,</span> <span class="s1">&#39;cell_frac&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">transform_vec</span><span class="p">(</span><span class="n">shift_vector</span><span class="p">)</span>
-</span><span id="__span-0-609"><a id="__codelineno-0-609" name="__codelineno-0-609"></a>
-</span><span id="__span-0-610"><a id="__codelineno-0-610" name="__codelineno-0-610"></a>    <span class="n">atoms</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">get_atoms</span><span class="p">(</span><span class="s1">&#39;local&#39;</span><span class="p">)</span>
-</span><span id="__span-0-611"><a id="__codelineno-0-611" name="__codelineno-0-611"></a>    <span class="k">return</span> <span class="n">AtomCell</span><span class="p">(</span><span class="n">Atoms</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
-</span><span id="__span-0-612"><a id="__codelineno-0-612" name="__codelineno-0-612"></a>        <span class="c1"># translate by the shift vector and translate to the correct layer</span>
-</span><span id="__span-0-613"><a id="__codelineno-0-613" name="__codelineno-0-613"></a>        <span class="n">atoms</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">AffineTransform3D</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">shift_vector</span> <span class="o">*</span> <span class="p">(</span><span class="n">layers</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">c</span><span class="p">))</span> <span class="o">/</span> <span class="n">n_layers</span> <span class="o">+</span> <span class="n">i</span><span class="o">*</span><span class="n">c_vec</span><span class="p">))</span>
-</span><span id="__span-0-614"><a id="__codelineno-0-614" name="__codelineno-0-614"></a>        <span class="k">for</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">sequence</span><span class="p">)</span>
-</span><span id="__span-0-615"><a id="__codelineno-0-615" name="__codelineno-0-615"></a>    <span class="p">),</span> <span class="n">cell</span><span class="p">)</span><span class="o">.</span><span class="n">wrap</span><span class="p">()</span>
 </span></code></pre></div></td></tr></table></div>
           </details>
   </div>
