@@ -1,9 +1,9 @@
 """
 Raw atoms collection
 
-This module defines [`Atoms`][atomlib.atoms.Atoms], which holds a collection of atoms
-with no cell or periodicity. [`Atoms`][atomlib.atoms.Atoms] is essentially a wrapper
-around a [`polars.DataFrame`][polars.DataFrame].
+This module defines [`HasAtoms`][atomlib.atoms.HasAtoms] and the concrete [`Atoms`][atomlib.atoms.Atoms],
+which holds a collection of atoms with no cell or periodicity. [`Atoms`][atomlib.atoms.Atoms]
+is essentially a wrapper around a [`polars.DataFrame`][polars.DataFrame].
 
 [polars.DataFrame]: https://docs.pola.rs/py-polars/html/reference/dataframe/index.html
 [polars.Series]: https://docs.pola.rs/py-polars/html/reference/series/index.html
@@ -36,6 +36,10 @@ from .transform import Transform3D, IntoTransform3D, AffineTransform3D
 from .cell import Cell
 from .mixins import AtomsIOMixin
 
+# pyright: reportImportCycles=false
+if t.TYPE_CHECKING:  # pragma: no cover
+    from .atomcell import AtomCell
+
 
 _COLUMN_DTYPES: t.Mapping[str, t.Union[polars.DataType, t.Type[polars.DataType]]] = {
     'coords': polars.Array(polars.Float64, 3),
@@ -49,35 +53,6 @@ _COLUMN_DTYPES: t.Mapping[str, t.Union[polars.DataType, t.Type[polars.DataType]]
     'symbol': polars.Utf8,
 }
 _REQUIRED_COLUMNS: t.Tuple[str, ...] = ('coords', 'elem', 'symbol')
-
-SchemaDict: TypeAlias = OrderedDict[str, polars.DataType]
-IntoExprColumn: TypeAlias = polars.type_aliases.IntoExprColumn
-IntoExpr: TypeAlias = polars.type_aliases.IntoExpr
-UniqueKeepStrategy: TypeAlias = polars.type_aliases.UniqueKeepStrategy
-FillNullStrategy: TypeAlias = polars.type_aliases.FillNullStrategy
-RollingInterpolationMethod: TypeAlias = polars.type_aliases.RollingInterpolationMethod
-ConcatMethod: TypeAlias = t.Literal['horizontal', 'vertical', 'diagonal', 'inner', 'align']
-
-IntoAtoms = t.Union[t.Dict[str, t.Sequence[t.Any]], t.Sequence[t.Any], numpy.ndarray, polars.DataFrame, 'Atoms']
-"""
-A type convertible into an `Atoms`.
-"""
-
-AtomSelection = t.Union[IntoExprColumn, NDArray[numpy.bool_], ArrayLike, t.Mapping[str, t.Any]]
-"""
-Polars expression selecting a subset of atoms from an Atoms.
-Can be used with many Atoms methods.
-"""
-
-AtomValues = t.Union[IntoExprColumn, NDArray[numpy.generic], ArrayLike, t.Mapping[str, t.Any]]
-"""
-Array, value, or polars expression mapping atom symbols to values.
-Can be used with `with_*` methods on Atoms
-"""
-
-# pyright: reportImportCycles=false
-if t.TYPE_CHECKING:  # pragma: no cover
-    from .atomcell import AtomCell
 
 
 def _is_abstract(cls: t.Type) -> bool:
@@ -145,7 +120,7 @@ def _selection_to_numpy(df: t.Union[polars.DataFrame, HasAtoms], selection: t.Op
 
 def _select_schema(df: t.Union[polars.DataFrame, HasAtoms], schema: SchemaDict) -> polars.DataFrame:
     """
-    Select columns from ``self`` and cast to the given schema.
+    Select columns from `self` and cast to the given schema.
     """
     try:
         return df.select([
@@ -210,18 +185,38 @@ class HasAtoms(abc.ABC):
 
     @abc.abstractmethod
     def get_atoms(self, frame: t.Literal['local'] = 'local') -> Atoms:
-        """Get atoms contained in `self`. This should be a low cost method."""
+        """
+        Get atoms contained in `self`. This should be a low cost method.
+
+        Args:
+          frame: Coordinate frame to return atoms in. For a plain [`HasAtoms`][atomlib.atoms.HasAtoms],
+                 only `'local'` is supported.
+
+        Return:
+          The contained atoms
+        """
         ...
 
     @abc.abstractmethod
     def with_atoms(self: HasAtomsT, atoms: HasAtoms, frame: t.Literal['local'] = 'local') -> HasAtomsT:
+        """
+        Return a copy of self with the inner [`Atoms`][atomlib.atoms.Atoms] replaced.
+
+        Args:
+          atoms: [`HasAtoms`][atomlib.atoms.HasAtoms] to replace these with.
+          frame: Coordinate frame inside atoms are in. For a plain [`HasAtoms`][atomlib.atoms.HasAtoms],
+                 only `'local'` is supported.
+
+        Return:
+          A copy of `self` updated with the given atoms
+        """
         ...
 
     @classmethod
     @abc.abstractmethod
     def _combine_metadata(cls: t.Type[HasAtomsT], *atoms: HasAtoms) -> HasAtomsT:
         """
-        When combining multiple ``HasAtoms``, check that they are compatible with each other,
+        When combining multiple `HasAtoms`, check that they are compatible with each other,
         and return a 'representative' which best represents the combined metadata.
         Implementors should treat `Atoms` as acceptable, but having no metadata.
         """
@@ -235,25 +230,49 @@ class HasAtoms(abc.ABC):
     @property
     @_fwd_frame(lambda df: df.columns)
     def columns(self) -> t.Sequence[str]:
-        """Return the columns in `self`."""
+        """
+        Return the column names in `self`.
+
+        Returns:
+          A sequence of column names
+        """
         ...
 
     @property
     @_fwd_frame(lambda df: df.dtypes)
     def dtypes(self) -> t.Sequence[polars.DataType]:
-        """Return the datatypes in `self`."""
+        """
+        Return the datatypes in `self`.
+
+        Returns:
+          A sequence of column [`DataType`][polars.datatypes.DataType]s
+        """
         ...
 
     @property
     @_fwd_frame(lambda df: df.schema)
     def schema(self) -> SchemaDict:
-        """Return the schema of `self`."""
+        """
+        Return the schema of `self`.
+
+        Returns:
+          A dictionary of column names and [`DataType`][polars.datatypes.DataType]s
+        """
         ...
 
     @_fwd_frame(polars.DataFrame.describe)
     def describe(self, percentiles: t.Union[t.Sequence[float], float, None] = (0.25, 0.5, 0.75), *,
                  interpolation: RollingInterpolationMethod = 'nearest') -> polars.DataFrame:
-        """Return summary statistics for `self`."""
+        """
+        Return summary statistics for `self`. See [`DataFrame.describe`][polars.DataFrame.describe] for more information.
+
+        Args:
+          percentiles: List of percentiles/quantiles to include. Defaults to 25% (first quartile),
+                       50% (median), and 75% (third quartile).
+
+        Returns:
+          A dataframe containing summary statistics (mean, std. deviation, percentiles, etc.) for each column.
+        """
         ...
 
     @_fwd_frame_map
@@ -271,12 +290,20 @@ class HasAtoms(abc.ABC):
 
     @_fwd_frame(polars.DataFrame.get_column)
     def get_column(self, name: str) -> polars.Series:
-        """Get the specified column from `self`, raising [`polars.ColumnNotFoundError`][polars.exceptions.ColumnNotFoundError] if it's not present."""
+        """
+        Get the specified column from `self`, raising [`polars.ColumnNotFoundError`][polars.exceptions.ColumnNotFoundError] if it's not present.
+
+        [polars.Series]: https://docs.pola.rs/py-polars/html/reference/series/index.html
+        """
         ...
 
     @_fwd_frame(polars.DataFrame.get_columns)
     def get_columns(self) -> t.List[polars.Series]:
-        """Get the specified columns from `self`, raising [`polars.ColumnNotFoundError`][polars.exceptions.ColumnNotFoundError] if it's not present."""
+        """
+        Return all columns from `self` as a list of [`Series`][polars.Series].
+
+        [polars.Series]: https://docs.pola.rs/py-polars/html/reference/series/index.html
+        """
         ...
 
     @_fwd_frame(polars.DataFrame.get_column_index)
@@ -287,6 +314,9 @@ class HasAtoms(abc.ABC):
     @_fwd_frame(polars.DataFrame.group_by)
     def group_by(self, *by: t.Union[IntoExpr, t.Iterable[IntoExpr]], maintain_order: bool = False,
                  **named_by: IntoExpr) -> polars.dataframe.group_by.GroupBy:
+        """
+        Start a group by operation. See [`DataFrame.group_by`][polars.DataFrame.group_by] for more information.
+        """
         ...
 
     def pipe(self: HasAtomsT, function: t.Callable[Concatenate[HasAtomsT, P], T], *args: P.args, **kwargs: P.kwargs) -> T:
@@ -439,9 +469,11 @@ class HasAtoms(abc.ABC):
         **named_exprs: IntoExpr,
     ):
         """
-        Select `exprs` from `self`, and return as a `polars.DataFrame`.
+        Select `exprs` from `self`, and return as a [`polars.DataFrame`][polars.DataFrame].
 
         Expressions may either be columns or expressions of columns.
+
+        [polars.DataFrame]: https://docs.pola.rs/py-polars/html/reference/dataframe/index.html
         """
         ...
 
@@ -450,7 +482,7 @@ class HasAtoms(abc.ABC):
     def select_schema(self, schema: SchemaDict) -> polars.DataFrame:
         """
         Select columns from `self` and cast to the given schema.
-        Raises `TypeError` if a column is not found or if it can't be cast.
+        Raises [`TypeError`][TypeError] if a column is not found or if it can't be cast.
         """
         return _select_schema(self, schema)
 
@@ -462,7 +494,9 @@ class HasAtoms(abc.ABC):
         """
         Select `exprs` from `self`, while keeping required columns.
 
-        Returns a HasAtoms.
+        Returns:
+          A [`HasAtoms`][atomlib.atoms.HasAtoms] filtered to contain the
+          specified properties (as well as required columns).
         """
         props = self._get_frame().lazy().select(*exprs, **named_exprs).drop(_REQUIRED_COLUMNS).collect(_eager=True)
         return self.with_atoms(
@@ -475,10 +509,12 @@ class HasAtoms(abc.ABC):
         **named_exprs: IntoExpr,
     ) -> t.Optional[polars.DataFrame]:
         """
-        Try to select `exprs` from `self`, and return as a `DataFrame`.
+        Try to select `exprs` from `self`, and return as a [`polars.DataFrame`][polars.DataFrame].
 
-        Expressions may either be columns or expressions of columns.
-        Return `None` if any columns are missing.
+        Expressions may either be columns or expressions of columns. Returns `None` if any
+        columns are missing.
+
+        [polars.DataFrame]: https://docs.pola.rs/py-polars/html/reference/dataframe/index.html
         """
         try:
             return self._get_frame().select(*exprs, **named_exprs)
@@ -671,7 +707,7 @@ class HasAtoms(abc.ABC):
 
     def types(self) -> t.Optional[polars.Series]:
         """
-        Returns a [`Series`][polars.Series] of atom types (dtype [`polars.Int32`][polars.Int32]).
+        Returns a [`Series`][polars.Series] of atom types (dtype [`polars.Int32`][polars.datatypes.Int32]).
 
         [polars.Series]: https://docs.pola.rs/py-polars/html/reference/series/index.html
         """
@@ -679,7 +715,7 @@ class HasAtoms(abc.ABC):
 
     def masses(self) -> t.Optional[polars.Series]:
         """
-        Returns a [`Series`][polars.Series] of atom masses (dtype [`polars.Float32`][polars.Float32]).
+        Returns a [`Series`][polars.Series] of atom masses (dtype [`polars.Float32`][polars.datatypes.Float32]).
 
         [polars.Series]: https://docs.pola.rs/py-polars/html/reference/series/index.html
         """
@@ -768,7 +804,7 @@ class HasAtoms(abc.ABC):
 
     def with_index(self: HasAtomsT, index: t.Optional[AtomValues] = None) -> HasAtomsT:
         """
-        Returns `self` with a row index added in column 'i' (dtype [`polars.Int64`][polars.Int64]).
+        Returns `self` with a row index added in column 'i' (dtype [`polars.Int64`][polars.datatypes.Int64]).
         If `index` is not specified, defaults to an existing index or a new index.
         """
         if index is None and 'i' in self.columns:
@@ -779,7 +815,7 @@ class HasAtoms(abc.ABC):
 
     def with_wobble(self: HasAtomsT, wobble: t.Optional[AtomValues] = None) -> HasAtomsT:
         """
-        Return `self` with the given displacements in column 'wobble' (dtype [`polars.Float64`][polars.Float64]).
+        Return `self` with the given displacements in column 'wobble' (dtype [`polars.Float64`][polars.datatypes.Float64]).
         If `wobble` is not specified, defaults to the already-existing wobbles or 0.
         """
         if wobble is None and 'wobble' in self.columns:
@@ -789,8 +825,8 @@ class HasAtoms(abc.ABC):
 
     def with_occupancy(self: HasAtomsT, frac_occupancy: t.Optional[AtomValues] = None) -> HasAtomsT:
         """
-        Return self with the given fractional occupancies. If `frac_occupancy` is not specified,
-        defaults to the already-existing occupancies or 1.
+        Return self with the given fractional occupancies (dtype [`polars.Float64`][polars.datatypes.Float64]).
+        If `frac_occupancy` is not specified, defaults to the already-existing occupancies or 1.
         """
         if frac_occupancy is None and 'frac_occupancy' in self.columns:
             return self
@@ -854,7 +890,7 @@ class HasAtoms(abc.ABC):
 
     def with_mass(self: HasAtomsT, mass: t.Optional[ArrayLike] = None) -> HasAtomsT:
         """
-        Return `self` with the given atom masses in column 'mass'.
+        Return `self` with the given atom masses in column `'mass'`.
         If `mass` is not specified, use the already existing masses or auto-assign them.
         """
         if mass is not None:
@@ -931,23 +967,23 @@ class HasAtoms(abc.ABC):
 
 
 class Atoms(AtomsIOMixin, HasAtoms):
-    """
+    r"""
     A collection of atoms, absent any implied coordinate system.
     Implemented as a wrapper around a [`polars.DataFrame`][polars.DataFrame].
 
     Must contain the following columns:
 
-    - coords: array of [x, y, z] positions, float
+    - coords: array of `[x, y, z]` positions, float
     - elem: atomic number, int
     - symbol: atomic symbol (may contain charges)
 
     In addition, it commonly contains the following columns:
 
     - i: Initial atom number
-    - wobble: Isotropic Debye-Waller mean-squared deviation (<u^2> = B*3/8pi^2, dimensions of [Length^2])
-    - frac_occupancy: Fractional occupancy, [0., 1.]
+    - wobble: Isotropic Debye-Waller mean-squared deviation ($\left<u^2\right> = B \cdot \frac{3}{8 \pi^2}$, dimensions of [Length^2])
+    - frac_occupancy: Fractional occupancy, in the range [0., 1.]
     - mass: Atomic mass, in g/mol (approx. Da)
-    - velocity: array of [x, y, z] velocities, float, dimensions of length/time
+    - velocity: array of `[x, y, z]` velocities, float, dimensions of length/time
     - type: Numeric atom type, as used by programs like LAMMPS
 
     [polars.DataFrame]: https://docs.pola.rs/py-polars/html/reference/dataframe/index.html
@@ -1048,6 +1084,32 @@ class Atoms(AtomsIOMixin, HasAtoms):
 
     def _repr_pretty_(self, p, cycle: bool) -> None:
         p.text('Atoms(...)') if cycle else p.text(str(self))
+
+
+SchemaDict: TypeAlias = OrderedDict[str, polars.DataType]
+IntoExprColumn: TypeAlias = polars.type_aliases.IntoExprColumn
+IntoExpr: TypeAlias = polars.type_aliases.IntoExpr
+UniqueKeepStrategy: TypeAlias = polars.type_aliases.UniqueKeepStrategy
+FillNullStrategy: TypeAlias = polars.type_aliases.FillNullStrategy
+RollingInterpolationMethod: TypeAlias = polars.type_aliases.RollingInterpolationMethod
+ConcatMethod: TypeAlias = t.Literal['horizontal', 'vertical', 'diagonal', 'inner', 'align']
+
+IntoAtoms = t.Union[t.Dict[str, t.Sequence[t.Any]], t.Sequence[t.Any], numpy.ndarray, polars.DataFrame, 'Atoms']
+"""
+A type convertible into an [`Atoms`][atomlib.atoms.Atoms].
+"""
+
+AtomSelection = t.Union[IntoExprColumn, NDArray[numpy.bool_], ArrayLike, t.Mapping[str, t.Any]]
+"""
+Polars expression selecting a subset of atoms.
+Can be used with many [`Atoms`][atomlib.atoms.Atoms] methods.
+"""
+
+AtomValues = t.Union[IntoExprColumn, NDArray[numpy.generic], ArrayLike, t.Mapping[str, t.Any]]
+"""
+Array, value, or polars expression mapping atom symbols to values.
+Can be used with `with_*` methods on Atoms
+"""
 
 
 __all__ = [

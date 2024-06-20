@@ -14,7 +14,7 @@ nav:
   - API:
     - api/index.md
     - api/atoms.md
-    #- api/atomcell.md
+    - api/atomcell.md
     - api/make.md
     - api/defect.md
     - api/transform.md
@@ -86,7 +86,7 @@ plugins:
             show_if_no_docstring: true
             show_root_heading: false
             members_order: source
-            filters: ["!^_", "!^__(all|repr|str)__$", "!^(HasAtoms|Transform3D|Num)?[TUKVP](_co(ntra)?)?$", "!^.*Self$"]
+            filters: ["!^_", "!^__(all|repr|str)__$", "!^(HasAtoms|Transform3D|Num|AtomCell|HasAtomCell)?[TUKVP](_co(ntra)?)?$", "!^.*Self$"]
             inherited_members: true
   - mike:
       version_selector: true
