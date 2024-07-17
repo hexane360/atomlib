@@ -20,6 +20,7 @@ import abc
 from io import StringIO
 import typing as t
 
+from typing_extensions import Self, ParamSpec, Concatenate, TypeAlias
 import numpy
 from numpy.typing import ArrayLike, NDArray
 import polars
@@ -27,9 +28,10 @@ import polars.dataframe.group_by
 import polars.datatypes
 import polars.interchange.dataframe
 import polars.testing
-import polars.type_aliases
+import polars._typing
+from polars.schema import Schema
 
-from .types import to_vec3, VecLike, ParamSpec, Concatenate, TypeAlias, Self
+from .types import to_vec3, VecLike
 from .bbox import BBox3D
 from .elem import get_elem, get_sym, get_mass
 from .transform import Transform3D, IntoTransform3D, AffineTransform3D
@@ -59,6 +61,7 @@ def _is_abstract(cls: t.Type) -> bool:
     return bool(getattr(cls, "__abstractmethods__", False))
 
 
+"""
 def _polars_to_numpy_dtype(dtype: t.Type[polars.DataType]) -> numpy.dtype:
     from polars.datatypes import dtype_to_ctype
     if dtype == polars.Boolean:
@@ -67,6 +70,7 @@ def _polars_to_numpy_dtype(dtype: t.Type[polars.DataType]) -> numpy.dtype:
         return numpy.dtype(dtype_to_ctype(dtype))
     except NotImplementedError:
         return numpy.dtype(object)
+"""
 
 
 def _get_symbol_mapping(df: t.Union[polars.DataFrame, HasAtoms], mapping: t.Mapping[str, t.Any], ty: t.Type[polars.DataType]) -> polars.Expr:
@@ -74,7 +78,7 @@ def _get_symbol_mapping(df: t.Union[polars.DataFrame, HasAtoms], mapping: t.Mapp
     if (missing := set(syms) - set(mapping.keys())):
         raise ValueError(f"Could not remap symbols {', '.join(map(repr, missing))}") 
 
-    return polars.col('symbol').replace(mapping, default=None, return_dtype=ty)
+    return polars.col('symbol').replace_strict(mapping, default=None, return_dtype=ty)
 
 
 def _values_to_expr(df: t.Union[polars.DataFrame, HasAtoms], values: AtomValues, ty: t.Type[polars.DataType]) -> polars.Expr:
@@ -97,13 +101,8 @@ def _values_to_numpy(df: t.Union[polars.DataFrame, HasAtoms], values: AtomValues
         #    syms = df.select(polars.col('symbol').filter(values.is_null())).unique().to_series().to_list()
         #    raise ValueError(f"Could not remap symbols {', '.join(map(repr, syms))}") 
     if isinstance(values, polars.Series):
-        if ty == polars.Boolean:
-            # force conversion to numpy (unpacked) bool
-            return values.cast(polars.UInt8).to_numpy().astype(numpy.bool_)
-        return numpy.broadcast_to(values.cast(ty).to_numpy(), len(df))
-
-    dtype = _polars_to_numpy_dtype(ty)
-    return numpy.broadcast_to(numpy.asarray(values, dtype), len(df))
+        values = values.cast(ty)
+    return numpy.broadcast_to(values, len(df))
 
 
 def _selection_to_expr(df: t.Union[polars.DataFrame, HasAtoms], selection: t.Optional[AtomSelection] = None) -> polars.Expr:
@@ -127,7 +126,7 @@ def _select_schema(df: t.Union[polars.DataFrame, HasAtoms], schema: SchemaDict) 
             polars.col(col).cast(ty, strict=True)
             for (col, ty) in schema.items()
         ])
-    except (polars.ComputeError, polars.ColumnNotFoundError):
+    except (polars.exceptions.ComputeError, polars.exceptions.ColumnNotFoundError):
         raise TypeError(f"Failed to cast '{df.__class__.__name__}' with schema '{df.schema}' to schema '{schema}'.")
 
 
@@ -138,9 +137,10 @@ def _with_columns_stacked(df: polars.DataFrame, cols: t.Sequence[str], out_col: 
     i = df.get_column_index(cols[0])
     dtype = df[cols[0]].dtype
 
-    arr = numpy.array(tuple(df[c].to_numpy() for c in cols)).T
+    # https://github.com/pola-rs/polars/issues/18369
+    arr = [] if len(df) == 0 else numpy.array(tuple(df[c].to_numpy() for c in cols)).T
 
-    return df.drop(cols).insert_column(i, polars.Series(out_col, arr, polars.Array(dtype, arr.shape[-1])))
+    return df.drop(cols).insert_column(i, polars.Series(out_col, arr, polars.Array(dtype, len(cols))))
 
 
 HasAtomsT = t.TypeVar('HasAtomsT', bound='HasAtoms')
@@ -250,8 +250,8 @@ class HasAtoms(abc.ABC):
         ...
 
     @property
-    @_fwd_frame(lambda df: df.schema)
-    def schema(self) -> SchemaDict:
+    @_fwd_frame(lambda df: df.schema)  # type: ignore
+    def schema(self) -> Schema:
         """
         Return the schema of `self`.
 
@@ -288,7 +288,7 @@ class HasAtoms(abc.ABC):
     def insert_column(self, index: int, column: polars.Series) -> polars.DataFrame:
         return self._get_frame().insert_column(index, column)
 
-    @_fwd_frame(polars.DataFrame.get_column)
+    @_fwd_frame(lambda df, name: df.get_column(name))
     def get_column(self, name: str) -> polars.Series:
         """
         Get the specified column from `self`, raising [`polars.ColumnNotFoundError`][polars.exceptions.ColumnNotFoundError] if it's not present.
@@ -328,9 +328,9 @@ class HasAtoms(abc.ABC):
         """Return a copy of `self`."""
         return self._get_frame().clone()
 
-    def drop(self, *columns: t.Union[str, t.Iterable[str]]) -> polars.DataFrame:
+    def drop(self, *columns: t.Union[str, t.Iterable[str]], strict: bool = True) -> polars.DataFrame:
         """Return `self` with the specified columns removed."""
-        return self._get_frame().drop(*columns)
+        return self._get_frame().drop(*columns, strict=strict)
 
     # row-wise operations
 
@@ -341,11 +341,10 @@ class HasAtoms(abc.ABC):
     ) -> Self:
         """Filter `self`, removing rows which evaluate to `False`."""
         # TODO clean up
-        preds_not_none: t.Tuple[t.Union[IntoExprColumn, t.Iterable[IntoExprColumn], bool, t.List[bool], numpy.ndarray], ...]
-        preds_not_none = tuple(filter(lambda p: p is not None, predicates))  # type: ignore
+        preds_not_none = tuple(filter(lambda p: p is not None, predicates))
         if not len(preds_not_none) and not len(constraints):
             return self
-        return self.with_atoms(Atoms(self._get_frame().filter(*preds_not_none, **constraints), _unchecked=True))
+        return self.with_atoms(Atoms(self._get_frame().filter(*preds_not_none, **constraints), _unchecked=True))  # type: ignore
 
     @_fwd_frame_map
     def sort(
@@ -498,7 +497,7 @@ class HasAtoms(abc.ABC):
           A [`HasAtoms`][atomlib.atoms.HasAtoms] filtered to contain the
           specified properties (as well as required columns).
         """
-        props = self._get_frame().lazy().select(*exprs, **named_exprs).drop(_REQUIRED_COLUMNS).collect(_eager=True)
+        props = self._get_frame().lazy().select(*exprs, **named_exprs).drop(_REQUIRED_COLUMNS, strict=False).collect(_eager=True)
         return self.with_atoms(
             Atoms(self._get_frame().select(_REQUIRED_COLUMNS).hstack(props), _unchecked=False)
         )
@@ -525,7 +524,7 @@ class HasAtoms(abc.ABC):
         """Try to get a column from `self`, returning `None` if it doesn't exist."""
         try:
             return self.get_column(name)
-        except polars.ColumnNotFoundError:
+        except polars.exceptions.ColumnNotFoundError:
             return None
 
     def assert_equal(self, other: t.Any):
@@ -555,7 +554,7 @@ class HasAtoms(abc.ABC):
     def __getitem__(self, column: str) -> polars.Series:
         try:
             return self.get_column(column)
-        except polars.ColumnNotFoundError:
+        except polars.exceptions.ColumnNotFoundError:
             if column in ('x', 'y', 'z'):
                 return self.select(_coord_expr(column)).to_series()
             raise
@@ -938,7 +937,8 @@ class HasAtoms(abc.ABC):
             new_pts[selection] = pts
             pts = new_pts
 
-        pts = numpy.broadcast_to(pts, (len(self), 3))
+        # https://github.com/pola-rs/polars/issues/18369
+        pts = numpy.broadcast_to(pts, (len(self), 3)) if len(self) else []
         return self.with_columns(polars.Series('coords', pts, polars.Array(polars.Float64, 3)))
 
     def with_velocity(self, pts: t.Optional[ArrayLike] = None,
@@ -963,7 +963,8 @@ class HasAtoms(abc.ABC):
             assert pts.shape[-1] == 3
             all_pts[selection] = pts
 
-        all_pts = numpy.broadcast_to(all_pts, (len(self), 3))
+        # https://github.com/pola-rs/polars/issues/18369
+        all_pts = numpy.broadcast_to(all_pts, (len(self), 3)) if len(self) else []
         return self.with_columns(polars.Series('velocity', all_pts, polars.Array(polars.Float64, 3)))
 
 
@@ -1088,11 +1089,11 @@ class Atoms(AtomsIOMixin, HasAtoms):
 
 
 SchemaDict: TypeAlias = OrderedDict[str, polars.DataType]
-IntoExprColumn: TypeAlias = polars.type_aliases.IntoExprColumn
-IntoExpr: TypeAlias = polars.type_aliases.IntoExpr
-UniqueKeepStrategy: TypeAlias = polars.type_aliases.UniqueKeepStrategy
-FillNullStrategy: TypeAlias = polars.type_aliases.FillNullStrategy
-RollingInterpolationMethod: TypeAlias = polars.type_aliases.RollingInterpolationMethod
+IntoExprColumn: TypeAlias = polars._typing.IntoExprColumn
+IntoExpr: TypeAlias = polars._typing.IntoExpr
+UniqueKeepStrategy: TypeAlias = polars._typing.UniqueKeepStrategy
+FillNullStrategy: TypeAlias = polars._typing.FillNullStrategy
+RollingInterpolationMethod: TypeAlias = polars._typing.RollingInterpolationMethod
 ConcatMethod: TypeAlias = t.Literal['horizontal', 'vertical', 'diagonal', 'inner', 'align']
 
 IntoAtoms = t.Union[t.Dict[str, t.Sequence[t.Any]], t.Sequence[t.Any], numpy.ndarray, polars.DataFrame, 'Atoms']

@@ -4,8 +4,12 @@ import typing as t
 
 from importlib_resources import files
 import polars
-from polars.exceptions import PolarsPanicError
 import numpy
+
+try:
+    from polars.exceptions import PanicException
+except ImportError:
+    from polars.exceptions import PolarsPanicError as PanicException  # type: ignore
 
 from .types import ElemLike
 
@@ -79,7 +83,7 @@ def get_elem(sym: t.Union[int, str, polars.Series]):
 
     if isinstance(sym, polars.Series):
         elem = sym.str.extract(_SYM_RE, 0).str.to_lowercase() \
-            .replace(ELEMENTS, return_dtype=polars.UInt8, default=255) \
+            .replace_strict(ELEMENTS, default=255, return_dtype=polars.UInt8) \
             .alias('elem')
 
         if (invalid := sym.filter(sym.is_not_null() & (elem > 118)).to_list()):
@@ -123,7 +127,7 @@ def get_sym(elem: t.Union[int, polars.Series]):
         try:
             return elem.map_elements(_get_sym, return_dtype=polars.Utf8, skip_nulls=True) \
                     .alias('symbol')
-        except PolarsPanicError:
+        except PanicException:
             # attempt to recreate the error in Python
             _ = [_get_sym(t.cast(int, e)) for e in elem.to_list() if e is not None]
             raise

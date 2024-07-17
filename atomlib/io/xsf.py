@@ -103,7 +103,7 @@ class XSF:
             raise ValueError("Error: No coordinates are specified (atoms, primitive, or conventional).")
 
         if self.prim_coords is not None and self.conv_coords is not None:
-            logging.warn("Warning: Both 'primcoord' and 'convcoord' are specified. 'convcoord' will be ignored.")
+            logging.warning("Warning: Both 'primcoord' and 'convcoord' are specified. 'convcoord' will be ignored.")
         elif self.conv_coords is not None and self.conventional_cell is None:
             raise ValueError("If 'convcoord' is specified, 'convvec' must be specified as well.")
 
@@ -196,7 +196,7 @@ class XSFParser:
 
         if expected_length is not None:
             if not expected_length == len(zs):
-                logging.warn(f"Warning: List length {len(zs)} doesn't match declared length {expected_length}")
+                logging.warning(f"Warning: List length {len(zs)} doesn't match declared length {expected_length}")
         elif len(zs) == 0:
             raise ValueError(f"Expected atom list after keyword 'ATOMS'. Got '{line or 'EOF'}' instead.")
 

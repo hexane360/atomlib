@@ -12,13 +12,15 @@ from dataclasses import dataclass, fields
 import copy
 import typing as t
 
+from typing_extensions import Self
 import numpy
 from numpy.typing import NDArray, ArrayLike
 import polars
 import polars.dataframe.group_by
 
+from typing_extensions import ParamSpec, Concatenate
 from .bbox import BBox3D
-from .types import VecLike, to_vec3, ParamSpec, Concatenate, Self
+from .types import VecLike, to_vec3
 from .transform import LinearTransform3D, AffineTransform3D, Transform3D, IntoTransform3D
 from .cell import CoordinateFrame, HasCell, Cell
 from .atoms import HasAtoms, Atoms, IntoAtoms, AtomSelection, AtomValues

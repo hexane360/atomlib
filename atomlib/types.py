@@ -1,4 +1,3 @@
-import sys
 import typing as t
 
 import numpy
@@ -9,39 +8,8 @@ if t.TYPE_CHECKING:
     from .bbox import BBox3D
 
 
-if sys.version_info < (3, 10):
-    import typing_extensions
-    ParamSpec = typing_extensions.ParamSpec
-    """Re-export of [`typing.ParamSpec`][typing.ParamSpec]"""
-
-    Concatenate = typing_extensions.Concatenate
-    """Re-export of [`typing.Concatenate`][typing.Concatenate]"""
-
-    TypeAlias = typing_extensions.TypeAlias
-    """Re-export of [`typing.TypeAlias`][typing.TypeAlias]"""
-else:
-    ParamSpec = t.ParamSpec
-    """Re-export of [`typing.ParamSpec`][typing.ParamSpec]"""
-
-    Concatenate = t.Concatenate
-    """Re-export of [`typing.Concatenate`][typing.Concatenate]"""
-
-    TypeAlias = t.TypeAlias
-    """Re-export of [`typing.TypeAlias`][typing.TypeAlias]"""
-
-
-if sys.version_info < (3, 11):
-    import typing_extensions
-    Self = typing_extensions.Self
-    """Re-export of [`typing.Self`][typing.Self]"""
-else:
-    Self = t.Self
-    """Re-export of [`typing.Self`][typing.Self]"""
-
-
 Vec3 = NDArray[numpy.floating[t.Any]]
 """3D float vector, of shape (3,)."""
-
 
 VecLike = ArrayLike
 """3d vector-like"""
@@ -84,6 +52,5 @@ def to_vec3(v: VecLike, dtype: t.Optional[t.Type[numpy.generic]] = None) -> NDAr
 __all__ = [
     'Vec3', 'VecLike', 'Pts3DLike', 'ElemLike',
     'ScalarT', 'NumT', 'Num',
-    'ParamSpec', 'Concatenate',
     'to_vec3',
 ]

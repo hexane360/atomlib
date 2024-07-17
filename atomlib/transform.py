@@ -3,6 +3,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 import typing as t
 
+from typing_extensions import TypeAlias
 import numpy
 from numpy.typing import ArrayLike, NDArray
 
@@ -16,7 +17,7 @@ Transform3DT = t.TypeVar('Transform3DT', bound='Transform3D')
 NumT = t.TypeVar('NumT', bound=t.Union[float, int])
 
 Affine3DSelf = t.TypeVar('Affine3DSelf', bound='AffineTransform3D')
-IntoTransform3D = t.Union['Transform3D', t.Callable[[NDArray[numpy.floating]], numpy.ndarray], numpy.ndarray]
+IntoTransform3D: TypeAlias = t.Union['Transform3D', t.Callable[[NDArray[numpy.floating]], numpy.ndarray], numpy.ndarray]
 """
 Type which is coercable into a [`Transform3D`][atomlib.transform.Transform3D].
 
@@ -249,7 +250,7 @@ class AffineTransform3D(Transform3D):
 
         Can be called as a classmethod or instance method.
         """
-        return self.compose(LinearTransform3D.scale(x, y, z, all=all))
+        return self.compose(LinearTransform3D.scale(x, y, z, all=all))  # type: ignore
 
     @opt_classmethod
     def rotate(self, v: VecLike, theta: Num) -> AffineTransform3D:
@@ -291,7 +292,7 @@ class AffineTransform3D(Transform3D):
 
         Can be called as a classmethod or instance method.
         """
-        return self.compose(LinearTransform3D.mirror(a, b, c))
+        return self.compose(LinearTransform3D.mirror(a, b, c))  # type: ignore
 
     @opt_classmethod
     def strain(self, strain: float, v: VecLike = (0, 0, 1), poisson: float = 0.) -> AffineTransform3D:
@@ -607,11 +608,13 @@ class LinearTransform3D(AffineTransform3D):
         return self.align_to(v1, [0., 0., 1.], horz, [1., 0., 0.])
 
     @t.overload
-    def align_to(self, v1: VecLike, v2: VecLike, p1: t.Literal[None] = None, p2: t.Literal[None] = None) -> LinearTransform3D:
+    @classmethod
+    def align_to(cls, v1: VecLike, v2: VecLike, p1: t.Literal[None] = None, p2: t.Literal[None] = None) -> LinearTransform3D:
         ...
 
     @t.overload
-    def align_to(self, v1: VecLike, v2: VecLike, p1: VecLike, p2: VecLike) -> LinearTransform3D:
+    @classmethod
+    def align_to(cls, v1: VecLike, v2: VecLike, p1: VecLike, p2: VecLike) -> LinearTransform3D:
         ...
 
     @opt_classmethod

@@ -8,11 +8,10 @@ import json
 import time
 import typing as t
 
+from typing_extensions import ParamSpec, Concatenate
 import numpy
 from numpy.typing import NDArray
 import polars
-
-from .types import ParamSpec, Concatenate
 
 
 T = t.TypeVar('T')
@@ -114,7 +113,7 @@ class opt_classmethod(classmethod, t.Generic[T, P, U_co]):
 
     __func__: t.Callable[Concatenate[T, P], U_co]  # type: ignore
     def __init__(self, f: t.Callable[Concatenate[T, P], U_co]):
-        super().__init__(f)
+        super().__init__(f)  # type: ignore
 
     def __get__(self, obj: t.Optional[T], ty: t.Optional[t.Type[T]] = None) -> t.Callable[P, U_co]:  # type: ignore
         if obj is None:

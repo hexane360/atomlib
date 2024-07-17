@@ -43,7 +43,7 @@ def read_cif(f: t.Union[FileOrPath, CIF, CIFDataBlock], block: t.Union[int, str,
             raise ValueError("No data present in CIF file.")
         if block is None:
             if len(cif) > 1:
-                logging.warn("Multiple blocks present in CIF file. Defaulting to reading first block.")
+                logging.warning("Multiple blocks present in CIF file. Defaulting to reading first block.")
             cif = cif.data_blocks[0]
         else:
             cif = cif.get_block(block)

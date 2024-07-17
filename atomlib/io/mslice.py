@@ -13,6 +13,7 @@ from copy import deepcopy
 from warnings import warn
 import typing as t
 
+from typing_extensions import TypeAlias
 from importlib_resources import files
 import numpy
 from numpy.typing import ArrayLike
@@ -25,9 +26,9 @@ from ..atomcell import HasAtomCell, AtomCell
 from ..transform import AffineTransform3D, LinearTransform3D
 
 
-ElementTree = et._ElementTree
-Element = et._Element
-MSliceFile = t.Union[ElementTree, FileOrPath]
+ElementTree: TypeAlias = et._ElementTree
+Element: TypeAlias = et._Element
+MSliceFile: TypeAlias = t.Union[ElementTree, FileOrPath]
 
 
 DEFAULT_TEMPLATE_PATH = files('atomlib.data') / 'template.mslice'

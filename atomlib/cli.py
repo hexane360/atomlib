@@ -6,11 +6,11 @@ from pathlib import Path
 import typing as t
 import logging
 
+from typing_extensions import ParamSpec, Concatenate
 import click
 
 from . import CoordinateFrame, HasAtoms, Atoms, AtomCell, AtomSelection
 from . import io
-from .types import ParamSpec, Concatenate
 from .transform import LinearTransform3D, AffineTransform3D
 
 

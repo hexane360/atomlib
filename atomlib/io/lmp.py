@@ -52,7 +52,7 @@ class LMP:
         def _apply_type_labels(df: polars.DataFrame, section_name: str, labels: t.Optional[polars.DataFrame] = None) -> polars.DataFrame:
             if labels is not None:
                 #df = df.with_columns(polars.col('type').replace(d, default=polars.col('type').cast(polars.Int32, strict=False), return_dtype=polars.Int32))
-                df = df.with_columns(polars.col('type').replace(labels['symbol'], labels['type'], default=polars.col('type').cast(polars.Int32, strict=False), return_dtype=polars.Int32))
+                df = df.with_columns(polars.col('type').replace_strict(labels['symbol'], labels['type'], default=polars.col('type').cast(polars.Int32, strict=False), return_dtype=polars.Int32))
                 if df['type'].is_null().any():
                     raise ValueError(f"While parsing section {section_name}: Unknown atom label or invalid atom type")
             try:

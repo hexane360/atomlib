@@ -213,7 +213,10 @@ def show_atoms_mpl_2d(atoms: HasAtoms, *, fig: t.Optional[Figure] = None,
     radii = get_plot_radii(frame, min_r=min_r, style=style)
 
     # look down zone
-    transform = LinearTransform3D.align_to(zone, [0, 0, -1], horz, [1, 0, 0] if horz is not None else None)
+    if horz is None:
+        transform = LinearTransform3D.align_to(zone, [0, 0, -1])
+    else:
+        transform = LinearTransform3D.align_to(zone, [0, 0, -1], horz, [1, 0, 0])
     bbox_2d = transform @ atoms.bbox()
     coords = transform @ coords
     # sort by z-order

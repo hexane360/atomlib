@@ -5,7 +5,7 @@ from io import TextIOBase
 import typing as t
 
 import polars
-from polars.type_aliases import SchemaDict, PolarsDataType
+from polars._typing import SchemaDict, PolarsDataType
 
 
 class LineBuffer:
@@ -144,7 +144,7 @@ def _parse_rows_whitespace_separated(
         assert inner_ty is not None
 
         elem_base_name = _ARRAY_ELEM_NAMES.get(col, col)
-        suffixes = ('x', 'y', 'z') if ty.width == 3 else range(ty.width)
+        suffixes = ('x', 'y', 'z') if ty.size == 3 else range(ty.size)
         elem_cols = [f"{elem_base_name}_{s}".lstrip('_') for s in suffixes]
 
         expanded_schema.update({elem_col: inner_ty for elem_col in elem_cols})
@@ -152,7 +152,7 @@ def _parse_rows_whitespace_separated(
         exprs.append(polars.concat_list(
             polars.col('s').struct.field(elem_col)
             for elem_col in elem_cols
-        ).list.to_array(ty.width).alias(col))
+        ).list.to_array(ty.size).alias(col))
 
     regex = "".join((
         "^",

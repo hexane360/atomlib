@@ -26,7 +26,7 @@ def ellip_pi(n: NDArray[numpy.float64], m: NDArray[numpy.float64]) -> NDArray[nu
 
     [wolfram_ellip_pi]: https://mathworld.wolfram.com/EllipticIntegraloftheThirdKind.html
     """
-    from scipy.special import elliprf, elliprj
+    from scipy.special import elliprf, elliprj  # type: ignore
 
     y = 1 - m
     assert numpy.all(y > 0)
