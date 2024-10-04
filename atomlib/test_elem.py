@@ -5,6 +5,7 @@ import typing as t
 import pytest
 import numpy
 import polars
+from polars.testing import assert_series_equal
 
 from .elem import get_elem, get_elems, get_sym, get_mass
 from .elem import get_radius, get_ionic_radius
@@ -49,7 +50,10 @@ def test_get_elem_series():
 def test_get_elem_series_nulls():
     sym = polars.Series(['Al', None, 'Ag', 'Na'])
 
-    assert (get_elem(sym) == polars.Series([13, None, 47, 11])).all()
+    assert_series_equal(
+        get_elem(sym),
+        polars.Series('elem', [13, None, 47, 11], polars.Int8)
+    )
 
 
 def test_get_sym_series():
@@ -62,7 +66,10 @@ def test_get_sym_series():
 def test_get_sym_series_nulls():
     elem = polars.Series((74, 102, 62, None, 19))
 
-    assert (get_sym(elem) == polars.Series(["W", "No", "Sm", None, "K"])).all()
+    assert_series_equal(
+        get_sym(elem),
+        polars.Series('symbol', ["W", "No", "Sm", None, "K"], polars.Utf8)
+    )
 
 
 def test_get_elem_fail():
@@ -83,7 +90,7 @@ def test_get_sym_fail():
     with pytest.raises(ValueError, match="Invalid atomic number 255"):
         get_sym(255)
 
-    with pytest.raises(ValueError, match="Invalid atomic number 255"):
+    with pytest.raises(ValueError, match=re.escape("Invalid atomic number(s) 255")):
         get_sym(polars.Series([12, 14, 255, 1]))
 
 

@@ -137,9 +137,7 @@ def _with_columns_stacked(df: polars.DataFrame, cols: t.Sequence[str], out_col: 
     i = df.get_column_index(cols[0])
     dtype = df[cols[0]].dtype
 
-    # https://github.com/pola-rs/polars/issues/18369
-    arr = [] if len(df) == 0 else numpy.array(tuple(df[c].to_numpy() for c in cols)).T
-
+    arr = numpy.array(tuple(df[c].to_numpy() for c in cols)).T
     return df.drop(cols).insert_column(i, polars.Series(out_col, arr, polars.Array(dtype, len(cols))))
 
 
@@ -402,7 +400,7 @@ class HasAtoms(abc.ABC):
         # this method is tricky. It needs to accept raw Atoms, as well as HasAtoms of the
         # same type as ``cls``.
         if _is_abstract(cls):
-            raise TypeError(f"concat() must be called on a concrete class.")
+            raise TypeError("concat() must be called on a concrete class.")
 
         if isinstance(atoms, HasAtoms):
             atoms = (atoms,)
@@ -420,7 +418,7 @@ class HasAtoms(abc.ABC):
             cols = reduce(operator.and_, (df.schema.keys() for df in dfs))
             schema = OrderedDict((col, dfs[0].schema[col]) for col in cols)
             if len(schema) == 0:
-                raise ValueError(f"Atoms have no columns in common")
+                raise ValueError("Atoms have no columns in common")
 
             dfs = [_select_schema(df, schema) for df in dfs]
             how = 'vertical'
@@ -752,7 +750,7 @@ class HasAtoms(abc.ABC):
         if hasattr(x, '__len__') and len(x) > 1:  # type: ignore
             (x, y, z) = to_vec3(x)
         elif y is None or z is None:
-            raise ValueError(f"Must specify vector of positions or x, y, & z.")
+            raise ValueError("Must specify vector of positions or x, y, & z.")
 
         sym = get_sym(elem) if isinstance(elem, int) else elem
         d: t.Dict[str, t.Any] = {'x': x, 'y': y, 'z': z, 'symbol': sym, **kwargs}
@@ -963,8 +961,7 @@ class HasAtoms(abc.ABC):
             assert pts.shape[-1] == 3
             all_pts[selection] = pts
 
-        # https://github.com/pola-rs/polars/issues/18369
-        all_pts = numpy.broadcast_to(all_pts, (len(self), 3)) if len(self) else []
+        all_pts = numpy.broadcast_to(all_pts, (len(self), 3))
         return self.with_columns(polars.Series('velocity', all_pts, polars.Array(polars.Float64, 3)))
 
 

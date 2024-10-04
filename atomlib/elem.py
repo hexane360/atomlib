@@ -6,11 +6,6 @@ from importlib_resources import files
 import polars
 import numpy
 
-try:
-    from polars.exceptions import PanicException
-except ImportError:
-    from polars.exceptions import PolarsPanicError as PanicException  # type: ignore
-
 from .types import ElemLike
 
 ELEMENTS = {
@@ -42,6 +37,7 @@ ELEMENT_SYMBOLS = [
     'Nh', 'Fl', 'Mc', 'Lv', 'Ts', 'Og',
 ]
 assert len(ELEMENTS) == len(ELEMENT_SYMBOLS)
+ELEMENT_SYMBOLS_POLARS = polars.Series([ELEMENT_SYMBOLS], dtype=polars.List(polars.Utf8))
 
 DATA_PATH = files('atomlib.data')
 _ELEMENT_MASSES: t.Optional[numpy.ndarray] = None
@@ -82,11 +78,14 @@ def get_elem(sym: t.Union[int, str, polars.Series]):
         return sym
 
     if isinstance(sym, polars.Series):
-        elem = sym.str.extract(_SYM_RE, 0).str.to_lowercase() \
-            .replace_strict(ELEMENTS, default=255, return_dtype=polars.UInt8) \
-            .alias('elem')
+        # TODO: this is a mess
+        elem = sym.cast(polars.Utf8).str.extract(_SYM_RE, 0).str.to_lowercase() \
+            .replace_strict(
+                old=list(ELEMENTS.keys()), new=list(ELEMENTS.values()),
+                default=None, return_dtype=polars.Int8
+            ).alias('elem')
 
-        if (invalid := sym.filter(sym.is_not_null() & (elem > 118)).to_list()):
+        if (invalid := sym.filter(sym.is_not_null() & elem.is_null()).to_list()):
             raise ValueError(f"Invalid element symbol(s) '{', '.join(map(str, invalid))}'")
 
         return elem
@@ -124,13 +123,17 @@ def get_sym(elem: polars.Series) -> polars.Series:
 
 def get_sym(elem: t.Union[int, polars.Series]):
     if isinstance(elem, polars.Series):
-        try:
-            return elem.map_elements(_get_sym, return_dtype=polars.Utf8, skip_nulls=True) \
-                    .alias('symbol')
-        except PanicException:
-            # attempt to recreate the error in Python
-            _ = [_get_sym(t.cast(int, e)) for e in elem.to_list() if e is not None]
-            raise
+        sym = elem.cast(polars.Int64).replace_strict(
+            list(range(1, len(ELEMENT_SYMBOLS)+1)),
+            ELEMENT_SYMBOLS,
+            default=None,
+            return_dtype=polars.Utf8,
+        ).alias('symbol')
+
+        if (invalid := elem.filter(elem.is_not_null() & sym.is_null()).unique().to_list()):
+            raise ValueError(f"Invalid atomic number(s) {', '.join(map(str, invalid))}")
+
+        return sym
 
     return _get_sym(elem)
 

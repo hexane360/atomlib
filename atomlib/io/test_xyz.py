@@ -28,7 +28,7 @@ Si      1.36     4.08     4.08
 O       1.36     4.08     4.08
 120     1.36     4.08     4.08
 """
-    with pytest.raises(ValueError, match="Invalid atomic number 120"):
+    with pytest.raises(ValueError, match=re.escape("Invalid atomic number(s) 120")):
         XYZ.from_file(StringIO(xyz_in))
 
     xyz_in = \
