@@ -7,11 +7,13 @@ import typing as t
 import logging
 
 from typing_extensions import ParamSpec, Concatenate
+import numpy
 import click
 
-from . import CoordinateFrame, HasAtoms, Atoms, AtomCell, AtomSelection
+from . import CoordinateFrame, HasAtoms, HasAtomCell, AtomSelection
 from . import io
 from .transform import LinearTransform3D, AffineTransform3D
+from .mixins import AtomsIOMixin, AtomCellIOMixin
 
 
 frame_type = click.Choice(('global', 'local', 'frac'), case_sensitive=False)
@@ -171,10 +173,10 @@ def input_cfg(file: t.Optional[Path] = None):
     yield io.read_cfg(file or sys.stdin)
 
 
-@cli.command('in_cfg')
+@cli.command('in_mslice')
 @click.argument('file', type=file_type, required=False)
 @lazy_append
-def input_cfg(file: t.Optional[Path] = None):
+def input_mslice(file: t.Optional[Path] = None):
     """Input a pyMultislicer mslice file. If `file` is not specified, use stdin."""
     yield io.read_mslice(file or sys.stdin)
 
@@ -200,7 +202,7 @@ def loop(state: State, n: int) -> t.Iterable[State]:
 @lazy_map
 def show(state: State,
          zone: t.Optional[t.Tuple[float, float, float]] = None,
-         plane: t.Optional[t.Tuple[float, float, float]] = None) -> State:
+         plane: t.Optional[t.Tuple[float, float, float]] = None) -> t.Iterable[State]:
     """Show the current structure. Doesn't affect the stream of structures."""
     from matplotlib import pyplot
     from .visualize import show_atoms_mpl_3d
@@ -215,7 +217,7 @@ def show(state: State,
 @lazy_map
 def show_2d(state: State,
          zone: t.Optional[t.Tuple[float, float, float]] = None,
-         plane: t.Optional[t.Tuple[float, float, float]] = None) -> State:
+         plane: t.Optional[t.Tuple[float, float, float]] = None) -> t.Iterable[State]:
     """Show the current structure. Doesn't affect the stream of structures."""
     from matplotlib import pyplot
     from .visualize import show_atoms_mpl_2d
@@ -224,10 +226,10 @@ def show_2d(state: State,
     yield state
 
 
-@cli.command('union')
+@cli.command('concat')
 @lazy
-def union(states: t.Iterable[State]) -> t.Iterable[State]:
-    """Combine structures. Symmetry is discarded, but """
+def concat(states: t.Iterable[State]) -> t.Iterable[State]:
+    """Combine structures. Symmetry is discarded"""
     last_index = None
     collect: t.List[HasAtoms] = []
     state = None
@@ -235,13 +237,13 @@ def union(states: t.Iterable[State]) -> t.Iterable[State]:
         if last_index is None:
             last_index = state.indices[-1]
         elif last_index != state.indices[-1]:
-            state.structure = HasAtoms.union(collect)
+            state.structure = HasAtoms.concat(collect)
             state.indices.pop()
             yield state
             last_index = state.indices[-1]
         collect.append(state.structure)
     if state is not None:
-        state.structure = HasAtoms.union(collect)
+        state.structure = HasAtoms.concat(collect)
         state.indices.pop()
         yield state
 
@@ -265,7 +267,12 @@ def crop(state: State,
     If none are specified, refers to the global (cartesian) coordinate system.
     Currently, does not update the structure box (but probably should)
     """
-    state.structure = state.structure.crop(x_min, x_max, y_min, y_max, z_min, z_max, frame=frame)
+    state.structure = t.cast(HasAtomCell, state.structure).crop(
+        x_min or -numpy.inf, x_max or numpy.inf,
+        y_min or -numpy.inf, y_max or numpy.inf,
+        z_min or -numpy.inf, z_max or numpy.inf,
+        frame=frame
+    )
     yield state
 
 
@@ -285,7 +292,7 @@ def rotate(state: State,
         transform = LinearTransform3D().rotate_euler(x, y, z)
     else:
         transform = LinearTransform3D().rotate([x, y, z], theta)
-    state.structure = state.structure.transform_atoms(transform, frame=frame)
+    state.structure = t.cast(HasAtomCell, state.structure).transform_atoms(transform, frame=frame)
     yield state
 
 
@@ -315,7 +322,7 @@ def print_(state: State):
 @lazy_map
 def out(state: State, file: Path):
     path = state.deduplicated_output_path(file)
-    state.structure.write(path)
+    t.cast(AtomsIOMixin, state.structure).write(path)
     yield state
 
 
@@ -323,21 +330,13 @@ def out(state: State, file: Path):
 @click.argument('file', type=out_file_type, required=False)
 @lazy_map
 def out_mslice(state: State, file: t.Optional[Path] = None):
-    state.structure.write_mslice(sys.stdout if file is None or file == '-' else file)
+    t.cast(AtomCellIOMixin, state.structure).write_mslice(sys.stdout if file is None or str(file) == '-' else file)
     yield state
 
 
 @cli.command('out_xyz')
 @click.argument('file', type=out_file_type, required=False)
-@click.option('-f', '--frame', type=frame_type, default='global',
-              help="Frame of reference to output coordinates in.")
-@click.option('--ext/--no-ext', default=True, help="Write extended format")
-@click.option('-c', '--comment', type=str)
 @lazy_map
-def out_xyz(state: State, file: t.Optional[Path] = None, frame: CoordinateFrame = 'global', ext: bool = True, comment: t.Optional[str] = None):
-    if file is None or file == '-':
-        state.structure.write_xyz(sys.stdout, frame=frame, ext=ext, comment=comment)
-    else:
-        with open(state.deduplicated_output_path(file), 'w') as f:
-            state.structure.write_xyz(f, frame=frame, ext=ext, comment=comment)
+def out_xyz(state: State, file: t.Optional[Path] = None):
+    t.cast(AtomsIOMixin, state.structure).write_xyz(sys.stdout if file is None or str(file) == '-' else file)
     yield state

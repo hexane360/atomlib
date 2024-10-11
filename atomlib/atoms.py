@@ -1081,7 +1081,7 @@ class Atoms(AtomsIOMixin, HasAtoms):
         buf.write("])\n")
         return buf.getvalue()
 
-    def _repr_pretty_(self, p, cycle: bool) -> None:
+    def _repr_pretty_(self, p: t.Any, cycle: bool) -> None:
         p.text('Atoms(...)') if cycle else p.text(str(self))
 
 
@@ -1093,18 +1093,18 @@ FillNullStrategy: TypeAlias = polars._typing.FillNullStrategy
 RollingInterpolationMethod: TypeAlias = polars._typing.RollingInterpolationMethod
 ConcatMethod: TypeAlias = t.Literal['horizontal', 'vertical', 'diagonal', 'inner', 'align']
 
-IntoAtoms = t.Union[t.Dict[str, t.Sequence[t.Any]], t.Sequence[t.Any], numpy.ndarray, polars.DataFrame, 'Atoms']
+IntoAtoms: TypeAlias = t.Union[t.Dict[str, t.Sequence[t.Any]], t.Sequence[t.Any], numpy.ndarray, polars.DataFrame, 'Atoms']
 """
 A type convertible into an [`Atoms`][atomlib.atoms.Atoms].
 """
 
-AtomSelection = t.Union[IntoExprColumn, NDArray[numpy.bool_], ArrayLike, t.Mapping[str, t.Any]]
+AtomSelection: TypeAlias = t.Union[IntoExprColumn, NDArray[numpy.bool_], ArrayLike, t.Mapping[str, t.Any]]
 """
 Polars expression selecting a subset of atoms.
 Can be used with many [`Atoms`][atomlib.atoms.Atoms] methods.
 """
 
-AtomValues = t.Union[IntoExprColumn, NDArray[numpy.generic], ArrayLike, t.Mapping[str, t.Any]]
+AtomValues: TypeAlias = t.Union[IntoExprColumn, NDArray[numpy.generic], ArrayLike, t.Mapping[str, t.Any]]
 """
 Array, value, or polars expression mapping atom symbols to values.
 Can be used with `with_*` methods on Atoms

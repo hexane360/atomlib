@@ -115,7 +115,7 @@ def test_get_elems_fail():
     (numpy.array([1, 47, 82]), numpy.array([1.008, 107.8682, 207.2])),
     (polars.Series([1, 47, 82]), polars.Series([1.008, 107.8682, 207.2])),
 ))
-def test_get_mass(elem, mass):
+def test_get_mass(elem: t.Any, mass: t.Any):
     result = get_mass(elem)
 
     if isinstance(mass, polars.Series):
@@ -135,7 +135,7 @@ def test_get_mass(elem, mass):
     (55, 2.98),
     (70, 2.22),
 ))
-def test_get_radius(elem, radius):
+def test_get_radius(elem: int, radius: float):
     assert get_radius(elem) == pytest.approx(radius)
 
 
@@ -144,5 +144,5 @@ def test_get_radius(elem, radius):
     (1, -1, 2.08),
     (34, +6, 0.56),
 ))
-def test_get_ionic_radius(elem, charge, radius):
+def test_get_ionic_radius(elem: int, charge: int, radius: float):
     assert get_ionic_radius(elem, charge) == pytest.approx(radius)

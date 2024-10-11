@@ -4,8 +4,7 @@ import pytest
 
 from .testing import check_equals_structure
 
-from . import make
-from . import alter
+from . import make, alter, AtomCell
 from .transform import AffineTransform3D
 
 
@@ -21,8 +20,8 @@ def test_unbunch():
 
 
 @check_equals_structure('ZnSe_contaminated.xsf')
-def test_contaminated(znse_supercell):
+def test_contaminated(znse_supercell: AtomCell):
     cell = alter.contaminate(znse_supercell, (20., 10.), seed='test_znse_cont')
     assert_array_equal(cell.n_cells, [6, 6, 1])
-    assert_array_equal(cell.affine, AffineTransform3D.translate([0., 0., -10.]).inner)
+    assert_array_equal(cell.affine.inner, AffineTransform3D.translate([0., 0., -10.]).inner)
     return cell.explode().transform(cell.get_cell().affine.inverse())

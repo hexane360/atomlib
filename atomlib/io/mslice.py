@@ -45,7 +45,7 @@ def default_template() -> ElementTree:
     return deepcopy(DEFAULT_TEMPLATE)
 
 
-def convert_xml_value(val, ty):
+def convert_xml_value(val: str, ty: str):
     """Convert an XML value `val` to a Python type determined by the XML type name `ty`."""
     if ty == 'string':
         ty = 'str'
@@ -53,7 +53,7 @@ def convert_xml_value(val, ty):
         val = val.split('.')[0]
         ty = 'int'
     elif ty == 'bool':
-        val = int(val)
+        return bool(int(val))
 
     return getattr(builtins, ty)(val)
 

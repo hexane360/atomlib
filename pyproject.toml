@@ -76,7 +76,7 @@ max-line-length = 99
 
 [tool.pyright]
 include = ['atomlib']
-ignore = ['atomlib/cli.py']
+ignore = []
 exclude = ['**/test_*.py']
 typeCheckingMode = "strict"
 reportUnknownParameterType = "none"
@@ -86,7 +86,6 @@ reportUnknownVariableType = "none"
 reportUnknownMemberType = "none"
 reportMissingTypeArgument = "none"
 reportMissingTypeStubs = "information"
-reportMissingParameterType = "none"
 reportUnusedImport = "warning"
 reportImportCycles = "information"
 reportUnusedVariable = "warning"

@@ -33,7 +33,7 @@ def _cast_atoms(atoms: _HasAtoms, ty: t.Type[HasAtomsT]) -> HasAtomsT:
     if isinstance(atoms, ty):
         return atoms
     if issubclass(ty, HasAtomCell) and not isinstance(atoms, HasAtomCell):
-        raise TypeError(f"File contains no cell information.")
+        raise TypeError("File contains no cell information.")
 
     if ty is AtomCell and isinstance(atoms, HasAtomCell):
         return atoms.get_atomcell()  # type: ignore

@@ -14,6 +14,7 @@ from warnings import warn
 import abc
 import typing as t
 
+from typing_extensions import TypeAlias
 import numpy
 from numpy.typing import NDArray
 
@@ -23,7 +24,7 @@ from .vec import reduce_vec
 from .bbox import BBox3D
 
 
-CoordinateFrame = t.Literal[
+CoordinateFrame: TypeAlias = t.Literal[
     'cell', 'cell_frac', 'cell_box',
     'ortho', 'ortho_frac', 'ortho_box',
     'linear', 'local', 'global',
@@ -248,7 +249,7 @@ class HasCell:
         """Tile the cell by `n` in each dimension."""
         ns = numpy.broadcast_to(n, 3)
         if not numpy.issubdtype(ns.dtype, numpy.integer):
-            raise ValueError(f"repeat() argument must be an integer or integer array.")
+            raise ValueError("repeat() argument must be an integer or integer array.")
         return self.with_cell(Cell(
             affine=self.affine,
             ortho=self.ortho,
@@ -330,7 +331,7 @@ class HasCell:
         return coord_change @ transform @ coord_change.inverse()
 
     def assert_equal(self, other: t.Any):
-        assert isinstance(other, HasCell) and type(self) == type(other)
+        assert isinstance(other, HasCell) and type(self) is type(other)
         numpy.testing.assert_array_almost_equal(self.affine.inner, other.affine.inner, 6)
         numpy.testing.assert_array_almost_equal(self.ortho.inner, other.ortho.inner, 6)
         numpy.testing.assert_array_almost_equal(self.cell_size, other.cell_size, 6)
@@ -410,7 +411,8 @@ class Cell(HasCell):
         # flip QR decomposition so R has positive diagonals
         signs = numpy.sign(numpy.diagonal(r))
         # multiply flips to columns of Q, rows of R
-        q = q * signs; r = r * signs[:, None]
+        q = q * signs
+        r = r * signs[:, None]
         #numpy.testing.assert_allclose(q @ r, lin.inner)
         if numpy.linalg.det(q) < 0:
             warn("Crystal is left-handed. This is currently unsupported, and may cause errors.")
@@ -441,7 +443,7 @@ class Cell(HasCell):
             f"cell_angle={self.cell_angle}, n_cells={self.n_cells}, pbc={self.pbc})"
         )
 
-    def _repr_pretty_(self, p, cycle: bool) -> None:
+    def _repr_pretty_(self, p: t.Any, cycle: bool) -> None:
         p.text(f"{self.__class__.__name__}(...)") if cycle else p.text(str(self))
 
 

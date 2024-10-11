@@ -38,7 +38,7 @@ T = t.TypeVar('T')
 
 def _fwd_atoms_get(f: t.Callable[P, T]) -> t.Callable[P, T]:
     """Forward getter method on `HasAtomCell` to method on `HasAtoms`"""
-    def inner(self, *args, frame: t.Optional[CoordinateFrame] = None, **kwargs):
+    def inner(self, *args, frame: t.Optional[CoordinateFrame] = None, **kwargs):  # type: ignore
         return getattr(self.get_atoms(frame), f.__name__)(*args, **kwargs)
 
     return t.cast(t.Callable[P, T], inner)
@@ -46,7 +46,7 @@ def _fwd_atoms_get(f: t.Callable[P, T]) -> t.Callable[P, T]:
 
 def _fwd_atoms_transform(f: t.Callable[P, T]) -> t.Callable[P, T]:
     """Forward transformation method on `HasAtomCell` to method on `HasAtoms`"""
-    def inner(self, *args, frame: t.Optional[CoordinateFrame] = None, **kwargs):
+    def inner(self, *args, frame: t.Optional[CoordinateFrame] = None, **kwargs):  # type: ignore
         return self.with_atoms(self._transform_atoms_in_frame(frame, lambda atoms: getattr(atoms, f.__name__)(*args, **kwargs)))
 
     return t.cast(t.Callable[P, T], inner)
@@ -186,7 +186,7 @@ class HasAtomCell(HasAtoms, HasCell, abc.ABC):
         """Tile the cell"""
         ns = numpy.broadcast_to(n, 3)
         if not numpy.issubdtype(ns.dtype, numpy.integer):
-            raise ValueError(f"repeat() argument must be an integer or integer array.")
+            raise ValueError("repeat() argument must be an integer or integer array.")
 
         cells = numpy.stack(numpy.meshgrid(*map(numpy.arange, ns))) \
             .reshape(3, -1).T.astype(float)
@@ -660,10 +660,10 @@ class AtomCell(AtomCellIOMixin, HasAtomCell):
         else:
             atom_cells = [a for a in atoms if isinstance(a, AtomCell)]
             if len(atom_cells) == 0:
-                raise TypeError(f"No AtomCells to combine")
+                raise TypeError("No AtomCells to combine")
             rep = atom_cells[0]
             if not all(a.cell == rep.cell for a in atom_cells[1:]):
-                raise TypeError(f"Can't combine AtomCells with different cells")
+                raise TypeError("Can't combine AtomCells with different cells")
 
         return cls(Atoms.empty(), frame=rep.frame, cell=rep.cell)
 
@@ -740,7 +740,7 @@ class AtomCell(AtomCellIOMixin, HasAtomCell):
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}({self.atoms!r}, cell={self.cell!r}, frame={self.frame})"
 
-    def _repr_pretty_(self, p, cycle: bool) -> None:
+    def _repr_pretty_(self, p: t.Any, cycle: bool) -> None:
         p.text(f'{self.__class__.__name__}(...)') if cycle else p.text(str(self))
 
 

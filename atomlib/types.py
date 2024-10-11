@@ -1,5 +1,6 @@
 import typing as t
 
+from typing_extensions import TypeAlias
 import numpy
 from numpy.typing import NDArray, ArrayLike
 
@@ -8,22 +9,22 @@ if t.TYPE_CHECKING:
     from .bbox import BBox3D
 
 
-Vec3 = NDArray[numpy.floating[t.Any]]
+Vec3: TypeAlias = NDArray[numpy.floating[t.Any]]
 """3D float vector, of shape (3,)."""
 
-VecLike = ArrayLike
+VecLike: TypeAlias = ArrayLike
 """3d vector-like"""
 
-Pts3DLike = t.Union['BBox3D', ArrayLike]
+Pts3DLike: TypeAlias = t.Union['BBox3D', ArrayLike]
 """Sequence of 3d points-like"""
 
-Num = t.Union[float, int]
+Num: TypeAlias = t.Union[float, int]
 """Scalar numeric type"""
 
-ElemLike = t.Union[str, int]
+ElemLike: TypeAlias = t.Union[str, int]
 """Element-like"""
 
-ElemsLike = t.Union[str, int, t.Sequence[t.Union[ElemLike, t.Tuple[ElemLike, float]]]]
+ElemsLike: TypeAlias = t.Union[str, int, t.Sequence[t.Union[ElemLike, t.Tuple[ElemLike, float]]]]
 
 NumT = t.TypeVar('NumT', bound=numpy.number)
 """[`numpy.number`][numpy.number]-bound type variable"""
