@@ -13,13 +13,31 @@ nav:
     - using/coords.md
   - API:
     - api/index.md
-    - api/atoms.md
     - api/atomcell.md
-    - api/make.md
+    - api/atoms.md
+    - api/bbox.md
+    - api/cell.md
     - api/defect.md
+    - api/elem.md
+    - api/expr.md
+    - api/make.md
+    - api/mixins.md
+    - api/testing.md
     - api/transform.md
     - api/types.md
     - api/util.md
+    - api/vec.md
+    - api/visualize.md
+    - atomlib.io:
+      - api/io/index.md
+      - api/io/cfg.md
+      - api/io/cif.md
+      - api/io/lmp.md
+      - api/io/mp_api.md
+      - api/io/mslice.md
+      - api/io/qe.md
+      - api/io/xsf.md
+      - api/io/xyz.md
 
 theme:
   name: material

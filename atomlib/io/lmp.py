@@ -1,3 +1,7 @@
+"""
+IO for LAAMPS data files, as described [here](https://docs.lammps.org/read_data.html#format-of-a-data-file).
+"""
+
 from __future__ import annotations
 
 from dataclasses import dataclass

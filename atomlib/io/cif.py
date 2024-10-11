@@ -1,5 +1,5 @@
 """
-IO for the CIF1.1 file format, specified here: https://www.iucr.org/resources/cif/spec/version1.1
+IO for the CIF1.1 file format, specified [here](https://www.iucr.org/resources/cif/spec/version1.1).
 """
 
 from __future__ import annotations

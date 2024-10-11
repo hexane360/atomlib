@@ -1,3 +1,6 @@
+"""
+IO for the Materials Project API, [](https://api.materialsproject.org/).
+"""
 
 from os import environ
 import requests

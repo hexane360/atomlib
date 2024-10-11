@@ -43,6 +43,12 @@ def _cast_atoms(atoms: _HasAtoms, ty: t.Type[HasAtomsT]) -> HasAtomsT:
 
 
 class AtomsIOMixin(_HasAtoms, abc.ABC):
+    """
+    Mix-in to add IO methods to [`HasAtoms`][atomlib.atoms.HasAtoms].
+
+    All concrete subclasses of [`HasAtoms`][atomlib.atoms.HasAtoms] should also subclass this.
+    """
+
     @t.overload
     @classmethod
     def read(cls: t.Type[HasAtomsT], path: FileOrPath, ty: FileType) -> HasAtomsT:
@@ -138,6 +144,12 @@ class AtomsIOMixin(_HasAtoms, abc.ABC):
 
 
 class AtomCellIOMixin(_HasAtomCell, AtomsIOMixin):
+    """
+    Mix-in to add IO methods to [`HasAtomCell`][atomlib.atomcell.HasAtomCell].
+
+    All concrete subclasses of [`HasAtomCell`][atomlib.atomcell.HasAtomCell] should also subclass this.
+    """
+
     def write_mslice(self, f: BinaryFileOrPath, template: t.Optional[MSliceFile] = None, *,
                  slice_thickness: t.Optional[float] = None,  # angstrom
                  scan_points: t.Optional[ArrayLike] = None,
@@ -152,7 +164,7 @@ class AtomCellIOMixin(_HasAtomCell, AtomsIOMixin):
         """
         Write a structure to an mslice file.
 
-        `template` may be a file, path, or ElementTree containing an existing mslice file.
+        `template` may be a file, path, or `ElementTree` containing an existing mslice file.
         Its structure will be modified to make the final output. If not specified, a default
         template will be used.
 
@@ -166,5 +178,12 @@ class AtomCellIOMixin(_HasAtomCell, AtomsIOMixin):
                             noise_sigma=noise_sigma, tilt=tilt, tds=tds, n_cells=n_cells)
 
     def write_qe(self, f: FileOrPath, pseudo: t.Optional[t.Mapping[str, str]] = None):
+        """
+        Write a structure to a Quantum Espresso pw.x file.
+
+        Args:
+          f: File or path to write to
+          pseudo: Mapping from atom symbol
+        """
         from .io import write_qe
         write_qe(self, f, pseudo)

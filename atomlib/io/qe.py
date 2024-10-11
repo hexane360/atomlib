@@ -1,3 +1,7 @@
+"""
+IO for Quantum Espresso `pw.x` files.
+"""
+
 from __future__ import annotations
 
 import typing as t
@@ -39,15 +43,15 @@ def write_qe(atomcell: HasAtomCell, f: FileOrPath, pseudo: t.Optional[t.Mapping[
 /""", file=f)
 
         ortho = atomcell.get_transform('local', 'cell_box').to_linear().inner
-        print(f"\nCELL_PARAMETERS angstrom", file=f)
+        print("\nCELL_PARAMETERS angstrom", file=f)
         for row in ortho.T:
             print(f"  {row[0]:12.8f} {row[1]:12.8f} {row[2]:12.8f}", file=f)
 
-        print(f"\nATOMIC_SPECIES", file=f)
+        print("\nATOMIC_SPECIES", file=f)
         for (symbol, mass, pot) in types.select(('symbol', 'mass', 'pot')).rows():
             print(f"{symbol:>4} {mass:10.3f}  {pot}", file=f)
 
-        print(f"\nATOMIC_POSITIONS crystal", file=f)
+        print("\nATOMIC_POSITIONS crystal", file=f)
         for (symbol, (x, y, z)) in atoms.select(('symbol', 'coords')).rows():
             print(f"{symbol:>4} {x:.8f} {y:.8f} {z:.8f}", file=f)
 

@@ -1,5 +1,5 @@
 """
-IO for XCrySDen's XSF format. (http://www.xcrysden.org/doc/XSF.html)
+IO for XCrySDen's XSF format, specified [here](http://www.xcrysden.org/doc/XSF.html).
 """
 
 from __future__ import annotations

@@ -41,6 +41,10 @@ def show_atoms_3d(atoms: HasAtoms, *,
                   plane: t.Optional[VecLike] = None,
                   backend: BackendName = 'mpl',
                   style: AtomStyle = 'small', **kwargs: t.Any) -> AtomImage:
+    """
+    Show `atoms` on a 3D plot, using backend `backend` (defaults to matplotlib).
+    """
+
     backend = t.cast(BackendName, backend.lower())
     if backend == 'mpl':
         return show_atoms_mpl_3d(atoms, zone=zone, plane=plane, style=style, **kwargs)
@@ -56,6 +60,10 @@ def show_atoms_2d(atoms: HasAtoms, *,
                   horz: t.Optional[VecLike] = None,
                   backend: BackendName = 'mpl',
                   style: AtomStyle = 'small', **kwargs: t.Any) -> AtomImage:
+    """
+    Show `atoms` on a 2D plot, using backend `backend` (defaults to matplotlib).
+    """
+
     backend = t.cast(BackendName, backend.lower())
     if backend == 'mpl':
         return show_atoms_mpl_2d(atoms, zone=zone, plane=plane, horz=horz, style=style, **kwargs)
@@ -89,27 +97,18 @@ _ELEM_MAP = {
 
 
 def get_elem_color(elem: int) -> t.List[int]:
+    """Get the color to use for element `elem`."""
     # grey fallback
     return _ELEM_MAP.get(elem, [80, 80, 80])
-
-
-"""
-class AtomPatch3D(PathPatch3D):
-    def __init__(self, elem: int, fc=None, s: float = 2., **kwargs):
-        ...
-        self.elem = elem
-        if fc is None:
-            fc = get_elem_color(elem)
-
-        self.s = s
-
-        super().__init__(fc=fc, **kwargs)
-"""
 
 
 def get_zone(atoms: HasAtoms, zone: t.Optional[VecLike] = None,
              plane: t.Optional[VecLike] = None,
              default: t.Optional[VecLike] = None) -> NDArray[numpy.float64]:
+    """
+    Get the zone axis corresponding to the arguments `zone`, `plane`, and `default`.
+    """
+
     if zone is not None and plane is not None:
         raise ValueError("'zone' and 'plane' can't both be specified.")
     if plane is not None:
@@ -125,6 +124,7 @@ def get_zone(atoms: HasAtoms, zone: t.Optional[VecLike] = None,
 
 
 def get_plot_radii(atoms: HasAtoms, min_r: t.Optional[float] = 1.0, style: AtomStyle = 'small') -> NDArray[numpy.float64]:
+    """Get the radii to use for each atom in `atoms`."""
     radii = get_radius(atoms['elem']).to_numpy()
     if style == 'small':
         radii = radii * 0.6
@@ -140,6 +140,7 @@ def get_plot_radii(atoms: HasAtoms, min_r: t.Optional[float] = 1.0, style: AtomS
 
 
 def get_azim_elev(zone: VecLike) -> t.Tuple[float, float]:
+    """Get the azimuth and elevation corresponding to the zone `zone`."""
     (a, b, c) = -to_vec3(zone)  # look down zone
     # todo: aren't these just arctan2s?
     return (numpy.angle(a + b*1.j, deg=True), numpy.angle(numpy.sqrt(a**2 + b**2) + c*1.j, deg=True))  # type: ignore
@@ -150,6 +151,8 @@ def show_atoms_mpl_3d(atoms: HasAtoms, *, fig: t.Optional[Figure] = None,
                       plane: t.Optional[VecLike] = None,
                       min_r: t.Optional[float] = 1.0,
                       style: AtomStyle = 'small') -> AtomImageMpl:
+    """Show `atoms` on a 3D plot using matplotlib."""
+
     fig = AtomImageMpl(fig or pyplot.figure())  # type: ignore
 
     zone = get_zone(atoms, zone, plane, [1., 2., 4.])
@@ -200,6 +203,8 @@ def show_atoms_mpl_2d(atoms: HasAtoms, *, fig: t.Optional[Figure] = None,
                       horz: t.Optional[VecLike] = None,
                       min_r: t.Optional[float] = 1.0,
                       style: AtomStyle = 'small') -> AtomImageMpl:
+    """Show `atoms` on a 2D plot using matplotlib."""
+
     zone = get_zone(atoms, zone, plane, [0., 0., 1.])
     fig = AtomImageMpl(fig or pyplot.figure())  # type: ignore
 

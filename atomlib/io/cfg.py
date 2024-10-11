@@ -1,5 +1,5 @@
 """
-IO for AtomEye's CFG file format, described here: http://li.mit.edu/Archive/Graphics/A/index.html#standard_CFG
+IO for AtomEye's CFG file format, as described [here](http://li.mit.edu/Archive/Graphics/A/index.html#standard_CFG).
 """
 from __future__ import annotations
 

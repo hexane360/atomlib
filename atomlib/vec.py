@@ -12,15 +12,21 @@ from .types import to_vec3, ScalarT
 
 
 def dot(v1: ArrayLike, v2: ArrayLike, axis: int = -1, keepdims: bool = True) -> NDArray[numpy.floating]:
+    """
+    Take the dot product between two vectors, along axis `axis`.
+    """
     return numpy.add.reduce(numpy.atleast_1d(v1) * numpy.atleast_1d(v2), axis=axis, keepdims=keepdims)
 
 
 def norm(v: ArrayLike) -> numpy.floating:
+    """
+    Return the norm of the vector `v`.
+    """
     return numpy.linalg.norm(v)
 
 
 def perp(v1: ArrayLike, v2: ArrayLike) -> NDArray[numpy.floating]:
-    """Return the component of ``v1`` perpendicular to ``v2``."""
+    """Return the component of `v1` perpendicular to `v2`."""
     v1 = numpy.atleast_1d(v1)
     v2 = numpy.atleast_1d(v2)
     v2 /= norm(v2)
@@ -28,7 +34,7 @@ def perp(v1: ArrayLike, v2: ArrayLike) -> NDArray[numpy.floating]:
 
 
 def para(v1: ArrayLike, v2: ArrayLike) -> NDArray[numpy.floating]:
-    """Return the component of ``v1`` parallel to ``v2``."""
+    """Return the component of `v1` parallel to `v2`."""
     v1 = numpy.atleast_1d(v1)
     v2 = numpy.atleast_1d(v2)
     v2 /= norm(v2)
@@ -36,6 +42,9 @@ def para(v1: ArrayLike, v2: ArrayLike) -> NDArray[numpy.floating]:
 
 
 def is_diagonal(matrix: numpy.ndarray, tol: float = 1e-10) -> bool:
+    """
+    Return if `matrix` is diagonal, to tolerance `tol`.
+    """
     d = matrix.shape[0]
     assert matrix.shape == (d, d)
     p, q = matrix.strides
@@ -44,18 +53,23 @@ def is_diagonal(matrix: numpy.ndarray, tol: float = 1e-10) -> bool:
 
 
 def split_arr(a: NDArray[ScalarT], axis: int = 0) -> t.Iterator[NDArray[ScalarT]]:
+    """
+    Split the array along the axis `axis`.
+    """
     return (numpy.squeeze(sub_a, axis) for sub_a in numpy.split(a, a.shape[axis], axis))
 
 
 def polygon_solid_angle(poly: ArrayLike, pts: t.Optional[ArrayLike] = None,
                         winding: t.Optional[ArrayLike] = None) -> NDArray[numpy.float64]:
     """
-    Return the signed solid angle of the polygon ``poly`` in the xy plane, as viewed from ``pts``.
+    Return the signed solid angle of the polygon `poly` in the xy plane, as viewed from `pts`.
 
-    ``poly``: ndarray of shape (..., N, 2)
-    ``pts``: ndarray of shape (..., 3)
+    Args:
+      poly: Polygon(s) to compute the angle of, array of shape `(..., N, 2)`
+      pts: Point(s) to view the polygons from, array of shape `(..., 3)`
 
-    Returns a ndarray of shape ``broadcast(poly.shape[:-2], pts.shape[:-1])``
+    Returns:
+      A ndarray of shape `broadcast(poly.shape[:-2], pts.shape[:-1])`, containing signed solid angles.
     """
     poly = numpy.atleast_2d(poly).astype(numpy.float64)
     pts = (numpy.array([0., 0., 0.]) if pts is None else numpy.atleast_1d(pts)).astype(numpy.float64)

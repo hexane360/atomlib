@@ -1,7 +1,7 @@
 """
 Crystallographic unit cell.
 
-This module defines :py:class:`structlib.HasCell` and the concrete :py:class:`structlib.Cell`,
+This module defines [`HasCell`][atomlib.cell.HasCell] and the concrete [`Cell`][atomlib.cell.Cell],
 the core types for dealing with crystallographic unit cells and
 their associated coordinate frames.
 """
@@ -132,7 +132,7 @@ class HasCell:
     # get transforms
 
     def _get_transform_to_local(self, frame: CoordinateFrame) -> AffineTransform3D:
-        """Get the transform from 'frame' to local coordinates."""
+        """Get the transform from `frame` to local coordinates."""
         frame = t.cast(CoordinateFrame, frame.lower())
 
         if frame == 'local' or frame == 'global':
@@ -161,7 +161,7 @@ class HasCell:
 
     def get_transform(self, frame_to: t.Optional[CoordinateFrame] = None, frame_from: t.Optional[CoordinateFrame] = None) -> AffineTransform3D:
         """
-        In the two-argument form, get the transform to 'frame_to' from 'frame_from'.
+        In the two-argument form, get the transform to `frame_to` from `frame_from`.
         In the one-argument form, get the transform from local coordinates to 'frame'.
         """
         transform_from = self._get_transform_to_local(frame_from) if frame_from is not None else AffineTransform3D()
@@ -197,15 +197,15 @@ class HasCell:
         )
 
     def _cell_size_in_local(self) -> Vec3:
-        """Calculate cell_size in the local coordinate system. Assumes ``self.is_orthogonal_in_local()``."""
+        """Calculate cell_size in the local coordinate system. Assumes `self.is_orthogonal_in_local()`."""
         return numpy.abs(self.get_transform('local', 'ortho').transform_vec(self.cell_size))
 
     def _box_size_in_local(self) -> Vec3:
-        """Calculate box_size in the local coordinate system. Assumes ``self.is_orthogonal_in_local()``."""
+        """Calculate box_size in the local coordinate system. Assumes `self.is_orthogonal_in_local()`."""
         return numpy.abs(self.get_transform('local', 'ortho').transform_vec(self.box_size))
 
     def _n_cells_in_local(self) -> NDArray[numpy.int_]:
-        """Calculate n_cells after any local rotation. Assumes ``self.is_orthogonal_in_local()``."""
+        """Calculate n_cells after any local rotation. Assumes `self.is_orthogonal_in_local()`."""
         return numpy.abs(numpy.round(self.get_transform('local', 'ortho').transform_vec(self.n_cells)).astype(int))
 
     def to_ortho(self) -> AffineTransform3D:
@@ -285,7 +285,7 @@ class HasCell:
              z_min: float = -numpy.inf, z_max: float = numpy.inf, *,
              frame: CoordinateFrame = 'local') -> HasCellT:
         """
-        Crop 'cell' to the given extents. For a non-orthogonal
+        Crop `self` to the given extents. For a non-orthogonal
         cell, this must be specified in cell coordinates. This
         function implicity `explode`s the cell as well.
         """
@@ -324,7 +324,7 @@ class HasCell:
     def change_transform(self, transform: Transform3D,
                          frame_to: t.Optional[CoordinateFrame] = None,
                          frame_from: t.Optional[CoordinateFrame] = None) -> Transform3D:
-        """Coordinate-change a transformation to 'frame_to' from 'frame_from'."""
+        """Coordinate-change a transformation from `frame_from` into `frame_to`."""
         if frame_to == frame_from and frame_to is not None:
             return transform
         coord_change = self.get_transform(frame_to, frame_from)
@@ -345,11 +345,11 @@ class Cell(HasCell):
     Internal class for representing the coordinate systems of a crystal.
 
     The overall transformation from crystal coordinates to real-space coordinates is
-    is split into four transformations, applied from bottom to top. First is ``n_cells``,
+    is split into four transformations, applied from bottom to top. First is `n_cells`,
     which scales from fractions of a unit cell to fractions of a supercell. Next is
-    ``cell_size``, which scales to real-space units. ``ortho`` is an orthogonalization
+    `cell_size`, which scales to real-space units. `ortho` is an orthogonalization
     matrix, a det = 1 upper-triangular matrix which transforms crystal axes to
-    an orthogonal coordinate system. Finally, ``affine`` contains any remaining
+    an orthogonal coordinate system. Finally, `affine` contains any remaining
     transformations to the local coordinate system, which atoms are stored in.
     """
 
@@ -361,7 +361,7 @@ class Cell(HasCell):
 
     _affine: AffineTransform3D = AffineTransform3D()
     """
-    Affine transformation. Holds transformation from 'ortho' to 'local' coordinates,
+    Affine transformation. Holds transformation from `'ortho'` to `'local'` coordinates,
     including rotation away from the standard crystal orientation.
     """
 
@@ -499,7 +499,7 @@ def cell_to_ortho(cell_size: VecLike, cell_angle: t.Optional[VecLike] = None) ->
 
 
 def ortho_to_cell(ortho: LinearTransform3D) -> t.Tuple[Vec3, Vec3]:
-    """Get unit cell parameters (cell_size, cell_angle) from orthogonalization transform."""
+    """Get unit cell parameters `(cell_size, cell_angle)` from orthogonalization transform."""
     # TODO suspect
     cell_size = numpy.linalg.norm(ortho.inner, axis=-2)
     cell_size = _validate_cell_size(cell_size)
@@ -518,7 +518,7 @@ def ortho_to_cell(ortho: LinearTransform3D) -> t.Tuple[Vec3, Vec3]:
 def plane_to_zone(metric: LinearTransform3D, plane: VecLike, reduce: bool = True) -> Vec3:
     """
     Return the zone axis associated with a given crystallographic plane.
-    If `reduce` is True, call `reduce_vec` before returning. Otherwise,
+    If `reduce` is `True`, call `reduce_vec` before returning. Otherwise,
     return a unit vector.
     """
 
