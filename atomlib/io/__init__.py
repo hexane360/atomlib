@@ -5,6 +5,7 @@ from io import IOBase
 import logging
 import typing as t
 
+from typing_extensions import TypeAlias
 import numpy
 import polars
 
@@ -23,7 +24,7 @@ from ..transform import LinearTransform3D
 from ..elem import get_sym, get_elem
 from ..util import FileOrPath
 
-FileType = t.Literal['cif', 'xyz', 'xsf', 'cfg', 'lmp', 'mslice', 'qe']
+FileType: TypeAlias = t.Literal['cif', 'xyz', 'xsf', 'cfg', 'lmp', 'mslice', 'qe']
 
 
 def read_cif(f: t.Union[FileOrPath, CIF, CIFDataBlock], block: t.Union[int, str, None] = None) -> HasAtoms:

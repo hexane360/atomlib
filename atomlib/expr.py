@@ -420,7 +420,7 @@ class ParseState(t.Generic[T_co, V]):
         logging.debug(f"parse_nary({lhs}, level={level})")
         token = self.peek()
         logging.debug(f"token: '{token!r}'")
-        
+
         while token is not None:
             if not isinstance(token, OpToken) or \
                not isinstance(token.op, (NaryOp, BinaryOp)):
@@ -435,7 +435,7 @@ class ParseState(t.Generic[T_co, V]):
             logging.debug(f"rhs: '{rhs}'")
 
             inner = self.peek()
-            if not inner is None and isinstance(inner, OpToken):
+            if inner is not None and isinstance(inner, OpToken):
                 inner_op = inner.op
                 if isinstance(inner_op, (NaryOp, BinaryOp)) and \
                     inner_op.precedes(token.op):

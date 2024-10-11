@@ -225,7 +225,7 @@ def miller_4_to_3_plane(a: NDArray[numpy.number], reduce: bool = True, max_denom
     """Convert a plane in 4-axis Miller-Bravais notation to 3-axis Miller notation."""
     a = numpy.atleast_1d(a)
     assert a.shape[-1] == 4
-    h, k, i, l = numpy.split(a, 4, axis=-1)
+    h, k, i, l = numpy.split(a, 4, axis=-1)  # noqa: E741
     assert numpy.allclose(-i, h + k, equal_nan=True)
     out = numpy.concatenate((h, k, l), axis=-1)
     return reduce_vec(out, max_denom) if reduce else out
@@ -235,8 +235,8 @@ def miller_3_to_4_plane(a: NDArray[numpy.number], reduce: bool = True, max_denom
     """Convert a plane in 3-axis Miller notation to 4-axis Miller-Bravais notation."""
     a = numpy.atleast_1d(a)
     assert a.shape[-1] == 3
-    h, k, l = numpy.split(a, 3, axis=-1)
-    out = numpy.concatenate((h, k, -(h + k), l), axis=-1)  # type: ignore
+    h, k, l = numpy.split(a, 3, axis=-1)  # noqa: E741
+    out = numpy.concatenate((h, k, -(h + k), l), axis=-1)
     return reduce_vec(out, max_denom) if reduce else out
 
 

@@ -9,6 +9,7 @@ from io import TextIOBase
 import logging
 import typing as t
 
+from typing_extensions import TypeAlias
 import numpy
 from numpy.typing import NDArray
 import polars
@@ -16,7 +17,7 @@ import polars
 from ..transform import LinearTransform3D
 from ..util import open_file, FileOrPath
 
-Periodicity = t.Literal['crystal', 'slab', 'polymer', 'molecule']
+Periodicity: TypeAlias = t.Literal['crystal', 'slab', 'polymer', 'molecule']
 
 if t.TYPE_CHECKING:
     from ..atoms import HasAtoms
@@ -204,7 +205,7 @@ class XSFParser:
             return polars.DataFrame({}, schema=['elem', 'x', 'y', 'z'])  # type: ignore
 
         coord_lens = list(map(len, coords))
-        if not all(l == coord_lens[0] for l in coord_lens[1:]):
+        if not all(coord_len == coord_lens[0] for coord_len in coord_lens[1:]):
             raise ValueError("Mismatched atom dimensions.")
         if coord_lens[0] < 3:
             raise ValueError("Expected at least 3 coordinates per atom.")

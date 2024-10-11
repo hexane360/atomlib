@@ -8,6 +8,7 @@ import logging
 import string
 import typing as t
 
+from typing_extensions import TypeAlias
 import numpy
 
 from ..atomcell import Atoms, AtomCell, HasAtomCellT, IntoAtoms
@@ -20,7 +21,7 @@ from ..bbox import BBox3D
 from ..util import proc_seed
 
 
-CellType = t.Literal['conv', 'prim', 'ortho']
+CellType: TypeAlias = t.Literal['conv', 'prim', 'ortho']
 
 
 def fcc(elem: ElemLike, a: Num, *, cell: CellType = 'conv', additional: t.Optional[IntoAtoms] = None) -> AtomCell:

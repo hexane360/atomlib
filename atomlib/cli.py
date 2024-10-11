@@ -78,7 +78,7 @@ def cli(verbose: int = 0):
 def run_chain(cmds: t.Sequence[CmdType], verbose: int = 0):
     states: t.Iterable[State] = ()
     for cmd in cmds:
-        if cmd is None:
+        if cmd is None:  # type: ignore reportUnnecessaryComparison
             raise RuntimeError("'cmd' is None. Did a command forget to return a wrapper function?")
         states = cmd(states)
     for _ in states:

@@ -4,6 +4,7 @@ from __future__ import annotations
 from abc import abstractmethod, ABC
 import typing as t
 
+from typing_extensions import TypeAlias
 import numpy
 from numpy.typing import NDArray
 from matplotlib import pyplot
@@ -25,8 +26,8 @@ from ..vec import split_arr
 from ..elem import get_radius
 
 
-BackendName = t.Literal['mpl', 'ase']
-AtomStyle = t.Literal['spacefill', 'ballstick', 'small']
+BackendName: TypeAlias = t.Literal['mpl', 'ase']
+AtomStyle: TypeAlias = t.Literal['spacefill', 'ballstick', 'small']
 
 
 class AtomImage(ABC):
@@ -140,9 +141,8 @@ def get_plot_radii(atoms: HasAtoms, min_r: t.Optional[float] = 1.0, style: AtomS
 
 def get_azim_elev(zone: VecLike) -> t.Tuple[float, float]:
     (a, b, c) = -to_vec3(zone)  # look down zone
-    l = numpy.sqrt(a**2 + b**2)
     # todo: aren't these just arctan2s?
-    return (numpy.angle(a + b*1.j, deg=True), numpy.angle(l + c*1.j, deg=True))  # type: ignore
+    return (numpy.angle(a + b*1.j, deg=True), numpy.angle(numpy.sqrt(a**2 + b**2) + c*1.j, deg=True))  # type: ignore
 
 
 def show_atoms_mpl_3d(atoms: HasAtoms, *, fig: t.Optional[Figure] = None,

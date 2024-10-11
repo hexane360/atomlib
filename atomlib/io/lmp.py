@@ -216,10 +216,10 @@ class LMP:
 
             # print sections
             for section in self.sections:
-                l = section.name
+                line = section.name
                 if section.style is not None:
-                    l += f'  # {section.style}'
-                print(f"\n{l}\n", file=f)
+                    line += f'  # {section.style}'
+                print(f"\n{line}\n", file=f)
 
                 f.writelines(section.body)
 
@@ -361,9 +361,9 @@ class LMPReader:
         try:
             for _ in range(n):
                 while True:
-                    l = next(self._file)
-                    if not l.isspace():
-                        lines.append(l)
+                    line = next(self._file)
+                    if not line.isspace():
+                        lines.append(line)
                         break
         except StopIteration:
             return None
@@ -385,11 +385,14 @@ def _parse_seq(f: t.Callable[[str], t.Any], n: int) -> t.Callable[[str], t.Tuple
 
     return inner
 
-
 _parse_2float = _parse_seq(float, 2)
 _parse_3float = _parse_seq(float, 3)
-_fmt_2float = lambda vals: f"{vals[0]:16.7f} {vals[1]:14.7f}"
-_fmt_3float = lambda vals: f"{vals[0]:16.7f} {vals[1]:14.7f} {vals[2]:14.7f}"
+
+def _fmt_2float(vals: t.Sequence[float]):
+    return f"{vals[0]:16.7f} {vals[1]:14.7f}"
+
+def _fmt_3float(vals: t.Sequence[float]):
+    return f"{vals[0]:16.7f} {vals[1]:14.7f} {vals[2]:14.7f}"
 
 
 _HEADER_KWS = {

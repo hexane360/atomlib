@@ -8,7 +8,7 @@ import json
 import time
 import typing as t
 
-from typing_extensions import ParamSpec, Concatenate
+from typing_extensions import ParamSpec, Concatenate, TypeAlias
 import numpy
 from numpy.typing import NDArray
 import polars
@@ -27,9 +27,9 @@ def map_some(f: t.Callable[[T], U], val: t.Optional[T]) -> t.Optional[U]:
     return None if val is None else f(val)
 
 
-FileOrPath = t.Union[str, Path, TextIOBase, t.TextIO]
+FileOrPath: TypeAlias = t.Union[str, Path, TextIOBase, t.TextIO]
 """Open text file or path to a file. Use with [open_file][atomlib.util.open_file]."""
-BinaryFileOrPath = t.Union[str, Path, t.TextIO, t.BinaryIO, IOBase]
+BinaryFileOrPath: TypeAlias = t.Union[str, Path, t.TextIO, t.BinaryIO, IOBase]
 """Open binary file or path to a file. Use with [open_file_binary][atomlib.util.open_file_binary]."""
 
 

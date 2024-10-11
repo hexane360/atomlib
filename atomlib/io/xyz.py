@@ -13,6 +13,7 @@ import re
 import logging
 import typing as t
 
+from typing_extensions import TypeAlias
 import numpy
 from numpy.typing import NDArray
 import polars
@@ -46,7 +47,7 @@ _PROP_NAME_UNMAP: t.Dict[str, str] = {
 }
 
 
-XYZFormat = t.Literal['xyz', 'exyz']
+XYZFormat: TypeAlias = t.Literal['xyz', 'exyz']
 
 T = t.TypeVar('T')
 
@@ -90,7 +91,7 @@ class XYZ:
                 # TODO be more gracious about whitespace here
                 length = int(f.readline())
             except ValueError:
-                raise ValueError(f"Error parsing XYZ file: Invalid length") from None
+                raise ValueError("Error parsing XYZ file: Invalid length") from None
             except IOError as e:
                 raise IOError(f"Error parsing XYZ file: {e}") from None
 

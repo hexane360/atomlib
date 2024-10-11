@@ -8,6 +8,7 @@ import warnings
 import typing as t
 from typing import cast
 
+from typing_extensions import TypeAlias
 import numpy
 from numpy.typing import NDArray, ArrayLike
 import polars
@@ -36,7 +37,7 @@ def ellip_pi(n: NDArray[numpy.float64], m: NDArray[numpy.float64]) -> NDArray[nu
     return rf + rj * n / 3
 
 
-CutType = t.Literal['shift', 'add', 'rm']
+CutType: TypeAlias = t.Literal['shift', 'add', 'rm']
 """Cut plane to use when creating a (non-screw) dislocation."""
 
 
