@@ -13,7 +13,7 @@ import numpy
 from ..atomcell import Atoms, AtomCell, HasAtomCellT, IntoAtoms
 from ..transform import LinearTransform3D, AffineTransform3D
 from ..elem import get_elem, get_elems, get_mass
-from ..types import ElemLike, Num, VecLike
+from ..types import ElemLike, ElemsLike, Num, VecLike
 from ..cell import cell_to_ortho, Cell
 from ..vec import reduce_vec, split_arr, to_vec3
 from ..bbox import BBox3D
@@ -73,7 +73,7 @@ def fcc(elem: ElemLike, a: Num, *, cell: CellType = 'conv', additional: t.Option
     return AtomCell.from_ortho(frame, ortho, frame='cell_frac')
 
 
-def wurtzite(elems: t.Union[str, t.Sequence[ElemLike]], a: Num, c: t.Optional[Num] = None,
+def wurtzite(elems: ElemsLike, a: Num, c: t.Optional[Num] = None,
              d: t.Optional[Num] = None, *, cell: CellType = 'conv') -> AtomCell:
     r"""
     Create a wurzite lattice of the specified two elements, with the given cell.
@@ -94,10 +94,7 @@ def wurtzite(elems: t.Union[str, t.Sequence[ElemLike]], a: Num, c: t.Optional[Nu
     Returns:
       Periodic wurtzite unit cell
     """
-    if isinstance(elems, str):
-        elems = get_elems(elems)
-    else:
-        elems = list(map(get_elem, elems))
+    elems = [t[0] for t in get_elems(elems)]
 
     if len(elems) != 2:
         raise ValueError("Expected two elements.")
@@ -165,7 +162,7 @@ def graphite(elem: t.Union[str, ElemLike, None] = None, a: t.Optional[Num] = Non
     return atoms
 
 
-def rocksalt(elems: t.Union[str, t.Sequence[ElemLike]], a: Num, *,
+def rocksalt(elems: ElemsLike, a: Num, *,
              cell: CellType = 'conv') -> AtomCell:
     """
     Create a rock salt FCC structure AB. Returns the same cell types as `fcc`.
@@ -179,10 +176,7 @@ def rocksalt(elems: t.Union[str, t.Sequence[ElemLike]], a: Num, *,
     Returns:
       Periodic rocksalt unit cell
     """
-    if isinstance(elems, str):
-        elems = get_elems(elems)
-    else:
-        elems = list(map(get_elem, elems))
+    elems = [t[0] for t in get_elems(elems)]
 
     if len(elems) != 2:
         raise ValueError("Expected two elements.")
@@ -214,7 +208,7 @@ def rocksalt(elems: t.Union[str, t.Sequence[ElemLike]], a: Num, *,
     return fcc(elems[0], a, cell=cell, additional=additional)
 
 
-def zincblende(elems: t.Union[str, t.Sequence[ElemLike]], a: Num, *,
+def zincblende(elems: ElemsLike, a: Num, *,
                cell: CellType = 'conv') -> AtomCell:
     """
     Create a zinc-blende FCC structure AB.
@@ -228,10 +222,7 @@ def zincblende(elems: t.Union[str, t.Sequence[ElemLike]], a: Num, *,
     Returns:
       Periodic zinc-blende unit cell
     """
-    if isinstance(elems, str):
-        elems = get_elems(elems)
-    else:
-        elems = list(map(get_elem, elems))
+    elems = [t[0] for t in get_elems(elems)]
 
     if len(elems) != 2:
         raise ValueError("Expected two elements.")
@@ -306,7 +297,7 @@ def diamond(elem: t.Optional[ElemLike] = None, a: t.Optional[Num] = None, *,
     return zincblende(elems, a, cell=cell)
 
 
-def fluorite(elems: t.Union[str, t.Sequence[ElemLike]], a: Num, *,
+def fluorite(elems: ElemsLike, a: Num, *,
              cell: CellType = 'conv') -> AtomCell:
     """
     Create a fluorite FCC structure $\\mathrm{AB_2}$. Returns the same cell types as `fcc`.
@@ -320,11 +311,7 @@ def fluorite(elems: t.Union[str, t.Sequence[ElemLike]], a: Num, *,
     Returns:
       Periodic fluorite unit cell
     """
-
-    if isinstance(elems, str):
-        elems = get_elems(elems)
-    else:
-        elems = list(map(get_elem, elems))
+    elems = [t[0] for t in get_elems(elems)]
 
     if len(elems) != 2:
         raise ValueError("Expected two elements.")
@@ -361,16 +348,16 @@ def cesium_chloride(elems: t.Literal['CsCl'] = 'CsCl', a: None = None, *,
     ...
 
 @t.overload # general, specify a
-def cesium_chloride(elems: t.Union[str, t.Sequence[ElemLike]], a: Num, *,
+def cesium_chloride(elems: ElemsLike, a: Num, *,
                     d: None = None, cell: CellType = 'conv') -> AtomCell:
     ...
 
 @t.overload # general, specify d
-def cesium_chloride(elems: t.Union[str, t.Sequence[ElemLike]] = 'CsCl', a: None = None, *,
+def cesium_chloride(elems: ElemsLike = 'CsCl', a: None = None, *,
                     d: Num, cell: CellType = 'conv') -> AtomCell:
     ...
 
-def cesium_chloride(elems: t.Union[str, t.Sequence[ElemLike]] = 'CsCl', a: t.Optional[Num] = None, *,
+def cesium_chloride(elems: ElemsLike = 'CsCl', a: t.Optional[Num] = None, *,
                     d: t.Optional[Num] = None, cell: CellType = 'conv') -> AtomCell:
     """
     Create a cesium chloride structure $\\mathrm{AB}$.
@@ -388,10 +375,7 @@ def cesium_chloride(elems: t.Union[str, t.Sequence[ElemLike]] = 'CsCl', a: t.Opt
     Returns:
       Periodic cesium chloride unit cell
     """
-    if isinstance(elems, str):
-        elems = get_elems(elems)
-    else:
-        elems = list(map(get_elem, elems))
+    elems = [t[0] for t in get_elems(elems)]
 
     if len(elems) != 2:
         raise ValueError("Expected two elements.")
@@ -416,7 +400,7 @@ def cesium_chloride(elems: t.Union[str, t.Sequence[ElemLike]] = 'CsCl', a: t.Opt
     return AtomCell.from_ortho(frame, ortho, frame='cell_frac')
 
 
-def perovskite(elems: t.Union[str, t.Sequence[ElemLike]], cell_size: VecLike, *,
+def perovskite(elems: ElemsLike, cell_size: VecLike, *,
                cell: CellType = 'conv') -> AtomCell:
     """
     Create a perovskite structure $\\mathrm{ABX_3}$.
@@ -440,10 +424,7 @@ def perovskite(elems: t.Union[str, t.Sequence[ElemLike]], cell_size: VecLike, *,
     Returns:
       Periodic perovskite unit cell.
     """
-    if isinstance(elems, str):
-        elems = get_elems(elems)
-    else:
-        elems = list(map(get_elem, elems))
+    elems = [t[0] for t in get_elems(elems)]
 
     if len(elems) != 3:
         raise ValueError("Expected three elements.")

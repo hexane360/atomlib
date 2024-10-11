@@ -29,11 +29,15 @@ def test_get_elem(sym: str, elem: int):
 
 
 @pytest.mark.parametrize(('sym', 'elems'), (
-    ('Ar', [18]),
-    ('Ag+I', [47, 53]),
-    ('AlN', [13, 7]),
+    ('Ar', [(18, 1.)]),
+    ('Ag+I', [(47, 1.), (53, 1.)]),
+    ('Mg2+O2-', [(12, 1.), (8, 1.)]),
+    ('AlN', [(13, 1.), (7, 1.)]),
+    ('CeO2', [(58, 1.), (8, 2.)]),
+    ('Al0.93Sc0.07N', [(13, 0.93), (21, 0.07), (7, 1.)]),
+    ('Al0.93Sc0.07N', [(13, 0.93), (21, 0.07), (7, 1.)]),
 ))
-def test_get_elems(sym: str, elems: t.Sequence[int]):
+def test_get_elems(sym: str, elems: t.Sequence[t.Tuple[int, float]]):
     assert get_elems(sym) == elems
 
 
@@ -100,6 +104,9 @@ def test_get_elems_fail():
 
     with pytest.raises(ValueError, match=re.escape("Invalid compound '<4*sd>'")):
         get_elems("<4*sd>")
+
+    with pytest.raises(ValueError, match=re.escape("Unknown occupancy '0..9' for elem 'Al' in compound 'Al0..9NO2'")):
+        get_elems("Al0..9NO2")
 
 
 @pytest.mark.parametrize(('elem', 'mass'), (

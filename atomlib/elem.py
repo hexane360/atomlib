@@ -6,7 +6,7 @@ from importlib_resources import files
 import polars
 import numpy
 
-from .types import ElemLike
+from .types import ElemLike, ElemsLike
 
 ELEMENTS = {
     'h': 1, 'he': 2, 'li': 3, 'be': 4, 'b': 5, 'c': 6, 'n': 7, 'o': 8,
@@ -97,20 +97,38 @@ def get_elem(sym: t.Union[int, str, polars.Series]):
         raise ValueError(f"Invalid element symbol '{sym}'")
 
 
-def get_elems(sym: str) -> t.List[int]:
+def get_elems(sym: ElemsLike) -> t.List[t.Tuple[int, float]]:
+    if not isinstance(sym, str):
+        return [
+            (get_elem(v[0]), float(v[1]))  # type: ignore
+                if (hasattr(v, '__len__') and not isinstance(v, str))
+                else (get_elem(v), 1.)  # type: ignore
+            for v in sym
+        ]
+
     if len(sym) > 0:
         sym = sym[0].upper() + sym[1:]
     segments = [
-        match[0] for match in re.finditer(r'[A-Z][a-z]?', str(sym))
+        (match[1], match[2]) for match in re.finditer(r'([A-Z][a-z]*)([0-9\.]*[+-]?)', str(sym))
     ]
     if len(segments) == 0:
         raise ValueError(f"Invalid compound '{sym}'")
 
-    elems = [ELEMENTS.get(seg.lower()) for seg in segments]
-    for (seg, v) in zip(segments, elems):
-        if v is None:
-            raise ValueError(f"Unknown element '{seg}' in '{sym}'. Compounds are case-sensitive.")
-    return t.cast(t.List[int], elems)
+    elems = [ELEMENTS.get(seg[0].lower()) for seg in segments]
+
+    out = []
+    for ((elem_sym, num), elem) in zip(segments, elems):
+        if elem is None:
+            raise ValueError(f"Unknown element '{elem_sym}' in '{sym}'. Compounds are case-sensitive.")
+
+        try:
+            num = float(num) if len(num) and num[-1] not in ('+', '-') else 1.
+        except ValueError:
+            raise ValueError(f"Unknown occupancy '{num}' for elem '{elem_sym}' in compound '{sym}'")
+        
+        out.append((elem, num))
+
+    return out
 
 
 @t.overload
