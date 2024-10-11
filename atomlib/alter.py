@@ -6,7 +6,7 @@ import typing as t
 
 import numpy
 
-from .elem import ElemLike
+from .elem import ElemsLike
 from .cell import Cell
 from .atoms import HasAtomsT, AtomSelection, Atoms
 from .atomcell import HasAtomCell, HasAtomCellT
@@ -70,7 +70,7 @@ def unbunch(structure: HasAtomsT, threshold: float = 0.4, *,
 
 def contaminate(structure: HasAtomCellT,
                 thickness: t.Union[float, t.Tuple[float, float]],
-                density: float = 2.0, elem: ElemLike = 'C', *,
+                density: float = 2.0, elems: ElemsLike = 'C', *,
                 threshold: float = 0.0, max_iter: int = 100,
                 seed: t.Optional[object] = None,
                 **extra_cols: t.Any) -> HasAtomCellT:
@@ -100,13 +100,13 @@ def contaminate(structure: HasAtomCellT,
 
     if top_thick > 0.:
         top_cell = cell.crop(z_max=top_thick, frame='cell').transform_cell(AffineTransform3D.translate(z=c_size))
-        top = [random(top_cell, elem=elem, density=density, seed=proc_seed(seed, 'top_cont'), **extra_cols)]
+        top = [random(top_cell, elems=elems, density=density, seed=proc_seed(seed, 'top_cont'), **extra_cols)]
     else:
         top = []
 
     if bot_thick > 0.:
         bot_cell = cell.crop(z_max=bot_thick, frame='cell').transform_cell(AffineTransform3D.translate(z=-bot_thick))
-        bot = [random(bot_cell, elem=elem, density=density, seed=proc_seed(seed, 'bot_cont'), **extra_cols)]
+        bot = [random(bot_cell, elems=elems, density=density, seed=proc_seed(seed, 'bot_cont'), **extra_cols)]
     else:
         bot = []
 

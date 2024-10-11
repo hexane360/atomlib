@@ -99,6 +99,8 @@ def get_elem(sym: t.Union[int, str, polars.Series]):
 
 def get_elems(sym: ElemsLike) -> t.List[t.Tuple[int, float]]:
     if not isinstance(sym, str):
+        if isinstance(sym, int):
+            return [(sym, 1.0)]
         return [
             (get_elem(v[0]), float(v[1]))  # type: ignore
                 if (hasattr(v, '__len__') and not isinstance(v, str))

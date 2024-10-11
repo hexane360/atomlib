@@ -23,7 +23,7 @@ Num = t.Union[float, int]
 ElemLike = t.Union[str, int]
 """Element-like"""
 
-ElemsLike = t.Union[str, t.Sequence[t.Union[ElemLike, t.Tuple[ElemLike, float]]]]
+ElemsLike = t.Union[str, int, t.Sequence[t.Union[ElemLike, t.Tuple[ElemLike, float]]]]
 
 NumT = t.TypeVar('NumT', bound=numpy.number)
 """[`numpy.number`][numpy.number]-bound type variable"""

@@ -16,7 +16,7 @@ def znse_supercell():
 
 @check_equals_structure('unbunched.xyz')
 def test_unbunch():
-    cell = make.random([100., 100., 5.], elem='C', density=1., seed='test_unbunch')
+    cell = make.random([100., 100., 5.], elems='C', density=1., seed='test_unbunch')
     return alter.unbunch(cell, threshold=3.0, max_iter=30)
 
 

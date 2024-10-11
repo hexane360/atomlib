@@ -448,14 +448,14 @@ def perovskite(elems: ElemsLike, cell_size: VecLike, *,
     return AtomCell(atoms, Cell.from_unit_cell(cell_size), frame='cell_frac')
 
 
-def random(cell: t.Union[Cell, VecLike], elem: ElemLike, density: float,
+def random(cell: t.Union[Cell, VecLike], elems: ElemsLike, density: float,
            seed: t.Optional[object] = None, **extra_cols: t.Any) -> AtomCell:
     """
     Make a random arrangement of atoms inside `cell`
     ([`Cell`][atomlib.cell.Cell] or cell_size vector).
 
     Args:
-      elem: Element to add (e.g. `'C'` or `6`)
+      elems: Elements to add (e.g. `'C'`, `6`, or `SiO2`)
       density: Mean mass density to target (g/cm^3)
       seed: Deterministic random seed to add (any object)
       extra_cols: Extra parameters to add to each atom
@@ -466,21 +466,29 @@ def random(cell: t.Union[Cell, VecLike], elem: ElemLike, density: float,
     if not isinstance(cell, Cell):
         cell = Cell.from_unit_cell(cell, pbc=[True, True, True])
 
-    elem = get_elem(elem)
-    mass = get_mass(elem)
+    elems = get_elems(elems)
+    # normalize formula unit
+    total_num = sum(elem[1] for elem in elems)
+    elems = [(elem, num / total_num) for (elem, num) in elems]
 
+    total_mass = sum(get_mass(elem) * num for (elem, num) in elems)
     # g/cm^3 / g/mol * 6.022e23/mol * 1e-24 cm^3/angstrom^3
-    number_density = density / mass * 0.60221408
-    n = int(numpy.round(numpy.prod(cell.box_size) * number_density).astype(int))
+    total_number_density = density / total_mass * 0.60221408
 
     rng = numpy.random.RandomState(proc_seed(seed, 'make.random'))
-    pos = rng.uniform(0., 1., size=(3, n))
+    atoms = []
 
-    return AtomCell(Atoms({
-        'x': pos[0], 'y': pos[1], 'z': pos[2],
-        'elem': [elem] * n,
-        **{k: [v] * n for (k, v) in extra_cols.items()}
-    }), cell=cell, frame='cell_box')
+    for (elem, frac) in elems:
+        n = int(numpy.round(numpy.prod(cell.box_size) * total_number_density * frac).astype(int))
+        pos = rng.uniform(0., 1., size=(3, n))
+
+        atoms.append(Atoms({
+            'x': pos[0], 'y': pos[1], 'z': pos[2],
+            'elem': [elem] * n,
+            **{k: [v] * n for (k, v) in extra_cols.items()}
+        }))
+
+    return AtomCell(Atoms.concat(atoms), cell=cell, frame='cell_box')
 
 
 def slab(atoms: HasAtomCellT, zone: VecLike = (0., 0., 1.), horz: VecLike = (1., 0., 0.), *,
