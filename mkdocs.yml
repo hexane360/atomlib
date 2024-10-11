@@ -62,7 +62,7 @@ plugins:
   - search
   - autorefs
   - mkdocstrings:
-      custom_templates: templates
+      #custom_templates: templates
       handlers:
         python:
           paths: [.]

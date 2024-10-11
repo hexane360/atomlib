@@ -1,8 +1,8 @@
-from __future__ import annotations
-
 """
 Functions to create structures and cells.
 """
+
+from __future__ import annotations
 
 import logging
 import string
