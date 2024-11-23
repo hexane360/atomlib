@@ -1328,6 +1328,11 @@
 
 
 
+
+
+
+
+
   <div class="doc doc-children">
 
 
@@ -1489,7 +1494,7 @@
   </span>
 
 </h2>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">ScalarT</span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-external" title="typing.TypeVar" href="https://docs.python.org/3/library/typing.html#typing.TypeVar">TypeVar</a></span><span class="p">(</span><span class="s1">&#39;ScalarT&#39;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="n"><a class="autorefs autorefs-external" title="numpy.generic" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.generic">generic</a></span><span class="p">)</span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">ScalarT</span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-external" title="typing.TypeVar" href="https://docs.python.org/3/library/typing.html#typing.TypeVar">TypeVar</a></span><span class="p">(</span><span class="s1">&#39;ScalarT&#39;</span><span class="p">,</span> <span class="n"><span title="typing.TypeVar(bound)">bound</span></span><span class="o">=</span><span class="n"><a class="autorefs autorefs-external" title="numpy.generic" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.generic">generic</a></span><span class="p">)</span>
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
@@ -1509,6 +1514,12 @@
 
 
 </h2>
+          <div class="doc-overloads">
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">to_vec3</span><span class="p">(</span><span class="n">v</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.types.VecLike" href="#atomlib.types.VecLike">VecLike</a></span><span class="p">,</span> <span class="n">dtype</span><span class="p">:</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" title="numpy.typing.NDArray" href="https://numpy.org/doc/stable/reference/typing.html#numpy.typing.NDArray">NDArray</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" title="numpy.float64" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.float64">float64</a></span><span class="p">]</span>
+</span></code></pre></div><div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">to_vec3</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">v</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.types.VecLike" href="#atomlib.types.VecLike">VecLike</a></span><span class="p">,</span> <span class="n">dtype</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Type" href="https://docs.python.org/3/library/typing.html#typing.Type">Type</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.types.ScalarT" href="#atomlib.types.ScalarT">ScalarT</a></span><span class="p">]</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" title="numpy.typing.NDArray" href="https://numpy.org/doc/stable/reference/typing.html#numpy.typing.NDArray">NDArray</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.types.ScalarT" href="#atomlib.types.ScalarT">ScalarT</a></span><span class="p">]</span>
+</span></code></pre></div>          </div>
 <div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">to_vec3</span><span class="p">(</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">v</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.types.VecLike" href="#atomlib.types.VecLike">VecLike</a></span><span class="p">,</span> <span class="n">dtype</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" title="typing.Type" href="https://docs.python.org/3/library/typing.html#typing.Type">Type</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" title="numpy.generic" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.generic">generic</a></span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" title="numpy.typing.NDArray" href="https://numpy.org/doc/stable/reference/typing.html#numpy.typing.NDArray">NDArray</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" title="numpy.generic" href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.generic">generic</a></span><span class="p">]</span>
