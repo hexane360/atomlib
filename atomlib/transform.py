@@ -731,7 +731,7 @@ class LinearTransform3D(AffineTransform3D):
         """
         return self.inverse() @ self.compose(transform)
 
-    def compose(self, other: Transform3DT) -> Transform3DT:  # type: ignore (spurious)
+    def compose(self, other: Transform3DT) -> Transform3DT:
         """Compose this transformation with another."""
         if isinstance(other, LinearTransform3D):
             return other.__class__(other.inner @ self.inner)
@@ -787,7 +787,7 @@ class LinearTransform3D(AffineTransform3D):
     def __matmul__(self, other: ArrayLike) -> NDArray[numpy.floating]:
         ...
 
-    def __matmul__(self, other: t.Union[Transform3DT, ArrayLike, BBox3D]) -> t.Union[Transform3DT, NDArray[numpy.floating], BBox3D]:
+    def __matmul__(self, other: t.Union[Transform3D, ArrayLike, BBox3D]) -> t.Union[Transform3D, NDArray[numpy.floating], BBox3D]:
         """Compose this transformation, or apply it to a given set of points."""
         if isinstance(other, Transform3D):
             return other.compose(self)

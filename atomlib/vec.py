@@ -191,9 +191,16 @@ def in_polygon(poly: numpy.ndarray, pt: t.Optional[numpy.ndarray] = None, *,
 def reduce_vec(arr: ArrayLike, max_denom: int = 10000) -> NDArray[numpy.int64]:
     """
     Reduce a crystallographic vector (int or float) to lowest common terms.
-    Example: reduce_vec([3, 3, 3]) = [1, 1, 1]
-    reduce_vec([0.25, 0.25, 0.25]) = [1, 1, 1]
+
+    # Examples
+    ```python
+    >>> reduce_vec([3, 6, 9])
+    [1, 2, 3]
+    >>> reduce_vec([0.5, 0.25, 0.25])
+    [2, 1, 1]
+    ```
     """
+
     a = numpy.atleast_1d(arr)
     if not numpy.issubdtype(a.dtype, numpy.floating):
         return a // numpy.gcd.reduce(a, axis=-1, keepdims=True)

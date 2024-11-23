@@ -469,7 +469,7 @@ def _poly_disp_z(pts: NDArray[numpy.float64], b_vec: NDArray[numpy.float64], pol
 
 def _loop_disp_z(pts: NDArray[numpy.float64], b_vec: numpy.ndarray, loop_r: float, *,
                  poisson: float = 0.25, branch: t.Optional[numpy.ndarray] = None) -> numpy.ndarray:
-    from scipy.special import ellipk, ellipe
+    from scipy.special import ellipk, ellipe  # type: ignore
 
     rho = numpy.linalg.norm(pts[..., :2], axis=-1)
     r = numpy.linalg.norm(pts, axis=-1)
