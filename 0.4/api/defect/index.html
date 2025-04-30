@@ -1403,7 +1403,7 @@
 <span class="normal"><a href="#__codelineno-0-34">34</a></span>
 <span class="normal"><a href="#__codelineno-0-35">35</a></span>
 <span class="normal"><a href="#__codelineno-0-36">36</a></span>
-<span class="normal"><a href="#__codelineno-0-37">37</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22"></a><span class="k">def</span> <span class="nf">ellip_pi</span><span class="p">(</span><span class="n">n</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">float64</span><span class="p">],</span> <span class="n">m</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">float64</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">float64</span><span class="p">]:</span>
+<span class="normal"><a href="#__codelineno-0-37">37</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22"></a><span class="k">def</span><span class="w"> </span><span class="nf">ellip_pi</span><span class="p">(</span><span class="n">n</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">float64</span><span class="p">],</span> <span class="n">m</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">float64</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">float64</span><span class="p">]:</span>
 </span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24"></a><span class="sd">    Complete elliptic integral of the third kind, $\\Pi(n | m)$.</span>
 </span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25"></a>
@@ -1411,7 +1411,7 @@
 </span><span id="__span-0-27"><a id="__codelineno-0-27" name="__codelineno-0-27"></a>
 </span><span id="__span-0-28"><a id="__codelineno-0-28" name="__codelineno-0-28"></a><span class="sd">    [wolfram_ellip_pi]: https://mathworld.wolfram.com/EllipticIntegraloftheThirdKind.html</span>
 </span><span id="__span-0-29"><a id="__codelineno-0-29" name="__codelineno-0-29"></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="__span-0-30"><a id="__codelineno-0-30" name="__codelineno-0-30"></a>    <span class="kn">from</span> <span class="nn">scipy.special</span> <span class="kn">import</span> <span class="n">elliprf</span><span class="p">,</span> <span class="n">elliprj</span>  <span class="c1"># type: ignore</span>
+</span><span id="__span-0-30"><a id="__codelineno-0-30" name="__codelineno-0-30"></a>    <span class="kn">from</span><span class="w"> </span><span class="nn">scipy.special</span><span class="w"> </span><span class="kn">import</span> <span class="n">elliprf</span><span class="p">,</span> <span class="n">elliprj</span>  <span class="c1"># type: ignore</span>
 </span><span id="__span-0-31"><a id="__codelineno-0-31" name="__codelineno-0-31"></a>
 </span><span id="__span-0-32"><a id="__codelineno-0-32" name="__codelineno-0-32"></a>    <span class="n">y</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">m</span>
 </span><span id="__span-0-33"><a id="__codelineno-0-33" name="__codelineno-0-33"></a>    <span class="k">assert</span> <span class="n">numpy</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">y</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
@@ -1435,9 +1435,9 @@
 </h2>
 <div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">stacking_fault</span><span class="p">(</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">atoms</span><span class="p">:</span> <span class="n"><span title="atomlib.atoms.HasAtomsT">HasAtomsT</span></span><span class="p">,</span>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">pos</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.atomcell.VecLike" href="../types/#atomlib.types.VecLike">VecLike</a></span><span class="p">,</span>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">shift</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.atomcell.VecLike" href="../types/#atomlib.types.VecLike">VecLike</a></span><span class="p">,</span>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">plane</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.atomcell.VecLike" href="../types/#atomlib.types.VecLike">VecLike</a></span><span class="p">,</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">pos</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="VecLike (atomlib.atomcell.VecLike)" href="../types/#atomlib.types.VecLike">VecLike</a></span><span class="p">,</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">shift</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="VecLike (atomlib.atomcell.VecLike)" href="../types/#atomlib.types.VecLike">VecLike</a></span><span class="p">,</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">plane</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="VecLike (atomlib.atomcell.VecLike)" href="../types/#atomlib.types.VecLike">VecLike</a></span><span class="p">,</span>
 </span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="atomlib.atoms.HasAtomsT">HasAtomsT</span></span>
 </span></code></pre></div>
 
@@ -1488,7 +1488,7 @@ Please verify this for your usecase.</p>
               <p>
                   <span class="doc-param-annotation">
                     <b>TYPE:</b>
-                      <code><a class="autorefs autorefs-internal" title="atomlib.atomcell.VecLike" href="../types/#atomlib.types.VecLike">VecLike</a></code>
+                      <code><a class="autorefs autorefs-internal" title="VecLike (atomlib.atomcell.VecLike)" href="../types/#atomlib.types.VecLike">VecLike</a></code>
                   </span>
               </p>
             </td>
@@ -1504,7 +1504,7 @@ Please verify this for your usecase.</p>
               <p>
                   <span class="doc-param-annotation">
                     <b>TYPE:</b>
-                      <code><a class="autorefs autorefs-internal" title="atomlib.atomcell.VecLike" href="../types/#atomlib.types.VecLike">VecLike</a></code>
+                      <code><a class="autorefs autorefs-internal" title="VecLike (atomlib.atomcell.VecLike)" href="../types/#atomlib.types.VecLike">VecLike</a></code>
                   </span>
               </p>
             </td>
@@ -1520,7 +1520,7 @@ Please verify this for your usecase.</p>
               <p>
                   <span class="doc-param-annotation">
                     <b>TYPE:</b>
-                      <code><a class="autorefs autorefs-internal" title="atomlib.atomcell.VecLike" href="../types/#atomlib.types.VecLike">VecLike</a></code>
+                      <code><a class="autorefs autorefs-internal" title="VecLike (atomlib.atomcell.VecLike)" href="../types/#atomlib.types.VecLike">VecLike</a></code>
                   </span>
               </p>
             </td>
@@ -1608,7 +1608,7 @@ Please verify this for your usecase.</p>
 <span class="normal"><a href="#__codelineno-0-95">95</a></span>
 <span class="normal"><a href="#__codelineno-0-96">96</a></span>
 <span class="normal"><a href="#__codelineno-0-97">97</a></span>
-<span class="normal"><a href="#__codelineno-0-98">98</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-44"><a id="__codelineno-0-44" name="__codelineno-0-44"></a><span class="k">def</span> <span class="nf">stacking_fault</span><span class="p">(</span><span class="n">atoms</span><span class="p">:</span> <span class="n">HasAtomsT</span><span class="p">,</span> <span class="n">pos</span><span class="p">:</span> <span class="n">VecLike</span><span class="p">,</span> <span class="n">shift</span><span class="p">:</span> <span class="n">VecLike</span><span class="p">,</span> <span class="n">plane</span><span class="p">:</span> <span class="n">VecLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HasAtomsT</span><span class="p">:</span>
+<span class="normal"><a href="#__codelineno-0-98">98</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-44"><a id="__codelineno-0-44" name="__codelineno-0-44"></a><span class="k">def</span><span class="w"> </span><span class="nf">stacking_fault</span><span class="p">(</span><span class="n">atoms</span><span class="p">:</span> <span class="n">HasAtomsT</span><span class="p">,</span> <span class="n">pos</span><span class="p">:</span> <span class="n">VecLike</span><span class="p">,</span> <span class="n">shift</span><span class="p">:</span> <span class="n">VecLike</span><span class="p">,</span> <span class="n">plane</span><span class="p">:</span> <span class="n">VecLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HasAtomsT</span><span class="p">:</span>
 </span><span id="__span-0-45"><a id="__codelineno-0-45" name="__codelineno-0-45"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="__span-0-46"><a id="__codelineno-0-46" name="__codelineno-0-46"></a><span class="sd">    Add a stacking fault to the structure.</span>
 </span><span id="__span-0-47"><a id="__codelineno-0-47" name="__codelineno-0-47"></a>
@@ -1679,10 +1679,10 @@ Please verify this for your usecase.</p>
 </h2>
 <div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">disloc_edge</span><span class="p">(</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">atoms</span><span class="p">:</span> <span class="n"><span title="atomlib.atoms.HasAtomsT">HasAtomsT</span></span><span class="p">,</span>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">center</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.atomcell.VecLike" href="../types/#atomlib.types.VecLike">VecLike</a></span><span class="p">,</span>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">b</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.atomcell.VecLike" href="../types/#atomlib.types.VecLike">VecLike</a></span><span class="p">,</span>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">t</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.atomcell.VecLike" href="../types/#atomlib.types.VecLike">VecLike</a></span><span class="p">,</span>
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="n">cut</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3/library/typing.html#typing.Union">Union</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.defect.CutType" href="#atomlib.defect.CutType">CutType</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.atomcell.VecLike" href="../types/#atomlib.types.VecLike">VecLike</a></span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;shift&quot;</span><span class="p">,</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">center</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="VecLike (atomlib.atomcell.VecLike)" href="../types/#atomlib.types.VecLike">VecLike</a></span><span class="p">,</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">b</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="VecLike (atomlib.atomcell.VecLike)" href="../types/#atomlib.types.VecLike">VecLike</a></span><span class="p">,</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">t</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="VecLike (atomlib.atomcell.VecLike)" href="../types/#atomlib.types.VecLike">VecLike</a></span><span class="p">,</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="n">cut</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3/library/typing.html#typing.Union">Union</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="CutType (atomlib.defect.CutType)" href="#atomlib.defect.CutType">CutType</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-internal" title="VecLike (atomlib.atomcell.VecLike)" href="../types/#atomlib.types.VecLike">VecLike</a></span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;shift&quot;</span><span class="p">,</span>
 </span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="o">*</span><span class="p">,</span>
 </span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="n">poisson</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></span> <span class="o">=</span> <span class="mf">0.25</span>
 </span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="atomlib.atoms.HasAtomsT">HasAtomsT</span></span>
@@ -1748,7 +1748,7 @@ crystal.</p>
               <p>
                   <span class="doc-param-annotation">
                     <b>TYPE:</b>
-                      <code><a class="autorefs autorefs-internal" title="atomlib.atomcell.VecLike" href="../types/#atomlib.types.VecLike">VecLike</a></code>
+                      <code><a class="autorefs autorefs-internal" title="VecLike (atomlib.atomcell.VecLike)" href="../types/#atomlib.types.VecLike">VecLike</a></code>
                   </span>
               </p>
             </td>
@@ -1764,7 +1764,7 @@ crystal.</p>
               <p>
                   <span class="doc-param-annotation">
                     <b>TYPE:</b>
-                      <code><a class="autorefs autorefs-internal" title="atomlib.atomcell.VecLike" href="../types/#atomlib.types.VecLike">VecLike</a></code>
+                      <code><a class="autorefs autorefs-internal" title="VecLike (atomlib.atomcell.VecLike)" href="../types/#atomlib.types.VecLike">VecLike</a></code>
                   </span>
               </p>
             </td>
@@ -1780,7 +1780,7 @@ crystal.</p>
               <p>
                   <span class="doc-param-annotation">
                     <b>TYPE:</b>
-                      <code><a class="autorefs autorefs-internal" title="atomlib.atomcell.VecLike" href="../types/#atomlib.types.VecLike">VecLike</a></code>
+                      <code><a class="autorefs autorefs-internal" title="VecLike (atomlib.atomcell.VecLike)" href="../types/#atomlib.types.VecLike">VecLike</a></code>
                   </span>
               </p>
             </td>
@@ -1796,7 +1796,7 @@ crystal.</p>
               <p>
                   <span class="doc-param-annotation">
                     <b>TYPE:</b>
-                      <code><a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3/library/typing.html#typing.Union">Union</a>[<a class="autorefs autorefs-internal" title="atomlib.defect.CutType" href="#atomlib.defect.CutType">CutType</a>, <a class="autorefs autorefs-internal" title="atomlib.atomcell.VecLike" href="../types/#atomlib.types.VecLike">VecLike</a>]</code>
+                      <code><a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3/library/typing.html#typing.Union">Union</a>[<a class="autorefs autorefs-internal" title="CutType (atomlib.defect.CutType)" href="#atomlib.defect.CutType">CutType</a>, <a class="autorefs autorefs-internal" title="VecLike (atomlib.atomcell.VecLike)" href="../types/#atomlib.types.VecLike">VecLike</a>]</code>
                   </span>
                   <span class="doc-param-default">
                     <b>DEFAULT:</b>
@@ -1975,7 +1975,7 @@ crystal.</p>
 <span class="normal"><a href="#__codelineno-0-219">219</a></span>
 <span class="normal"><a href="#__codelineno-0-220">220</a></span>
 <span class="normal"><a href="#__codelineno-0-221">221</a></span>
-<span class="normal"><a href="#__codelineno-0-222">222</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-101"><a id="__codelineno-0-101" name="__codelineno-0-101"></a><span class="k">def</span> <span class="nf">disloc_edge</span><span class="p">(</span><span class="n">atoms</span><span class="p">:</span> <span class="n">HasAtomsT</span><span class="p">,</span> <span class="n">center</span><span class="p">:</span> <span class="n">VecLike</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="n">VecLike</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="n">VecLike</span><span class="p">,</span> <span class="n">cut</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">CutType</span><span class="p">,</span> <span class="n">VecLike</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;shift&#39;</span><span class="p">,</span>
+<span class="normal"><a href="#__codelineno-0-222">222</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-101"><a id="__codelineno-0-101" name="__codelineno-0-101"></a><span class="k">def</span><span class="w"> </span><span class="nf">disloc_edge</span><span class="p">(</span><span class="n">atoms</span><span class="p">:</span> <span class="n">HasAtomsT</span><span class="p">,</span> <span class="n">center</span><span class="p">:</span> <span class="n">VecLike</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="n">VecLike</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="n">VecLike</span><span class="p">,</span> <span class="n">cut</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">CutType</span><span class="p">,</span> <span class="n">VecLike</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;shift&#39;</span><span class="p">,</span>
 </span><span id="__span-0-102"><a id="__codelineno-0-102" name="__codelineno-0-102"></a>                <span class="o">*</span><span class="p">,</span> <span class="n">poisson</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.25</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HasAtomsT</span><span class="p">:</span>
 </span><span id="__span-0-103"><a id="__codelineno-0-103" name="__codelineno-0-103"></a><span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="__span-0-104"><a id="__codelineno-0-104" name="__codelineno-0-104"></a><span class="sd">    Add a Volterra edge dislocation to the structure.</span>
@@ -2113,9 +2113,9 @@ crystal.</p>
 </h2>
 <div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">disloc_screw</span><span class="p">(</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">atoms</span><span class="p">:</span> <span class="n"><span title="atomlib.atoms.HasAtomsT">HasAtomsT</span></span><span class="p">,</span>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">center</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.atomcell.VecLike" href="../types/#atomlib.types.VecLike">VecLike</a></span><span class="p">,</span>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">b</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.atomcell.VecLike" href="../types/#atomlib.types.VecLike">VecLike</a></span><span class="p">,</span>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">cut</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.atomcell.VecLike" href="../types/#atomlib.types.VecLike">VecLike</a></span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">center</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="VecLike (atomlib.atomcell.VecLike)" href="../types/#atomlib.types.VecLike">VecLike</a></span><span class="p">,</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">b</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="VecLike (atomlib.atomcell.VecLike)" href="../types/#atomlib.types.VecLike">VecLike</a></span><span class="p">,</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">cut</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="VecLike (atomlib.atomcell.VecLike)" href="../types/#atomlib.types.VecLike">VecLike</a></span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 </span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="n">sign</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 </span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="atomlib.atoms.HasAtomsT">HasAtomsT</span></span>
 </span></code></pre></div>
@@ -2174,7 +2174,7 @@ crystal.</p>
               <p>
                   <span class="doc-param-annotation">
                     <b>TYPE:</b>
-                      <code><a class="autorefs autorefs-internal" title="atomlib.atomcell.VecLike" href="../types/#atomlib.types.VecLike">VecLike</a></code>
+                      <code><a class="autorefs autorefs-internal" title="VecLike (atomlib.atomcell.VecLike)" href="../types/#atomlib.types.VecLike">VecLike</a></code>
                   </span>
               </p>
             </td>
@@ -2190,7 +2190,7 @@ crystal.</p>
               <p>
                   <span class="doc-param-annotation">
                     <b>TYPE:</b>
-                      <code><a class="autorefs autorefs-internal" title="atomlib.atomcell.VecLike" href="../types/#atomlib.types.VecLike">VecLike</a></code>
+                      <code><a class="autorefs autorefs-internal" title="VecLike (atomlib.atomcell.VecLike)" href="../types/#atomlib.types.VecLike">VecLike</a></code>
                   </span>
               </p>
             </td>
@@ -2206,7 +2206,7 @@ crystal.</p>
               <p>
                   <span class="doc-param-annotation">
                     <b>TYPE:</b>
-                      <code><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-internal" title="atomlib.atomcell.VecLike" href="../types/#atomlib.types.VecLike">VecLike</a>]</code>
+                      <code><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-internal" title="VecLike (atomlib.atomcell.VecLike)" href="../types/#atomlib.types.VecLike">VecLike</a>]</code>
                   </span>
                   <span class="doc-param-default">
                     <b>DEFAULT:</b>
@@ -2331,7 +2331,7 @@ crystal.</p>
 <span class="normal"><a href="#__codelineno-0-289">289</a></span>
 <span class="normal"><a href="#__codelineno-0-290">290</a></span>
 <span class="normal"><a href="#__codelineno-0-291">291</a></span>
-<span class="normal"><a href="#__codelineno-0-292">292</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-225"><a id="__codelineno-0-225" name="__codelineno-0-225"></a><span class="k">def</span> <span class="nf">disloc_screw</span><span class="p">(</span><span class="n">atoms</span><span class="p">:</span> <span class="n">HasAtomsT</span><span class="p">,</span> <span class="n">center</span><span class="p">:</span> <span class="n">VecLike</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="n">VecLike</span><span class="p">,</span> <span class="n">cut</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">VecLike</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="normal"><a href="#__codelineno-0-292">292</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-225"><a id="__codelineno-0-225" name="__codelineno-0-225"></a><span class="k">def</span><span class="w"> </span><span class="nf">disloc_screw</span><span class="p">(</span><span class="n">atoms</span><span class="p">:</span> <span class="n">HasAtomsT</span><span class="p">,</span> <span class="n">center</span><span class="p">:</span> <span class="n">VecLike</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="n">VecLike</span><span class="p">,</span> <span class="n">cut</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">VecLike</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 </span><span id="__span-0-226"><a id="__codelineno-0-226" name="__codelineno-0-226"></a>                 <span class="n">sign</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HasAtomsT</span><span class="p">:</span>
 </span><span id="__span-0-227"><a id="__codelineno-0-227" name="__codelineno-0-227"></a><span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="__span-0-228"><a id="__codelineno-0-228" name="__codelineno-0-228"></a><span class="sd">    Add a Volterra screw dislocation to the structure.</span>
@@ -2415,8 +2415,8 @@ crystal.</p>
 </h2>
 <div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">disloc_loop_z</span><span class="p">(</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">atoms</span><span class="p">:</span> <span class="n"><span title="atomlib.atoms.HasAtomsT">HasAtomsT</span></span><span class="p">,</span>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">center</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.atomcell.VecLike" href="../types/#atomlib.types.VecLike">VecLike</a></span><span class="p">,</span>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">b</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.atomcell.VecLike" href="../types/#atomlib.types.VecLike">VecLike</a></span><span class="p">,</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">center</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="VecLike (atomlib.atomcell.VecLike)" href="../types/#atomlib.types.VecLike">VecLike</a></span><span class="p">,</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">b</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="VecLike (atomlib.atomcell.VecLike)" href="../types/#atomlib.types.VecLike">VecLike</a></span><span class="p">,</span>
 </span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">loop_r</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></span><span class="p">,</span>
 </span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="o">*</span><span class="p">,</span>
 </span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="n">poisson</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></span> <span class="o">=</span> <span class="mf">0.25</span>
@@ -2468,7 +2468,7 @@ normal times its area. Consequently, this function adds or remove atoms to effec
               <p>
                   <span class="doc-param-annotation">
                     <b>TYPE:</b>
-                      <code><a class="autorefs autorefs-internal" title="atomlib.atomcell.VecLike" href="../types/#atomlib.types.VecLike">VecLike</a></code>
+                      <code><a class="autorefs autorefs-internal" title="VecLike (atomlib.atomcell.VecLike)" href="../types/#atomlib.types.VecLike">VecLike</a></code>
                   </span>
               </p>
             </td>
@@ -2484,7 +2484,7 @@ normal times its area. Consequently, this function adds or remove atoms to effec
               <p>
                   <span class="doc-param-annotation">
                     <b>TYPE:</b>
-                      <code><a class="autorefs autorefs-internal" title="atomlib.atomcell.VecLike" href="../types/#atomlib.types.VecLike">VecLike</a></code>
+                      <code><a class="autorefs autorefs-internal" title="VecLike (atomlib.atomcell.VecLike)" href="../types/#atomlib.types.VecLike">VecLike</a></code>
                   </span>
               </p>
             </td>
@@ -2610,7 +2610,7 @@ normal times its area. Consequently, this function adds or remove atoms to effec
 <span class="normal"><a href="#__codelineno-0-348">348</a></span>
 <span class="normal"><a href="#__codelineno-0-349">349</a></span>
 <span class="normal"><a href="#__codelineno-0-350">350</a></span>
-<span class="normal"><a href="#__codelineno-0-351">351</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-295"><a id="__codelineno-0-295" name="__codelineno-0-295"></a><span class="k">def</span> <span class="nf">disloc_loop_z</span><span class="p">(</span><span class="n">atoms</span><span class="p">:</span> <span class="n">HasAtomsT</span><span class="p">,</span> <span class="n">center</span><span class="p">:</span> <span class="n">VecLike</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="n">VecLike</span><span class="p">,</span>
+<span class="normal"><a href="#__codelineno-0-351">351</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-295"><a id="__codelineno-0-295" name="__codelineno-0-295"></a><span class="k">def</span><span class="w"> </span><span class="nf">disloc_loop_z</span><span class="p">(</span><span class="n">atoms</span><span class="p">:</span> <span class="n">HasAtomsT</span><span class="p">,</span> <span class="n">center</span><span class="p">:</span> <span class="n">VecLike</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="n">VecLike</span><span class="p">,</span>
 </span><span id="__span-0-296"><a id="__codelineno-0-296" name="__codelineno-0-296"></a>                  <span class="n">loop_r</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">poisson</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.25</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HasAtomsT</span><span class="p">:</span>
 </span><span id="__span-0-297"><a id="__codelineno-0-297" name="__codelineno-0-297"></a><span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="__span-0-298"><a id="__codelineno-0-298" name="__codelineno-0-298"></a><span class="sd">    Add a circular dislocation loop to the structure, assuming an elastically isotropic material.</span>
@@ -2683,8 +2683,8 @@ normal times its area. Consequently, this function adds or remove atoms to effec
 </h2>
 <div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">disloc_square_z</span><span class="p">(</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">atoms</span><span class="p">:</span> <span class="n"><span title="atomlib.atoms.HasAtomsT">HasAtomsT</span></span><span class="p">,</span>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">center</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.atomcell.VecLike" href="../types/#atomlib.types.VecLike">VecLike</a></span><span class="p">,</span>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">b</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.atomcell.VecLike" href="../types/#atomlib.types.VecLike">VecLike</a></span><span class="p">,</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">center</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="VecLike (atomlib.atomcell.VecLike)" href="../types/#atomlib.types.VecLike">VecLike</a></span><span class="p">,</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">b</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="VecLike (atomlib.atomcell.VecLike)" href="../types/#atomlib.types.VecLike">VecLike</a></span><span class="p">,</span>
 </span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">loop_r</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></span><span class="p">,</span>
 </span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="o">*</span><span class="p">,</span>
 </span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="n">poisson</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></span> <span class="o">=</span> <span class="mf">0.25</span>
@@ -2735,7 +2735,7 @@ normal times its area. Consequently, this function adds or remove atoms to effec
               <p>
                   <span class="doc-param-annotation">
                     <b>TYPE:</b>
-                      <code><a class="autorefs autorefs-internal" title="atomlib.atomcell.VecLike" href="../types/#atomlib.types.VecLike">VecLike</a></code>
+                      <code><a class="autorefs autorefs-internal" title="VecLike (atomlib.atomcell.VecLike)" href="../types/#atomlib.types.VecLike">VecLike</a></code>
                   </span>
               </p>
             </td>
@@ -2751,7 +2751,7 @@ normal times its area. Consequently, this function adds or remove atoms to effec
               <p>
                   <span class="doc-param-annotation">
                     <b>TYPE:</b>
-                      <code><a class="autorefs autorefs-internal" title="atomlib.atomcell.VecLike" href="../types/#atomlib.types.VecLike">VecLike</a></code>
+                      <code><a class="autorefs autorefs-internal" title="VecLike (atomlib.atomcell.VecLike)" href="../types/#atomlib.types.VecLike">VecLike</a></code>
                   </span>
               </p>
             </td>
@@ -2843,7 +2843,7 @@ normal times its area. Consequently, this function adds or remove atoms to effec
 <span class="normal"><a href="#__codelineno-0-373">373</a></span>
 <span class="normal"><a href="#__codelineno-0-374">374</a></span>
 <span class="normal"><a href="#__codelineno-0-375">375</a></span>
-<span class="normal"><a href="#__codelineno-0-376">376</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-354"><a id="__codelineno-0-354" name="__codelineno-0-354"></a><span class="k">def</span> <span class="nf">disloc_square_z</span><span class="p">(</span><span class="n">atoms</span><span class="p">:</span> <span class="n">HasAtomsT</span><span class="p">,</span> <span class="n">center</span><span class="p">:</span> <span class="n">VecLike</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="n">VecLike</span><span class="p">,</span>
+<span class="normal"><a href="#__codelineno-0-376">376</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-354"><a id="__codelineno-0-354" name="__codelineno-0-354"></a><span class="k">def</span><span class="w"> </span><span class="nf">disloc_square_z</span><span class="p">(</span><span class="n">atoms</span><span class="p">:</span> <span class="n">HasAtomsT</span><span class="p">,</span> <span class="n">center</span><span class="p">:</span> <span class="n">VecLike</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="n">VecLike</span><span class="p">,</span>
 </span><span id="__span-0-355"><a id="__codelineno-0-355" name="__codelineno-0-355"></a>                    <span class="n">loop_r</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">poisson</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.25</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HasAtomsT</span><span class="p">:</span>
 </span><span id="__span-0-356"><a id="__codelineno-0-356" name="__codelineno-0-356"></a><span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="__span-0-357"><a id="__codelineno-0-357" name="__codelineno-0-357"></a><span class="sd">    Add a square dislocation loop to the structure, assuming an elastically isotropic material.</span>
@@ -2882,9 +2882,9 @@ normal times its area. Consequently, this function adds or remove atoms to effec
 </h2>
 <div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">disloc_poly_z</span><span class="p">(</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">atoms</span><span class="p">:</span> <span class="n"><span title="atomlib.atoms.HasAtomsT">HasAtomsT</span></span><span class="p">,</span>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">b</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="atomlib.atomcell.VecLike" href="../types/#atomlib.types.VecLike">VecLike</a></span><span class="p">,</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">b</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="VecLike (atomlib.atomcell.VecLike)" href="../types/#atomlib.types.VecLike">VecLike</a></span><span class="p">,</span>
 </span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">poly</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="numpy.typing.ArrayLike" href="https://numpy.org/doc/stable/reference/typing.html#numpy.typing.ArrayLike">ArrayLike</a></span><span class="p">,</span>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">center</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="atomlib.atomcell.VecLike" href="../types/#atomlib.types.VecLike">VecLike</a></span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">center</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="VecLike (atomlib.atomcell.VecLike)" href="../types/#atomlib.types.VecLike">VecLike</a></span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 </span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="o">*</span><span class="p">,</span>
 </span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="n">poisson</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></span> <span class="o">=</span> <span class="mf">0.25</span>
 </span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="atomlib.atoms.HasAtomsT">HasAtomsT</span></span>
@@ -2937,7 +2937,7 @@ normal times its area. Consequently, this function adds or remove atoms to effec
               <p>
                   <span class="doc-param-annotation">
                     <b>TYPE:</b>
-                      <code><a class="autorefs autorefs-internal" title="atomlib.atomcell.VecLike" href="../types/#atomlib.types.VecLike">VecLike</a></code>
+                      <code><a class="autorefs autorefs-internal" title="VecLike (atomlib.atomcell.VecLike)" href="../types/#atomlib.types.VecLike">VecLike</a></code>
                   </span>
               </p>
             </td>
@@ -2969,7 +2969,7 @@ normal times its area. Consequently, this function adds or remove atoms to effec
               <p>
                   <span class="doc-param-annotation">
                     <b>TYPE:</b>
-                      <code><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-internal" title="atomlib.atomcell.VecLike" href="../types/#atomlib.types.VecLike">VecLike</a>]</code>
+                      <code><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-internal" title="VecLike (atomlib.atomcell.VecLike)" href="../types/#atomlib.types.VecLike">VecLike</a>]</code>
                   </span>
                   <span class="doc-param-default">
                     <b>DEFAULT:</b>
@@ -3090,7 +3090,7 @@ normal times its area. Consequently, this function adds or remove atoms to effec
 <span class="normal"><a href="#__codelineno-0-439">439</a></span>
 <span class="normal"><a href="#__codelineno-0-440">440</a></span>
 <span class="normal"><a href="#__codelineno-0-441">441</a></span>
-<span class="normal"><a href="#__codelineno-0-442">442</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-379"><a id="__codelineno-0-379" name="__codelineno-0-379"></a><span class="k">def</span> <span class="nf">disloc_poly_z</span><span class="p">(</span><span class="n">atoms</span><span class="p">:</span> <span class="n">HasAtomsT</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="n">VecLike</span><span class="p">,</span> <span class="n">poly</span><span class="p">:</span> <span class="n">ArrayLike</span><span class="p">,</span> <span class="n">center</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">VecLike</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="normal"><a href="#__codelineno-0-442">442</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-379"><a id="__codelineno-0-379" name="__codelineno-0-379"></a><span class="k">def</span><span class="w"> </span><span class="nf">disloc_poly_z</span><span class="p">(</span><span class="n">atoms</span><span class="p">:</span> <span class="n">HasAtomsT</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="n">VecLike</span><span class="p">,</span> <span class="n">poly</span><span class="p">:</span> <span class="n">ArrayLike</span><span class="p">,</span> <span class="n">center</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">VecLike</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 </span><span id="__span-0-380"><a id="__codelineno-0-380" name="__codelineno-0-380"></a>                  <span class="o">*</span><span class="p">,</span> <span class="n">poisson</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.25</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HasAtomsT</span><span class="p">:</span>
 </span><span id="__span-0-381"><a id="__codelineno-0-381" name="__codelineno-0-381"></a><span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="__span-0-382"><a id="__codelineno-0-382" name="__codelineno-0-382"></a><span class="sd">    Add a dislocation loop defined by the polygon `poly`, assuming an elastically isotropic material.</span>
