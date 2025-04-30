@@ -25,7 +25,6 @@ import numpy
 from numpy.typing import ArrayLike, NDArray
 import polars
 import polars.dataframe.group_by
-import polars.datatypes
 import polars.interchange.dataframe
 import polars.testing
 import polars._typing
@@ -350,13 +349,14 @@ class HasAtoms(abc.ABC):
         by: t.Union[IntoExpr, t.Iterable[IntoExpr]],
         *more_by: IntoExpr,
         descending: t.Union[bool, t.Sequence[bool]] = False,
-        nulls_last: bool = False,
+        nulls_last: t.Union[bool, t.Sequence[bool]] = False,
+        maintain_order: bool = False,
     ) -> polars.DataFrame:
         """
         Sort the atoms in `self` by the given columns/expressions.
         """
         return self._get_frame().sort(
-            by, *more_by, descending=descending, nulls_last=nulls_last
+            by, *more_by, descending=descending, nulls_last=nulls_last, maintain_order=maintain_order
         )
 
     @_fwd_frame_map
@@ -428,21 +428,28 @@ class HasAtoms(abc.ABC):
     @t.overload
     def partition_by(
         self, by: t.Union[str, t.Sequence[str]], *more_by: str,
-        maintain_order: bool = True, include_key: bool = True, as_dict: t.Literal[False] = False
+        maintain_order: bool = True, include_key: bool = True, as_dict: t.Literal[False] = False,
     ) -> t.List[Self]:
         ...
 
     @t.overload
     def partition_by(
         self, by: t.Union[str, t.Sequence[str]], *more_by: str,
-        maintain_order: bool = True, include_key: bool = True, as_dict: t.Literal[True] = ...
-    ) -> t.Dict[t.Any, Self]:
+        maintain_order: bool = True, include_key: bool = True, as_dict: t.Literal[True],
+    ) -> t.Dict[t.Tuple[object, ...], Self]:
+        ...
+
+    @t.overload
+    def partition_by(
+        self, by: t.Union[str, t.Sequence[str]], *more_by: str,
+        maintain_order: bool = True, include_key: bool = True, as_dict: bool,
+    ) -> t.Union[t.List[Self], t.Dict[t.Tuple[object, ...], Self]]:
         ...
 
     def partition_by(
         self, by: t.Union[str, t.Sequence[str]], *more_by: str,
         maintain_order: bool = True, include_key: bool = True, as_dict: bool = False
-    ) -> t.Union[t.List[Self], t.Dict[t.Any, Self]]:
+    ) -> t.Union[t.List[Self], t.Dict[t.Tuple[object, ...], Self]]:
         """
         Group by the given columns and partition into separate dataframes.
 
@@ -935,8 +942,7 @@ class HasAtoms(abc.ABC):
             new_pts[selection] = pts
             pts = new_pts
 
-        # https://github.com/pola-rs/polars/issues/18369
-        pts = numpy.broadcast_to(pts, (len(self), 3)) if len(self) else []
+        pts = numpy.broadcast_to(pts, (len(self), 3))
         return self.with_columns(polars.Series('coords', pts, polars.Array(polars.Float64, 3)))
 
     def with_velocity(self, pts: t.Optional[ArrayLike] = None,

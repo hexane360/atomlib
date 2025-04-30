@@ -506,6 +506,7 @@ class CifReader:
                 break
 
     def parse_loop(self) -> CIFTable:
+        logging.debug("parse loop")
         line = self.line
         tags = []
         while True:
@@ -517,6 +518,8 @@ class CifReader:
                 tags.append(w[1:])
             else:
                 break
+
+        logging.debug(f"loop tags: {tags}")
 
         vals: t.Tuple[t.List[Value], ...] = tuple([] for _ in tags)
         i = 0
@@ -536,7 +539,7 @@ class CifReader:
         return CIFTable(dict(zip(tags, vals)))
 
     def parse_value(self) -> Value:
-        logging.debug("parse_value")
+        #logging.debug("parse_value")
         w = self.peek_word()
         assert w is not None
         if w in ('.', '?'):

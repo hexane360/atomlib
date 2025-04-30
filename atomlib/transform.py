@@ -552,13 +552,13 @@ class LinearTransform3D(AffineTransform3D):
         """
         theta = float(theta)
         v = numpy.array(numpy.broadcast_to(v, (3,)), dtype=numpy.float64)
-        l = numpy.linalg.norm(v)
-        if numpy.isclose(l, 0.):
+        mag = numpy.linalg.norm(v)
+        if numpy.isclose(mag, 0.):
             if numpy.isclose(theta, 0.):
                 # null rotation
                 return self
             raise ValueError("rotate() about the zero vector is undefined.")
-        v /= l
+        v /= mag
 
         # Rodrigues rotation formula
         w = numpy.array([[  0., -v[2],  v[1]],

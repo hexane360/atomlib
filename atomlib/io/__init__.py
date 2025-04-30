@@ -78,8 +78,10 @@ def read_cif(f: t.Union[FileOrPath, CIF, CIFDataBlock], block: t.Union[int, str,
     #print(f"sym_atoms:\n{s}")
     #print(f"atoms: {atoms!s}")
 
-    if len(sym_atoms) > 0:
+    if len(sym_atoms) > 1:
         atoms = Atoms.concat(sym_atoms)._wrap().deduplicate()
+    elif len(sym_atoms) == 1:
+        atoms = sym_atoms[0]._wrap()
 
     if (cell_size := cif.cell_size()) is not None:
         cell_size = to_vec3(cell_size)

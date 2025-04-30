@@ -385,7 +385,8 @@ class HasAtomCell(HasAtoms, HasCell, abc.ABC):
         by: t.Union[IntoExpr, t.Iterable[IntoExpr]],
         *more_by: IntoExpr,
         descending: t.Union[bool, t.Sequence[bool]] = False,
-        nulls_last: bool = False,
+        nulls_last: t.Union[bool, t.Sequence[bool]] = False,
+        maintain_order: bool = False,
     ) -> Self:
         """
         Sort the atoms in `self` by the given columns/expressions.
