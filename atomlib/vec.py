@@ -8,7 +8,7 @@ import numpy
 from numpy.typing import ArrayLike, NDArray
 
 # re-export to_vec3
-from .types import to_vec3, ScalarT
+from .types import to_vec3, ScalarT, NumT
 
 
 def dot(v1: ArrayLike, v2: ArrayLike, axis: int = -1, keepdims: bool = True) -> NDArray[numpy.floating]:
@@ -93,7 +93,7 @@ def polygon_solid_angle(poly: ArrayLike, pts: t.Optional[ArrayLike] = None,
     # normalize polygon points to unit sphere
     numpy.divide(poly, numpy.linalg.norm(poly, axis=-1, keepdims=True), out=poly)
 
-    def _dot(v1: NDArray[numpy.float64], v2: NDArray[numpy.float64]) -> NDArray[numpy.float64]:
+    def _dot(v1: NDArray[NumT], v2: NDArray[NumT]) -> NDArray[NumT]:
         return numpy.add.reduce(v1 * v2, axis=-1)
 
     # next and previous points in polygon

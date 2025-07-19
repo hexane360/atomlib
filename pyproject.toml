@@ -30,8 +30,8 @@ classifiers = [
 requires-python = ">=3.9"
 dependencies = [
     "click~=8.1",  # for cli
-    "numpy>=1.22,<2.3.0",  # tested on 2.0.0
-    "scipy~=1.8",
+    "numpy>=1.22,<2.6.0",  # tested on 2.3.1
+    "scipy~=1.8",          # tested on 1.16.0
     "polars~=1.31.0",
     "matplotlib~=3.5",
     "requests~=2.28",
