@@ -15,6 +15,7 @@ import polars
 
 
 T = t.TypeVar('T')
+T_contra = t.TypeVar('T_contra', contravariant=True)
 U = t.TypeVar('U')
 P = ParamSpec('P')
 U_co = t.TypeVar('U_co', covariant=True)
@@ -104,18 +105,18 @@ def localtime() -> datetime.datetime:
     return datetime.datetime.now(tz)
 
 
-class opt_classmethod(classmethod, t.Generic[T, P, U_co]):
+class opt_classmethod(classmethod, t.Generic[T_contra, P, U_co]):
     """
     Decorates a method that may be called either on an instance or the class.
     If called on the class, a default instance will be constructed before
     calling the wrapped function.
     """
 
-    __func__: t.Callable[Concatenate[T, P], U_co]  # type: ignore
+    __func__: t.Callable[Concatenate[T_contra, P], U_co]  # type: ignore
     def __init__(self, f: t.Callable[Concatenate[T, P], U_co]):
         super().__init__(f)  # type: ignore
 
-    def __get__(self, obj: t.Optional[T], ty: t.Optional[t.Type[T]] = None) -> t.Callable[P, U_co]:  # type: ignore
+    def __get__(self, obj: t.Optional[T_contra], ty: t.Optional[t.Type[T_contra]] = None) -> t.Callable[P, U_co]:  # type: ignore
         if obj is None:
             if ty is None:
                 raise RuntimeError()  # pragma: no cover

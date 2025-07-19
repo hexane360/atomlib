@@ -218,7 +218,7 @@ class HasCell:
         Orthogonal and affine transformations are applied to the affine matrix component,
         while skew and scaling is applied to the orthogonalization matrix/cell_size.
         """
-        transform = t.cast(AffineTransform3D, self.change_transform(transform, 'local', frame))
+        transform = self.change_transform(transform, 'local', frame)
         if not transform.to_linear().is_orthogonal():
             raise NotImplementedError()
         return self.with_cell(Cell(
