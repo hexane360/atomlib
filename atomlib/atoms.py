@@ -259,13 +259,14 @@ class HasAtoms(abc.ABC):
 
     @_fwd_frame(polars.DataFrame.describe)
     def describe(self, percentiles: t.Union[t.Sequence[float], float, None] = (0.25, 0.5, 0.75), *,
-                 interpolation: RollingInterpolationMethod = 'nearest') -> polars.DataFrame:
+                 interpolation: QuantileMethod = 'nearest') -> polars.DataFrame:
         """
         Return summary statistics for `self`. See [`DataFrame.describe`][polars.DataFrame.describe] for more information.
 
         Args:
           percentiles: List of percentiles/quantiles to include. Defaults to 25% (first quartile),
                        50% (median), and 75% (third quartile).
+          interpolation: Interpolation used when calculating percentiles. Defaults to 'nearest'.
 
         Returns:
           A dataframe containing summary statistics (mean, std. deviation, percentiles, etc.) for each column.
@@ -502,7 +503,8 @@ class HasAtoms(abc.ABC):
           A [`HasAtoms`][atomlib.atoms.HasAtoms] filtered to contain the
           specified properties (as well as required columns).
         """
-        props = self._get_frame().lazy().select(*exprs, **named_exprs).drop(_REQUIRED_COLUMNS, strict=False).collect(_eager=True)
+        props = self._get_frame().lazy().select(*exprs, **named_exprs) \
+            .drop(_REQUIRED_COLUMNS, strict=False).collect(optimizations=polars.QueryOptFlags._eager())
         return self.with_atoms(
             Atoms(self._get_frame().select(_REQUIRED_COLUMNS).hstack(props), _unchecked=False)
         )
@@ -1096,7 +1098,7 @@ IntoExprColumn: TypeAlias = polars._typing.IntoExprColumn
 IntoExpr: TypeAlias = polars._typing.IntoExpr
 UniqueKeepStrategy: TypeAlias = polars._typing.UniqueKeepStrategy
 FillNullStrategy: TypeAlias = polars._typing.FillNullStrategy
-RollingInterpolationMethod: TypeAlias = polars._typing.RollingInterpolationMethod
+QuantileMethod: TypeAlias = polars._typing.QuantileMethod
 ConcatMethod: TypeAlias = t.Literal['horizontal', 'vertical', 'diagonal', 'inner', 'align']
 
 IntoAtoms: TypeAlias = t.Union[t.Dict[str, t.Sequence[t.Any]], t.Sequence[t.Any], numpy.ndarray, polars.DataFrame, 'Atoms']

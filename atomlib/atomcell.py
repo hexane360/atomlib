@@ -24,7 +24,7 @@ from .types import VecLike, to_vec3
 from .transform import LinearTransform3D, AffineTransform3D, Transform3D, IntoTransform3D
 from .cell import CoordinateFrame, HasCell, Cell
 from .atoms import HasAtoms, Atoms, IntoAtoms, AtomSelection, AtomValues
-from .atoms import IntoExpr, IntoExprColumn, FillNullStrategy, RollingInterpolationMethod
+from .atoms import IntoExpr, IntoExprColumn, FillNullStrategy, QuantileMethod
 
 # pyright: reportImportCycles=false
 from .mixins import AtomCellIOMixin
@@ -314,7 +314,7 @@ class HasAtomCell(HasAtoms, HasCell, abc.ABC):
 
     @_fwd_atoms_get
     def describe(self, percentiles: t.Union[t.Sequence[float], float, None] = (0.25, 0.5, 0.75), *,
-                 interpolation: RollingInterpolationMethod = 'nearest',
+                 interpolation: QuantileMethod = 'nearest',
                  frame: t.Optional[CoordinateFrame] = None) -> polars.DataFrame:
         """
         Return summary statistics for `self`. See [`DataFrame.describe`][polars.DataFrame.describe] for more information.
@@ -322,6 +322,7 @@ class HasAtomCell(HasAtoms, HasCell, abc.ABC):
         Args:
           percentiles: List of percentiles/quantiles to include. Defaults to 25% (first quartile),
                        50% (median), and 75% (third quartile).
+          interpolation: Interpolation used when calculating percentiles. Defaults to 'nearest'.
 
         Returns:
           A dataframe containing summary statistics (mean, std. deviation, percentiles, etc.) for each column.
