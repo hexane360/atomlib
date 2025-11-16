@@ -181,7 +181,7 @@ class HasAtoms(abc.ABC):
     # abstract methods
 
     @abc.abstractmethod
-    def get_atoms(self, frame: t.Literal['local'] = 'local') -> Atoms:
+    def get_atoms(self, frame: t.Optional[t.Literal['local']] = 'local') -> Atoms:
         """
         Get atoms contained in `self`. This should be a low cost method.
 
@@ -195,7 +195,7 @@ class HasAtoms(abc.ABC):
         ...
 
     @abc.abstractmethod
-    def with_atoms(self, atoms: HasAtoms, frame: t.Literal['local'] = 'local') -> Self:
+    def with_atoms(self, atoms: HasAtoms, frame: t.Optional[t.Literal['local']] = 'local') -> Self:
         """
         Return a copy of self with the inner [`Atoms`][atomlib.atoms.Atoms] replaced.
 
@@ -276,9 +276,10 @@ class HasAtoms(abc.ABC):
     @_fwd_frame_map
     def with_columns(self,
                      *exprs: t.Union[IntoExpr, t.Iterable[IntoExpr]],
+                     frame: t.Optional[t.Literal['local']] = None,
                      **named_exprs: IntoExpr) -> polars.DataFrame:
         """Return a copy of `self` with the given columns added."""
-        return self._get_frame().with_columns(*exprs, **named_exprs)
+        return self.get_atoms(frame)._get_frame().with_columns(*exprs, **named_exprs)
 
     with_column = with_columns
 
@@ -309,13 +310,13 @@ class HasAtoms(abc.ABC):
         """Get the index of a column by name, raising [`polars.ColumnNotFoundError`][polars.exceptions.ColumnNotFoundError] if it's not present."""
         ...
 
-    @_fwd_frame(polars.DataFrame.group_by)
-    def group_by(self, *by: t.Union[IntoExpr, t.Iterable[IntoExpr]], maintain_order: bool = False,
+    def group_by(self, *by: t.Union[IntoExpr, t.Iterable[IntoExpr]],
+                 maintain_order: bool = False, frame: t.Optional[t.Literal['local']] = None,
                  **named_by: IntoExpr) -> polars.dataframe.group_by.GroupBy:
         """
         Start a group by operation. See [`DataFrame.group_by`][polars.DataFrame.group_by] for more information.
         """
-        ...
+        return self.get_atoms(frame)._get_frame().group_by(*by, maintain_order=maintain_order, **named_by)
 
     def pipe(self: HasAtomsT, function: t.Callable[Concatenate[HasAtomsT, P], T], *args: P.args, **kwargs: P.kwargs) -> T:
         """Apply `function` to `self` (in method-call syntax)."""
@@ -467,10 +468,10 @@ class HasAtoms(abc.ABC):
 
     # column-wise operations
 
-    @_fwd_frame(polars.DataFrame.select)
     def select(
         self,
         *exprs: t.Union[IntoExpr, t.Iterable[IntoExpr]],
+        frame: t.Optional[t.Literal['local']] = None,
         **named_exprs: IntoExpr,
     ) -> polars.DataFrame:
         """
@@ -480,7 +481,7 @@ class HasAtoms(abc.ABC):
 
         [polars.DataFrame]: https://docs.pola.rs/py-polars/html/reference/dataframe/index.html
         """
-        ...
+        return self.get_atoms(frame)._get_frame().select(*exprs, **named_exprs)
 
     # some helpers we add
 
@@ -494,6 +495,7 @@ class HasAtoms(abc.ABC):
     def select_props(
         self,
         *exprs: t.Union[IntoExpr, t.Iterable[IntoExpr]],
+        frame: t.Optional[t.Literal['local']] = None,
         **named_exprs: IntoExpr
     ) -> Self:
         """
@@ -503,7 +505,7 @@ class HasAtoms(abc.ABC):
           A [`HasAtoms`][atomlib.atoms.HasAtoms] filtered to contain the
           specified properties (as well as required columns).
         """
-        props = self._get_frame().lazy().select(*exprs, **named_exprs) \
+        props = self.get_atoms(frame)._get_frame().lazy().select(*exprs, **named_exprs) \
             .drop(_REQUIRED_COLUMNS, strict=False).collect(optimizations=polars.QueryOptFlags._eager())
         return self.with_atoms(
             Atoms(self._get_frame().select(_REQUIRED_COLUMNS).hstack(props), _unchecked=False)
@@ -512,6 +514,7 @@ class HasAtoms(abc.ABC):
     def try_select(
         self,
         *exprs: t.Union[IntoExpr, t.Iterable[IntoExpr]],
+        frame: t.Optional[t.Literal['local']] = None,
         **named_exprs: IntoExpr,
     ) -> t.Optional[polars.DataFrame]:
         """
@@ -523,7 +526,7 @@ class HasAtoms(abc.ABC):
         [polars.DataFrame]: https://docs.pola.rs/py-polars/html/reference/dataframe/index.html
         """
         try:
-            return self._get_frame().select(*exprs, **named_exprs)
+            return self.get_atoms(frame)._get_frame().select(*exprs, **named_exprs)
         except polars.ColumnNotFoundError:
             return None
 
@@ -1055,13 +1058,13 @@ class Atoms(AtomsIOMixin, HasAtoms):
         if len(missing):
             raise ValueError(f"'Atoms' missing column(s) {', '.join(map(repr, missing))}")
 
-    def get_atoms(self, frame: t.Literal['local'] = 'local') -> Atoms:
-        if frame != 'local':
+    def get_atoms(self, frame: t.Optional[t.Literal['local']] = 'local') -> Atoms:
+        if frame is not None and frame != 'local':
             raise ValueError(f"Atoms without a cell only support the 'local' coordinate frame, not '{frame}'.")
         return self
 
-    def with_atoms(self, atoms: HasAtoms, frame: t.Literal['local'] = 'local') -> Atoms:
-        if frame != 'local':
+    def with_atoms(self, atoms: HasAtoms, frame: t.Optional[t.Literal['local']] = 'local') -> Atoms:
+        if frame is not None and frame != 'local':
             raise ValueError(f"Atoms without a cell only support the 'local' coordinate frame, not '{frame}'.")
         return atoms.get_atoms()
 
