@@ -57,11 +57,12 @@ def read_cif(f: t.Union[FileOrPath, CIF, CIFDataBlock], block: t.Union[int, str,
                         'atom_site_U_iso_or_equiv', 'atom_site_B_iso_or_equiv',
                         rename=('x', 'y', 'z', 'symbol', 'label', 'frac_occupancy', 'wobble', 'wobble_B'),
                         required=(True, True, True, False, False, False, False, False))
+    # TODO: factor of 3 in U_iso?
     if 'wobble_B' in df.columns:
         if 'wobble' in df.columns:
             raise ValueError("CIF file specifies both 'atom_site_U_iso_or_equiv' and 'atom_site_B_iso_or_equiv'")
         df = df.rename({'wobble_B': 'wobble'}) \
-            .with_columns(polars.col('wobble') * (3./8. / numpy.pi**2))
+            .with_columns(polars.col('wobble') / (8. * numpy.pi**2))
     if 'symbol' not in df.columns:
         if 'label' not in df.columns:
             raise ValueError("Tag 'atom_site_type_symbol' or 'atom_site_label' missing from CIF file")

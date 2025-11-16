@@ -20,7 +20,7 @@ def ceo2_ortho_cell():
 
 @check_equals_binary_file('Al_from_template.mslice')
 def test_mslice_default_template(buf: StringIO):
-    cell = fcc('Al', 4.05, cell='conv').with_wobble(0.030)
+    cell = fcc('Al', 4.05, cell='conv').with_wobble(0.010)
     write_mslice(cell, buf, slice_thickness=2.025)
 
 

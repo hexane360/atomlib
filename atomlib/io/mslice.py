@@ -115,8 +115,8 @@ def read_mslice(path: MSliceFile) -> AtomCell:
             'wobble': polars.Float64, 'fracoccupancy': polars.Float64,
         })
         .rename({'atomicnumber': 'elem', 'fracoccupancy': 'frac_occupancy'}) \
-        # 1d sigma -> <u^2>
-        .with_columns((3. * polars.col('wobble')**2).alias('wobble'))
+        # 1d sigma -> U_iso
+        .with_columns((polars.col('wobble')**2).alias('wobble'))
     )
     cell = Cell.from_ortho(LinearTransform3D.scale(cell_size), n_cells, [True, True, False])
 
@@ -286,8 +286,8 @@ def write_mslice(cell: HasAtomCell, f: BinaryFileOrPath, template: t.Optional[MS
     for elem in db.findall("./object[@type='STRUCTUREATOM']", None):
         db.remove(elem)
 
-    # <u^2> -> 1d sigma
-    atoms = atoms.with_wobble((polars.col('wobble') / 3.).sqrt())
+    # U_iso -> 1d sigma
+    atoms = atoms.with_wobble(polars.col('wobble').sqrt())
     rows = atoms.select(('elem', 'coords', 'wobble', 'frac_occupancy')).rows()
     for (i, (elem, (x, y, z), wobble, frac_occupancy)) in enumerate(rows):
         e = _atom_elem(i, elem, x, y, z, wobble, frac_occupancy)
