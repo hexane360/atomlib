@@ -118,7 +118,7 @@ def contaminate(structure: HasAtomCellT,
     cell = Cell(
     affine=AffineTransform3D.translate(z=-bot_thick),
         ortho=cell.ortho, cell_size=[*cell.cell_size[:2], c_size + bot_thick + top_thick],
-        pbc=cell.pbc, n_cells=cell.n_cells,
+        pbc=cell.pbc & numpy.array([True, True, False]), n_cells=cell.n_cells,
     )
     return structure.with_cell(cell).with_atoms(atoms, frame='local')
 

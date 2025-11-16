@@ -296,7 +296,9 @@ class HasCell:
 
         min = to_vec3([x_min, y_min, z_min])
         max = to_vec3([x_max, y_max, z_max])
-        (min, max) = self.get_transform('cell_box', frame).transform([min, max])
+        (min, max) = self.get_transform('cell_box', frame).round_near_zero().transform([min, max])
+        if numpy.isnan(min).any() or numpy.isnan(max).any():
+            raise ValueError("NaNs in cropped bounds")
         new_box = BBox3D(min, max) & BBox3D.unit()
         cropped = (new_box.min > 0.) | (new_box.max < 1.)
 
