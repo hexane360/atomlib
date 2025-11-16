@@ -123,17 +123,21 @@ def read_mslice(path: MSliceFile) -> AtomCell:
     return AtomCell(atoms, cell, frame='cell_frac')
 
 
-def write_mslice(cell: HasAtomCell, f: BinaryFileOrPath, template: t.Optional[MSliceFile] = None, *,
-                 slice_thickness: t.Optional[float] = None,  # angstrom
-                 scan_points: t.Optional[ArrayLike] = None,
-                 scan_extent: t.Optional[ArrayLike] = None,
-                 noise_sigma: t.Optional[float] = None,  # angstrom
-                 conv_angle: t.Optional[float] = None,  # mrad
-                 energy: t.Optional[float] = None,  # keV
-                 defocus: t.Optional[float] = None,  # angstrom
-                 tilt: t.Optional[t.Tuple[float, float]] = None,  # (mrad, mrad)
-                 tds: t.Optional[bool] = None,
-                 n_cells: t.Optional[ArrayLike] = None):
+def write_mslice(
+    cell: HasAtomCell, f: BinaryFileOrPath, template: t.Optional[MSliceFile] = None, *,
+    slice_thickness: t.Optional[float] = None,  # angstrom
+    scan_points: t.Optional[ArrayLike] = None,
+    scan_extent: t.Optional[ArrayLike] = None,
+    noise_sigma: t.Optional[float] = None,  # angstrom
+    conv_angle: t.Optional[float] = None,  # mrad
+    energy: t.Optional[float] = None,  # keV
+    defocus: t.Optional[float] = None,  # angstrom
+    c3: t.Optional[float] = None,  # mm
+    source_size: t.Optional[float] = None,  # angstrom
+    tilt: t.Optional[t.Tuple[float, float]] = None,  # (mrad, mrad)
+    tds: t.Optional[bool] = None,
+    n_cells: t.Optional[ArrayLike] = None
+):
     """
     Write a structure to an mslice file. The structure must be orthogonal and aligned
     with the local coordinate system. It should be periodic in X and Y.
@@ -232,6 +236,8 @@ def write_mslice(cell: HasAtomCell, f: BinaryFileOrPath, template: t.Optional[MS
         set_attr(params, 'slicethickness', 'float', f"{float(slice_thickness):.8g}")
     if tds is not None:
         set_attr(params, 'includetds', 'bool', str(int(bool(tds))))
+    if source_size is not None:
+        set_attr(params, 'sourceSize', 'float', f"{float(source_size):.8g}")  # angstrom
     if conv_angle is not None:
         set_attr(microscope, 'aperture', 'float', f"{float(conv_angle):.8g}")
     if energy is not None:
@@ -250,6 +256,16 @@ def write_mslice(cell: HasAtomCell, f: BinaryFileOrPath, template: t.Optional[MS
                 break
         else:
             raise ValueError("Couldn't find defocus aberration to modify.")
+
+    if c3 is not None:
+        for aberration in aberrations:
+            obj = parse_xml_object(aberration)
+            if obj['n'] == 3 and obj['m'] == 0:
+                set_attr(aberration, 'cnma', 'float', f"{float(c3):.8g}")  # mm
+                set_attr(aberration, 'cnmb', 'float', "0.0")
+                break
+        else:
+            raise ValueError("Couldn't find spherical aberration to modify.")
 
     if scan_points is not None:
         (nx, ny) = numpy.broadcast_to(scan_points, 2,).astype(int)

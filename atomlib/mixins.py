@@ -150,17 +150,21 @@ class AtomCellIOMixin(_HasAtomCell, AtomsIOMixin):
     All concrete subclasses of [`HasAtomCell`][atomlib.atomcell.HasAtomCell] should also subclass this.
     """
 
-    def write_mslice(self, f: BinaryFileOrPath, template: t.Optional[MSliceFile] = None, *,
-                 slice_thickness: t.Optional[float] = None,  # angstrom
-                 scan_points: t.Optional[ArrayLike] = None,
-                 scan_extent: t.Optional[ArrayLike] = None,
-                 noise_sigma: t.Optional[float] = None,  # angstrom
-                 conv_angle: t.Optional[float] = None,  # mrad
-                 energy: t.Optional[float] = None,  # keV
-                 defocus: t.Optional[float] = None,  # angstrom
-                 tilt: t.Optional[t.Tuple[float, float]] = None,  # (mrad, mrad)
-                 tds: t.Optional[bool] = None,
-                 n_cells: t.Optional[ArrayLike] = None):
+    def write_mslice(self,
+        f: BinaryFileOrPath, template: t.Optional[MSliceFile] = None, *,
+        slice_thickness: t.Optional[float] = None,  # angstrom
+        scan_points: t.Optional[ArrayLike] = None,
+        scan_extent: t.Optional[ArrayLike] = None,
+        noise_sigma: t.Optional[float] = None,  # angstrom
+        conv_angle: t.Optional[float] = None,  # mrad
+        energy: t.Optional[float] = None,  # keV
+        defocus: t.Optional[float] = None,  # angstrom
+        c3: t.Optional[float] = None,  # mm
+        source_size: t.Optional[float] = None,  # angstrom
+        tilt: t.Optional[t.Tuple[float, float]] = None,  # (mrad, mrad)
+        tds: t.Optional[bool] = None,
+        n_cells: t.Optional[ArrayLike] = None
+    ):
         """
         Write a structure to an mslice file.
 
@@ -173,9 +177,9 @@ class AtomCellIOMixin(_HasAtomCell, AtomsIOMixin):
         """
         from .io import write_mslice
         return write_mslice(self, f, template, slice_thickness=slice_thickness,
-                            scan_points=scan_points, scan_extent=scan_extent,
-                            conv_angle=conv_angle, energy=energy, defocus=defocus,
-                            noise_sigma=noise_sigma, tilt=tilt, tds=tds, n_cells=n_cells)
+                            scan_points=scan_points, scan_extent=scan_extent, noise_sigma=noise_sigma,
+                            conv_angle=conv_angle, energy=energy, defocus=defocus, c3=c3,
+                            source_size=source_size, tilt=tilt, tds=tds, n_cells=n_cells)
 
     def write_qe(self, f: FileOrPath, pseudo: t.Optional[t.Mapping[str, str]] = None):
         """
